@@ -278,7 +278,7 @@ public class LexStructor extends Mainer
 				int relationship[] = thisItem.getIds();
 				if (relationship.length > 1) {
 					String sword = StringUtil.toString(relationship, ltm, "", ""); 
-					boolean debug = sword.equals("Яростно") ? true : false;// "Ярости" "Яростно"
+					boolean debug = sword.equals("СЏСЂРѕСЃС‚РЅРѕ") ? true : false;// "СЏСЂРѕСЃС‚Рё" "СЏСЂРѕСЃС‚РЅРѕ"
 					if (debug)
 						println(StringUtil.toString(relationship, ltm, "[", "]"));
 					ArrayList ngrams = createHypotheticalNgrams(relationship,all,min,max);					

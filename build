@@ -1,0 +1,3 @@
+mkdir bin
+javac -cp ".:./lib/javax.json-1.0.2.jar:./lib/jfxrt.jar:./lib/mail.jar:./lib/servlet.jar" -d ./bin -target 1.6 -source 1.6 -Xlint:deprecation $(find ./net/* | grep .java)
+

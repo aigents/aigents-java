@@ -70,10 +70,10 @@ class NewsComparator implements Comparator {
 			if (time != 0) {//by time
 				return time;
 			}
-			int src = ((String)a[2]).compareTo(b[2]);//by source
+			int src = ((String)a[2]).compareTo((String)b[2]);//by source
 			if (src != 0)
 				return src;
-			return ((String)a[3]).compareTo(b[3]);
+			return ((String)a[3]).compareTo((String)b[3]);
 		} catch (Exception e) {} //oops, relax
 		return 0;
 	}

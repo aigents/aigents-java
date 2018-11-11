@@ -12,7 +12,7 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-public class WebstructorMine extends HttpServlet {
+public class MineServlet extends HttpServlet {
 	static final long serialVersionUID = 20080503;
     public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException
