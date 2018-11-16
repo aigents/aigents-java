@@ -1,4 +1,5 @@
 #TODO pre-fill lib with jars
+rm Aigents.jar
 mkdir bin
 cp -r resources/* bin
 cp -r lib/* bin

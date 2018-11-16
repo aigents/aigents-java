@@ -60,7 +60,7 @@ class ReputationParameters {
 	boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
 	double defaultReputation = 0.1; // default reputation value for newcomer Agents in range 0.0-1.0;
 	double defaultRating = 0.5; // default rating value for “overall rating” and “per-dimension” ratings;
-	boolean minimumRatingAtZero = false; //whether minimum rating should be downed to zero, leaving highest at 1.0 (100%) 
+	boolean normalizedRatings = false; //whether ratings should be normlized with minimal rating brought to zero, leaving highest at 1.0 (100%) 
 	long periodMillis = Period.DAY; // period of reputation recalculation/update;
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
@@ -204,9 +204,17 @@ public class Reputationer {
 		this.name = name;
 	}
 
+	/**
+	 * Delete entire contents of the ratings database
+	 */
+	public void clear_ratings(){
+		cacher.clear(true);
+	}
+	
+	/**
+	 * Delete entire contents of the ranks database
+	 */
 	protected void clear_ranks(){
-		//TODO: clear ratings
-		//cacher.clear(true);
 		states.clear();
 	}
 	
@@ -300,7 +308,7 @@ public class Reputationer {
 				differential.count(rating[2], raterValue * ratingValue, 0);
 			}
 		}
-		differential.normalize(params.logarithmicRanks,params.minimumRatingAtZero);//differential ratings in range 0-100%
+		differential.normalize(params.logarithmicRanks,params.normalizedRatings);//differential ratings in range 0-100%
 		
 		//differential.blend(state,params.conservativity,0,0);
 		differential.blend(state,params.conservativity,0,(int)Math.round(params.defaultReputation * 100));
@@ -514,9 +522,13 @@ public class Reputationer {
 		int at = Integer.valueOf(Str.arg(args,"at","0")).intValue();
 		int size = Integer.valueOf(Str.arg(args,"size","0")).intValue();
 		
-		//Reputationer r = new Reputationer(m,network,path,true);//daily states
-		
-		if (Str.has(args,"clear")){
+		//TODO: make any commands handle-able 
+		if (Str.has(args,"clear","ratings")){
+			r.clear_ratings();
+			return true;
+		}
+		else
+		if (Str.has(args,"clear","ranks")){
 			r.clear_ranks();
 			return true;
 		}
@@ -533,8 +545,8 @@ public class Reputationer {
 				r.params.defaultReputation = Double.parseDouble(Str.arg(args, "default", String.valueOf(r.params.defaultRating)));
 			if (Str.has(args, "conservativity", null))
 				r.params.conservativity = Double.parseDouble(Str.arg(args, "conservativity", String.valueOf(r.params.defaultRating)));
-			if (Str.has(args,"zero"))
-				r.params.minimumRatingAtZero = true;
+			if (Str.has(args,"norm"))
+				r.params.normalizedRatings = true;
 			for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){ 
 				int rs = r.update(day, null);
 				env.debug("Updating "+Time.day(day,false)+" at "+new Date(System.currentTimeMillis()));
