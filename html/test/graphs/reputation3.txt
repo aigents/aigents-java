@@ -1,0 +1,68 @@
+bob rates ann 2
+ann rates bob 1
+jane rates ian 1
+ian rates john 2
+john rates jane 3
+phil rates sophia 1
+sophia rates scott 2
+scott rates patrick 3
+patrick rates phil 4
+ann rates ian 0.5
+ian rates ann 0.5
+john rates scott 2
+scott rates john 2
+mary rates bob 1
+mary rates john 2
+
+ann rates https://www.theguardian.com/ 1
+ian rates https://www.theguardian.com/ 1
+patrick rates https://www.theguardian.com/ 2
+ann rates https://www.facebook.com/ 3
+ian rates https://www.facebook.com/ 2
+mary rates https://www.facebook.com/ 0.9
+jane rates https://www.facebook.com/ 1.0
+ian rates http://www.nytimes.com/ 3
+jane rates http://www.nytimes.com/ 4
+mary rates https://steemit.com/ 0.5
+patrick rates https://steemit.com/ 4
+john rates https://www.rt.com/ 3
+
+scott funds https://steemit.com/ 3
+scott funds https://www.rt.com/ 2
+john funds https://www.facebook.com/ 4
+john funds http://www.nytimes.com/ 4
+jane funds https://www.theguardian.com/ 3
+
+https://www.theguardian.com/ is site
+https://steemit.com/ is site
+https://www.facebook.com/ is site
+http://www.nytimes.com/ is site
+https://www.rt.com/ is site
+
+https://www.theguardian.com/ image https://is3-ssl.mzstatic.com/image/thumb/Purple128/v4/16/a7/ca/16a7ca1e-db69-6fd2-20c5-143b6e6e75ad/AppIcon-1x_U007emarketing-85-220-0-6.png/246x0w.jpg
+https://steemit.com/ image https://aigents.com/ui/img/steemit_logo_new.png
+https://www.facebook.com/ image https://aigents.com/ui/img/fb_logo.png
+http://www.nytimes.com/ image http://www.nytimes.com/services/mobile/img/ios-newsreader-icon.png
+https://www.rt.com/ image http://polit.ru/media/photolib/2014/03/18/Russia_Today_Logo_1512017660.png
+
+ian is person
+john is person
+bob is person
+patrick is person
+scott is person
+phil is person
+jane is person
+mary is person
+ann is person
+sophia is person
+
+ian image https://aigents.com/ui/img/aigent32.png
+john image https://aigents.com/ui/img/aigent32.png
+bob image https://aigents.com/ui/img/aigent32.png
+patrick image https://aigents.com/ui/img/aigent32.png
+scott image https://aigents.com/ui/img/aigent32.png
+phil image https://aigents.com/ui/img/aigent32.png
+jane image https://aigents.com/ui/img/aigents_jane_64.png
+mary image https://aigents.com/ui/img/aigents_mary_64.png
+ann image https://aigents.com/ui/img/aigents_jane_64.png
+sophia image https://aigents.com/ui/img/aigents_mary_64.png

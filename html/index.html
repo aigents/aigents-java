@@ -1,0 +1,756 @@
+<html>
+<head>
+
+<title>Aigents</title>
+<meta name="norton-safeweb-site-verification" content="zxl582egesdh2aytioxxw1a72tmvyiuu2h-vlrfl0wuirir6zunf6428af8jacsttw0hyr5fvmzgsa69i-q5fq2aloex-nw6ibajuhla5ii307fa1fjj105vgz1f9pkn" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <link rel="icon" href="https://aigents.com/ui/img/aigent128.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="/ui/img/aigent128.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/ui/jquery-ui-1.11.4.custom/jquery-ui.css">
+  <script src="/ui/jquery-1.11.1.js"></script>
+  <script src="/ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+  <link rel="stylesheet" type="text/css" href="/ui/aigents-wui.css?1"></link>
+  <script type="text/javascript" src="/ui/aigents-settings.js?210"></script>
+  <script type="text/javascript" src="/ui/aigents-al.js?210"></script>
+  <script type="text/javascript" src="/ui/aigents-speech.js?0"></script>
+  <script type="text/javascript" src="/ui/aigents-locales.js?210"></script>
+  <script type="text/javascript" src="/ui/aigents-graph.js?210"></script>
+  <script type="text/javascript" src="/ui/aigents-gui.js?210"></script>
+  <script type="text/javascript" src="/ui/aigents-map.js?210"></script>
+  <script type="text/javascript" src="/ui/aigents-wui.js?210"></script>
+  <!-- Google+ -->
+  <script src="https://apis.google.com/js/client:platform.js?onload=startApp" async defer></script>
+  <meta name="google-signin-client_id" content="638660736503-ip2avfmusv38va2jn8fub8cf4c4oobm7.apps.googleusercontent.com"></meta>
+
+  <meta property="og:title" content="Aigents for everyone"/>
+  <meta property="og:description" content="Aigents - helping to monitor, extract, evaluate and share information on the Internet, adjusting to your needs and learning the preferences."/>
+  <meta property="og:image" content="http://aigents.com/img/aigents-find-share.jpg"/>
+  <meta property="og:url" content="http://aigents.com"/>
+  <meta property="fb:app_id" content="763733953664689"/>
+
+</head>
+
+<style>
+
+body {background:#eaf1fc !important;margin:0 !important;}
+.menu-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.menu-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;white-space: nowrap;}
+.menu-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;white-space: nowrap;}
+.menu-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;white-space: nowrap;}
+.menu-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.menu-button {display:inline;}
+.input-bar {display:inline-block;height:36;width:100%;background:#2191c0;}
+.input-text {display:inline;width:100%;margin-top:3px;}
+.input-button {display:inline;float:right;height:32px;width:32px;}
+#pane_areas {float:left;width:15%;}
+#pane_areas .list {overflow:auto;}
+#pane_areas .list ol {padding:0px;margin:0px;}
+#pane_areas .list ol li {white-space:normal;margin:3px;overflow:hidden;white-space:nowrap;}
+#pane_aigents {width:85%;}
+#pane_aigents .list ol {padding:0px;margin:0px;}
+#pane_aigents .list ol li {white-space:normal;margin:3px;}
+#pane_aigents .list ol li iframe {float:left;margin:2px;}
+#pane_aigents .list ol li img {float:left;margin:2px;}
+#pane_things .list ol {padding:0px;margin:0px;}
+
+.map-label {text-anchor:middle;font-size:18;}
+.map-text-middle {text-anchor:middle;}
+.map-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.map-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;}
+.map-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.map-button {display:inline;}
+
+</style>
+
+
+<body onload="init()">
+
+<!-- Google+ -->
+<script type="text/javascript">
+var auth2 = {};
+</script>
+
+<div id="vk_api_transport"></div>
+<script type="text/javascript">
+  window.vkAsyncInit = function() { VK.init({ apiId: 5212732 }) };
+  setTimeout(function() {
+    var el = document.createElement("script");
+    el.type = "text/javascript";
+    el.src = "//vk.com/js/api/openapi.js";
+    el.async = true;
+    document.getElementById("vk_api_transport").appendChild(el);
+  }, 0);
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-52778942-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+<script>
+//TODO: move this all to better place, see agent_speech.js
+	
+function eventFire(el, etype){
+	  if (el.fireEvent) {
+	    el.fireEvent('on' + etype);
+	  } else {
+	    var evObj = document.createEvent('Events');
+	    evObj.initEvent(etype, true, false);
+	    el.dispatchEvent(evObj);
+	  }
+}
+
+function microphone_input(input){
+    input = input.toLowerCase();
+    console.log(input);
+    var elid = null;
+    if (input == 'asians' || input == 'agents' || input == 'regions') elid = 'menu_aigents'; else
+    if (input == 'topix'  || input == 'topics') elid = 'menu_things'; else
+    if (input == 'sites'  || input == 'thanks') elid = 'menu_sites'; else
+    if (input == 'news'   || input == 'new') elid = 'menu_news'; else
+    if (input == 'friends' || input == 'france') elid = 'menu_peers'; else
+    if (input == 'graph' || input == 'links' || input == 'lynx') elid = 'menu_graph'; else
+    if (input.startsWith('ch') && input.length <= 5 && input != 'china') elid = 'menu_talks';
+    if (elid != null)
+    	eventFire(document.getElementById(elid), 'click');
+    else {
+    	if (document.getElementById('pane_aigents').style.display != 'none') elid = 'aigents_input'; else
+        if (document.getElementById('pane_things').style.display != 'none') elid = 'things_input'; else
+        if (document.getElementById('pane_sites').style.display != 'none') elid = 'sites_input'; else
+        if (document.getElementById('pane_news').style.display != 'none') elid = 'news_input'; else
+        if (document.getElementById('pane_peers').style.display != 'none') elid = 'peers_input'; else
+        if (document.getElementById('pane_graph').style.display != 'none') elid = 'graph_input'; else
+        if (document.getElementById('pane_talks').style.display != 'none') elid = 'talks_input';
+    	if (elid != null) {
+    		textInput = document.getElementById(elid);
+	    	if (input == 'clear')
+    			textInput.value = '';
+    		else 
+    			textInput.value = input;
+	    	if ( elid == 'talks_input') talks_say();
+	    	eventFire(textInput, 'input');
+    	}
+        console.log('Unknown voice heard');
+    }
+}
+
+
+</script>
+
+
+<img id="loading" src="/img/compreact_logo.gif" style="z-index:300;position:absolute;top:50%;left:50%;margin:-38px;" title="Aigents are processing your request...">
+
+<!-- TODO: display:inline-block; icon and text so don't break on move -->
+<div class="menu-bar">
+  	<div id="menu_aigents" class="ui-widget menu-item" title="Information on Aigents"><img src="/ui/img/aigent_btn.png" width="16" height="16"/>Aigents</div>
+  	<div id="menu_things" class="ui-widget menu-item" title="Topics of your interest"><img src="/ui/img/things.png" width="16" height="16"/><span id="things_label">Topics</span></div>
+  	<div id="menu_sites" class="ui-widget menu-item" title="Sites of your interest"><img src="/ui/img/sites.png" width="16" height="16"/><span id="sites_label">Sites</span></div>
+  	<div id="menu_news" class="ui-widget menu-item" title="Your news feed"><img src="/ui/img/news.png" width="16" height="16"/><span id="news_label">News</span></div>
+  	<div id="menu_peers" class="ui-widget menu-item" title="Your friends and colleagues"><img src="/ui/img/folks_gb.png" width="16" height="16"/><span id="peers_label">Friends</span></div>
+  	<div id="menu_graph" class="ui-widget menu-item" title="Your social environment"><img src="/ui/img/graph_gb.png" width="16" height="16"/><span id="graph_label">Graph</span></div>
+  	<div id="menu_talks" class="ui-widget menu-item" title="Log of interaction with your Aigent"><img src="/ui/img/talks.png" width="16" height="16"/><span id="talks_label">Chat</span></div>
+	<!-- TODO: float right -->
+	<div class="menu-toolbar">
+  		<div id='microphone' style="display:none;width:24;height:24;" class="ui-icon-mic" title="Click to speak aloud" onclick="hear_voice(function(i){microphone_input(i);},function(i){console.log(i);},'en-US',true);"></div>
+		<div id="user" class="user ui-widget menu-button"><u style="cursor:pointer" onclick="ask(null,'login')">Login & Registration</u></div>
+		<div id="aigents" class="menu-button">
+			<img id="aigents_logo" src="/ui/img/aigent32.png" title="Login to Aigents by email and setup personal settings via menu" style="cursor:pointer" width="32" height="32"/>
+		</div>
+		<div id="google" class="menu-button">
+			<img id="google_logo" src="/ui/img/g+46.png" title="Login/logout via Google+ and get personal report via menu" style="cursor:pointer" width="34" height="34"/>
+		</div>
+		<div id="facebook" class="menu-button">
+			<img id="facebook_logo" src="/ui/img/fb_logo.png" title="Login/logout via Facebook and get personal report via menu" style="cursor:pointer" width="32" height="32"/>
+		</div>
+		<div id="vkontakte" class="menu-button">
+			<img id="vkontakte_logo" src="/ui/img/vk_logo.png" title="Login/logout via VKontakte and get personal report via menu" style="cursor:pointer" width="34" height="34"/>
+		</div>
+		<!--
+		<div id="twitter">
+			<img id="twitter_logo" src="/ui/img/twitter_logo.png" title="Login via Twitter" style="cursor:pointer" width="32" height="32"/>
+		</div>
+		-->
+	</div>
+</div>
+<!-- menu-bar -->
+
+<div id="count" class="count ui-widget ui-widget-content ui-corner-all">0</div>
+
+  	<div id="pane_areas" class="pane ui-widget" style="display:inline-block;">
+		<div id="areas_bar" class="input-bar">
+		  <input type="search" id="areas_input" placeholder="Search areas" class="text input-text ui-widget-content ui-corner-all" title="Search areas of interest">
+		</div>				
+  		<div class="list"><ol id="areas_list" title="Toggle checkbox to filter by the area">
+  			<li class="ui-widget-content"><input type="checkbox"/>Project</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Products</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Technology</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>News</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Help</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Contacts</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Проект</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Продукты</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Технология</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Новости</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Помощь</li>
+  			<li class="ui-widget-content"><input type="checkbox"/>Контакты</li>
+  		</ol></div>		
+	</div>
+
+  	<div id="pane_aigents" class="pane ui-widget" style="display:inline-block;">
+		<div id="aigents_bar" class="input-bar">
+		  <input type="search" id="aigents_input" placeholder="Search Aigents" class="text input-text ui-widget-content ui-corner-all" title="Search Aigents content by text">
+		  <!-- <button id="search_aigents" class="input-button">Search Aigents</button> -->
+		</div>				
+  		<div class="list"><ol id="aigents_list">
+		<!-- Project -->
+  			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/ji836ZIzFE0" frameborder="0" allowfullscreen></iframe>
+  				<b>Mission:</b> Give each Internet user an individual trainable software agent for intelligent search of information on the Web and sharing it with other users privately or within closed or open communities. Let people find information that they need precisely and timely, without irrelevant ads burden and repetitive searches. 
+  				(project)
+			</li>
+ 		<!-- Проект -->
+  			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/DrA6vTdu6CU" frameborder="0" allowfullscreen></iframe>
+  				<b>Цель: </b>Дать каждому пользователю интернета индивидуального обучаемого программного агента для автоматического интеллектуального поиска информации в сети и обмена ей с другими пользователями – индивидуально или в свободно создаваемых сообществах. Помочь людям вовремя находить информацию, нужную именно им.
+  				(проект)
+			</li>
+		<!-- Help -->
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/8r_vmlkFKfI" frameborder="0" allowfullscreen></iframe>	 
+  				<b>Get news out of air: </b>Create, manage and get your private and precise news feeds here or via RSS-channel - automatically.
+  				(help)
+  			</li>
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/ORwodfAH2n0" frameborder="0" allowfullscreen></iframe>	 
+  				<b>Know your friends: </b>Discover world of your friends, opinion leaders and followers around yourself with personal social analytics of online activity in social networks.
+  				(help)
+  			</li>
+            <!--  			
+   			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/whe1S7SRyKQ" frameborder="0" allowfullscreen></iframe>	 
+  				<b>Quick Start: </b>Register with social network, get insights on your own personality and start getting instant news updates on your areas of interest automatically.
+  				(help)
+  			</li>
+  			-->
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/G-2HmMwu0w0" frameborder="0" allowfullscreen></iframe>
+  				<b>Social Networks: </b>Register and login with social networks including <a href="https://www.facebook.com/aigents" target="_blank">Facebook</a>, <a href="https://plus.google.com/+Aigents" target="_blank">Google+</a> and <a href="https://vk.com/aigents" target="_blank">VKontakte</a>, get personal reports on your social environment activity in these networks and block-chain-based social networks such as <a href="https://steemit.com/@akolonin" target="_blank">Steemit</a> and <a href="https://golos.io/@akolonin" target="_blank">Golos</a>.  
+  				(help)
+  			</li>
+  			<li class="ui-widget-content">
+				<br>
+   				<b>Manual: </b>See old textual <a href="/en/help.html" target="_blank">help reference</a> and <a href="/en/quickstart.html" target="_blank">quick start step-by-step instructions</a> for "alpha" versions.
+  				(help)
+  			</li>
+		<!-- Помощь -->
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/OXvlpMKFKb4" frameborder="0" allowfullscreen></iframe>	 
+  				<b>Получай новости из воздуха: </b>Создавай и получай личные ленты нужных новостой здесь или по RSS-каналу - автоматически.
+  				(помощь)
+  			</li>
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/xmGxt1e4JnA" frameborder="0" allowfullscreen></iframe>	 
+  				<b>Узнай своих друзей: </b>Открой мир друзей авторитетов, лидеров и последователей вокруг себя с персональным анализом социальных графов по активности в социальных сетях.
+  				(помощь)
+  			</li>
+  			<!--
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/whxzNZJPik8" frameborder="0" allowfullscreen></iframe>	 
+  				<b>Быстрое начало: </b>Зарегистрируйтесь через социальную сеть или по email, откройте новое про себя и своих друзей и начните получать новости о том, что для вас действительно важно - автоматически.
+  				(помощь)
+  			</li>
+  			-->
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/zT-dgmLPivw" frameborder="0" allowfullscreen></iframe>
+  				<b>Социальные сети: </b>Зарегистрировавшись в социальных сетях <a href="https://www.facebook.com/aigents" target="_blank">Facebook</a>, <a href="https://plus.google.com/+Aigents" target="_blank">Google+</a> и <a href="https://vk.com/aigents" target="_blank">ВКонтакте</a>, получите персональные отчеты о своей собственной активности и социальном окружении в этих сетях, а также - сетях <a href="https://steemit.com/@akolonin" target="_blank">Steemit</a> и <a href="https://golos.io/@akolonin" target="_blank">Голос</a>, основанных на технологии block-chain.  
+  				(помощь)
+  			</li>
+  			<li class="ui-widget-content">
+				<br>
+   				<b>Документация: </b>Смотрите старую <a href="/ru/help.html" target="_blank">справочную информацию</a> и <a href="/ru/quickstart.html" target="_blank">пошаговые инструкции по "быстрому старту"</a> для "alpha"-версии.
+  				(помощь)
+  			</li>
+		<!-- Products -->
+  			<li class="ui-widget-content">
+  				<img src="/img/aigents_platforms.jpg"  width="250" height="179" />
+				<b>Products: </b>Any cell of Aigents network can run on variety of software platforms (Windows, Android, iOS, Mac/OSX, Web, etc.). Each cell can connect to human users and peer agents over a variety of communication channels (http, telnet, email, text/sms, etc.). All platforms are covered by the same <a href="/en/license.html"  target="_blank">license</a>. 
+				(products)
+			</li>	
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/KKeOd4CpnEM" frameborder="0" allowfullscreen></iframe>
+				<b>Web: </b>Start using "beta" version for Web online right now at <a href="https://aigents.com">https://aigents.com</a> 
+				(products)
+			</li>	
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/eUU1DHEqx8A" frameborder="0" allowfullscreen></iframe>
+				<b>Android: </b>Get "beta" version for Android at <a href="https://play.google.com/store/apps/details?id=net.webstructor.android.free" target="_blank"><b>Google play</b></a>)<a href="https://play.google.com/store/apps/details?id=net.webstructor.android.free"  target="_blank"><img title="Google play" src="../img/Google_Play_Store_48.png" /></a>
+				(products)
+			</li>
+			<!--
+  			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/P1RZPUpkBDk" frameborder="0" allowfullscreen></iframe>
+				<b>Mac: </b>Download "alpha" version for Mac/OSX as <a href="../download/1.0.9/Aigents.dmg">dmg</a> or <a href="../download/1.0.9/AigentsApp.zip">zip</a> <i>and then <a href="http://www.tech-recipes.com/rx/45404/mac-downloaded-app-is-damaged-and-cant-be-opened-error-solved/" target="_blank">enable any application source</a> in "System Preferences"</i>.
+				(products)
+			</li>	
+  			<li class="ui-widget-content">
+				<b>Windows: </b>Download "alpha" version for Windows desktops and notebooks as <a href="../download/1.0.9/Aigents.jar">jar file</a> or <a href="http://www.amazon.com/Aigents-PC-Free-Trial-Download/dp/B00N1Y8J3W/" target="_blank">executable <img title="Amazon" width=96 height=33 src="/img/amazon-apps-store-us-white.png"/></a>
+				(products)
+			</li>	
+  			<li class="ui-widget-content">
+				<b>Linux: </b>Download "alpha" version for Linux as <a href="../download/1.1.4/Aigents.jar">jar</a> file.
+				(products)
+			</li>
+			-->	
+ 		<!-- Продукты -->
+  			<li class="ui-widget-content">
+  				<img src="/img/aigents_platforms.jpg"  width="250" height="179" />
+				<b>Продукты: </b>Каждая программная ячейка сети Aigents может работать на разных системах (Windows, Android, iOS, Mac/OSX, Web, итд.). Ячейка может соединяться с пользователем-человеком или другой ячейкой по разным каналам связи (http, telnet, email, text/sms, etc.). Все программы работают по одной <a href="/ru/license.html" target="_blank">лицензии</a>.
+				(продукты)
+			</li>	
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/Z3TVmmDOe_A" frameborder="0" allowfullscreen></iframe>
+				<b>Web: </b>Начните использовать "beta"-версию для Web в браузере прямо сейчас: <a href="https://aigents.com">https://aigents.com</a> 
+				(продукты)
+			</li>	
+  			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/UHHofuCnDlg" frameborder="0" allowfullscreen></iframe>
+				<b>Android: </b>Загрузите "beta"-версию для Android с <a href="https://play.google.com/store/apps/details?id=net.webstructor.android.free" target="_blank"><b>Google play</b></a>)<a href="https://play.google.com/store/apps/details?id=net.webstructor.android.free" target="_blank"><img title="Google play" src="../img/Google_Play_Store_48.png" /></a>
+				(продукты)
+			</li>
+			<!-- 
+  			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/R4rVWqw5tmE" frameborder="0" allowfullscreen></iframe>
+				<b>Mac: </b>Скачайте "alpha"-версию для Mac/OSX как файл <a href="../download/1.0.9/Aigents.dmg">dmg</a> или <a href="../download/1.0.9/AigentsApp.zip">zip</a> <i>и внесите настройки в систему для запуска - <a href="http://www.tech-recipes.com/rx/45404/mac-downloaded-app-is-damaged-and-cant-be-opened-error-solved/" target="_blank">разрешите запуск из любого источника (enable any application source)</a> в "System Preferences"</i>.
+				(продукты)
+			</li>	
+  			<li class="ui-widget-content">
+				<b>Windows: </b>Скачайте "alpha"-версию для Windows - десктопов и ноутбуков как <a href="../download/1.0.9/Aigents.jar">файл jar</a> или <a href="http://www.amazon.com/Aigents-PC-Free-Trial-Download/dp/B00N1Y8J3W/" target="_blank">исполняемый файл<img title="Amazon" width=96 height=33 src="/img/amazon-apps-store-us-white.png"/></a>
+				(продукты)
+			</li>	
+  			<li class="ui-widget-content">
+				<b>Linux: </b>Скачайте "alpha"-версию для Linux - <a href="../download/1.1.4/Aigents.jar">файл jar</a>.
+				(продукты)
+			</li>
+			-->	
+		<!-- Technology -->
+			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/nOJ2jjLM_Tk" frameborder="0" allowfullscreen></iframe>
+				<b>Architectue:</b> Personal Intelligent Internet Agent with Social Awareness for online operations compliant with privacy.
+				Complete <a href="https://aigents.com/papers/2017/Aigents-Overview-2017-en.pdf" target="_blank">presentation</a> about the project.
+				(technology)
+			</li>
+			<!--
+			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/QCvvQvHG_f4" frameborder="0" allowfullscreen></iframe>
+				<b>Technology:</b> Moving the search and distribution of information from centralized servers to a distributed peer-to-peer network based on personal devices and "cloud" servers owned by communities and businesses. Enabling to "train" software agents operating in the network collectively, to get relevant and precise information just in time.
+				(technology)
+			</li>
+			-->
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/4Nwb_ReB0Z4" frameborder="0" allowfullscreen></iframe>
+				<b>Cognitive model: </b>A. Kolonin, "Computable cognitive model based on social evidence and restricted by resources", 2015 SIBIRCON/SibMedInfo Conference Proceedings, ISBN 987-1-4673-9109-2, pp.41-45: <a href="http://aigents.com/papers/2015/Kolonin-Computable-cognitive-model-SIBIRCON-2015-slides.pdf" target="_blank">presentation</a> and <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7361869" target="_blank">paper</a>.
+				(technology)
+			</li>
+			</li>
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/pjlhBld8zMc" frameborder="0" allowfullscreen></iframe>
+				<b>Text processing: </b>A. Kolonin, "Automatic text classification and property extraction", 2015 SIBIRCON/SibMedInfo Conference Proceedings, ISBN 987-1-4673-9109-2, pp.27-31: <a href="http://aigents.com/papers/2015/Kolonin-Automatic-text-classification-and-property-extraction-SIBIRCON-2015-slides.pdf" target="_blank">presentation</a> and <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7361868" target="_blank">paper</a>.
+				(technology)
+			</li>
+			<!--
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/qNrYpPJ8QmQ" frameborder="0" allowfullscreen></iframe>
+				<b>Agent language: </b>A. Kolonin, "Agent Language for communication between humans and computer agents", Knowledge-Ontology-Theories (KONT-2015) Conference Proceedings, Novosibirsk, Russia, 2015, Volume 1, pp.131-139: <a href="http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin-slides.pdf" target="_blank">presentation</a> and <a href="http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf" target="_blank">paper</a>.
+				(technology)
+			</li>
+			</li>
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/Ni1M5nJkRrk" frameborder="0" allowfullscreen></iframe>
+				<b>Internet of Things: </b>A. Kolonin, Creating software agents for "Internet of Things", Artificial Intelligence and Natural Language (AINL-2014) Conference, Moscow, 2014
+				(technology)
+			</li>
+			-->
+			<li class="ui-widget-content">
+			    <br>
+				<b>References: </b>Complete list of <a href="http://aigents.com/en/references.html" target="_blank">papers, presentations and videos</a> on Aigents tecnhology.
+				(technology)
+			</li>
+		<!-- Технология -->
+			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/nOJ2jjLM_Tk" frameborder="0" allowfullscreen></iframe>
+				<b>Решаемые задачи:</b> Персональная социальная аналитика и оценка актуальности новостей - посредством личного интеллектуального агента в Интернете, понимающего социальное окружение и интересы пользователя в Сети с обеспечением приватности.
+				Подробная <a href="https://aigents.com/papers/2017/Aigents-Overview-2017-en.pdf" target="_blank">презентация</a> о самом проекте на английском.
+				(технология)
+			</li>
+			<!--
+			<li class="ui-widget-content">
+  				<iframe width="280" height="158" src="https://www.youtube.com/embed/28e-1SujGuQ" frameborder="0" allowfullscreen></iframe>
+				<b>Технология: </b>Выносим поиск и распространение информации с централизованных серверов в вычислительную сеть на ресурсах пользователя, сообществ и компаний. Обеспечиваем коллективное “обучение” размещенных в сети программных агентов, доставляющих точную и своевременную информацию.
+				(технология)
+			</li>
+			-->
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/wx9N_16lXvs" frameborder="0" allowfullscreen></iframe>
+				<b>Когнитивная модель: </b>A. Kolonin, "Computable cognitive model based on social evidence and restricted by resources", 2015 SIBIRCON/SibMedInfo Conference Proceedings, ISBN 987-1-4673-9109-2, pp.41-45: <a href="http://aigents.com/papers/2015/Kolonin-Computable-cognitive-model-SIBIRCON-2015-slides.pdf" target="_blank">презентация</a> и <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7361869" target="_blank">статья</a>.
+				(технология)
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/cR8wogtWpNQ" frameborder="0" allowfullscreen></iframe>
+				<b>Обработка текстов: </b>A. Kolonin, "Automatic text classification and property extraction", 2015 SIBIRCON/SibMedInfo Conference Proceedings, ISBN 987-1-4673-9109-2, pp.27-31: <a href="http://aigents.com/papers/2015/Kolonin-Automatic-text-classification-and-property-extraction-SIBIRCON-2015-slides.pdf" target="_blank">презентация</a> и <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7361868" target="_blank">статья</a>.
+				(технология)
+			</li>
+			<!--
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/6Gm6Faa88Q4" frameborder="0" allowfullscreen></iframe>
+				<b>"Язык Агентов": </b>A. Kolonin, "Agent Language for communication between humans and computer agents", Knowledge-Ontology-Theories (KONT-2015) Conference Proceedings, Novosibirsk, Russia, 2015, Volume 1, pp.131-139: <a href="http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin-slides.pdf" target="_blank">презентация</a> и <a href="http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf" target="_blank">статья</a>.
+				(технология)
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/0bW_h0_oYQs" frameborder="0" allowfullscreen></iframe>
+				<b>Интернет вещей: </b>А. Колонин, О создании программных агентов для "Интернета Вещей", Конференция Artificial Intelligence and Natural Language (AINL-2014), Москва, 2014
+				(технология)
+			</li>
+			-->
+			<li class="ui-widget-content">
+				<br>
+				<b>Публикации: </b>Список материалов - <a href="http://aigents.com/en/references.html" target="_blank">статей, презентаций и видео</a> по технологии Aigents.
+				(технология)
+			</li>
+		<!-- News -->
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/NfS3LTcFm1k" frameborder="0" allowfullscreen></iframe>
+				<b>SSDE-2017: </b>A.Kolonin, "Assessment of personal environments in social networks", Data Science and Engineering (SSDSE), 2017 Siberian Symposium Proceedings,
+				INSPEC Accession Number: 17262023, DOI: 10.1109/SSDSE.2017.8071965, Publisher: IEEE 
+				- <a href="http://aigents.com/papers/2017/Aigents-News-Analytics-2017-en.pdf" target="_blank">presentation</a> and 
+				<a href="http://ieeexplore.ieee.org/document/8071965/" target="_blank">paper</a>.
+				(news)
+			</li>
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/PP-5CH6_KVQ" frameborder="0" allowfullscreen></iframe>
+				<b>BGRS-2016: </b>A.Kolonin, "Studying human social environment and state with social network data", Cognitive Sciences, Genomics and Bioinformatics (CSGB) - Symposium Proceedings, 2016: <a href="http://aigents.com/papers/2016/Social-Environment-State-Kolonin-2016-slides.pdf" target="_blank">presentation</a> and <a href="http://ieeexplore.ieee.org/document/7587680/" target="_blank">paper</a>
+				(news)
+			</li>
+			<li class="ui-widget-content">
+				<a href="http://www.sciencedirect.com/science/article/pii/S1877050916317239" target="_blank"><img src="../papers/2016/BICA-2016-poster.png" alt="BICA-2016 poster" width="226" height="164" ></img></a>	
+				<b>BICA-2016: </b>A.Kolonin, E.Vityaev, Y.Orlov,<br>"Cognitive Architecture of Collective Intelligence based on Social Evidence", 7th Annual International Conference on Biologically Inspired Cognitive Architectures, BICA 2016, July 2016, NY, USA: <a href="http://www.sciencedirect.com/science/article/pii/S1877050916317239" target="_blank">paper</a> 
+				(news)
+			</li>
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/6-DBcBbO2JU" frameborder="0" allowfullscreen></iframe>
+				<b>SIIS-2016: </b>Targeted pro-active information search with adaptive intelligent Internet agents - Anton Kolonin talk on SIIS-2016 conference: <a href="http://aigents.com/papers/2016/Aigents-Adaptive-Learning-Kolonin-2016-slides-en.pdf"target="_blank">presentation</a>
+				(news)
+			</li>
+		<!-- Новости -->
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/2ti3Gquev6g" frameborder="0" allowfullscreen></iframe>
+				<b>SSDE-2017: </b>A.Kolonin, "Assessment of personal environments in social networks", Data Science and Engineering (SSDSE), 2017 Siberian Symposium Proceedings,
+				INSPEC Accession Number: 17262023, DOI: 10.1109/SSDSE.2017.8071965, Publisher: IEEE 
+				- <a href="http://aigents.com/papers/2017/Aigents-News-Analytics-2017-en.pdf"  target="_blank">презентация</a> и 
+				<a href="http://ieeexplore.ieee.org/document/8071965/"  target="_blank">статья</a>.
+				(новости)
+			</li>
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/QCtvfBghH4c" frameborder="0" allowfullscreen></iframe>
+				<b>BGRS-2016: </b>Об изучении социального окружения и состояния по данным социальных сетей - A.Kolonin, "Studying human social environment and state with social network data", Cognitive Sciences, Genomics and Bioinformatics (CSGB) - Symposium Proceedings, 2016: <a href="http://aigents.com/papers/2016/Social-Environment-State-Kolonin-2016-slides.pdf" target="_blank">презентация</a> и <a href="http://ieeexplore.ieee.org/document/7587680/" target="_blank">статья</a>.
+				(новости)
+			</li>
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/2h8mSjGLjVs" frameborder="0" allowfullscreen></iframe>
+				<b>Лекция: </b>Глобальный Сетевой Разум и его Персональные Компьютерные Агенты - лекция Антона Колонина для курсантов Нейронет, август 2016:<a href="http://aigents.com/papers/2016/Global-Brain-And-Its-Agents-2016-ru.pdf" target="_blank">презентация</a>.
+				(новости)
+			</li>
+			<li class="ui-widget-content">
+				<a href="http://www.sciencedirect.com/science/article/pii/S1877050916317239" target="_blank"><img src="../papers/2016/BICA-2016-poster.png" alt="BICA-2016 poster" width="226" height="164" ></img></a>	
+				<b>BICA-2016: </b>О когнитивной архитектуре коллективного интеллекта - A.Kolonin, E.Vityaev, Y.Orlov, "Cognitive Architecture of Collective Intelligence based on Social Evidence", 7th Annual International Conference on Biologically Inspired Cognitive Architectures, BICA 2016, July 2016, NY, USA: <a href="http://www.sciencedirect.com/science/article/pii/S1877050916317239" target="_blank">статья</a>.
+				(новости)
+			</li>
+			<li class="ui-widget-content">
+				<iframe width="280" height="158" src="https://www.youtube.com/embed/wfX_i-cxWNs" frameborder="0" allowfullscreen></iframe>
+				<b>СИИС-2016: </b>
+				Направленный поиск информации в Интернете само-обучающимися агентами - выступление Антона Колонина на конференции СИИС-2016: <a href="http://aigents.com/papers/2016/Aigents-Adaptive-Learning-Kolonin-2016-slides-ru.pdf" target="_blank">презентация</a>.
+				(новости)
+			</li>
+		<!-- Contacts -->
+  			<li class="ui-widget-content">
+  				<a href="https://www.google.ru/maps/@54.8435152,83.0831196,10539m/data=!3m1!1e3" target="_blank"><img src="/img/aigents-location.png" width="190" height="190"/></a>
+   				<b>Facebook: </b><a href="https://www.facebook.com/aigents" target="_blank">https://www.facebook.com/aigents</a><br>
+   				<b>Goolge+: </b><a href="https://plus.google.com/+Aigents" target="_blank">https://plus.google.com/+Aigents</a><br>
+   				<b>Youtube: </b><a href="https://www.youtube.com/aigents" target="_blank">https://www.youtube.com/aigents</a><br>
+   				<b>Steemit: </b><a href="https://steemit.com/@aigents" target="_blank">https://steemit.com/@aigents</a><br>
+   				<b>Голос: </b><a href="https://golos.blog/@aigents" target="_blank">https://golos.blog/@aigents</a><br>
+   				<b>ВКонтакте: </b><a href="https://vk.com/aigents" target="_blank">https://vk.com/aigents</a><br>
+   				<b>Skype: </b>akolonin<br>
+   				<b>E-mail: </b><img  style="float:none;vertical-align:bottom;margin-bottom:0;" src="/img/contactataigents.png"><br>(contacts, контакты)
+  			</li>
+  			<li class="ui-widget-content">
+  				<img src="/img/akolonin-mirror.png"/ width="145" height="145" ><b>Founder: </b>Anton Kolonin,Ph.D.<br>
+  				<b>Team: </b>We are creating the team to enable structural changes on the Internet, to shift from a conventional "centralized" model of search and social interactions toward a "multi-polar" model, granting rights and abilities to individual users and communities. We are about to make information search really intelligent and automated, getting it to serve people. 
+  				(project, contacts) 
+			</li>	
+  			<li class="ui-widget-content">
+  				<img src="/img/akolonin-mirror.png"/ width="145" height="145" ><b>Основатель: </b>Антон Колонин, к.т.н.<br>
+  				<b>Команда: </b>Собираем команду для структурных изменений в Интернете, со сдвигом от существующей модели “централизованного” поиска и общения к “многополярной” модели, обеспечивающей права и возможности каждого пользователя и сообщества, чтобы сделать поиск информации интеллектуальным, автоматическим и служащим людям.
+  				(проект, контакты)
+			</li>	
+  		</ol></div>		
+	</div>
+	
+  	<div id="pane_things" class="pane ui-widget" style="display:none;">
+		<div id="things_bar" style="display:table;" class="input-bar">
+		  <div style="display:table-cell;vertical-align:middle;">
+  		    <input type="search" id="things_input" placeholder="Input new thing name or template" class="text input-text ui-widget-content ui-corner-all" title="Input text to search or new topic name or text pattern to create">
+		  </div>
+		  <div style="display:table-cell;width:48;vertical-align:middle;">
+		    <button id="add_thing" class="input-button">Add a thing</button>
+		  </div>
+		</div>				
+  		<div class="list"><ol id="things_list" title="Toggle checkbox to monitor the topic; call menu on right-mouse button click"></ol></div>		
+	</div>
+	
+  	<div id="pane_sites" class="pane ui-widget" style="display:none;">
+		<div id="sites_bar" style="display:table;" class="input-bar">
+		  <div style="display:table-cell;vertical-align:middle;">
+		    <input type="search" id="sites_input" placeholder="Input new site link or URL" class="text input-text ui-widget-content ui-corner-all" title="Input URL part to search or new URL to add">
+		  </div>
+		  <div style="display:table-cell;width:48;vertical-align:middle;">
+		    <button id="add_site" class="input-button">Add a site</button>
+		  </div>
+		</div>				
+  		<div class="list"><ol id="sites_list" title="Toggle checkbox to monitor the site; call menu on right-mouse button click"></ol></div>	
+	</div>
+	
+  	<div id="pane_news" class="pane ui-widget" style="display:none;">
+		<div id="news_bar" style="display:table;" class="input-bar">
+		  <div style="display:table-cell;vertical-align:middle;">
+		    <input type="search" id="news_input" placeholder="Input search text" class="text input-text ui-widget-content ui-corner-all" title="Input text to search for news">
+		  </div>
+		  <div style="display:table-cell;width:48;vertical-align:middle;">
+		    <button id="add_news" class="input-button">Add a news item</button>
+		  </div>
+		</div>				
+  		<div class="list"><ol id="news_list" title="Toggle checkbox to mark news as relevant; call menu on right-mouse button click"></ol></div>	
+	</div>
+
+  	<div id="pane_peers" class="pane ui-widget" style="display:none;">
+		<div id="peers_bar" style="display:table;" class="input-bar">
+		  <div style="display:table-cell;vertical-align:middle;">
+		    <input type="search" id="peers_input" placeholder="Input new peer name, surname, email" class="text input-text ui-widget-content ui-corner-all" title="Input text to search for friends">
+		  </div>
+		  <div style="display:table-cell;width:48;vertical-align:middle;">
+		    <button id="add_peer" class="input-button">Add a peer</button>
+		  </div>
+		</div>				
+  		<div class="list"><ol id="peers_list" title="Toggle left checkbox to receive news from friend or right checkbox to share your news to them; call menu on right-mouse button click"></ol></div>	
+  	</div>
+  	
+  	<div id="pane_graph" class="pane ui-widget" style="display:none;">
+		<div id="graph_bar" class="input-bar">
+		  <input type="search" id="graph_input" placeholder="Input peer name to search" class="text input-text ui-widget-content ui-corner-all" title="Input text to search for friends">
+ 		  <!--
+ 		  <button id="add_graph" class="input-button">Add graph item</button>
+ 		  -->
+		</div>		
+		<div id="map_frame" style="position:relative;">
+		
+			<div id="map-widgets" style="z-index:10;float:left;display:inline-block;position:relative;margin:2;">
+				<div style="display:inline-block;">
+					<input type="range" id="map_similarity" name="map_similarity" step="25" min="0" max="75" value="0" style="width:100px !important;" title="Limit by similarity">
+					<label id="map_similarity_text" style="color:black;opacity:0.75;" title="Limit by similarity">0% similarity</label>
+				</div>
+				&nbsp;
+				<div style="display:inline-block;">
+					<input type="range" id="map_connectivity" name="map_connectivity" step="25" min="0" max="75" value="0" style="width:100px !important;" title="Limit by connectivity">
+					<label id="map_connectivity_text" style="color:black;opacity:0.75;" title="Limit by connectivity">0% connectivity</label>
+				</div>
+				&nbsp;
+				<div style="display:inline-block;">
+					<input type="range" id="map_period" name="map_period" step="1" min="0" max="5" value="1" style="width:100px !important;" title="Include period">
+					<label id="map_period_text" style="color:black;opacity:0.75;" title="Include period">week</label>
+				</div>
+			</div>
+		
+				<div id="map-networks" class="map-toolbar" style="z-index:10;float:right;display:inline-block;position:relative;margin:2;">
+					<div id="map_back" class="map-button" style="visibility:hidden">
+						<img id="map_back_icon" src="/ui/img/back32.png" title="Go to the previous graph" width="32" height="32"/>
+					</div>
+					&nbsp;
+					<!-- 
+					<div id="map_aigents" class="map-button">
+						<img id="map_aigents_logo" src="/ui/img/aigent32.png" title="Display social environment at Aigents" width="32" height="32"/>
+					</div>
+					-->
+					<div id="map_google" class="map-button">
+						<img id="map_google_logo" src="/ui/img/g+46.png" title="Display social environment at Google+" width="34" height="34"/>
+					</div>
+					<div id="map_facebook" class="map-button">
+						<img id="map_facebook_logo" src="/ui/img/fb_logo.png" title="Display social environment at Facebook" width="32" height="32"/>
+					</div>
+					<div id="map_vkontakte" class="map-button">
+						<img id="map_vkontakte_logo" src="/ui/img/vk_logo.png" title="Display social environment at VKontakte" width="34" height="34"/>
+					</div>
+					<div id="map_steemit" class="map-button">
+						<img id="map_steemit_logo" src="/ui/img/steemit_logo_new.png" title="Display social environment at Steemit" width="34" height="34"/>
+					</div>
+					<div id="map_golos" class="map-button">
+						<img id="map_golos_logo" src="/ui/img/golos_logo.png" title="Display social environment at Golos" width="34" height="34"/>
+					</div>
+					<div id="map_ethereum" class="map-button">
+						<img id="map_ethereum_logo" src="/ui/img/eth32.png" title="Display financial environment at Ethereum" width="34" height="34"/>
+					</div>
+				</div>
+			<!-- for scrollability 
+			<div style="display:none;position:absolute;top:0;left:0;height:100%;width:100%;">
+			-->
+				<svg id="map" style="display:none;position:absolute;top:0;left:0;height:100%;width:100%;">
+				</svg>
+			<!-- 
+			</div>
+			-->
+		</div>
+		
+  	</div>
+  	
+  	<div id="pane_talks" class="pane ui-widget" style="display:none;">
+		<div class="log" id="talks_log" title="Call menu on right-mouse button click"></div>		
+		<div id="talks_bar" style="display:table;" class="input-bar">
+		  <div style="display:table-cell;vertical-align:middle;">
+		    <input type="search" id="talks_input" placeholder="Input text statement" class="text input-text ui-widget-content ui-corner-all" title="Input text to say to Aigent">
+		  </div>
+		  <div style="display:table-cell;width:48;vertical-align:middle;">
+		    <button id="say" class="input-button">Say someting to Agent in its language</button>
+		  </div>
+		</div>				
+  	</div>
+
+<div id="copyright" class="ui-widget" style="width:100%;text-align:center;overflow:hidden;">Copyright 2018 IP Anton Kolonin, Aigents Group, <a href="https://aigents.com/en/license.html" target="_blank">Privacy Policy</a></div>
+
+<div id="fb-root" style="visibility:hidden;"></div>
+
+<ul id="vkontakte_menu" style="display:none;z-index:100;">
+	<li id="vkontakte_name" class="ui-state-disabled">VKontakte</li>
+	<li id="vkontakte_report" title="VKontakte+ activity report">Report</li>
+	<li id="vkontakte_logout" title="Logout from all accounts">Logout</li>
+</ul> 
+<ul id="google_menu" style="display:none;z-index:100;">
+	<li class="ui-state-disabled">Google+</li>
+	<li id="google_report" title="Google+ activity report">Report</li>
+	<li id="google_logout" title="Logout from all accounts">Logout</li>
+</ul> 
+<ul id="facebook_menu" style="display:none;z-index:100;">
+	<li class="ui-state-disabled">Facebook</li>
+	<li id="facebook_report" title="Faceboot activity report">Report</li>
+	<li id="facebook_logout" title="Logout from all accounts">Logout</li>
+</ul>
+<ul id="aigents_menu" style="display:none;z-index:100;">
+	<li class="ui-state-disabled">Aigents</li>
+	<li id="aigents_profile" title="Personal settings">Settings</li>
+	<li id="aigents_logout" title="Logout from all accounts">Logout</li>
+</ul>
+<ul id="trusts_menu" style="display:none;z-index:100;">
+	<li id="trusts_menu_check" title="Mark as important">Trust</li>
+	<li id="trusts_menu_open" title="Open for edit">Open</li>
+	<li id="trusts_menu_delete" title="Hide as unimportant">Delete</li>
+	<li id="trusts_menu_sort" title="Specify sorting mode">Sorting</li>
+	<li id="sites_menu_graph" title="View graph of site">Graph of site</li>
+	<li id="topics_menu_graph_patterns" title="View graph of topic patterns">Graph of patterns</li>
+	<li id="topics_menu_graph_things" title="View graph of topic instances">Graph of things</li>
+</ul>
+<ul id="news_menu" style="display:none;z-index:100;">
+	<li id="news_menu_check" title="Mark as important and true">Trust</li>
+	<li id="news_menu_open" title="Open for view">Open</li>
+	<li id="news_menu_delete" title="Hide as unimportant">Delete</li>
+	<li id="news_menu_sort" title="Specify sorting mode">Sorting</li>
+	<li id="news_menu_graph_news" title="View news graph">Graph of news</li>
+	<li id="news_menu_graph_topics" title="View topics graph">Graph of topics</li>
+<!--
+	<li id="news_menu_graph_words" title="View words graph">Graph - Words</li>
+-->
+</ul>
+<ul id="talks_menu" style="display:none;z-index:100;">
+	<li id="talks_menu_repeat" title="Repeat statement">Repeat</li>
+	<li id="talks_menu_clear" title="Clear dialog history">Clear</li>
+	<li id="talks_menu_graph" title="Render graph for the text">Graph</li>
+</ul>
+<ul id="peers_menu" style="display:none;z-index:100;">
+	<li id="peers_menu_trust" title="Trust news from friend">Receive</li>
+	<li id="peers_menu_share" title="Share news to friend">Share</li>
+	<li id="peers_menu_open" title="Open for edit">Open</li>
+	<li id="peers_menu_delete" title="Hide as unimportant">Delete</li>
+	<li id="peers_menu_sort" title="Specify sorting mode">Sorting</li>
+	<li id="peers_menu_graph" title="View peers graph">Graph of friends</li>
+</ul>
+<ul id="graph_menu" style="display:none;z-index:200;">
+	<li id="graph_menu_setup" title="Setup graph properties">Setup</li>
+	<li id="graph_menu_connections" title="Graph all connections for this">Connections</li>
+	<li id="graph_menu_open_url" title="Open page by URL in browser">Open URL</li>
+<!-- 
+	<li id="graph_menu_followers" title="Find followers">Followers</li>
+	<li id="graph_menu_neighbors" title="Find neighbors">Neighbors</li>
+ -->
+</ul>
+
+<div id="dialog" title="My properties"  style="display: none;">Aigents Properties</div>
+<div id="report_dialog" title="Aigents Report" style="display:none;"></div>
+
+<div id="graph_dialog" title="Aigents Graph" style="display:none;"></div>
+<span id="graph_inline_widgets" style="display:none;">
+<span>Slicing mode:</span>
+ <select title="Graph view splitting by node types" class="graph_changer" id="custom_slicing">
+  <option value="0">None</option>
+  <option value="1" selected="selected">Vertical</option>
+  <option value="2">Horizontal</option>
+ </select>&nbsp;
+<span>Node radius:</span>
+ <select title="Graph node radius" class="graph_changer" id="custom_node_radius">
+  <option value="10">10</option>
+  <option value="20">20</option>
+  <option value="30" selected="selected">30</option>
+  <option value="40">40</option>
+  <option value="50">50</option>
+ </select>&nbsp;
+<br>
+<span>Layout - threshold:</span>
+ <select title="Force-directed layout threshold" class="graph_changer" id="custom_layout_threshold">
+  <option value="1" selected="selected">1</option>
+  <option value="2">2</option>
+  <option value="5">5</option>
+  <option value="10">10</option>
+  <option value="0">None</option>
+ </select>&nbsp;
+<span>balance:</span>
+ <select title="Force-directed layout push/pull balance" class="graph_changer" id="custom_layout_balance">
+  <option value="10">10</option>
+  <option value="30">30</option>
+  <option value="50">50</option>
+  <option value="70">70</option>
+  <option value="90" selected="selected">90</option>
+ </select>&nbsp;
+<span>directions:</span>
+ <select title="Force-directed layout directions" class="graph_changer" id="custom_layout_directions">
+  <option value="3">Both</option>
+  <option value="1" selected="selected">Horizontal</option>
+  <option value="2">Vertical</option>
+ </select>&nbsp;
+<br>
+<span>Filter:</span><input title="Node name filtering option" id="custom_node_filter" type="search" placeholder="Node filter" size="60" value=""></input>
+<span>Range:</span>
+ <select title="Filter range" class="graph_changer" id="custom_filter_range">
+  <option value="1">1</option>
+  <option value="2" selected="selected">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+ </select>&nbsp;
+<br>
+<span id="node_types"></span><span id="link_types"></span>
+</span>
+
+<iframe id="vkontakte_frame" style="visibility:hidden;position:absolute;left:0;top:0;height:0;width:0;border:none;"></iframe>
+  
+</body>
+</html>

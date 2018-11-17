@@ -1,0 +1,20 @@
+bob rates mary 0.1
+bob rates mary 0.2
+bob rates mary 0.3
+bob rates mary 0.4
+bob rates jane 0.6
+bob rates jane 0.9
+bob rates https://www.facebook.com/ 0.7
+bob rates https://steemit.com/ 1.0
+jane rates bob 0.4
+jane rates https://www.facebook.com/ 1.0
+mary rates bob 0.5
+mary rates https://www.facebook.com/ 0.9
+mary rates https://steemit.com/ 0.5
+https://steemit.com/ is site
+https://www.facebook.com/ is site
+https://steemit.com/ image https://aigents.com/ui/img/steemit_logo_new.png
+https://www.facebook.com/ image https://aigents.com/ui/img/fb_logo.png
+bob image https://aigents.com/ui/img/aigent32.png
+jane image https://aigents.com/ui/img/aigents_jane_64.png
+mary image https://aigents.com/ui/img/aigents_mary_64.png

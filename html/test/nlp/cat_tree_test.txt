@@ -1,0 +1,9 @@
+C01	0	1	0.0	.	0
+C02	0	2	0.0	LEFT-WALL	0
+C03	0	3	0.0	bird extremity fish	0 0 0
+C04	0	9	0.0	eagle herring parrot tuna feather scale fin wing	0 0 0 0 0 0 0 0
+	9	4	0.0	eagle herring parrot tuna	0 0 0 0
+	9	5	0.0	feather scale	0 0
+	9	6	0.0	fin wing	0 0
+C05	0	7	0.0	has	0
+C06	0	8	0.0	isa	0

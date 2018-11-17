@@ -1,0 +1,108 @@
+<html>
+
+<!--
+TODO:
+-? slider - period: day/week/month/quarter/year/
+-? slider - connectivity 25%/50%/75%/100%
+- localization for demo text zh
+		demo graph text
+	  	map_load_text : "Ограничить по сходству",
+	  	map_load : "Ограничить по сходству",
+	  	map_period
+- Aigents graph
+- Aigents ui integration with search, trusts and properties 
+- browsing navigation (with back buttons in the top right corner)
+-- enable social browsing if
+--- change default analysis period to 1 month
+--- user in public network
+--- user is registered with aigents and accepted browsing
+- configurable zoom
+- configurable left-to-right
+-- by alphabet
+-- by similarity
+- sentiment/intent - as color (blue - neutral, red - bad, green - good)
+- merge fans/authorities with friends properly (now missing best friends)
+- game goal
+-- maximize social capital
+--- maximizing inputs
+--- minimizing outputs
+---- my maximizing its quality
+- parameters
+-- halo width
+-- node color
+-- halo color
+-- link color
+-- zoom 1-5 - https://www.w3schools.com/jsref/dom_obj_range.asp
+Legend:
+- social capital/status - as color saturation
+- similarity - as halo width
+-->
+
+<head><title>Aigents Map</title>
+
+  <meta http-equiv="refresh" content="1;url=https://aigents.com">
+
+  <meta name="norton-safeweb-site-verification" content="zxl582egesdh2aytioxxw1a72tmvyiuu2h-vlrfl0wuirir6zunf6428af8jacsttw0hyr5fvmzgsa69i-q5fq2aloex-nw6ibajuhla5ii307fa1fjj105vgz1f9pkn" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <link rel="icon" href="https://aigents.com/ui/img/aigent128.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="/ui/img/aigent128.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/ui/jquery-ui-1.11.4.custom/jquery-ui.css">
+  <script src="/ui/jquery-1.11.1.js"></script>
+  <script src="/ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+  <link rel="stylesheet" type="text/css" href="/ui/aigents-wui.css?80"></link>
+  <script type="text/javascript" src="/ui/aigents-al.js?2"></script>
+  <script type="text/javascript" src="/ui/aigents-map.js?2"></script>
+  <!-- Google+ -->
+  <script src="https://apis.google.com/js/client:platform.js?onload=startApp" async defer></script>
+  <meta name="google-signin-client_id" content="638660736503-ip2avfmusv38va2jn8fub8cf4c4oobm7.apps.googleusercontent.com"></meta>
+  <meta property="og:title" content="Aigents for everyone"/>
+  <meta property="og:description" content="Aigents - helping to monitor, extract, evaluate and share information on the Internet, adjusting to your needs and learning the preferences."/>
+  <meta property="og:image" content="http://aigents.com/img/aigents-find-share.jpg"/>
+  <meta property="og:url" content="http://aigents.com"/>
+  <meta property="fb:app_id" content="763733953664689"/>
+
+<style>
+.map-label {text-anchor:middle;font-size:18;}
+.map-text-middle {text-anchor:middle;}
+.map-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.map-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;}
+.map-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.map-button {display:inline;}
+</style>
+
+</head>
+
+<body>
+If you are not redirected automatically, follow the link to <a href='https://aigents.com'>aigents.com</a>
+</body>
+<!--
+<body onload="map_init()">
+<div id="map_frame" style="position:relative;">
+<svg id="map" height="700" width="800" style="display:none;position:absolute;top:0;left:0;">
+	<div class="map-toolbar" style="position:relative;top:0;left:0;">
+		<div id="map_google" class="map-button">
+			<img id="google_logo" src="/ui/img/g+46.png" title="Display social environment at Google+" width="34" height="34"/>
+		</div>
+		<div id="map_facebook" class="map-button">
+			<img id="facebook_logo" src="/ui/img/fb_logo.png" title="Display social environment at Facebook" width="32" height="32"/>
+		</div>
+		<div id="map_vkontakte" class="map-button">
+			<img id="vkontakte_logo" src="/ui/img/vk_logo.png" title="Display social environment at VKontakte" width="34" height="34"/>
+		</div>
+		<div id="map_steemit" class="map-button">
+			<img id="steemit_logo" src="/ui/img/steemit_logo.png" title="Display social environment at Steemit" width="34" height="34"/>
+		</div>
+		<div id="map_golos" class="map-button">
+			<img id="golos_logo" src="/ui/img/golos_logo.png" title="Display social environment at Golos" width="34" height="34"/>
+		</div>
+	</div>
+</svg>
+</div>
+<img id="map_loading" src="/img/compreact_logo.gif"/ title="Aigents are processing your request..." style="position:absolute;top:50%;left:50%;margin:-38px;">
+</body>
+-->
+</html>
+
+

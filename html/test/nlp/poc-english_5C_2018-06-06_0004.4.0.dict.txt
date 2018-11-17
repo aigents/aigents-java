@@ -1,0 +1,28 @@
+% Grammar Learner v.0.4 2018-06-06 11:05:37 UTC
+<dictionary-version-number>: V0v0v4+;
+<dictionary-locale>: EN4us+;
+
+% C01
+"directors" "has" "with":
+(C02C01-) or (C03C01- & C01C02+) or (C03C01- & C01C05+) or (C04C01- & C01C05+) or (C05C01- & C01C02+) or (C05C01- & C01C04+) or (C05C01- & C01C05+);
+
+% C02
+"are" "binoculars" "board" "of" "sees" "to" "wants" "wood":
+(C01C02-) or (C02C02+) or (C02C02- & C02C01+) or (C02C02- & C02C03+) or (C02C02- & C02C04+) or (C03C02- & C02C02+ & C02C03+) or (C03C02- & C02C03+ & C02C02+) or (C03C02- & C02C03+ & C02C03+) or (C05C02- & C02C03+) or (C05C02- & C04C02-) or (C05C02- & C05C02-) or (C05C02- & C05C02- & C02C02+);
+
+% C03
+"a" "before" "cake" "child" "dad" "daughter" "food" "her" "his" "human" "mom" "not" "now" "parent" "sausage" "son" "tool":
+(C02C03-) or (C02C03- & C03C03-) or (C03C01+) or (C03C02+) or (C03C03+) or (C03C03- & C02C03-) or (C03C03- & C03C04+) or (C03C03- & C03C05+) or (C03C03- & C05C03-) or (C03C04+) or (C03C05+) or (C04C03-) or (C05C03-) or (C05C03- & C03C01+);
+
+% C04
+"be" "chalk" "knocked" "likes" "sawed":
+(C01C04-) or (C02C04- & C04C05+) or (C03C04- & C04C02+ & C04C01+) or (C03C04- & C04C03+) or (C03C04- & C04C03+ & C04C03+);
+
+% C05
+"hammer" "is" "liked" "on" "saw" "telescope" "the" "was" "writes":
+(C01C05- & C03C05-) or (C03C05- & C01C05-) or (C03C05- & C05C01+ & C05C05+ & C05C02+) or (C03C05- & C05C03+) or (C03C05- & C05C03+ & C05C01+) or (C03C05- & C05C03+ & C05C03+) or (C03C05- & C05C03+ & C05C03+ & C05C03+) or (C03C05- & C05C05+) or (C03C05- & C05C05+ & C05C01+) or (C03C05- & C05C05+ & C05C02+ & C05C01+) or (C04C05- & C05C02+) or (C05C02+) or (C05C05+) or (C05C05- & C05C02+) or (C05C05- & C05C03+);
+
+UNKNOWN-WORD: XXX+;
+
+% 5 word clusters, 5 Link Grammar rules.
+% Link Grammar file saved to: /home/oleg/language-learning/output/POC-English-Amb-2018-06-06/POC-English-Amb/MST_fixed_manually/disjuncts-DRK-disjuncts/no-LEFT-WALL_no-period/generalized_rules/poc-english_5C_2018-06-06_0004.4.0.dict

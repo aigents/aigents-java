@@ -1,0 +1,535 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<title>Aigents Server configuration and Web API</title>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.4.1  (Unix)">
+	<META NAME="CREATED" CONTENT="0;0">
+	<META NAME="CHANGED" CONTENT="20141022;1052000">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { margin: 2cm }
+		P { margin-bottom: 0.21cm; direction: ltr; color: #000000; font-family: "Arial", sans-serif; font-size: 11pt; font-style: normal; font-weight: normal; line-height: 115%; text-align: left; widows: 2; orphans: 2; text-decoration: none; page-break-before: auto; page-break-after: auto }
+	-->
+	</STYLE>
+	<link rel="icon" href="../img/aigent128.ico" type="image/x-icon" />
+	<link rel="stylesheet" type="text/css" href="../css/al.css" />
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-52778942-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<FONT SIZE=5><B>Aigents</B></FONT> <FONT SIZE=5><B>server</B></FONT>
+<FONT SIZE=5><B>configuration</B></FONT> <FONT SIZE=5><B>and</B></FONT>
+<FONT SIZE=5><B>web API</B></FONT> <FONT SIZE=5><B>use</B></FONT></P>
+<P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<FONT SIZE=4><B>Aigents server configuration</B></FONT></P>
+<P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+<FONT SIZE=2 STYLE="font-size: 11pt">The following procedure
+describes configuration of Aigents server operating in command-line
+(so called “Aigents Farm”) mode with no user interface. </FONT>
+</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	<SPAN LANG="en-US">Download </SPAN><SPAN LANG="en-US"><B>Aigents.jar</B></SPAN>
+	<SPAN LANG="en-US">file from </SPAN><A HREF="http://aigents.com/en/products.html">http</A><A HREF="http://aigents.com/en/products.html">://</A><A HREF="http://aigents.com/en/products.html">aigents</A><A HREF="http://aigents.com/en/products.html">.</A><A HREF="http://aigents.com/en/products.html">com</A><A HREF="http://aigents.com/en/products.html">/</A><A HREF="http://aigents.com/en/products.html">en</A><A HREF="http://aigents.com/en/products.html">/</A><A HREF="http://aigents.com/en/products.html">products</A><A HREF="http://aigents.com/en/products.html">.</A><A HREF="http://aigents.com/en/products.html">html</A>
+	<SPAN LANG="en-US">and copy it to binary folder, for example -
+	/var/www/aigents/bin</SPAN></P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Disable access to binary folder to web users so its content could
+	not be opened by web server</P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	<SPAN LANG="en-US">Download Aigents web files from
+	</SPAN><A HREF="http://aigents.com/ui/aigents-wui.zip">http</A><A HREF="http://aigents.com/ui/aigents-wui.zip">://</A><A HREF="http://aigents.com/ui/aigents-wui.zip">aigents</A><A HREF="http://aigents.com/ui/aigents-wui.zip">.</A><A HREF="http://aigents.com/ui/aigents-wui.zip">com</A><A HREF="http://aigents.com/ui/aigents-wui.zip">/</A><A HREF="http://aigents.com/ui/aigents-wui.zip">ui</A><A HREF="http://aigents.com/ui/aigents-wui.zip">/</A><A HREF="http://aigents.com/ui/aigents-wui.zip">aigents</A><A HREF="http://aigents.com/ui/aigents-wui.zip">-</A><A HREF="http://aigents.com/ui/aigents-wui.zip">wui</A><A HREF="http://aigents.com/ui/aigents-wui.zip">.</A><A HREF="http://aigents.com/ui/aigents-wui.zip">zip</A>
+	<SPAN LANG="en-US">and unzip them to web folder, for example -
+	/var/www/aigents/html </SPAN>
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Configure web server, so it points to index.html file in web folder,
+	for example - aigents.mysite.org pointing to
+	/var/www/aigents/html/index.html 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Edit aigents-wui.js file, changing the line 
+	</P>
+</OL>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<SPAN LANG="en-US">var base_url = &quot;</SPAN><A HREF="http://cigents.com:1180/">http</A><A HREF="http://cigents.com:1180/">://</A><A HREF="http://cigents.com:1180/">cigents</A><A HREF="http://cigents.com:1180/">.</A><A HREF="http://cigents.com:1180/">com</A><A HREF="http://cigents.com:1180/">:1180</A><SPAN LANG="en-US">&quot;;</SPAN></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+to your web site internet address domain and port intended to host
+Aigents API, for example</P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+var base_url = &quot;http://aigents.mysite.org:1180&quot;;</P>
+<OL START=6>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Configure port intended to host Aigents API (for exampe - 1180) so
+	it is made available for access from the internet (or intranet if
+	you are going to access Aigents locally)</P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	<SPAN LANG="en-US">Download Oracle Java Mail bundle from
+	</SPAN><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">http</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">://</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">www</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">.</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">oracle</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">.</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">com</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">/</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">technetwork</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">/</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">java</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">/</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">javamail</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">/</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">index</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">.</A><A HREF="http://www.oracle.com/technetwork/java/javamail/index.html">html</A>
+	<SPAN LANG="en-US">and copy its </SPAN><SPAN LANG="en-US"><B>mail.jar</B></SPAN>
+	<SPAN LANG="en-US">file to binary folder (for current example -
+	/var/www/aigents/bin)</SPAN> 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Start Aigents server in binary folder:</P>
+</OL>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>#java</I> <I>-cp</I> <I>.:Aigents.jar:mail.jar</I>
+<I>net.webstructor.agent.Farm</I> <I>-Xms128m</I> <I>-Xmx256m</I></P>
+<OL START=9>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Setup administrative account (need to fill properties <B>name,
+	surname, email, birth date, secret question, secret answer</B>) -
+	from Aigents command line interface:</P>
+</OL>
+<P STYLE="margin-left: 1.29cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>I:Started</I> <I>TCP</I> <I>at</I> <I>1123.</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>I:Started</I> <I>HTTP</I> <I>at</I> <I>1180.</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>my</I> <I>name</I> <I>admin</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>Login:name</I> <I>admin.</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>I:What</I> <I>your</I> <I>email, surname, birth</I> <I>date?</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>my</I> <I>email</I> <I>admin@mysite.org</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>Login:email</I> <I>admin@mysite.org, name</I> <I>admin.</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>I:What</I> <I>your</I> <I>surname, birth</I> <I>date?</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>my</I> <I>surname</I> <I>admini, birth</I> <I>date</I> <I>1/1/2001</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>Login:birth</I> <I>date</I> <I>1/1/2001, email</I>
+<I>admin@mysite.org, name</I> <I>admin, surname</I> <I>admini.</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>I:What</I> <I>your</I> <I>secret</I> <I>question, secret</I>
+<I>answer?</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>my</I> <I>secret</I> <I>question</I> <I>password, secret</I>
+<I>answer</I> <I>12345</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>I:What</I> <I>your</I> <I>password?</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>my</I> <I>password</I> <I>12345</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>...</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>I:Ok. Hello</I> <I>Admin</I> <I>Admini!</I></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>My</I> <I>Aigents</I> <I>1.0.9 Copyright</I> <I>2014 Anton</I>
+<I>Kolonin, Aigents</I> <I>Group.</I></P>
+<OL START=10>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Setup web API for access via http protocol, filling propertie<SPAN STYLE="font-style: normal">s
+	</SPAN><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN STYLE="font-style: normal"><B>http
+	origin, http port, cookie domain, cookie name </B></SPAN></FONT></FONT></FONT><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">(port
+	1180 for our exampe</SPAN></SPAN></FONT></FONT></FONT><SPAN STYLE="font-style: normal">)
+	- from Aigents command line interface:</SPAN></P>
+</OL>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<I>your http origin http://aigents.mysite.org, http port 1180, cookie
+domain aigents.mysite.org, cookie name myaigent.</I></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm; line-height: 115%">
+<I>...</I></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>I:Ok.</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>what
+your http origin, http port, cookie domain, cookie name?</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>...</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>I:My
+cookie domain aigents.mysite.org, cookie name myaigent, http origin
+http://aigents.mysite.org, http port 1180.</I></FONT></FONT></FONT><FONT COLOR="#3b2322">
+</FONT>
+</P>
+<OL START=11>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Setup email account for access via email (POP3 and SMTP) and for
+	sending notifications (SMTP), filling properties <B>email, email
+	login, email password, mail.pop3s.host, mail.smtp.host</B> (for
+	example, based on mysite.org) - from Aigents command line interface:</P>
+	<P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	<I>your email aigent@mysite.org, email login aigent, email password
+	qwerty, mail.pop3s.host mail.mysite.org, mail.smtp.host mysite.org.</I></P>
+	<P STYLE="margin-bottom: 0cm; line-height: 115%"><I>...</I></P>
+	<P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	<I>what your email, email login, email password, mail.pop3s.host,
+	mail.smtp.host?</I></P>
+	<P STYLE="margin-bottom: 0cm; line-height: 115%"><I>...</I></P>
+	<P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>My
+	email aigent@mysite.org, email login aigent, email password
+	'qwerty', mail.pop3s.host mail.mysite.org, mail.smtp.host
+	mysite.org.</I></FONT></FONT></FONT></P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+	Setup TCP/IP port for telnet terminal access, filling <B>tcp port</B>
+	property (for example, port 1123) - from Aigents command line
+	interface:</P>
+</OL>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>your
+tcp port 1123</I></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%">
+<FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>I:Ok.</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>what
+your tcp port?</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>...</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>I:My
+tcp port 1123.</I></FONT></FONT></FONT></P>
+<OL START=13>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Exit
+	Aigents server altogether with command-line interface:</FONT></FONT></FONT></P>
+	<P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>bye</I></FONT></FONT></FONT></P>
+</OL>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>...</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>#Connection
+closed by foreign host.</I></FONT></FONT></FONT></P>
+<OL START=14>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><FONT COLOR="#3b2322">Start
+	Aigetns over per step 8 above, but now better using </FONT><FONT COLOR="#3b2322"><B>screen</B></FONT><FONT COLOR="#3b2322">
+	or </FONT><FONT COLOR="#3b2322"><B>nohup</B></FONT><FONT COLOR="#3b2322">
+	Linux commands so that server keeps running uninterruptedly upon
+	current console session termination.</FONT></FONT></FONT></P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">For
+	remote control of Aigents server from console, use the tcp/ip port
+	specified above to connect to Aigents via telnet: </FONT></FONT></FONT>
+	</P>
+</OL>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm; line-height: 115%">
+<FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>$
+telnet aigents.mysite.org 1123</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Trying
+111.22.0.33...</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Connected
+to aigents.mysite.org.</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Escape
+character is '^]'.</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>my
+name admin</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>What
+your password?</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>my
+password 12345</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.
+Hello Admi Admini!</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>My
+Aigents 1.0.9 Copyright © 2014 Anton Kolonin, Aigents Group.</I></FONT></FONT></FONT></P>
+<P STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<FONT SIZE=4><B>Aigents</B></FONT> <FONT SIZE=4><B>web API</B></FONT>
+<FONT SIZE=4><B>use</B></FONT></P>
+<P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%; page-break-before: auto; page-break-after: auto">
+<FONT SIZE=2 STYLE="font-size: 11pt">The following describes access
+to Aigents server operating in command-line (so called “Aigents
+Farm” mode) by means of its web API over <B>http</B> protocol –
+for the purpose of Web monitoring and news collection. </FONT>
+</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT SIZE=2 STYLE="font-size: 11pt">Authentication is based on
+	cookies (configured with properties <B>cookie domain</B> and <B>cookie
+	name</B>, as described above). That is, respective fields of the
+	HTTP header should be filled. </FONT>
+	</P>
+</OL>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">When
+	Aigents server parses the HTTP request, it reads </SPAN></SPAN></FONT><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><B>Cookie</B></SPAN></FONT>
+	<FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">field
+	of HTTP header. If filled in, it keeps it to maintain the session.
+	If not filled in, it generates new one to create new session.</SPAN></SPAN></FONT></P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">When
+	Aigents server builds the HTTP response, it fills </SPAN></SPAN></FONT><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><B>Set-Cookie</B></SPAN></FONT>
+	<FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">field
+	of HTTP header with value of existing on newly created session
+	cookie. </SPAN></SPAN></FONT>
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">On
+	the client side, the sessions and cookies may be maintained, for
+	example, with PEST wrapper of CURL functions
+	(</SPAN></SPAN></FONT><A HREF="https://github.com/educoder/pest">https://github.com/educoder/pest</A><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">),
+	like in the following example:</SPAN></SPAN></FONT></P>
+</UL>
+<P STYLE="margin-left: 1.25cm; margin-bottom: 0cm; line-height: 115%">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#000000"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">$baseURL
+= </SPAN></SPAN></FONT><FONT COLOR="#0000c0"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">&quot;</SPAN></SPAN></FONT><FONT COLOR="#0000ff"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">http://aigents.mysite.org:1180/?</SPAN></SPAN></FONT><FONT COLOR="#0000c0"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">&quot;</SPAN></SPAN></FONT><FONT COLOR="#000000"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">;</SPAN></SPAN></FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.25cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>$cookie;</I></FONT></FONT></P>
+<UL>
+	<P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><SPAN LANG="en-US"><B>function
+	</B></SPAN></FONT><FONT COLOR="#000000"><SPAN LANG="en-US"><SPAN STYLE="font-weight: normal">url_pest(
+	$url ) {</SPAN></SPAN></FONT></I></FONT></FONT></P>
+</UL>
+<P ALIGN=LEFT STYLE="margin-left: 1.93cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><B>global
+</B></FONT><FONT COLOR="#000000">$baseURL, $cookie;</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.93cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#000000">$pest
+= </FONT><FONT COLOR="#7f0055"><B>new </B></FONT><FONT COLOR="#000000">Pest($baseURL);</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.93cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><B>try
+</B></FONT><FONT COLOR="#000000">{</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>$url
+= $baseURL.urlencode($url);</I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><B>if
+</B></FONT><FONT COLOR="#000000">(</FONT><FONT COLOR="#7f0055"><B>isset</B></FONT><FONT COLOR="#000000">($cookie))
+{</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 3.28cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#000000">$pest-&gt;</FONT><FONT COLOR="#0000c0">curl_opts</FONT><FONT COLOR="#000000">[CURLOPT_COOKIE]
+= $cookie;</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>}</I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>$result
+= $pest-&gt;get($url);</I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#000000">$cookie=$pest-&gt;</FONT><FONT COLOR="#0000c0">last_headers</FONT><FONT COLOR="#000000">[</FONT><FONT COLOR="#0000c0">'set-cookie'</FONT><FONT COLOR="#000000">];</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><B>unset</B></FONT><FONT COLOR="#000000">($pest);</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><B>return
+</B></FONT><FONT COLOR="#000000">$result;</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.93cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#000000">}
+</FONT><FONT COLOR="#7f0055"><B>catch</B></FONT><FONT COLOR="#000000">(
+Exception $e ) {</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><B>unset</B></FONT><FONT COLOR="#000000">($pest);</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 2.49cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><FONT COLOR="#7f0055"><B>throw</B></FONT><FONT COLOR="#000000">($e);</FONT></I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.93cm; margin-bottom: 0cm"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>}</I></FONT></FONT></P>
+<P ALIGN=LEFT STYLE="margin-left: 1.27cm; margin-bottom: 0cm"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>}</I></FONT></FONT></FONT>
+</P>
+<OL START=2>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN STYLE="font-weight: normal">Requests
+	and response are currently processed as HTTP GET requests, so the
+	response is submitted to URL including domain name and optional
+	port, followed by slash and question mark with following URI-encoded
+	text of complete statement in <A HREF="http://aigents.com/papers/2014AgentLanguageKolonin.pdf">Agent
+	Language</A>, to be parsed accordingly to language defintion
+	(<A HREF="http://aigents.com/papers/2014AgentLanguageKolonin.pdf">http://aigents.com/papers/2014AgentLanguageKolonin.pdf</A>)
+	while response is written to the stream, for example – the
+	authentication is done as shown below. </SPAN></FONT>
+	</P>
+</OL>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN STYLE="font-weight: normal">INPUT:
+	<A HREF="http://aigents.mysite.org:1180/?my%20name%20admin">http://aigents.mysite.org:1180/?my%20name%20admin</A></SPAN></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		<FONT SIZE=2 STYLE="font-size: 11pt">OUTPUT: What your password?</FONT></P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN STYLE="font-weight: normal">INPUT:
+	<A HREF="http://aigents.mysite.org:1180/?my%20password%2012345">http://aigents.mysite.org:1180/?my%20password%2012345</A></SPAN></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		<FONT SIZE=2 STYLE="font-size: 11pt">OUTPUT: <FONT COLOR="#3b2322"><FONT FACE="Arial, sans-serif">Ok.
+		Hello Admi Admini! My Aigents 1.0.9 Copyright © 2014 Anton
+		Kolonin, Aigents Group.</FONT></FONT></FONT></P>
+	</UL>
+</UL>
+<OL START=3>
+	<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN STYLE="font-weight: normal">Operations
+	with sites, things and news used for web monitoring are performed
+	accordingly to belief ontology of <A HREF="http://aigents.com/papers/2014AgentWatchingKolonin.pdf">Aigents
+	for Web</A></SPAN></FONT></FONT>
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><SPAN STYLE="font-weight: normal">(<A HREF="http://aigents.com/papers/2014AgentWatchingKolonin.pdf">http://aigents.com/papers/2014AgentWatchingKolonin.pdf</A>),
+	as described below. All of the following operations are possible
+	after user is authenticated (logged in).</SPAN></FONT></FONT></P>
+</OL>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Listing
+	sites is done with “my sites ...” statement, for example: </FONT></FONT>
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>http://aigents.mysite.org:1180/?what%20my%20sites?</I></FONT></FONT></P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Your
+			sites http://money.cnn.com/data/markets/dow/, http://wired.com,
+			http://www.nytimes.com/pages/business/, http://www.reuters.com/.</I></FONT></FONT></P>
+		</UL>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Listing
+	things is done with “my knows ...” statement, for example:</FONT></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>http://aigents.mysite.org:1180/?what%20my%20knows?</I></FONT></FONT></P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Your
+			knows “goole $topic”, “dow jones $value”.</I></FONT></FONT></P>
+		</UL>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Listing
+	news is done with “what times …, is … sources … ”
+	statement, for example:</FONT></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>what
+		times yesterday is “google $topic”, text? </I></FONT></FONT>
+		</P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>There
+			text google chrome helper; text google chrome helper.</I></FONT></FONT></P>
+		</UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>what
+		times 2014-10-18 is “google $topic”, topic? </I></FONT></FONT>
+		</P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>There
+			topic chrome helper; topic chrome helper.</I></FONT></FONT></P>
+		</UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%; page-break-before: auto; page-break-after: auto">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>what
+		times 2014-10-18 is “google $topic”, text, sources? </I></FONT></FONT>
+		</P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>There
+			sources http://www.reuters.com/, text google chrome helper;
+			sources http://www.wired.com/ text google chrome helper.</I></FONT></FONT></P>
+		</UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%; page-break-before: auto; page-break-after: auto">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>what
+		sources http://www.reuters.com/ is “google $topic”, text,
+		times? </I></FONT></FONT>
+		</P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>There
+			text google chrome helper, times 2014-10-18; text google glass
+			technology, times 2014-10-19; text google now intelligence, times
+			2014-10-<FONT COLOR="#000000">20.</FONT></I></FONT></FONT></P>
+		</UL>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Adding
+	sites is done with “my sites … ” statement, for example:</FONT></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><SPAN STYLE="font-weight: normal">http://aigents.mysite.org:1180/?my%20sites%20http://www.reuters.com/,%20http://www.wired.com/.</SPAN></I></FONT></FONT></P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+		</UL>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Adding
+	things is done with “my knows … ” statement, for example:</FONT></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; line-height: 115%"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><SPAN STYLE="font-weight: normal">http://aigents.mysite.org:1180/?my%knows%kung-fu,%20'google
+		$topic',%20“dow jones $value”.</SPAN></I></FONT></FONT></FONT></P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I>
+			</FONT></FONT>
+			</P>
+		</UL>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Configuring
+	extra patterns for things is done with “... patterns …”
+	statement, for example:</FONT></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>kung-fu
+		patterns bruce-lee, kung-fu, “kung fu”, shaolin.</I></FONT></FONT></P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.
+			</I></FONT></FONT>
+			</P>
+		</UL>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt">Configuring
+	typed variables (of types such as <B>word</B>, <B>time</B>, <B>number</B>
+	and <B>money</B>) for patterns is done having variables explicitly
+	specified for a thing with “... has ...” statement, for example:</FONT></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		“<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>dow
+		jones $value” has value.</I></FONT></FONT></P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>value
+			is number.</I></FONT></FONT></P>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+				<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+			</UL>
+		</UL>
+		<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+		“<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Obama
+		$action Putin” has action.</I></FONT></FONT></P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>action
+			is word.</I></FONT></FONT></P>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+				<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+				<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+				“<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Operation
+				starts at $hour_x” has hour_x.</I></FONT></FONT></P>
+			</UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>hour_x
+			is time.</I></FONT></FONT></P>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+				<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+				<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+				<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>offer_price
+				pas patterns “offer price $price” has price.</I></FONT></FONT></P>
+			</UL>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+			<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+			<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>prices
+			is money.</I></FONT></FONT></P>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0cm; font-weight: normal; line-height: 115%">
+				<FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I>Ok.</I></FONT></FONT></P>
+			</UL>
+		</UL>
+	</UL>
+</UL>
+<P STYLE="line-height: 115%"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B>Example:</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0.01cm; font-weight: normal; line-height: 115%">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=2>For example, unit test
+for Aigents server can be downloaded from the following link:</FONT></FONT></P>
+<P STYLE="margin-bottom: 0.01cm; font-weight: normal; line-height: 115%">
+<FONT COLOR="#808080"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><FONT COLOR="#000000"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><A HREF="http://aigents.com/download/api/aigents-php-demo.zip">http://aigents.com/download/api/aigents-php-demo.zip</A>
+</FONT></FONT></FONT></FONT></FONT></FONT>
+</P>
+<P STYLE="margin-bottom: 0.01cm; font-weight: normal; line-height: 115%">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=2>To run the test, need to
+start Aigents server in one console session and then run the test in
+another console session:</FONT></FONT></P>
+<P STYLE="margin-bottom: 0.01cm; font-weight: normal; line-height: 115%">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=2><I>#java</I> <I>-cp</I>
+<I>.:Aigents.jar:mail.jar</I>  net.webstructor.agent.Farm store path
+'', cookie domain localtest.com</FONT></FONT></P>
+<P STYLE="margin-bottom: 0.01cm; font-weight: normal; line-height: 115%">
+…</P>
+<P STYLE="margin-bottom: 0.01cm; font-weight: normal; line-height: 115%">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=2><I>#php -f agent_test.php</I></FONT></FONT></P>
+<P STYLE="font-weight: normal; line-height: 115%"><BR><BR>
+</P>
+<a href="../index.html"><img src="../img/aigent64wb.png"/></a><span class="copyrightbottom">Copyright 2014 Anton Kolonin</span>
+</BODY>
+</HTML>

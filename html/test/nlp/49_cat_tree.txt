@@ -1,0 +1,49 @@
+C01	47	0	0	a	1
+C02	0	1	0	are	1
+C03	0	2	0	be	1
+C04	40	3	0	before	1
+C05	41	4	0	binoculars	1
+C06	0	5	0	board	1
+C07	45	6	0	cake sausage	1 1
+C08	41	7	0	chalk	1
+C09	39	8	0	child human	1 1
+C10	42	9	0	dad mom	1 1
+C11	37	10	0	daughter	1
+C12	0	11	0	directors	1
+C13	39	12	0	food parent	1 1
+C14	38	13	0	hammer	1
+C15	43	14	0	has	1
+C16	47	15	0	her	1
+C17	47	16	0	his	1
+C18	0	17	0	is	1
+C19	0	18	0	knocked sawed	1 1
+C20	0	19	0	liked	1
+C21	0	20	0	likes	1
+C22	40	21	0	not	1
+C23	45	22	0	now	1
+C24	0	23	0	of	1
+C25	0	24	0	on	1
+C26	44	25	0	saw	1
+C27	0	26	0	sees	1
+C28	37	27	0	son	1
+C29	38	28	0	telescope	1
+C30	0	29	0	the	1
+C31	0	30	0	to	1
+C32	39	31	0	tool	1
+C33	0	32	0	wants	1
+C34	0	33	0	was	1
+C35	43	34	0	with	1
+C36	0	35	0	wood	1
+C37	0	36	0	writes	1
+C38	42	37	0.8	daughter son	0 0
+C39	44	38	0.5	hammer telescope	0 0
+C40	0	39	0.5	child food human parent tool	0 0 0 0 0
+C41	45	40	0.33	before not	0 0
+C42	0	41	0.33	binoculars chalk	0 0
+C43	46	42	0.33	dad daughter mom son	0 0 0 0
+C44	0	43	0.25	has with	0 0
+C45	48	44	0.25	hammer saw telescope	0 0 0
+C46	46	45	0.09	before cake not now sausage	0 0 0 0 0
+C47	48	46	0.08	before cake dad daughter mom not now sausage son	0 0 0 0 0 0 0 0 0
+C48	0	47	0.08	a her his	0 0 0
+C49	0	48	0.04	before cake dad daughter hammer mom not now sausage saw son telescope	0 0 0 0 0 0 0 0 0 0 0 0

@@ -1,0 +1,219 @@
+<html>
+<head>
+
+<title>Aigents Graphs Demo</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <link rel="stylesheet" href="/ui/jquery-ui-1.11.4.custom/jquery-ui.css">
+  <script src="/ui/jquery-1.11.1.js"></script>
+  <script src="/ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+  <script type="text/javascript" src="/ui/aigents-al.js?20"></script>
+  <script type="text/javascript" src="/ui/aigents-graph.js?20"></script>
+</head>
+
+<!-- Styles needed for Aigents Graph -->
+<style>
+.map-label {text-anchor:middle;font-size:18;}
+.map-text-middle {text-anchor:middle;}
+.map-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.map-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;}
+.map-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.map-button {display:inline;}
+</style>
+
+<style>
+body {background:#eaf1fc !important;margin:0 !important;}
+button {margin-left:10px;margin-top:10px;}
+</style>
+
+<script>
+/*
+Copyright 2018 Anton Kolonin, Aigents Group
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+function custom_graph_setup(){
+	return {
+			path : $('#custom_file_path').val(),
+			text : $('#custom_text').val(),
+			graph : null, //will use builder to build the graph 
+			builder : function(text) {
+				var config = {
+						colors:{likes:"#FF0000",funds:"#008000",is:"#008000",drinks:"#0000FF",site:"#FFFF00",person:'#ffcc00'},
+						//slicing:['site','person'],
+						labeled_links:true
+						};
+				return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);
+			}
+	};
+}
+
+function do_custom_graph_popup(){
+	GraphUI.request_graph_popup("Aigents Custom Graph Demo", "svg_popup", custom_graph_setup());
+}
+
+function do_custom_graph_inline(){
+	GraphUI.request_graph_inline("svg_inline", custom_graph_setup());
+}
+
+//TODO: remove if not needed
+function do_custom_graph_popup_data(){
+	var setup = {
+			//graph : {orders:{a:1,b:3,c:2,"cccccc d e f g h i j k l":2},
+			//links:[["a","b",1,"x"],["a","c",2,"x"],["b","c",2,"y"],["b","cccccc d e f g h i j k l",2,"y"]]},
+			//graph : {orders:{a:1,b:3,c:2,"c d e f g h i j k l m n o p q r s t f":2},
+			//links:[["a","b",1,"x"],["a","c",2,"x"],["b","c",2,"y"],["b","c d e f g h i j k l m n o p q r s t f",2,"y"]]},
+			graph : {orders:{a:1,b:3,c:2,"cc dd ee ff gg hh ii j k l m n o p q r s t f":2},
+			links:[["a","b",1,"x"],["a","c",2,"x"],["b","c",2,"y"],["b","cc dd ee ff gg hh ii j k l m n o p q r s t f",2,"y"]]},
+	};
+	GraphUI.request_graph_popup("Aigents Custom Graph Demo", "svg_popup", setup);
+}
+
+
+function page_onload(){
+	var file = window.location.hash.substring(1);
+	console.log(window.location);
+	if (!AL.empty(window.location.search)){
+		var query = parseQuery(window.location.search.substring(1));
+		if (query.text){
+			$('#custom_file_path').val('');
+			$('#custom_text').val(query.text.replace(/\;/g,'\n'));
+		} else if (query.file){
+			$('#custom_file_path').val(query.file);
+		}
+		if (query.slicing)
+			$('#custom_slicing').val(query.slicing);
+		if (query.layout_threshold != null)
+			$('#custom_layout_threshold').val(query.layout_threshold);
+		if (query.layout_balance != null)
+			$('#custom_layout_balance').val(query.layout_balance);
+		if (query.layout_directions != null)
+			$('#custom_layout_directions').val(query.layout_directions);
+	} else if (!AL.empty(file)){
+		if (file.toLowerCase().endsWith('.txt')){//input is file 
+			$('#custom_file_path').val(file);
+		} else {//input is script
+			var script = file.replace(/%20/g, ' ').replace(/\;/g,'\n');
+			$('#custom_file_path').val('');
+			$('#custom_text').val(script);
+		}
+	}
+	do_custom_graph_inline();
+}
+
+</script>
+
+<body class="ui-widget" onload="page_onload();">
+<!--  <h3>Aigents Graphs Demo</h3>-->
+Graph data url (if entered):<br><!-- /test/graphs/reputation2.txt -->
+<input id="custom_file_path" type="search" placeholder="Custom graph file path" value="" style="width:100%"></input>
+<br>
+<div style="display:inline-block;width:25%;vertical-align:top;">
+Graph data text (if filled in):<br>
+<textarea rows="40" id="custom_text"  style="font-size:10;width:100%;">
+bob likes mary 1.0
+bob likes jane 0.6
+mary likes jane 0.5
+jane visits steemit 0.4
+jane visits facebook 0.2
+bob visits steemit 0.7
+jane likes bob 0.4
+mary likes bob 0.5
+mary visits facebook 0.9
+nil likes bob 0.4
+pam likes nil 0.3
+sue likes pam 0.2
+tom likes sue 0.1
+bob is person
+mary is person
+jane is person
+steemit is site
+facebook is site
+bob image https://aigents.com/ui/img/aigent32.png
+jane image https://aigents.com/ui/img/aigents_jane_64.png
+mary image https://aigents.com/ui/img/aigents_mary_64.png
+steemit image https://aigents.com/ui/img/steemit_logo_new.png
+facebook image https://aigents.com/ui/img/fb_logo.png
+ethereum image https://aigents.com/ui/img/eth32.png
+googleplus image https://aigents.com/ui/img/g+46.png
+</textarea>
+<button id="do_custom_graph_inline" onclick="do_custom_graph_inline()"><b>Draw inline</b></button> 
+<br>
+<button id="do_custom_graph_popup" onclick="do_custom_graph_popup()"><b>Draw in pop-up</b></button>
+ <!-- 
+ or <button id="do_custom_graph_popup_data" onclick="do_custom_graph_popup_data()">Render data popup!</button> 
+-->
+<br>
+</div>
+
+<div style="display:inline-block;;width:70%;">
+<span id="graph_inline_widgets">
+<span>Slicing mode:</span>
+ <select title="Graph view splitting by node types" class="graph_changer" id="custom_slicing">
+  <option value="0" selected="selected">None</option>
+  <option value="1">Vertical</option>
+  <option value="2">Horizontal</option>
+ </select>&nbsp;
+<span>Node radius:</span>
+ <select title="Graph node radius" class="graph_changer" id="custom_node_radius">
+  <option value="10">10</option>
+  <option value="20">20</option>
+  <option value="30" selected="selected">30</option>
+  <option value="40">40</option>
+  <option value="50">50</option>
+ </select>&nbsp;
+<br>
+<span>Layout - threshold:</span>
+ <select title="Force-directed layout threshold" class="graph_changer" id="custom_layout_threshold">
+  <option value="1" selected="selected">1</option>
+  <option value="2">2</option>
+  <option value="5">5</option>
+  <option value="10">10</option>
+  <option value="0">None</option>
+ </select>&nbsp;
+<span>balance:</span>
+ <select title="Force-directed layout push/pull balance" class="graph_changer" id="custom_layout_balance">
+  <option value="10">10</option>
+  <option value="30">30</option>
+  <option value="50">50</option>
+  <option value="70" selected="selected">70</option>
+  <option value="90">90</option>
+ </select>&nbsp;
+<span>directions:</span>
+ <select title="Force-directed layout directions" class="graph_changer" id="custom_layout_directions">
+  <option value="3">Both</option>
+  <option value="1" selected="selected">Horizontal</option>
+  <option value="2">Vertical</option>
+ </select>&nbsp;
+<br>
+<span>Filter:</span><input title="Node name filtering option" id="custom_node_filter" type="search" placeholder="Node filter" size="60" value=""></input>
+<span>Range:</span>
+ <select title="Filter range" class="graph_changer" id="custom_filter_range">
+  <option value="1" selected="selected">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+ </select>&nbsp;
+<br>
+<span id="node_types"></span><span id="link_types"></span>
+</span>
+<div style="margin:2px;width:99%;height:500;border: 2px inset gray;">
+	<svg id="svg_inline" style="width:100%;height:100%;"></svg>
+</div>
+</div>
+
+<script>
+$('#custom_file_path').on("search",function() { do_custom_graph_inline(); });
+</script>
+
+<div id="graph_dialog" title="Aigents Graphs Demo" style="display:none;"></div>
+ 
+</body>
+</html>

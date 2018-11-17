@@ -1,0 +1,8 @@
+tuna isa 0.5755021714720909
+isa fish 1.5
+fish isa 1.5
+eagle isa 1.2035333940851327
+isa bird 1.6629650127224291
+isa tuna 1.1
+a b 1
+b a 1

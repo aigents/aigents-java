@@ -1,0 +1,93 @@
+<style type="text/css">
+
+#things_list { list-style-type: none; margin: 0; padding: 0; width: 100%; }
+#things_list li { margin: 3px; padding: 0.4em; height: 18px; }
+
+#sites_list { list-style-type: none; margin: 0; padding: 0; width: 100%; }
+#sites_list li { margin: 3px; padding: 0.4em; height: 18px; }
+
+#news_list { list-style-type: none; margin: 0; padding: 0; width: 100%; }
+#news_list li { margin: 3px; padding: 0.4em; }
+
+#news_list li .news_check_date {}
+#news_list li .news_check {display:inline;}
+#news_list li .news_date {display:inline;font-style:italic;font-size:14;}
+/*
+#news_list li .news_text {white-space: pre-wrap; word-wrap: break-word;}
+#news_list li .news_source {font-size:14;}
+*/
+.news_text {white-space: pre-wrap; word-wrap: break-word;}
+.news_source {font-size:14;}
+
+#peers_list { list-style-type: none; margin: 0; padding: 0; width: 100%; }
+#peers_list li { margin: 3px; padding: 0.4em; height: 18px; }
+
+.ui-icon-mic { cursor:pointer;background-image: url(/img/mic.png) !important;  }
+.ui-icon-micr { cursor:pointer;background-image: url(/img/micr.png) !important; }
+
+.list .ui-selecting { background: #77d5f7; }
+.list .ui-selected { background: #0871A0; color: white; }
+
+*+html #things_bar { display: inline; } /* support: IE7 */
+*+html #sites_bar { display: inline; } /* support: IE7 */
+*+html #news_bar { display: inline; } /* support: IE7 */
+*+html #peers_bar { display: inline; } /* support: IE7 */
+*+html #talks_bar { display: inline; } /* support: IE7 */
+  
+.ui-widget-content {overflow:hidden;white-space: nowrap;}
+
+.frame {width:100%;height:100%;margin:0 auto;position: relative;}
+
+	#android {position:absolute;top:-10;left:0;}
+	
+	.home-ru {position:absolute;left:95;top:-2;text-decoration:none;}
+	.home-zh {position:absolute;left:135;top:20;text-decoration:none;}
+	.home-en {position:absolute;left:49;top:18;text-decoration:none;}
+	#eyes {position:absolute;left:200;top:0;}
+
+	.about {position:absolute;left:200;top:-7;font-size:14;width:310px;height:17px;white-space: normal;padding:3px;color:#9a8576;white-space:nowrap;overflow:hidden;}
+	.user  {font-size:14;white-space: normal;padding:3px;color:#ffffff;white-space:nowrap;overflow:hidden;font-weight:bold;display:inline;text-align:right;}
+
+	.status {position:absolute;z-index:1;left:200;top:-8;font-size:14;width:295px;height:17px;white-space:nowrap;overflow:hidden;padding:3px}
+	.action {position:absolute;z-index:1;left:210;top:15;font-size:14;width:295px;height:17px;white-space:nowrap;overflow:hidden;padding:3px}
+
+	.count {position: absolute;z-index: 1;left:295;top: 35;font-size:14px;width:18px;height:18px;border-radius:15px;margin:0 auto;margin-left:auto;margin-right:auto;text-align:center;padding:5;}
+	.count {color:9a8576;background:yellow;border-color:#9a8576;}
+
+	#tabs {position:absolute;left:0;top:38;}
+		.pane {margin:0;}
+			.list {width:100%;height:400px;overflow-y:auto;}
+				.name  {width:390px;}
+			.log {width:100%;height:500px;overflow-y:auto;overflow-x:hidden;}
+				.saying {border-top-left-radius: 8px;border-top-right-radius: 8px;border-bottom-left-radius: 8px;border-bottom-right-radius: 8px;}
+
+#copyright {font-size:10;color:#04398e;background:#2191c0;}
+
+.input-bar .ui-icon {width:32px !important;height:32px !important;margin-top:-16px !important;margin-left:-16px !important;}
+.ui-icon-add { background-image: url(img/add.png) !important;  }
+.ui-icon-del { background-image: url(img/del.png) !important; }
+.ui-icon-open { background-image: url(img/edit.png) !important; }
+.ui-icon-say { background-image: url(img/talks.png) !important; }
+.ui-icon-props { background-image: url(img/folks_gb.png) !important; }
+.ui-icon-facebook { background-image: url(img/fb_logo.png) !important;}
+.ui-icon-google { background-image: url(img/g+46.png) !important;}
+.ui-icon-vkontakte { background-image: url(img/fvk_logo.png) !important;}
+
+.log-in, .status {background:#fffff0;}
+
+/*
+.log-in {margin-top:5px;width:90%;white-space: normal;}
+.log-out {margin-top:5px;width:90%;white-space: normal;float:right;}
+*/
+.log-in {width:90%;white-space: normal;}
+.log-out {width:90%;white-space: normal;float:right;}
+
+
+body {background:#ffffd8 !important;}
+
+fieldset { padding:0; border:0; margin-top:25px; }
+.dialog-label { display:block; }
+.dialog-input { display:block; margin-bottom:12px; width:95%; padding: .4em; }
+.dialog-text { display:block; margin-bottom:12px; width:95%; padding: .4em; }
+
+</style>

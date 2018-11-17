@@ -1,0 +1,789 @@
+<html>
+<head>
+
+<title>SingluarityNET & OpenCog Graphs Demo</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <link rel="stylesheet" href="ui/jquery-ui-1.11.4.custom/jquery-ui.css">
+  <script src="ui/jquery-1.11.1.js"></script>
+  <script src="ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+  <script type="text/javascript" src="ui/aigents-al.js?4"></script>
+  <script type="text/javascript" src="ui/aigents-graph.js?4"></script>
+</head>
+
+<style>
+
+body {background:#eaf1fc !important;margin:0 !important;}
+.menu-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.menu-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;white-space: nowrap;}
+.menu-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;white-space: nowrap;}
+.menu-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;white-space: nowrap;}
+.menu-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.menu-button {display:inline;}
+.input-bar {display:inline-block;height:36;width:100%;background:#2191c0;}
+.input-text {display:inline;width:100%;margin-top:3px;}
+.input-button {display:inline;float:right;height:32px;width:32px;}
+#pane_areas {float:left;width:15%;}
+#pane_areas .list {overflow:auto;}
+#pane_areas .list ol {padding:0px;margin:0px;}
+#pane_areas .list ol li {white-space:normal;margin:3px;overflow:hidden;white-space:nowrap;}
+#pane_aigents {width:85%;}
+#pane_aigents .list ol {padding:0px;margin:0px;}
+#pane_aigents .list ol li {white-space:normal;margin:3px;}
+#pane_aigents .list ol li iframe {float:left;margin:2px;}
+#pane_aigents .list ol li img {float:left;margin:2px;}
+#pane_things .list ol {padding:0px;margin:0px;}
+
+.map-label {text-anchor:middle;font-size:18;}
+.map-text-middle {text-anchor:middle;}
+.map-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.map-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;}
+.map-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.map-button {display:inline;}
+
+</style>
+
+<!-- test comment -->
+
+<script>
+
+/*
+Copyright 2018 SinglarityNET Foundation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+function ajax_request_uri_method_graph(uri,callback,silent,method,data) {
+	$.ajax({
+		type: method,
+		data: data,
+		cache: false, 
+		crossDomain : true, 
+		url: uri,
+		dataType : 'text',
+		xhrFields: { withCredentials: true },
+		success: function(data, textStatus, jqXHR) { 
+			if (callback)
+				callback(data);
+		},
+		error: function(jqXHR, textStatus, errorThrown) { 
+			console.log(textStatus+": "+(errorThrown ? errorThrown : "possibly no connection")+"."); 
+		},
+		beforeSend: function(xhr){ 
+			xhr.withCredentials = true; 
+		}
+	});
+}
+
+function requestGraph(path_or_data,builder,subtitle,path_is_data){
+	var title = "SingluarityNET Graphs Demo";
+	if (subtitle)
+		title += ' - ' + subtitle;
+	var height = $( window ).height() - 30;
+	var width = $( window ).width() - 30;
+    var dialog = $( '#graph_dialog' ).dialog({   	 
+    	height: height, width: width,
+    	top: 15, left: 15,
+    	autoOpen: false, modal: true
+    });
+    dialog.dialog('option', 'title', title);
+    dialog.dialog( "open" );
+	dialog.html("Loading...");
+	dialog.html("<div style=\"width:100%;height:100%;\"><svg id=\"svg\" style=\"position:absolute;top:0;left:0;height:100%;width:100%;\"></svg></div>");
+
+	//TODO: make configurable padding/radius working (fix in engine)!
+	var svg = AigentsSVG.init("svg"/*,40,30*/);
+	
+	if (path_is_data)
+		builder(svg,path_or_data);
+	else
+		ajax_request_uri_method_graph(path_or_data,function(data){builder(svg,data);},true,'GET',"");
+}
+
+
+//////////////// mi graph builder
+function mi_build_links(data){
+	var lines = data.split("\n");
+	var links = [];
+	if (AL.empty(lines))
+		return null;
+	for (var i = 0; i < lines.length; i++){
+		var line = lines[i];
+		if (AL.empty(line))
+			break;
+		var link = line.trim().split(" ");//TODO: tab-delimited?
+		if (!AL.empty(link) && link.length == 3){
+			link[2] = parseFloat(link[2]);
+			links.push(link);
+		}
+	}
+	return links;
+}
+
+//////////////// category graph builder
+function cat_build_links(data){
+	var lines = data.split("\n");
+	var links = [];
+	if (AL.empty(lines))
+		return null;
+	for (var i = 0; i < lines.length; i++){
+		var line = lines[i];
+		if (AL.empty(line))
+			break;
+		var link = line.trim().split("\t");
+		if (!AL.empty(link) && (link.length == 6 || (link.length == 5 && line.substring(0,1) == '\t'))){
+			if (link.length == 5)
+				link.unshift('');
+			var label = link[0];
+			var parent = link[1];
+			var child = link[2];
+			link[0] = child;
+			link[1] = parent;
+			link[2] = label;
+			links.push(link);
+		}
+	}
+	return links;
+}
+
+//////////////// grammar graph builder
+function grammar_build_links(data){
+	var lines = data.split("\n");
+	var links = [];
+	if (AL.empty(lines))
+		return null;
+	for (var l = 0; l < lines.length; l++){
+		var line = lines[l];
+		if (AL.empty(line))
+			continue;
+		//get code
+		if (line.substring(0,3) == '% C'){//% CXX
+			var split = line.split(' ');
+			if (!split || split.length < 2)
+				continue;
+			var code = split[1];//CXX
+			//get words
+			if (++l >= lines.length || AL.empty(line = lines[l]))//get next line
+				break;
+			var colon = line.indexOf(':');
+			if (colon == -1)
+				break;
+			line = line.substring(0,colon);
+			var words = line.split(' ');
+			if (!words || words.length < 1)
+				break;
+			for (var i = 0; i < words.length; i++)//remove quotes
+				words[i] = words[i].substring(0,words[i].length-1).substring(1);
+			//get rules
+			if (++l >= lines.length || AL.empty(line = lines[l]))//get next line
+				break;
+			var semicolon = line.indexOf(';');
+			if (semicolon == -1)
+				break;
+			line = line.substring(0,semicolon);
+			var rules = line.split(' or ');
+			for (var i = 0; i < rules.length; i++){//remove parentheses
+				rules[i] = rules[i].substring(0,rules[i].length-1).substring(1);
+				links.push([code,rules[i],'cd']);//category->disjunct
+				var connectors = rules[i].split(' & ');
+				if (!connectors || connectors.length < 1)
+					;//TODO: OOPS!
+				for (var j = 0; j < connectors.length; j++){
+					var connector = connectors[j];
+					var sign = connector.substring(connector.length - 1);
+					var word = connector.substring(0,connector.length - 1);
+					links.push([rules[i],word,sign]);//word->category
+				}
+			}
+			for (var i = 0; i < words.length; i++)
+				links.push([words[i],code,'wc']);//word->category
+		}
+	}
+	return links;
+}
+
+////////////////grammar category connectivity graph builder
+function grammar_build_catconnect_links(data){
+	var lines = data.split("\n");
+	var links = [];
+	if (AL.empty(lines))
+		return null;
+	for (var l = 0; l < lines.length; l++){
+		var line = lines[l];
+		if (AL.empty(line))
+			continue;
+		//get code
+		if (line.substring(0,3) == '% C'){//% CXX
+			var split = line.split(' ');
+			if (!split || split.length < 2)
+				continue;
+			var code = split[1];//CXX
+			//get words
+			if (++l >= lines.length || AL.empty(line = lines[l]))//get next line
+				break;
+			var colon = line.indexOf(':');
+			if (colon == -1)
+				break;
+			line = line.substring(0,colon);
+			var words = line.split(' ');
+			if (!words || words.length < 1)
+				break;
+			for (var i = 0; i < words.length; i++)//remove quotes
+				words[i] = words[i].substring(0,words[i].length-1).substring(1);
+			//get rules
+			if (++l >= lines.length || AL.empty(line = lines[l]))//get next line
+				break;
+			var semicolon = line.indexOf(';');
+			if (semicolon == -1)
+				break;
+			line = line.substring(0,semicolon);
+			var rules = line.split(' or ');
+			var catcounts = {};
+			for (var i = 0; i < rules.length; i++){//remove parentheses
+				//TODO: fix this quck hack which just extracts all conector names
+				var rule = replace_all(rules[i],'{','');
+				rule = replace_all(rule,'}','');
+				rule = replace_all(rule,'(','');
+				rule = replace_all(rule,')','');
+				rule = replace_all(rule,'&','|');
+				rule = replace_all(rule,'or','|');
+				var connectors = rule.split('|');
+				if (!connectors || connectors.length < 1)
+					;//TODO: OOPS!
+				for (var j = 0; j < connectors.length; j++){
+					var connector = connectors[j].trim();
+					var sign = connector.substring(connector.length - 1);
+					var word = connector.substring(0,connector.length - 1);
+					var cats = [word.substring(0,3),word.substring(3,6)];
+					var other = sign == '-' ? cats[0] : cats[1];
+					console.log(code+"|"+rules[i]+"|"+word+"|"+sign+"|"+cats+"|"+other);
+					//links.push([rules[i],word,sign]);//word->category
+					//links.push([code,other,'cc']);
+					counter_add(catcounts,other,1);
+				}
+			}
+			//for (var i = 0; i < words.length; i++)
+				//links.push([words[i],code,'wc']);//word->category
+			for (var cat in catcounts)
+				links.push([code,cat,catcounts[cat],'cc']);//cattocat
+		}
+	}
+	return links;
+}
+
+//////////////// senses builder
+function senses_build_links(data,nodes){
+	var lines = data.split("\n");
+	var links = [];
+	if (AL.empty(lines))
+		return null;
+	for (var l = 0; l < lines.length; l++){
+		var line = lines[l];
+		if (AL.empty(line))
+			continue;
+		var items = line.split('\t');
+		if (AL.empty(items) || line.length < 5)
+			continue;
+		var ws = items[0]+'@'+items[1];
+		links.push([ws,items[0],items[2],'sw']);//sense,word,1 (default probability)
+		if (nodes){
+			mapmap_put(nodes,ws,'is','sense');
+			mapmap_put(nodes,items[0],'is','word');
+		}
+		var words = items[3].split(' ');
+		var probs = items[4].split(' ');
+		if (words && probs){
+			var count = Math.min(words.length,probs.length);
+			for (var i = 0; i < count; i++){
+				links.push([words[i],ws,probs[i],'ws']);//feature,sense,feature value
+				if (nodes)
+					mapmap_put(nodes,words[i],'is','word');
+			}
+		}
+	}
+	return links;
+}
+
+//////////////// parses graph builder
+//layers:words,phrases,word-instances
+function parses_build_links(data,mode,nodes){
+	var wordtowords = {};
+	var lines = data.split("\n");
+	var links = [];
+	if (AL.empty(lines))
+		return null;
+	for (var l = 0; l < lines.length; l++){
+		var line = lines[l];
+		if (AL.empty(line))
+			continue;
+		//read phrase
+		var phrase = line.trim();
+		var phrasewords = phrase.split(' ');
+		var phrasestowords = {};
+		for (var i = 0; i < phrasewords.length; i++)
+			counter_add(phrasestowords,phrasewords[i],1);
+		//read parses
+		l++;
+		for (; l < lines.length; l++){//count per-phrase counts for link weights
+			var line = lines[l];
+			if (AL.empty(line))//end of parse
+				break;
+			var items = line.split(' ');
+			if (items.length < 4)//end of parse or error
+				break;
+			var left = items[1];
+			var right = items[3];
+			var key = left + ' ' + right;//word->word key
+			counter_add(wordtowords,key,1);
+			//handle missed ###LEFT-WALL###
+			if (!phrasestowords[left])
+				phrasestowords[left] = 1;
+			if (!phrasestowords[right])
+				phrasestowords[right] = 1;
+			//TODO: word instances!?
+		}
+		if (mode == 1 || mode ==3) for (var word in phrasestowords){
+			links.push([phrase,word,phrasestowords[word],'pw']);//phrase to word
+			if (nodes){
+				mapmap_put(nodes,phrase,'is','phrase');
+				mapmap_put(nodes,word,'is','word');
+			}
+		}
+	}
+	if (mode == 2 || mode ==3) for (var wordpair in wordtowords){
+		var words = wordpair.split(' ');
+		links.push([words[0],words[1],wordtowords[wordpair],'ww']);//phrase to word
+		if (nodes){
+			mapmap_put(nodes,words[0],'is','word');
+			mapmap_put(nodes,words[1],'is','word');
+		}
+	}
+	return links;
+}
+
+//////////////// OpenCog Atom Types graph builder
+function atoms_build_links(data){
+	var lines = data.split("\n");
+	var links = [];
+	if (AL.empty(lines))
+		return null;
+	for (var l = 0; l < lines.length; l++){
+		var line = lines[l].trim();
+		if (AL.empty(line))
+			continue;
+		line = line.trim();
+		if (line.substring(0,2) == '//' || line.indexOf('<-') == -1)
+			continue;
+		var uncommented = line.split('//');
+		if (uncommented.length < 1)
+			continue;
+		
+		var terms = uncommented[0].trim().split('<-');
+		if (terms.length != 2)
+			continue;
+		var child = terms[0].trim();
+		var parents = terms[1].trim().split(',');
+		if (parents.length < 1)
+			continue;
+		for (var i = 0; i < parents.length; i++){
+			links.push([child,parents[i].trim(),1.0]);
+		}
+	}
+	return links;
+}
+
+
+//////////////// interfaces
+
+function do_mi_graph(){
+	GraphUI.request_graph_popup("Language Learning Mutual Information", "svg_popup", {
+			path : $('#mi_file_path').val(),
+			builder : function(text) {
+				var config = {};
+				var links = mi_build_links(text);
+				var orders = GraphOrder.symmetric(links,true);
+				return {
+					nodes:null,
+					links:links,
+					orders:orders,
+					config:config
+				};
+			},
+		slicing:0,
+		node_radius:20,
+		layout_threshold:0,
+		layout_directions:1
+	});
+}
+	
+function do_cat_graph(){
+	GraphUI.request_graph_popup("Language Learning Categories", "svg_popup", {
+		path : $('#cat_file_path').val(),
+		builder : function(text) {
+			var rooted = $('#cat_root_check').prop('checked');
+			var links = cat_build_links(text);
+			//build labels
+			var nodes = mapmap_init();
+			for (var i = 0; i < links.length; i++)//remembere all labels
+				mapmap_put(nodes,links[i][0],'label',links[i][4]);
+			//build order keys
+			var parents = {};
+			for (var i = 0; i < links.length; i++)
+				counter_put(parents,links[i][0],links[i][1]);
+			for (var i = 0; i < links.length; i++){
+				var key = links[i][4].substring(0,10);
+				var e = parents[links[i][0]]; 
+				for (;;){
+					if (!e || e == "0")
+						break;
+					var label = nodes[e].label; 
+					key = label.substring(0,10) + '/' + key;
+					e = parents[e];
+				}
+				mapmap_put(nodes,links[i][0],'key',key);
+				links[i][3] = null;
+			}
+			var orders = GraphOrder.directed(links);//directed and iterative
+			if (!rooted)
+				delete orders['0'];//if not needed, delete root from orders
+			else
+				mapmap_put(nodes,'0','label','');//set roots label to blank
+			return {
+				nodes:nodes,
+				links:links,
+				orders:orders,
+				config:{}
+			};
+		},
+		slicing:0,
+		node_radius:30,
+		layout_threshold:1,
+		layout_balance:30,
+		layout_directions:3
+	});
+}
+
+function do_grammar_graph(){
+	GraphUI.request_graph_popup("Language Learning Link Grammar Dictionary", "svg_popup", {
+		path : $('#grammar_file_path').val(),
+		builder : function(text) {
+			var config = {
+					colors:{'-':"#0000FF",'+':"#FF0000",wc:'#000000',cd:'#00FF00',connector:'#FF00FF',word:'#F0F0F0',disjunct:'#00FF00'},
+					slicing:['connector','disjunct','category','word'],
+					labeled_links:true,
+					background:'#F0F0F0'
+			};
+			//TODO:
+			var links = grammar_build_links(text);//returns [from,to,type]
+			var orders = GraphOrder.directed(links,false,null,2);//directed and iterative
+			var nodes = {};
+			for (var i = 0; i < links.length; i++){
+				var link = links[i];
+				var left = link[0];
+				var right = link[1];
+				var type = link[2];
+				//hacky fix!:
+				link.push(link[2]);
+				link[2] = 1;
+				//wc|cd|+/-
+				if (type == 'wc'){//word->category && left.substring(0,1) != "C"
+					mapmap_put(nodes,left,'key',links[i][1] + left);
+					mapmap_put(nodes,left,'is','word');
+					mapmap_put(nodes,right,'is','category');
+				}else if (type == 'cd'){//category->disjunct
+					mapmap_put(nodes,left,'is','category');
+					mapmap_put(nodes,right,'is','disjunct');
+				}else{//+/-
+					mapmap_put(nodes,left,'is','disjunct');
+					mapmap_put(nodes,right,'is','connector');
+				}
+			}
+			return {
+				nodes:nodes,
+				links:links,
+				orders:orders,
+				config:config
+			};
+		},
+		slicing:1,
+		layout_threshold:0
+	});
+}
+
+//TODO:
+function do_catconnect_graph(){
+	GraphUI.request_graph_popup("Language Learning Category Connectivity", "svg_popup", {
+		path : $('#grammar_file_path').val(),
+		builder : function(text) {
+			var config = {
+					//colors:{'-':"#0000FF",'+':"#FF0000",cc:'#000000'},
+					//labeled_links:true
+			};
+			//TODO:
+			var links = grammar_build_catconnect_links(text);//returns [from,to,type]
+			var orders = GraphOrder.directed(links,false,null,2);//directed and iterative
+			var nodes = {};
+			for (var i = 0; i < links.length; i++){
+				var link = links[i];
+				var left = link[0];
+				var right = link[1];
+				var type = link[3];
+				//TODO: what is that!?
+				//hacky fix!:
+				//link.push(link[2]);
+				//link[2] = 1;
+				if (type == 'cc'){//category->category
+					mapmap_put(nodes,left,'is','category');
+					mapmap_put(nodes,right,'is','category');
+				}
+			}
+			console.log(links);
+			return {
+				nodes:nodes,
+				links:links,
+				orders:orders,
+				config:config
+			};
+		},
+		layout_directions:3,
+		layout_balance:99,
+		layout_threshold:1
+	});
+}
+
+function do_senses_graph(){
+	GraphUI.request_graph_popup("Language Learning Sense Disambiguation", "svg_popup", {
+		path : $('#senses_file_path').val(),
+		builder : function(text) {
+			var config = {
+				colors:{'sw':"#00FF00",'ws':"#808080"},
+				slicing:['sense','word'],
+			};
+			var nodes = mapmap_init();
+			var links = senses_build_links(text,nodes);
+			//directed, 1 iteration only because of cycles over words, with account to weight!
+			var orders = GraphOrder.directed(links,true,null,1);
+			return {
+				nodes:nodes,
+				links:links,
+				orders:orders,
+				config:config
+			};
+		},
+		slicing:0,
+		layout_threshold:1,
+		layout_balance:50,
+		layout_directions:3
+	});
+}
+
+function do_parses_graph(){
+	GraphUI.request_graph_popup("Language Learning Parses", "svg_popup", {
+		path : $('#parses_file_path').val(),
+		text : $('#parses_text').val(),
+		builder : function(text) {
+			var mode = $('#parses_graph_mode').val();
+			var nodes = mapmap_init();
+			var links = parses_build_links(text,mode,nodes);
+			var linkstypes = mode == 3 ? {pw:true} : null;//restrict mode computation to phrase-word links 
+			var orders = GraphOrder.directed(links,false,linkstypes,1);//directed, 1 iteration only because of cycles over words!
+			var config = {
+					colors:{'ww':'#800080','pw':'#808080','phrase':'#808080'},
+					slicing: mode == 3 ? ['word','phrase'] : null,
+				};
+			return {
+				nodes:nodes,
+				links:links,
+				orders:orders,
+				config:config
+			};
+		},
+		slicing:0,
+		layout_threshold:1,
+		layout_balance:90,
+		layout_directions:3
+	});
+}
+
+function do_atoms_graph(){
+	GraphUI.request_graph_popup("OpenCog Atom Type Hierarchy", "svg_popup", {
+		path : $('#atoms_script_path').val(),
+		builder : function(text) {
+			var config = {};
+			var links = atoms_build_links(text);
+			var orders = GraphOrder.directed(links);//directed and iterative
+			for (var p in orders)
+				if (orders.hasOwnProperty(p))
+					orders[p] = Math.log10(parseFloat(orders[p]));
+			return {
+				nodes:null,
+				links:links,
+				orders:orders,
+				config:config
+			};
+		},
+		slicing:0,
+		node_radius:20,
+		layout_threshold:1,
+		layout_directions:3,
+		layout_balance:50
+	});
+}
+
+//TODO: use library version 
+function parseQuery(queryString) {
+    var query = {};
+    var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+    for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].split('=');
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+    }
+    return query;
+}
+
+function page_onload(){
+	var cmd = window.location.hash.substring(1);
+	console.log(window.location);
+	if (!AL.empty(window.location.search)){
+		var query = parseQuery(window.location.search.substring(1));
+		if (query.cmd)
+			cmd = cmd;
+	}
+	if (!AL.empty(cmd))
+		cmd = cmd.toLowerCase();
+	switch (cmd){
+	case "atoms": do_atoms_graph();break;
+	case "mi": do_mi_graph();break; 
+	case "senses": do_senses_graph();break;
+	case "grammar": do_grammar_graph();break;
+	case "cats": do_cat_graph();break;
+	case "parses": do_parses_graph();break;
+	}
+}
+
+
+</script>
+
+<body class="ui-widget" onload="page_onload();">
+<h2>SingluarityNET & OpenCog Graphs Demo</h2>
+
+Click to <button id="do_atoms_graph" onclick="do_atoms_graph()">Explore OpenCog Atoms</button> from script<br> 
+<input id="atoms_script_path" type="search" placeholder="Atom Types script path" style="width:100%" value="/test/nlp/atom_types.script"></input><br>
+(copy of <a href="https://github.com/opencog/atomspace/blob/master/opencog/atoms/proto/atom_types.script" target="_blank">https://github.com/opencog/atomspace/blob/master/opencog/atoms/proto/atom_types.script</a>)
+<p>
+
+Click to <button id="do_mi_graph" onclick="do_mi_graph()">View Mutual Information</button> from file<br> 
+<input id="mi_file_path" type="search" placeholder="MI file path" style="width:100%" value="/test/nlp/poc-english_ex-fmi-allLG.txt"></input>
+<p>
+
+Click to <button id="do_senses_graph" onclick="do_senses_graph()">View Word Senses</button> from file <br> 
+<input id="senses_file_path" type="search" placeholder="Senses file path" style="width:100%" value="/test/nlp/senses_demo.txt"></input>
+<p> 
+
+Click to <button id="do_grammar_graph" onclick="do_grammar_graph()">View Link Grammar</button> or <button id="do_catconnect_graph" onclick="do_catconnect_graph()">View Category Connectivity</button> from file <br> 
+<input id="grammar_file_path" type="search" placeholder="Grammar file path" style="width:100%" value="/test/nlp/poc-english_5C_2018-06-06_0004.4.0.dict.txt"></input>
+<p>
+
+Click to <button id="do_cat_graph" onclick="do_cat_graph()">View Categories</button>
+ rooted <input id="cat_root_check" type="checkbox" checked/> from file <br> 
+<input id="cat_file_path" type="search" placeholder="Categories file path" style="width:100%" value="/test/nlp/26_cat_tree.txt"></input>
+<p>
+
+Click to <button id="do_parses_graph" onclick="do_parses_graph()">View Parses</button> for
+ <select id="parses_graph_mode">
+  <option value="1">Phrases with words</option>
+  <option value="2" selected="selected">Linked words </option>
+  <option value="3">Phrases with linked words</option>
+ </select> 
+ from file (if provided) <br>
+<input id="parses_file_path" type="search" placeholder="Parses file path" style="width:100%" value="/test/nlp/poc_english_noamb_parse_ideal.txt"></input><br>
+or text (if entered)<br>
+<textarea rows="16" cols="80" id="parses_text"  style="font-size:10">
+a mom is a human . 
+0 ###LEFT-WALL### 2 mom
+0 ###LEFT-WALL### 3 is
+0 ###LEFT-WALL### 6 .
+1 a 2 mom
+2 mom 3 is
+3 is 5 human
+4 a 5 human
+
+a dad is a human . 
+0 ###LEFT-WALL### 2 dad
+0 ###LEFT-WALL### 3 is
+0 ###LEFT-WALL### 6 .
+1 a 2 dad
+2 dad 3 is
+3 is 5 human
+4 a 5 human
+
+a mom is a parent . 
+0 ###LEFT-WALL### 2 mom
+0 ###LEFT-WALL### 3 is
+0 ###LEFT-WALL### 6 .
+1 a 2 mom
+2 mom 3 is
+3 is 5 parent
+4 a 5 parent
+</textarea>
+<p> 
+
+<!-- stub for popup dialog -->
+<div id="graph_dialog" title="SingluarityNET Graphs Demo" style="display:none;"></div>
+
+<!-- template for popup widgets -->
+<span id="graph_inline_widgets" style="display:none;">
+Slicing mode:
+ <select title="Graph view splitting by node types" class="graph_changer" id="custom_slicing">
+  <option value="0">None</option>
+  <option value="1" selected="selected">Vertical</option>
+  <option value="2">Horizontal</option>
+ </select>&nbsp;
+Node radius:
+ <select title="Graph node radius" class="graph_changer" id="custom_node_radius">
+  <option value="10">10</option>
+  <option value="20">20</option>
+  <option value="30" selected="selected">30</option>
+  <option value="40">40</option>
+  <option value="50">50</option>
+ </select>&nbsp;
+<br>
+Layout - threshold:
+ <select title="Force-directed layout threshold" class="graph_changer" id="custom_layout_threshold">
+  <option value="1" selected="selected">1</option>
+  <option value="2">2</option>
+  <option value="5">5</option>
+  <option value="10">10</option>
+  <option value="0">None</option>
+ </select>&nbsp;
+balance:
+ <select title="Force-directed layout push/pull balance" class="graph_changer" id="custom_layout_balance">
+  <option value="10">10</option>
+  <option value="30">30</option>
+  <option value="50">50</option>
+  <option value="70">70</option>
+  <option value="90" selected="selected">90</option>
+  <option value="99">99</option>
+ </select>&nbsp;
+directions:
+ <select title="Force-directed layout directions" class="graph_changer" id="custom_layout_directions">
+  <option value="3">Both</option>
+  <option value="1" selected="selected">Horizontal</option>
+  <option value="2">Vertical</option>
+ </select>&nbsp;
+<br>
+Filter:<input title="Node name filtering option" id="custom_node_filter" type="search" placeholder="Node filter" size="60" value=""></input><br>
+<span id="node_types"></span><span id="link_types"></span>
+</span>
+ 
+<script>
+$('#mi_file_path').on("search",function() { do_mi_graph(); });
+</script>
+ 
+</body>
+</html>

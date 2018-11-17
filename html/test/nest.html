@@ -1,0 +1,302 @@
+<html>
+  <head>
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+  </head>
+  <body>
+  	Chat and Voice interface to Thermostats at <a href="https://nest.com/" target="_blank">https://nest.com/</a>
+  	<br>
+    <input style="width:400px;" type='text' id='token' placeholder='In order to start - type or paste your access token in'>
+    <br><br>
+    <textarea style="width:400px;height:500px" id='log' placeholder='Conversation log'></textarea>
+    <br>
+    <input style="width:400px;" type='text' id='input' placeholder='Type your input and hit Enter key'>
+    <img id='mic' src="http://aigents.com/img/mic.png" title="Click to speak aloud" onclick="hear();"></img>
+	<br><br>
+  	<span style="font-size:small;">(C) 2015 Anton Kolonin at <a href="http://aigents.com/" target="_blank">http://aigents.com/</a></span>
+    <script>
+    	var data = null;
+    	
+    	
+    	/*
+    	//this does not work so far
+    	var uri1 = 'https://home.nest.com/login/oauth2?client_id=CLIENT_ID&state=STATE';
+    	$.ajax({
+    		type: 'GET', cache: false, url: uri1,
+    		dataType : 'text',
+    		success: function(data, textStatus, jqXHR) { 
+    			console.log("response:"+data);
+    		},
+    		error: function(jqXHR, textStatus, errorThrown) { 
+    			console.log("error:"+(errorThrown ? errorThrown : "possibly no connection"));
+    		}
+    	});
+    	*/
+    	
+      	var ref = new Firebase('wss://developer-api.nest.com');
+    	/*
+    	//Uncaught Error: This custom Firebase server ('nest.com') does not support delegated login.
+		ref.authWithPassword({
+			  "email": "bobtony@firebase.com",
+			  "password": "correcthorsebatterystaple"
+			}, function(error, authData) {
+			  if (error) {
+			    console.log("Login Failed!", error);
+			  } else {
+			    console.log("Authenticated successfully with payload:", authData);
+			  }
+			});   
+    	*/
+    	
+    	//TODO: proper auth
+    	//var token = '';
+      	//ref.auth(token);
+	
+    	$('#token').change( function(){
+          	ref.auth($('#token').val());
+    	});
+    	$('#token').on("paste", function(e) { 
+    	    var pastedData = e.originalEvent.clipboardData.getData('text');
+          	ref.auth(pastedData);
+    	});
+    	
+    	var welcome = true;
+      	ref.on('value', function(snapshot) {
+      		data = snapshot.val();
+      		console.log(snapshot.val());
+      		if (welcome){
+      			welcome = false;
+            	get('Hi, I am your home - full of thermostats!');
+            	help();
+      		}
+      	});
+  
+    	function help() {
+    		setTimeout(function(){get('Ask any questions like follows, using keyboard or voice.');},3000);
+    		setTimeout(function(){get('What are your thermostats?');},7000);
+    		setTimeout(function(){get('What does bedroom have?');},9000);
+    		setTimeout(function(){get('What is bedroom humidity?');},11000);
+    		setTimeout(function(){get('What is dining target temperature high c?');},13000);
+    	}    		
+        
+        var recognizing = false;
+    	function hear(){
+    		$('#mic').hide();
+    		$('#input').attr('placeholder', 'Speak your input aloud');
+        	var recognition = new webkitSpeechRecognition();
+    		if (recognizing) {
+    			recognizing = false;
+    			recognition.stop();
+    		}
+    		function stopHearing(){
+        		$('#input').attr('placeholder', 'Type your input and hit Enter key');
+        		$('#mic').show();
+    		}
+        	recognition.onstart = function() {
+        		recognizing = true;
+        	};
+        	recognition.onerror = function(event) {
+        		console.log('error='+event);
+        		get('Make sure you have microphone enabled and give access to it for aigents.com site at chrome://settings/contentExceptions#media-stream');
+        		stopHearing();
+        	};
+        	recognition.onend = function() {
+        		recognizing = false;
+        		stopHearing();
+        	}
+        	recognition.onresult = function(event) { 
+        	    var transcript = '';
+        	    for (var i = event.resultIndex; i < event.results.length; ++i) {
+        	        transcript += event.results[i][0].transcript;
+        	    }
+        	  	console.log('input='+transcript);
+        	  	say(transcript);
+        	}
+        	recognition.lang = 'en-US';
+        	recognition.start();
+        }
+        	
+    	function get(input){
+			log(input);
+			speechSynthesis.cancel();//workaround for https://code.google.com/p/chromium/issues/detail?id=335907
+			var input = input.replace(/_/g, " ");
+			var u = new SpeechSynthesisUtterance(input);
+			u.lang = 'en-US';
+		    speechSynthesis.speak(u);			
+    	}
+    	
+    	function log(input){
+    		var val = $('#log').val();
+    		if (val.length > 0)
+    			val += '\n';
+    		$('#log').val( val + input );
+    		$('#log').scrollTop($('#log')[0].scrollHeight);
+    	}
+    	
+    	function devices(){
+    		var out = '';
+    		if (data.devices && data.devices.thermostats){
+    			for (var t in data.devices.thermostats) {
+    				var o = data.devices.thermostats[t];
+    				if (out.length > 0)
+    					out += ', '
+    				out += trimSince(o.name,'(');
+    			}
+    		}
+    		return out.length == 0 ? 'No any' : 'My thermostats are '+out+'.';
+    	}
+
+    	function processThermos(input){
+       		if (input.toLowerCase().indexOf('therm') != -1){
+				get(devices());
+				return true;
+    		}
+       		return false;
+    	}
+
+    	function thermostat(key){
+    		key = key.toLowerCase();
+    		if (data.devices && data.devices.thermostats){
+    			for (var t in data.devices.thermostats) {
+    				var o = data.devices.thermostats[t];
+    				if (o.name.toLowerCase().indexOf(key) != -1 || o.name_long.toLowerCase().indexOf(key) != -1)
+    					return o;
+    			}
+    		}
+    		return null;
+    	}
+    	
+    	function processObjectProps(o,input){
+    		var key = input.toLowerCase();
+    		var out = '';
+    		for (var x in o){
+				if (x.indexOf(key) != -1){
+					var val = o[x];
+					if (out.length > 0)
+						out += ', ';
+					out += x + ' ' + val;
+				}
+    		}
+    		return out.length > 0 ? out : null;
+    	}
+
+		function processObjectProp(o,keys) {
+    		var out = '';
+    		for (var x in o){
+    			var c = 0;
+        		for (var i = 0; i < keys.length; i++){
+    				if (x.indexOf(keys[i]) == -1)
+    					break;
+    				c++;
+        		}
+				if (c == keys.length){
+					var val = o[x];
+					if (out.length > 0)
+						out += ', ';
+					out += x + ' ' + val;
+				}
+    		}
+    		return out.length > 0 ? out : null;
+		}
+    	
+    	function processThermosProps(input){
+    		var res = input.split(new RegExp("[ ,;.]"));
+    		if (res.length > 0) {
+    			var o = thermostat(res[0]);
+    			if (o){
+        			var out = '';
+        			res = remove(res,['thermostat','has','have']);
+    	    		if (res.length == 1){//list properties
+    	        		for (var x in o){
+    	        			if (out.length > 0)
+    	        				out += ', ';
+    	        			out += x;
+    	        		}
+    	        		if (out.length > 0)
+    	    				out = 'has ' + out;
+    	    		}else{//list values
+    	    			//this takes all remaining chunks as parts of same property name
+    	    			var val = processObjectProp(o,res.slice(1,res.length));
+        				if (val && val.length > 0)
+    	    				out += val;
+    	    			/*
+    	    			//this takes any remaining chunk as part of different property name
+            			for (var i = 1; i < res.length; i++){
+            				var key = res[i];
+            				var val = processObjectProps(o,key);
+            				if (val && val.length > 0){
+            					if (out.length > 0)
+            						out += ', ';
+            					out += val;
+            				}
+            			}
+    	    			*/
+    	    		}
+        			if (out.length > 0){
+        				get('My '+trimSince(o.name,'(')+' '+out+'.');
+        				return true;
+        			}
+    			}
+    		}
+       		return false;
+    	}
+
+    	function trimSince(input,start){
+    		var since = input.indexOf(start);
+    		if (since != -1)
+    			return input.substring(0,since).trim();
+    		return input;
+    	}
+    	
+    	function remove(array,removals){
+    		for (var i = 0; i < removals.length; i++){
+        		for (var j = 0; j < array.length; j++){
+        			if (array[j] == removals[i]){
+        				array.splice(j,1);
+        				break;
+        			}
+        		}
+     		}
+    		return array;
+    	}
+    	
+    	function strip(input,headings){
+    		for (var i = 0; i < headings.length; i++){
+    			if (input.indexOf(headings[i]) == 0)
+    				input = input.substring(headings[i].length).trim();
+    		}
+    		if (input.substr(input.length-1) == "?")
+    			input = input.substr(0,input.length-1);
+    		return input;
+    	}
+    	
+    	var errCount = 0;
+    	function process(input){
+    		input = strip(input.trim().toLowerCase(),['what', 'is', 'are', 'does', 'your']);
+        	if (processThermos(input))
+        		return;
+        	if (processThermosProps(input))
+        		return;       	
+    		get('What?');
+        	if (++errCount > 3){
+        		errCount = 0;
+        		help();
+        	}
+    	}
+    
+    	function say(input){
+   	        log('>'+input);
+	        process(input);
+   		} 
+    	
+      	$('#input').keyup(function (e) {
+    	    if (e.keyCode == 13) {
+    	      	var elem = e.srcElement || e.target;
+    	        say(elem.value);
+    	        elem.value = '';
+    	    }
+    	});
+    </script>
+  </body>
+</html>
+

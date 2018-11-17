@@ -1,0 +1,20 @@
+graph has direction
+direction can_be directed
+direction can_be undirected
+direction can_be both_directions
+graph has structure
+structure can_be hierarchic
+structure can_be acyclic
+structure can_be cyclic
+graph has meaning
+meaning can_be associative
+meaning can_be semantic
+graph has fuzziness
+fuzziness can_be unweighted
+fuzziness can_be weighted
+fuzziness can_be with_complex_weight
+graph can_be hypergraph
+hypergraph has arity
+graph can_be metagraph
+metagraph has order
+

@@ -1,0 +1,173 @@
+<html>
+
+<head>
+<title>Aigents Help</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<link rel="icon" href="../img/aigent128.ico" type="image/x-icon" />
+<link rel="stylesheet" type="text/css" href="../css/al.css" />
+<script type="text/javascript" src="../js/al.js"></script>
+</head>
+<body onload="init()">
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-52778942-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+<div class="canvas">
+<div class="banner"><a href="./index.html"><img id="banner" src="./img/aigents-like.png"></img></a></div>
+<div class="content"><img src="../img/aigent540-500wb.png"></img></div>
+<div class="index"><a href="./index.html"><img src="../img/aigent64wb.png"></a></img></div>
+
+<div class="abody" style="font-size:13;top:145;">
+The <b>tabs</b> at the top let you specify the interaction context – Sites, Things, News, Peers or Talks.<br>
+The <b>toolbar</b> at the bottom lets you<br> 
+- add a new Site or Thing or Peer;<br>
+- open a Site or Thing or Peer to edit;<br>
+- delete an existing Site, Thing, Peer or News item;<br>
+- enter an <a href="#language">Aigents Language</a> statement for a conversation;<br>
+- specify properties of the Aigent cell running at your device.
+</div>
+<div class="ahead" style="top:30;left:405;font-size:12;text-align:left;">
+<b>News</b><br>View news found by Aigents for you and follow them. Check the relevant ones to train Aigents for better performance or delete irrelevant items.</div>
+<div class="lefthand" style="top:20;left:220;font-size:12;text-align:left;">
+<b>Peers</b><br>View your peers and specify your properties.</div>
+<div class="leftleg" style="top:195;left:30;font-size:12;text-align:left;">
+<b>Sites</b><br>Drag and drop or type and add URL-s of the sites you are interested in and edit them.</div>
+<div class="rightleg" style="top:375;left:135;width:110;font-size:12;text-align:left;">
+<b>Things</b><br>Drag and drop or type and add textual descriptions of the things of your interest or their templates in simple <a href="#patterns">patterns</a> and edit them.</div>
+<div class="righthand" style="top:415;left:385;width:60;font-size:12;text-align:left;">
+<b>Talks</b><br>View action log or chat in <a href="#language">Aigents Language</a>.</div>
+
+</div><!-- canvas -->
+
+<div class="atext">
+<center>
+<a href="#cases">Cases</a>&nbsp;
+<a href="#basics">Basics</a>&nbsp;
+<a href="#language">Language</a>&nbsp;
+<a href="#interface">Interface</a>&nbsp;
+<a href="#patterns">Patterns</a>&nbsp;
+</center>
+<h2><a name="cases">Use cases</a></h2>
+<p>The following user stories can be supported, in row with many other possiilities. 
+For each thing of interest for user, there could be one or more web sites potentially containing useful information, which can appear at any point in time. 
+For this thing, there also could be one or more <a href="#patterns">patterns</a> expressing the thing and its attributes or variables in the text. 
+Detailed description of the idea is <a href="../papers/2014AgentWatchingKolonin.pdf">available</a> yet below we consider few typical use cases.</p>
+<ul>
+<li><b>Mother</b> having her son weather dependent, suffering headaches due to pressure changes and solar flares. She needs a way to get notifications on such events, as soon as they are posted on meteorological web sites. One can use thing pattern "вспышка балла $class $starttime $maxtime $endtime" for "http://www.tesis.lebedev.ru/sun_flares.html" site.</li> 
+<li><b>Real estate broker</b>. He needs to get timeous updates on particular estate offerings appearing on the online listings for the city. For instance of Hong Kong Kowloon district, one can use thing pattern "kowloon gross area $grossarea saleable area $saleablearea price: $price $priceunit" for "http://www.squarefoot.com.hk" site.</li> 
+<li><b>Small business owner</b>. She needs a way to get quick updates on any low-cost item offerings appearing on local bulletin boards. For this case, thing pattern like "iphone $description contact $contact $price" can be used say for "http://www.hallo.co.uk/london/c/mobiles-tablets-handhelds" site.</li>
+<li><b>High-technology business owner</b>. He needs to stay informed on any news and releases made by my competitors, posted on their web sites and by relevant news aggregators. For this one, thing pattern like "google $topic" can be used for "http://www.wired.com".</li>
+<li><b>Lawyer</b>, engaged in specific legal domain. She neededs a tool to get information on public hearings for qualifying cases, announced on the internet newsletters across the county or state. For this case, one can use thing pattern "$description public hearing $dayandtime" applied for say "http://www.broward.org/legislative/pages/publichearingschedule.aspx" site.</li>
+<li><b>Politician or Journalist</b>. He needs up-to-date information on happenings related to the public figures leading the opposing parties and social groups, posted in local, regional and federal news sources. For this one, complex pattern "narendra modi {[{quit, quits, leave, leaves} $leave], [{deal, deals, did, does, do, has, had} $action], [{retain, retains, save, saves} $keep], [{say, says, tell, tells, told, said} $talk]}" can be developed for "http://indianexpress.com/elections".</li>
+</ul>
+<h2><a name="basics">Basics of use</a></h2>
+<p>
+Aigents network is represented by cells, where each cell embodies self of one software agent, normally associated with its master user, possessing the device used to run the Aigents cell.
+</p>
+<ul>
+<li>Any cell of Aigents network can run on variety of software platforms (Windows, Android, Mac/OSX, Web, etc.).</li>
+<li>Each cell can connect to human users and peer agents over variety of communication channels (http, telnet, email, text/sms, etc.).</li>
+<li>Configuration of the cell, i.e. self properties of the software agent include its name, place to store internal data and frequency of saving it, parameters of http and telnet connection used by it as well as email account used for communication.</li>
+<li>Once Aigents cell is started, it can be accessed using Aigents Language by any of configured communication channels.</li>
+<li>For telnet and HTTP access, in addition to Aigents configuration, access to TCP/IP and HTTP ports may need to be additionally enabled (unblocked) at operating system level.</li>
+<li>For email access, if configured email account of Aigents cell is not matching to any email accounts of its peers, it is considered owned by the Aigents self and used to reply on incoming emails with mailbox cleanup.
+In case if Aigents self email is matching to any of emails specified for peers, it is used to send notifications only.</li>
+<li>Operations over any of communiction channels require authentication for users, where each user identity is provided by unique combination of name, surname, birth date and email, confirmed with secret question/answer pair - all specified by user.</li>
+<li>It is important that Aigents cell on itself is not configured to store information on remote server so the owner of device running the Aigents cell remains owner of the data and keeps responsibility for the data security and privacy, accordingly to <a href="../ru/license.html">license agreement</a>. 
+</li>
+</ul>
+<p><b>Caution: </b>Current version of Aigents is designated for public testing only, so it is absolutely not guaranteed that your data will be kept consistent during opertions and will be preserved in the course of upgrade to subsequent version.
+It is strongly recommended, until stable version of Aigents is released, backup records of your Sites, Things, News and properties of Peer and Self using another media as often as possible. 
+</p>
+<h2><a name="language">Aigents Language</a></h2>
+<p>
+There is same artificial language used to communicate between Aigents cells on the network, users connecting to them and graphical user interfaces accessing the Aigents cells.
+That is, any action made via graphical user interface can be performed via language statement directed to one of communication channels.
+Moreover, there could be many actions that could be peformed straight via language yet not being availble by means of graphical user interface.
+</p>
+<p>
+The langage standard definition is not officially published yet, however the concept of it is <a href="../papers/2014AgentLanguageKolonin.pdf">available</a>. 
+Normally, the language is represented by declarative and interrogative statements, creating the knowledge to be acquired by Aigents self and quering for that knowledge - respectively.
+Among them, there are few specific statements for log in, change registration information and log out.   
+</p>
+<p>
+Briefly, the structure of the language statement contains object (subject), followed by the list of one or many properites (or predicate verbs) each associated with one or many property values (or predicate objects).
+For example, 'My sites "http://google.com", "http://microsoft.com", knows search applications, desktop applications.' is valid Aigents langguage statement.
+</p>
+<p>
+Declarative statements end with period and contain all of object-property-value (subject-predicate-object) parts.
+Interrogative statements start with "What", end with question mark and contain only object-property (subject-predicate) part, leaving value (predicate object) part to be filled in in response.
+</p>
+<p>
+In declarative statements subject can be represented either by "My" referring to user or other Aigents peer, "Your" referring to Aigents self or name of the thing (indicated by name property of the thing specified earlier) or list of property-value (predicate-object) parts pointing to the matter of statement. 
+That is, declarations like "My email john@doe.org", "John email john@doe.org" and "Name john email john@doe.org" are equivalent.
+In interrogative statements, meanings of "Your" and "My" are opposite, as in conventiinal human conversation.
+</p>
+<p>
+Values of properties (predicate objects) can be represented by any combination of words, separated by spaces.
+In case if some of words in combination overlap with names of existing properties or contain special symbols like quotes, brackets, braces etc., the entire word sequence should be taken into single or double quotes (single quotes may be used when there are double quotes already used inside and the other way around).
+</p>
+
+<h2><a name="interface">User interface</a></h2>
+Aigets graphical user interface for desktop and mobile platforms operates on top of Aigents Language communication with Aigents cell. 
+It operaties approximately the same way across all platfroms, involving the following control widgets. 
+<ul>
+<li>Tabs at the top let you specify interaction context - Sites, Things, News, Peers or Talks.</li>
+<li>Toolbar at the bottom lets you perform the following actions, dependign on the interaction context.</li>
+<ul>
+<li>add new Site or Thing</li>
+<li>open a Site or edit yourself as a Peer, specifying your own properties</li>
+<li>delete existing Site, Thing or a News item</li>
+<li>enter an <a href="#language">Aigent Language</a> statement for the chat or clear the conversation log</li>
+<li>specify properties of the Aigent cell running at your device</li>
+</ul>
+</ul>
+Interactions contexts selected by respective tabs, let you do the following.
+<ul>
+<li><b>Things. </b>Drag and drop or type and add textual descriptions of things of your interest or their templates in simple patterns and edit them. Double-click to edit the thing.
+</li>
+<li><b>Sites. </b>Drag and drop or type and add URL-s of the sites you are interested about and edit them. Double-click to edit the site. Hold and press can to open the site in system browser. 
+</li>
+<li><b>News. </b>View news found by Aigents for you and follow them. Check relevant ones to train the Aigents for better performance or delete irrelevant items. Holding and pressing can be used to open the site.
+</li>
+<li><b>Peers. </b>Peers connecting to the Aigents cell including yourself. Open yourself by holding mouse button or finger to specify your properties. 
+</li>
+<li><b>Talks. </b>View action log or chat with Aigents cell directly in <a href="#language">Aigents Language</a> bypassing the rest of graphical user interface.
+</li>
+<li><b>Props. </b>Property sheets can be used for different purposes, including the following.</li> 
+<ul>
+<li>Prompting input for login and registration data, such as user name, surname, date of birth, email, secret question and answer.</li>
+<li>Viewing and changing configuration of Aigent cell self.</li>
+<li>Viewing and changeing properties of the peer user logged in (while viewing and changing properties of the other peers is disallowed).</li>
+</ul>
+</ul>
+
+<h2><a name="patterns">Patterns</a></h2>
+<p>For each thing of user's interest, there could be mutiple patterns of templates to be looked up on sites specified by user.</p>
+<ul>
+<li>The simplest implicit template is represented by textual description of the thing or its name. That is, the sequence of words in thing name will be looked up on in the text on the web site pages.</li>
+<li>There could any number of alternative templates explicitly attached to thing as patterns. In terms of Aigents language, patterns can be attached to thing in form of "John patterns 'John Doe', 'Johnatan Doe', 'Doe John'" statement.</li>
+<li>Each thing can have a list of variables to be extracted when matching template. The variables are denoted as single words prefixed by dollar sign, like in "John birth date $dob, place of birth $birthplace."</li>
+<li>
+Variables may have types associated with them, to restrict the templates of the variables themselves.
+For instance, there are pre-defined types like word (a singular word), time (literal representation of daytime), number (decimal or real number) and money (number prefixed by a currency sign).
+The type is attached o variable by means of Aigents language statement like "Price is money". 
+</li>  
+<li>There may be <b>lemmas</b> (alternate parts in a template) enclosed in braces {}, so any of the items in the braces can be matched when mathing the entire template, like in "John {go, went, gone}" or "John {say, tell, speak, announce}" template.</li>
+<li>Besides the template itself implies particular order of words in it, it is possible to specify the <b>frames</b> (ordered sequence of template parts) using brackets [], like in "John [{quit, quits, leave, leaves} $place]" template.</li>
+<li>The <b>lemmas</b> and <b>frames</b> can be used to build complex hierarchical templates including one another as well as other words and variables, like in the "John {[{announce, announced} $product], [{publich, published} $article]}".</li>
+</ul>
+<p><b>Caution: </b>Current version of Aigents is designated for public testing only,
+so there is slight possibility that the way templates work in current version will be changed in subsequent versions.
+It is strongly recommended, until stable version of Aigents is released, ensure the templates are working as expected after upgrade.
+</p>
+<a href="../index.html"><img src="../img/aigent64wb.png"/></a><span class="copyrightbottom">Copyright 2016 Anton Kolonin</span>
+</div>
+</body>
+</html>
