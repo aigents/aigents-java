@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeSet;
 
 import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
@@ -422,7 +423,8 @@ public class Writer extends AL {
 			Map map = (Map) arg;
 			int count = 0;
 			sb.append('{');
-			for (Iterator i = map.keySet().iterator(); i.hasNext();){
+			TreeSet keys = new TreeSet(map.keySet()); //map.keySet()
+			for (Iterator i = keys.iterator(); i.hasNext();){
 				Object k = i.next();
 				Object v = map.get(k);
 				if (k != null && v != null){

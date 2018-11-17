@@ -25,6 +25,7 @@ package net.webstructor.data;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -609,7 +610,8 @@ if (mergee == null)//TODO:remove???
 
 	public static String toString(Map graph, String type, String childBreaker, String parentBreaker) {
 		StringBuilder sb = new StringBuilder();
-		for (Iterator pit = graph.keySet().iterator(); pit.hasNext();){
+		TreeSet pkeys = new TreeSet(graph.keySet()); //graph.keySet() 
+		for (Iterator pit = pkeys.iterator(); pit.hasNext();){
 			Object parent = pit.next();
 			if (sb.length() > 0)
 				sb.append(parentBreaker).append(' ');
@@ -618,7 +620,8 @@ if (mergee == null)//TODO:remove???
 				sb.append('\'').append(Writer.toString(new Any(((OrderedStringSet)parent).toArray()))).append('\'')
 					.append(' ').append(type).append(' ');
 				boolean firstChild = true;
-				for (Iterator cit = children.keys().iterator(); cit.hasNext();){
+				TreeSet ckeys = new TreeSet(children.keys()); //children.keys()
+				for (Iterator cit = ckeys.iterator(); cit.hasNext();){
 					if (!firstChild)
 						sb.append(childBreaker).append(' ');
 					firstChild = false;
