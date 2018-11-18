@@ -30,9 +30,12 @@ org
 
 ## Build instructions
 1. Run build script with Linux shell as **sh build**
-2. Run test script with Linux shell as *sh test* (see test pre-requisites in the "test" shell script file)
-2. Pick built Java jar file as **Aigents.jar**
-3. Run Aigents GUI with java command as **java -jar Aigents.jar**
+2. Run test script with Linux shell as *sh test*
+- See test pre-requisites in the "test" shell script file
+- Successful tests pass will be indicated with **SUCCESS!** in the very end
+3. Pick built Java jar file as **Aigents.jar**
+4. Run Aigents GUI with java command as **java -jar Aigents.jar**
+5. If needed, bundle Aigents Desktop App for Mac accordingly to [instructions](https://docs.oracle.com/javase/7/docs/technotes/guides/jweb/packagingAppsForMac.html)
+6. If needed, build Aigents Desktop for Windows Executable from Jar using [Excelsior JET Technology](https://www.excelsiorjet.com/kb/35/howto-create-a-single-exe-from-your-java-application)  
+7. If needed, configure Aigents Power Server following [Aigents Server requirements configuration, operation and API use](https://aigents.com/download/latest/readme.html) instructions
 
-## Configuration instructions
-If needed, configure personal or server Aigents application following [Aigents Server requirements configuration, operation and API use](https://aigents.com/download/latest/readme.html) instructions
