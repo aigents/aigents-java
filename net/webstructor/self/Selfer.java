@@ -100,7 +100,7 @@ public class Selfer extends Thread {
         	return "";
         for (int i = 0; i < split.length; i++) {
         	String s = split[i];
-            sb.append(String.format("%" + maxWidth + 's', new String[]{s}));
+            sb.append(String.format("%" + maxWidth + 's', (Object[])new String[]{s}));
         }
         return sb.toString();
     }	
