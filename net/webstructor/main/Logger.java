@@ -30,6 +30,8 @@ import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
+import net.webstructor.al.Time;
+
 public class Logger {
 
 	static Logger m_logger = null;
@@ -41,8 +43,9 @@ public class Logger {
 	}
 
 	private long m_ticket = 0;
-	private int m_day = 0;
-	private int m_month = 0;
+	//private int m_day = 0;
+	//private int m_month = 0;
+	private Date m_date = null;
 	private BufferedWriter m_writer = null;
 	private OutputStreamWriter m_streamWriter = null;
 	private SimpleDateFormat m_timeFormat;
@@ -77,12 +80,19 @@ public class Logger {
 	
 	private void checkReopenFile(Date now) throws IOException {
 		//TODO: check if file is missed and re-create if so
+		/*
 		int month = 1+now.getMonth();
   		int day = 1+now.getDay();
 		if (day != m_day || month != m_month)
 			reopenFile(now);
 		m_day = day;
-		m_month = month;		
+		m_month = month;
+		*/
+		Date date = Time.date(now);
+		if (m_date == null || !date.equals(m_date)){
+			reopenFile(now);
+			m_date = date;
+		}
 	}
 
 	private synchronized void writeToFile(String text) throws IOException {
