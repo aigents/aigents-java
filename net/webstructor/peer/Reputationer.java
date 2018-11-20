@@ -60,7 +60,8 @@ class ReputationParameters {
 	boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
 	double defaultReputation = 0.1; // default reputation value for newcomer Agents in range 0.0-1.0;
 	double defaultRating = 0.5; // default rating value for “overall rating” and “per-dimension” ratings;
-	boolean normalizedRatings = false; //whether ratings should be normlized with minimal rating brought to zero, leaving highest at 1.0 (100%) 
+	boolean normalizedRanks = false; //whether ranks should be normlized with minimal rating brought to zero, leaving highest at 1.0 (100%) 
+	boolean weightingRatings = false; //whether ratings should weighted if finaincial values for that are available 
 	long periodMillis = Period.DAY; // period of reputation recalculation/update;
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
@@ -308,7 +309,7 @@ public class Reputationer {
 				differential.count(rating[2], raterValue * ratingValue, 0);
 			}
 		}
-		differential.normalize(params.logarithmicRanks,params.normalizedRatings);//differential ratings in range 0-100%
+		differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
 		
 		//differential.blend(state,params.conservativity,0,0);
 		differential.blend(state,params.conservativity,0,(int)Math.round(params.defaultReputation * 100));
@@ -546,7 +547,7 @@ public class Reputationer {
 			if (Str.has(args, "conservativity", null))
 				r.params.conservativity = Double.parseDouble(Str.arg(args, "conservativity", String.valueOf(r.params.defaultRating)));
 			if (Str.has(args,"norm"))
-				r.params.normalizedRatings = true;
+				r.params.normalizedRanks = true;
 			for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){ 
 				int rs = r.update(day, null);
 				env.debug("Updating "+Time.day(day,false)+" at "+new Date(System.currentTimeMillis()));
@@ -685,6 +686,8 @@ public class Reputationer {
 			String path = Str.arg(args,"file",null);
 			final BigDecimal precision = new BigDecimal(Str.arg(args, "precision", "1.0"));
 			final boolean log = Str.has(args, "logarithm");
+			if (Str.has(args,"weighting"))
+				r.params.weightingRatings = true;
 			if (!AL.empty(path)){
 				DataLogger dl = new DataLogger(env, r.name);
 				boolean loaded = dl.load(path, new DataLogger.StringConsumer() {					
@@ -702,9 +705,13 @@ public class Reputationer {
 						BigDecimal weight = null;
 						if (tokens.length >= 15 && !AL.empty(tokens[14])){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
 							value = (new BigDecimal(tokens[5])).multiply(new BigDecimal(100));
-							weight = (new BigDecimal(tokens[14])).divide(precision);
-							if (log)
-								weight = new BigDecimal(Math.round(Math.log10(weight.doubleValue())));
+							if (!r.params.weightingRatings){
+								weight = null;
+							} else {
+								weight = (new BigDecimal(tokens[14])).divide(precision);
+								if (log)
+									weight = new BigDecimal(Math.round(Math.log10(weight.doubleValue())));
+							}
 						}else{//no weight => so it is payment in any range
 							value = (new BigDecimal(tokens[5])).divide(precision);
 							if (log)

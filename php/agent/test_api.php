@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 include_once("pest.php");
 
-$version = "1.3.0";
+$version = "1.3.1";
 $copyright = " Copyright © 2018 Anton Kolonin, Aigents.";
 
 //$baseURL = "http://54.229.79.233:8888/?getdoccnt,"; //http://54.229.79.233:8888/?getdoccnt,1 // works!
