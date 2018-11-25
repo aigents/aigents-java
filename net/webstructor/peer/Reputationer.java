@@ -58,7 +58,7 @@ class ReputationParameters {
 	double conservativity = 0.5; // balance of using either older reputation (1.0) or latest one (0.0) when blending them, in range 0.0 to 1.0, default is 0.5;
 	boolean logarithmicRatings = false; // whether or not apply log10(1+x) to ratings (no need for that if stored ratings are logarithmic already, like in case of Aigents Graphs); 
 	boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
-	double defaultReputation = 0.1; // default reputation value for newcomer Agents in range 0.0-1.0;
+	double defaultReputation = 0.5; // default reputation value for newcomer Agents in range 0.0-1.0;
 	double defaultRating = 0.5; // default rating value for “overall rating” and “per-dimension” ratings;
 	boolean normalizedRanks = false; //whether ranks should be normlized with minimal rating brought to zero, leaving highest at 1.0 (100%) 
 	boolean weightingRatings = false; //whether ratings should weighted if finaincial values for that are available 
@@ -567,7 +567,9 @@ public class Reputationer {
 			Object[][] ranks = Str.get(args,new String[]{"id","rank"},new Class[]{null,Integer.class});
 			if (AL.empty(ranks))
 				return false;
-			r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
+			int res = r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
+			if (res == 0)
+				r.save_ranks();
 			return true;
 		}
 		else
@@ -677,7 +679,8 @@ public class Reputationer {
 			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Integer.class,Integer.class,Date.class},new String[]{null,null,null,null,"1","today"});  
 			if (AL.empty(ratings))
 				return false;
-			r.add_ratings(ratings);
+			if (r.add_ratings(ratings) == 0)
+				r.save_ratings();
 			return true;
 		}
 		else
@@ -817,7 +820,7 @@ public class Reputationer {
 				
 		//test retrieve API after after rank and update
 		r.get_ranks(date10,null,null,null,false,0,0,a = new ArrayList());
-		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((4 100) (3 54) (5 54))");
+		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((4 100) (3 66) (5 66))");
 
 		//test rate API (again)
 		//3 rates 1 100 (power 50)
@@ -833,7 +836,7 @@ public class Reputationer {
 				
 		//test retrieve API after after rank and update
 		r.get_ranks(date9,null,null,null,false,0,0,a = new ArrayList());
-		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((2 100) (4 90) (1 58) (3 49) (5 49))");
+		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((2 100) (1 77) (4 66) (3 44) (5 44))");
 		
 		//TODO: saving results and clearing on startup
 	}
