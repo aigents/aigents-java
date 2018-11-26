@@ -165,6 +165,42 @@ public class Summator extends HashMap implements Linker {
 		return ab/Math.sqrt(aa*bb);
 	}
 	
+	//count average, average-other, accuracy
+	public double[] accuracy(Summator other){
+		double avga = 0;
+		double avgb = 0;
+		double matches = 0;
+		double n = 0;
+		for (Iterator it = keySet().iterator(); it.hasNext();){
+			Object key = it.next();
+			double a = value(key).doubleValue();
+			if (other.value(key) == null)//skip misalignments
+				continue;
+			double b = other.value(key).doubleValue();
+			avga += a;
+			avgb += b;
+			n++;
+		}
+		if (n == 0)
+			return null;
+		avga /= n;
+		avgb /= n;
+		for (Iterator it = keySet().iterator(); it.hasNext();){
+			Object key = it.next();
+			double a = value(key).doubleValue();
+			if (other.value(key) == null)//skip misalignments
+				continue;
+			double b = other.value(key).doubleValue();
+			if (a == avga && b == avgb)
+				matches++;
+			else if (a > avga && b > avgb)
+				matches++;
+			else if (a < avga && b < avgb)
+				matches++;
+		}
+		return new double[]{n,avga,avgb,matches/n};
+	}
+	
 	/**
 	 * @return array of key-value pairs with value as Integer in range 0..100
 	 */

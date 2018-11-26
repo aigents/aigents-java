@@ -63,6 +63,7 @@ class ReputationParameters {
 	boolean normalizedRanks = false; //whether ranks should be normlized with minimal rating brought to zero, leaving highest at 1.0 (100%) 
 	boolean weightingRatings = false; //whether ratings should weighted if finaincial values for that are available 
 	long periodMillis = Period.DAY; // period of reputation recalculation/update;
+	boolean liquidRatings = true; //whether to blend ranks of raters with ratings ("liquid rank"); 
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
 			T&P — Time and period of reputation recalculation/update;
@@ -302,7 +303,8 @@ public class Reputationer {
 				if (!((String)rating[1]).endsWith("s"))//skip reverse ratings
 					continue;
 				Number raterNumber = state.value(rating[0]);//value in range 0-100%
-				double raterValue = raterNumber == null? params.defaultReputation * 100: raterNumber.doubleValue();//0-100				
+				double raterValue = !params.liquidRatings ? 1.0 : 
+						raterNumber == null? params.defaultReputation * 100: raterNumber.doubleValue();//0-100				
 				double ratingValue = rating[3] == null ? params.defaultRating : ((Number)rating[3]).doubleValue();//any value
 				if (params.logarithmicRatings)
 					ratingValue = ratingValue > 0 ? Math.log10(1 + ratingValue) : -Math.log10(1 - ratingValue);
@@ -548,6 +550,8 @@ public class Reputationer {
 				r.params.conservativity = Double.parseDouble(Str.arg(args, "conservativity", String.valueOf(r.params.defaultRating)));
 			if (Str.has(args,"norm"))
 				r.params.normalizedRanks = true;
+			if (Str.has(args,"liquid","false"))
+				r.params.liquidRatings = false;
 			for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){ 
 				int rs = r.update(day, null);
 				env.debug("Updating "+Time.day(day,false)+" at "+new Date(System.currentTimeMillis()));
@@ -762,6 +766,19 @@ public class Reputationer {
 				Summator s1 = new Summator(env,(String)files[1][0]);
 				double p = s0.pearson(s1);
 				out.println(p);
+				return true;
+			}
+		}
+		else
+		//TODO: move out from here
+		if (Str.has(args,"compute","accuracy")){
+			Object[][] files = Str.get(args,new String[]{"file"},null,null); 
+			if (!AL.empty(files) && files.length == 2 && !AL.empty(files[0])  && !AL.empty(files[1])){
+				Summator s0 = new Summator(env,(String)files[0][0]);
+				Summator s1 = new Summator(env,(String)files[1][0]);
+				double[] p = s0.accuracy(s1);
+				if (p != null && p.length == 4)
+					out.println("count "+p[0]+"\t average "+p[1]+"\t avarage "+p[2]+"\t accuracy "+p[3]);
 				return true;
 			}
 		}
