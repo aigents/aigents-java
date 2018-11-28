@@ -96,6 +96,9 @@ public class Str {
 						if (types[j] == Integer.class) 
 							o[j] = Integer.valueOf(value,10);
 						else
+						if (types[j] == Double.class) 
+							o[j] = Double.valueOf(value);
+						else
 						if (types[j] == Date.class)
 							o[j] = Time.day(value);
 					} 

@@ -680,7 +680,7 @@ public class Reputationer {
 		}
 		else
 		if (Str.has(args,"add","ratings")){
-			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Integer.class,Integer.class,Date.class},new String[]{null,null,null,null,"1","today"});  
+			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,"1","today"});  
 			if (AL.empty(ratings))
 				return false;
 			if (r.add_ratings(ratings) == 0)
