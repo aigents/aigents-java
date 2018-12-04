@@ -266,4 +266,21 @@ public class MemoryStore
     	}
     }
     
+	//TODO: compute Math.pow(px(x,y,z,...),N)/(p(x)*p(y)*p(z)*...)
+	//OR, to preserve the natural order of magnitude of the original evidence
+	//Math.pow(px(x,y,z,...),2) / Math.pow(p(x)*p(y)*p(z)*...,1/N)
+    public double denominate(double value, int ids[]){
+		double d = 1;
+		for (int i = 0; i < ids.length; i++){
+			Item it = getItem(ids[i]);
+			double child_value = it.getEvidence();
+			int child_ids[] = it.getIds();
+			if (child_ids != null && child_ids.length > 0)
+				child_value = denominate(child_value,child_ids);
+			d *= child_value;
+		}
+		//TODO: note that not denominating with pow makes sentence parses better 
+    	//return value / Math.pow(d, 1.0 / (ids.length + 1));
+    	return value / d;
+    }
 }

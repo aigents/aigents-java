@@ -535,6 +535,7 @@ var GraphOrder = {
 
 	//Treat all links directed, given number of hops, regardless of type, with optional account of weight
 	directed : function(links,weighted,linktypes,iterations){
+		var log = true;
 		//ensure link belongs to one of allowed types, if provided
 		function acceptable(link){
 			return !linktypes || link.length < 4 || linktypes[link[3]];
@@ -554,7 +555,7 @@ var GraphOrder = {
 	
 		var orders = {};
 		build_graph_orders_default(orders,links,1);//let every node be ranked with 1 at start
-		counter_normalize(orders);
+		counter_normalize(orders,log);
 	
 		for (var pass = 0; pass < iterations; pass++){//sanity check limit
 			//iterate all links and make every node i rated by node j according to rank of j and weight of rating j made to i
@@ -568,7 +569,7 @@ var GraphOrder = {
 				counter_add(new_orders, link[1], orders[link[0]] * weight);//left-to-right
 			}
 			counter_extend(new_orders,orders);//add low-rank orphans
-			counter_normalize(new_orders);
+			counter_normalize(new_orders,log);
 			//if distribution of ranks is not changed since previous iteration, stop
 			var stddev = counter_stddev(orders,new_orders);
 			if (stddev < 0.001)
@@ -1025,6 +1026,8 @@ var GraphUI = {
 						node.rank = (node.rank - rank.min) * 100 / (rank.max - rank.min);
 						range_update(svg.ranges[i],node.rank);
 					}
+					//make log distribution centered!?
+					range_center(svg.ranges[i]);
 				}
 				ranked = true;
 			} else {//use order for y
@@ -1036,6 +1039,8 @@ var GraphUI = {
 						node.order = node.order * 100 / svg.vertices.length;
 						range_update(svg.ranges[i],node.rank);
 					}
+					//make log distribution centered!?
+					range_center(svg.ranges[i]);
 				}
 			}
 

@@ -174,9 +174,16 @@ public final class StringUtil
 
     public static String toString(int ids[],MemoryStore store,String openDelim,String closeDelim)
     {
+    	return toString(ids, store, openDelim, null, closeDelim);
+    }
+    
+    public static String toString(int ids[],MemoryStore store,String openDelim,String innerDelim,String closeDelim)
+    {
     	StringBuffer sb = new StringBuffer();
-    	if (ids!=null) for (int i=0;i<ids.length;i++)
-    		sb.append(store.getItem(ids[i]).toString(store,openDelim,null,closeDelim));
+    	if (ids!=null) for (int i=0;i<ids.length;i++){
+    		Item it = store.getItem(ids[i]);
+    		sb.append(it.toString(store,openDelim,innerDelim,closeDelim));
+    	}
     	return sb.toString();
     }
     

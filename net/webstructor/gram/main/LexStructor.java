@@ -31,6 +31,8 @@ import java.util.Vector;//deprecate
 import java.util.ArrayList;
 
 import net.webstructor.main.Mainer; 
+import net.webstructor.al.Parser;
+import net.webstructor.al.Seq;
 import net.webstructor.gram.core.MemoryStore; 
 import net.webstructor.gram.core.Item; 
 import net.webstructor.gram.core.Ngram; 
@@ -41,15 +43,35 @@ import net.webstructor.gram.util.Format;
 
 /**
  * 
- * Input: <lexicon_file> <database_file>
+ * Input: <current_folder> <lexicon_file> <database_file>
  * Output: <database_file>
  * 
- * @author Anton
+ * @author Anton Kolonin
  *
  */
 public class LexStructor extends Mainer
 {
-	public static Vector readInputToVector(BufferedReader br,MemoryStore st,boolean bWalls)
+	public static int[] ngram(MemoryStore st,String line, boolean bWalls){
+		if (line == null || line.length() == 0)
+			return null;
+		int length = line.length();
+		int ids[];
+		if (bWalls)
+		{
+			ids = new int[length+2];
+			ids[0] = st.encounterCharacter(Character.LEFT_WALL);
+			for (int i=0;i<length;i++)
+				ids[i+1] = st.encounterCharacter(line.charAt(i));
+			ids[length+1] = st.encounterCharacter(Character.RIGHT_WALL);
+		} else {
+			ids = new int[length];
+			for (int i=0;i<length;i++)
+				ids[i] = st.encounterCharacter(line.charAt(i));
+		}
+		return ids;
+	}
+	
+	public static Vector readWordsToCharacterVector(BufferedReader br,MemoryStore st,boolean bWalls)
 	{
 		int count = 0;
 		Vector v = new Vector();
@@ -70,19 +92,63 @@ public class LexStructor extends Mainer
 			line = line.toLowerCase().trim();
 			int length = line.length();  
 			if (length>0)
-			{
-				int ids[];
-				if (bWalls)
-				{
-					ids = new int[length+2];
-					ids[0] = st.encounterCharacter(Character.LEFT_WALL);
-					for (int i=0;i<length;i++)
-						ids[i+1] = st.encounterCharacter(line.charAt(i));
-					ids[length+1] = st.encounterCharacter(Character.RIGHT_WALL);
+				v.add(new StringItem(0,evidence,new Ngram(ngram(st,line,bWalls))));
+			count++;
+			if (count%1000 == 0)
+				println("Read "+count+" lines");
+		}
+		return v;
+	}
+
+	public static Vector readSentencesToWordVector(BufferedReader br,MemoryStore st,boolean bWalls)
+	{
+		int count = 0;
+		Vector v = new Vector();
+		for (;;)
+		{
+			String line = null;
+			float evidence = 1;
+			try {
+				line = br.readLine();
+				if (line==null)
+					break;
+				line = line.toLowerCase().trim();
+			} catch (Exception e) { ; } // simply break on error
+			if (line.length() == 0)
+				continue;
+			//TODO: parse with/without LW and period
+			//String tokens[] = StringUtil.toTokens(line, " \t", false);
+			//int length = tokens.length;
+			Seq tokens = Parser.parse(line);
+			int length = tokens.size();
+			//if (length > 0){//TODO: what to do in such case?
+			if (length > 1){
+				if (bWalls){//TODO:add LEFT-WALL
+					;
 				} else {
-					ids = new int[length];
-					for (int i=0;i<length;i++)
-						ids[i] = st.encounterCharacter(line.charAt(i));
+					if (((String)tokens.get(length - 1)).equals("."))
+						length--;
+				}
+				boolean skip = false;
+				for (int i = 0; i < length; i++){
+					int[] ngram = ngram(st,(String)tokens.get(i),bWalls);
+					if (ngram == null){
+						println("ERROR:"+line);//TODO: what?
+						skip = true;
+						break;
+					}
+				}
+				if (skip)
+					continue;
+				int ids[] = new int[length];
+				for (int i = 0; i < length; i++){
+					int[] ngram = ngram(st,(String)tokens.get(i),bWalls);
+					if (ngram == null){
+						println("ERROR:"+line);//TODO: what?
+						continue;
+					}
+					//ids[i] = st.encounterNgram(new Ngram(ngram(st,tokens[i],bWalls)),(float)evidence);
+					ids[i] = st.encounterNgram(new Ngram(ngram),(float)evidence);
 				}
 				v.add(new StringItem(0,evidence,new Ngram(ids)));
 			}
@@ -259,7 +325,7 @@ public class LexStructor extends Mainer
 	}
 
 	//called from main
-	public static void learnNgramsFromVector(Vector input,MemoryStore ltm,int min,int max,boolean all)
+	public static void learnNgramsFromVector(Vector input,MemoryStore ltm,int min,int max,boolean all,boolean denominate,boolean addmissed)
 	{
 		for (int iteration = 1;;iteration++)
 		{
@@ -286,7 +352,13 @@ public class LexStructor extends Mainer
 					{
 						Ngram ngram = (Ngram)ngrams.get(n);
 						Item it = stm.getItem(ngram);
+						
 						float value = ((float)it.getEvidence()) * it.getArity();
+						if (denominate && ngram.m_ints != null && ngram.m_ints.length > 0){
+							//TODO: note that with denomination arity does not matter with POC-English!!!
+							value = (float)ltm.denominate(value,ngram.m_ints);
+						}
+						
 						if (debug)
 							println(StringUtil.toString(ngram.m_ints, ltm, "[", "]")+"="+value);
 						//TODO: which policy is the best?
@@ -299,7 +371,7 @@ public class LexStructor extends Mainer
 					}
 					if (topItem != null && !topItem.equals(thisItem))
 					{
-						Ngram ngram = (Ngram)topItem.getName();						/**/
+						Ngram ngram = (Ngram)topItem.getName();
 
 						if (debug) {
 							println(StringUtil.toString(ngram.m_ints, ltm, "[", "]"));
@@ -310,6 +382,13 @@ public class LexStructor extends Mainer
 						
 						int translated[] = ngram.translate(relationship,newId);
 						input.setElementAt(new StringItem(0,thisItem.getEvidence(),new Ngram(translated)),i);
+						translatedCount++;
+					}
+					else //item is it not translated yet but not present in LTM 
+					if (topItem != null && addmissed && ltm.getItem((Ngram)topItem.getName())==null)
+					{
+						Ngram ngram = (Ngram)topItem.getName();
+						ltm.encounterNgram(ngram,thisItem.getEvidence());
 						translatedCount++;
 					}
 				}
@@ -410,14 +489,14 @@ public class LexStructor extends Mainer
 	}
 
 	
-	public static void save(String path,Vector output,MemoryStore store)
+	public static void save(String path,Vector output,MemoryStore store, String delim)
 	{
     	try {
 	        BufferedWriter sw = new BufferedWriter(new FileWriter(path));
 			for (int i=0;i<output.size();i++)
 			{
 				int r[] = ((Item)output.elementAt(i)).getIds();
-				StringBuilder sb = new StringBuilder(StringUtil.toString(r,store,null,null))
+				StringBuilder sb = new StringBuilder(StringUtil.toString(r,store,null,null,delim))
 					.append('\t')
 					.append(StringUtil.toString(r,store,Format.m_openArrayDelim,Format.m_closeArrayDelim));
 				sw.write(sb.toString());
@@ -430,11 +509,119 @@ public class LexStructor extends Mainer
     	}
 	}
 
+	public static int getParseWords(MemoryStore store,Item item,ArrayList words,ArrayList links){
+		int[] ids = item.getIds();
+		int[] indexes = new int[ids.length];
+		for (int i = 0; i < ids.length; i++){
+			Item child = store.getItem(ids[i]);
+			if (child.getIds() == null){
+				String word = item.toString(store,null,null,null);
+				words.add(word);
+				return words.size() - 1;
+			}
+			indexes[i] = getParseWords(store,child,words,links);
+			if (i > 0)
+				links.add(new int[]{indexes[i-1],indexes[i]});
+		}
+		//TODO: return less evident member for linkage?
+		/*
+		int id = 0;
+		float min = Float.MAX_VALUE;
+		for (int i = 0; i < indexes.length; i++){
+			float e = store.getItem(indexes[i]).getEvidence();
+			if (min > e){
+				min = e;
+				id = indexes[i];
+			}
+		}
+		return id;
+		*/
+		return indexes[ids.length / 2];
+	}
+
+	/**
+	 * Save parses to OpenCog-s Unsupervised Language Learning ULL parse format
+	 * @param path
+	 * @param output
+	 * @param store
+	 */
+	public static void saveULL(String path,Vector output,MemoryStore store){
+    	try {
+	        BufferedWriter sw = new BufferedWriter(new FileWriter(path));
+			for (int i=0;i<output.size();i++)
+			{
+				Item item = (Item)output.elementAt(i);
+				ArrayList words = new ArrayList();
+				ArrayList links = new ArrayList();
+				getParseWords(store,item,words,links);
+				//write all words
+				for (int w = 0; w < words.size(); w++){
+					if (w != 0)
+						sw.write(" ");
+					sw.write(words.get(w).toString());
+				}
+				sw.write(" .");//TODO: fix hack
+            	sw.newLine();
+				for (int l = 0; l < links.size(); l++){
+					int[] link = (int[])links.get(l);
+					String w0 = (String)words.get(link[0]);
+					String w1 = (String)words.get(link[1]);
+					sw.write((link[0]+1)+" "+w0+" "+(link[1]+1)+" "+w1);
+	            	sw.newLine();
+				}
+            	sw.newLine();
+			}
+	        sw.close();
+    	} catch (Exception e) {
+    		System.out.println(e+", save");
+    		e.printStackTrace();
+    	}
+	}
+	
+	public static void processWords(MemoryStore store, BufferedReader breader, String dataPath, String outPath){
+		Vector v = readWordsToCharacterVector(breader,store,false);//walls=true|false(plain),
+		println("Processing input "+dataPath);
+		  
+		//old code		
+		//learnBigramsFromVector(v,store);
+		
+		//new code
+		learnNgramsFromVector(v,store,2,100,true,false,false);//all=true|false(left)
+		//very new code
+		//learnBestBigramsFromVector(v,store,2,2,true);//all=true|false(left)
+		
+		//very old code
+		//analyzeVector(v,store);
+		  
+		//save rebuilt sequence
+		println("Saving output "+outPath);
+		save(outPath,v,store,null);
+	}
+	
+	public static void processSentences(MemoryStore store, BufferedReader breader, String dataPath, String outPath){
+		Vector v = readSentencesToWordVector(breader,store,false);//walls=true|false(plain),
+		println("Processing input "+dataPath);
+		  
+		//new code
+		learnNgramsFromVector(v,store,2,2,true,true,false);//all=true|false(left)
+		//learnNgramsFromVector(v,store,2,2,true,true);//all=true|false(left)
+		//learnNgramsFromVector(v,store,2,100,true);//all=true|false(left)
+		  
+		//save rebuilt sequence
+		println("Saving output "+outPath);
+		save(outPath,v,store," ");
+		
+		//TODO: store parses as ULL
+		saveULL(dataPath.substring(0,dataPath.lastIndexOf('.'))+".ull",v,store);
+	}
+	
 	public static void main(String args[])
 	{
 		if (args.length<3)
 		{
-			println("Not enough arguments");
+			println("Usage:"
+					+"\tInput: <current_folder> <lexicon_file> <database_file> [words|sentences]"
+					+"\tOutput: <database_file>");
 			return;
 		}
 	  
@@ -455,23 +642,12 @@ public class LexStructor extends Mainer
 		//MemoryStore store = new MemoryStore(basePath);
 		MemoryStore store = new MemoryStore(null);
 		
-		Vector v = readInputToVector(breader,store,false);//walls=true|false(plain),
-		println("Processing input "+dataPath);
-		  
-		//old code		
-		//learnBigramsFromVector(v,store);
-		
-		//new code
-		learnNgramsFromVector(v,store,2,100,true);//all=true|false(left)
-		//very new code
-		//learnBestBigramsFromVector(v,store,2,2,true);//all=true|false(left)
-		
-		//very old code
-		//analyzeVector(v,store);
-		  
-		//save rebuilt sequence
-		println("Saving output "+outPath);
-		save(outPath,v,store);
+		if (args.length < 4 || args[3].equals("words"))
+			processWords(store, breader, dataPath, outPath);
+		else
+		if (args[3].equals("sentences"))
+			processSentences(store, breader, dataPath, outPath);
+			
 		try {
 			//println("Saving database "+basePath);
 			store.save(basePath,true);

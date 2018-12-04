@@ -6,8 +6,8 @@
   <link rel="stylesheet" href="ui/jquery-ui-1.11.4.custom/jquery-ui.css">
   <script src="ui/jquery-1.11.1.js"></script>
   <script src="ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-  <script type="text/javascript" src="ui/aigents-al.js?4"></script>
-  <script type="text/javascript" src="ui/aigents-graph.js?4"></script>
+  <script type="text/javascript" src="ui/aigents-al.js?5"></script>
+  <script type="text/javascript" src="ui/aigents-graph.js?5"></script>
 </head>
 
 <style>
@@ -162,11 +162,11 @@ function grammar_build_links(data){
 		if (AL.empty(line))
 			continue;
 		//get code
-		if (line.substring(0,3) == '% C'){//% CXX
+		if (line.substring(0,2) == '% ' && line.toUpperCase() == line){//% ABCD
 			var split = line.split(' ');
 			if (!split || split.length < 2)
 				continue;
-			var code = split[1];//CXX
+			var code = split[1];//ABCD
 			//get words
 			if (++l >= lines.length || AL.empty(line = lines[l]))//get next line
 				break;
@@ -777,7 +777,16 @@ directions:
   <option value="2">Vertical</option>
  </select>&nbsp;
 <br>
-Filter:<input title="Node name filtering option" id="custom_node_filter" type="search" placeholder="Node filter" size="60" value=""></input><br>
+Filter:<input title="Node name filtering option" id="custom_node_filter" type="search" placeholder="Node filter" size="60" value=""></input>
+<span>Range:</span>
+ <select title="Filter range" class="graph_changer" id="custom_filter_range">
+  <option value="1" selected="selected">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+ </select>&nbsp;
+<br>
 <span id="node_types"></span><span id="link_types"></span>
 </span>
  

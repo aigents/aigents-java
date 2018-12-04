@@ -605,7 +605,7 @@ function splitName2(name){
 //// range helpers ////
 
 function range_init(){
-	return { min : Number.MAX_SAFE_INTEGER, max : Number.MIN_SAFE_INTEGER};
+	return { min : Number.MAX_SAFE_INTEGER, max : Number.MIN_SAFE_INTEGER, sum: 0, cnt: 0 };
 }
 
 function range_update(range,value){
@@ -613,6 +613,21 @@ function range_update(range,value){
 		range.min = value;
 	if (range.max < value)
 		range.max = value;
+	range.sum += value;
+	range.cnt += 1;
+}
+
+function range_center(range){
+	if (range.cnt == 0)
+		return;
+	var avg = range.sum / range.cnt; 
+	var d1 = avg - range.min;
+	var d2 = range.max - avg;
+	if (d1 < d2)
+		range.min = avg - d2;
+	else
+	if (d2 < d1)
+		range.max = avg + d1;
 }
 
 function range_scale(scale,range,value){
@@ -704,11 +719,13 @@ function counter_extend(extendee,extender){
 				return extendee[p] = extender[p];
 }
 
-function counter_normalize(graph){
+function counter_normalize(graph,log){
 	var max = 0;
 	for (var p in graph){
 		if (graph.hasOwnProperty(p)) {
 			var v = graph[p];
+			if (log)
+				v = graph[p] = Math.log10(1+v);
 			if (v && max < v)
 				max = v;
 		}
