@@ -196,6 +196,12 @@ public class Reputationer {
 	protected String name;
 	protected ReputationParameters params = new ReputationParameters();
 	
+	//transient flags and iterators
+	private Graph latest_graph = null;
+	private Date latest_date = null;
+	private boolean ratings_modified = false;
+	private boolean ranks_modified = false;
+	
 	public Reputationer(Environment env, String name, String path, boolean dailyStates){
 		cacher = new GraphCacher(name,env,path);
 		if (dailyStates)
@@ -211,6 +217,7 @@ public class Reputationer {
 	 */
 	public void clear_ratings(){
 		cacher.clear(true);
+		ratings_modified = false;
 	}
 	
 	/**
@@ -218,15 +225,27 @@ public class Reputationer {
 	 */
 	protected void clear_ranks(){
 		states.clear();
+		ranks_modified = false;
 	}
 	
 	protected void save_ranks(){
+		if (!ranks_modified)
+			return;
 		states.save();
+		ranks_modified = false;
 	}
 	
 	protected void save_ratings(){
+		if (!ratings_modified)
+			return;
 		cacher.setAge(System.currentTimeMillis());//TODO: more reasonable policy to save "modified" graphs only
 		cacher.saveGraphs();
+		ratings_modified = false;
+	}
+	
+	public void save(){
+		save_ranks();
+		save_ratings();
 	}
 	
 	/**
@@ -253,6 +272,7 @@ public class Reputationer {
 			Object[] s = state[i];
 			states.add(date, s[0], ReputationTypes.all_domains, null, ((Number)s[1]).intValue() );
 		}
+		ranks_modified = true;
 		return 0;
 	}
 	
@@ -318,6 +338,7 @@ public class Reputationer {
 		differential.normalize();
 		states.add(nextdate, type, null, new Counter(differential));
 		//TODO: save
+		ranks_modified = true;
 		return 0;
 	}
 	
@@ -437,8 +458,6 @@ public class Reputationer {
 			if (r.length < 6 || !(r[0] instanceof String) || !(r[1] instanceof String) || !(r[2] instanceof String) || !(r[3] instanceof Number) || !(r[5] instanceof Date))
 				return 2;
 		}
-		Date last = null;
-		Graph graph = null;
 		for (int i = 0; i < ratings.length; i++){
 			Object[] r = ratings[i];
 			String from = (String)r[0];
@@ -451,14 +470,16 @@ public class Reputationer {
 			Date date = Time.date((Date)r[5]);
 			//TODO: store in FULL version of storage
 			//store in light version of storage
-			if (last == null || !last.equals(date)){
+			if (latest_date == null || !latest_date.equals(date)){
 				//TODO: ensure to save the graph!?
-				graph = cacher.getGraph(date);
-				last = date;
+				cacher.setAge(System.currentTimeMillis());
+				latest_graph = cacher.getGraph(date);
+				latest_date = date;
 			}
-			graph.addValue(from, to, type+"-s", value.intValue());//eg. rate-s
-			graph.addValue(to, from, type+"-d", value.intValue());//eg. rate-d
+			latest_graph.addValue(from, to, type+"-s", value.intValue());//eg. rate-s
+			latest_graph.addValue(to, from, type+"-d", value.intValue());//eg. rate-d
 		}
+		ratings_modified = true;
 		return 0;
 	}
 	
@@ -476,7 +497,9 @@ public class Reputationer {
 			Mainer m = new Mainer(Str.has(args, "verbose"));
 			String outputPath = Str.arg(args,"output",null);
 			PrintStream	out = !AL.empty(outputPath) ? (new Filer(m)).openStream(outputPath,false,"Exporting ranks") : System.out;
-			act(m,new Reputationer(m,Str.arg(args,"network","ethereum"),Str.arg(args,"path",""),true),out,args);//daily states
+			Reputationer r = new Reputationer(m,Str.arg(args,"network","ethereum"),Str.arg(args,"path",""),true);
+			act(m,r,out,args);//daily states
+			r.save();
 		}
 
 	}
@@ -571,6 +594,7 @@ public class Reputationer {
 			Object[][] ranks = Str.get(args,new String[]{"id","rank"},new Class[]{null,Integer.class});
 			if (AL.empty(ranks))
 				return false;
+			r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
 			int res = r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
 			if (res == 0)
 				r.save_ranks();
@@ -683,8 +707,7 @@ public class Reputationer {
 			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,"1","today"});  
 			if (AL.empty(ratings))
 				return false;
-			if (r.add_ratings(ratings) == 0)
-				r.save_ratings();
+			r.add_ratings(ratings);
 			return true;
 		}
 		else
@@ -797,6 +820,7 @@ public class Reputationer {
 		
 		//TODO API and test
 		r.clear_ranks();
+		r.clear_ratings();
 	
 		//test state API
 		t.assume(r.set_ranks(Time.today(0),new Object[][]{new Object[]{"1",new Integer(1)},new Object[]{"2",new Integer(5)},new Object[]{"3",new Integer(10)}}), 0);
