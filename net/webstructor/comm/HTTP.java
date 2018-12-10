@@ -34,6 +34,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 import net.webstructor.agent.Body;
@@ -108,7 +109,7 @@ public abstract class HTTP {
         return new String[]{ct,cl};
  	}
 
-	public static String simple(String url,String urlParameters,String method,int timeout) throws Exception {
+	public static String simple(String url,String urlParameters,String method,int timeout) throws IOException {
 		URL obj = new URL(url);
 		//HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -260,6 +261,22 @@ public abstract class HTTP {
     //http://projects.fivethirtyeight.com/facebook-primary/
     public static String getJsonString(JsonObject data, String name, String def) {
 		return data.keySet().contains(name) ? data.getString(name) : def;
+	}
+	
+    public static boolean getJsonBoolean(JsonObject data, String name, boolean def) {
+		return data.keySet().contains(name) ? data.getBoolean(name) : def;
+	}
+	
+    public static JsonArray getJsonArray(JsonObject data, String name) {
+		return data.keySet().contains(name) ? data.getJsonArray(name) : null;
+	}
+    
+    public static JsonObject getJsonObject(JsonObject data, String name) {
+		return data.keySet().contains(name) ? data.getJsonObject(name) : null;
+	}
+    
+    public static long getJsonLong(JsonObject data, String name, long def) {
+		return data.keySet().contains(name) ? data.getJsonNumber(name).longValue() : def;
 	}
 	
 	public static String getJsonString(JsonObject data, String name) {

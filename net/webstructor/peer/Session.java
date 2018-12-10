@@ -83,6 +83,10 @@ public class Session  {
 		return mood;
 	}
 	
+	public String getKey() {
+		return key;
+	}
+	
 	boolean isSecurityLocal() {
 		return communicator.getClass().getName().equals("net.webstructor.android.Talker")
 			|| communicator.getClass().getName().equals("net.webstructor.gui.Chatter")
@@ -214,4 +218,27 @@ public class Session  {
 		return false;
 	}
 
+	public void login(String provider, Thing storedPeer) {
+		Session session = this;
+		session.sessioner.body.debug(provider+" auto-log: "+storedPeer);
+		session.mode = new Conversation();
+		session.peer = new Thing(storedPeer,null);
+		session.output = session.welcome();
+		session.authenticated = true;
+	}
+	
+	public void register(String provider, Thing peer, String email) {
+		Session session = this;
+		peer.store(session.sessioner.body.storager);
+		session.sessioner.body.debug(provider+" auto-reg: "+peer);
+		login(provider,peer);
+		try {
+			Peer.populateContent(session,Body.testEmail(email));
+			session.updateRegistration();
+		} catch (Exception e) {
+			session.output += " " + Mode.statement(e);
+			session.sessioner.body.error(provider+" error: "+e.toString(), e);
+		}
+	}
+	
 }

@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 include_once("test_api.php");
 
 function test_agent_think() {
+	global $basePath;
 	global $version;
 	global $copyright;
 	$timeout = 3;
@@ -56,7 +57,7 @@ function test_agent_think() {
 	
 	say_thing("there is \$something.");
 	say_site("http://localtest.com/think.html");
-	file_put_contents("html/think.html","there is fried banana. there is bird on the tree. there is fancy stuff.");
+	file_put_contents($basePath."html/think.html","there is fried banana. there is bird on the tree. there is fancy stuff.");
 	say("You reading!");
 	sleep($timeout);
 	say("What times today, is 'there is \$something.' text?");
@@ -66,7 +67,7 @@ function test_agent_think() {
 	
 	say_thing("there is \$something.");
 	say_site("http://localtest.com/think.html");
-	file_put_contents("html/think.html","there is banana tree. there is mocking bird. there is life jacket. there is life style.");
+	file_put_contents($basePath."html/think.html","there is banana tree. there is mocking bird. there is life jacket. there is life style.");
 	say("You reading site http://localtest.com/think.html!");
 	say("What times today, new true, is 'there is \$something.' text?");
 	get("There text 'there is banana tree .'; text 'there is life jacket .'; text 'there is life style .'; text 'there is mocking bird .'.");
@@ -84,7 +85,7 @@ function test_agent_think() {
 	say("What times today, new true, is 'there is \$something.' text, relevance?");
 	get("There relevance 100, text 'there is banana tree .'; relevance 100, text 'there is life jacket .'; relevance 50, text 'there is life style .'; relevance 50, text 'there is mocking bird .'.");
 	
-	file_put_contents("html/think.html","there is small pig. there is large ball. there is happy life. there is life vest. there is long life. there is angry bird. there is bird nest. there is bird egg. there is flying bird. there is bird cage.");
+	file_put_contents($basePath."html/think.html","there is small pig. there is large ball. there is happy life. there is life vest. there is long life. there is angry bird. there is bird nest. there is bird egg. there is flying bird. there is bird cage.");
 	say("You reading site http://localtest.com/think.html!");
 	say("What times today, new true, is 'there is \$something.' text?");
 	//expect everything what have been read today
@@ -131,7 +132,7 @@ function test_agent_think() {
 	//update content with new items
 	say("New true new false.");
 	
-	file_put_contents("html/think.html","there is bird in the sky. there is banana on the plate. there is pen on the table.");
+	file_put_contents($basePath."html/think.html","there is bird in the sky. there is banana on the plate. there is pen on the table.");
 	say("You reading site http://localtest.com/think.html!");
 	
 	//check implicit social relevance relevance missed
@@ -192,6 +193,7 @@ function test_agent_think() {
 
 
 function test_agent_think_ex() {
+	global $basePath;
 	global $version;
 	global $copyright;
 	$timeout = 3;
@@ -207,7 +209,7 @@ function test_agent_think_ex() {
 	say_thing("there is \$something.");
 	say_thing("here is \$something.");
 	say_site("http://localtest.com/think.html");
-	file_put_contents("html/think.html",
+	file_put_contents($basePath."html/think.html",
 		"there is bird in the sky. there is bird on the tree. \n" .
 		"there is fried banana. there is fancy stuff.\n" .
 		"there is banana tree. there is mocking bird. there is life jacket. there is life style.\n" .

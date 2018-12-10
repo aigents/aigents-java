@@ -57,7 +57,7 @@ public class Sessioner {
 		} catch (Exception e) {}
 		return null;
 	}
-	
+
 	public Session getSession(Communicator communicator, String key) {
 		String type = communicator.getClass().getName();
 		//TODO: synchronization!!!???

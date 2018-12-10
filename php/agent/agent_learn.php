@@ -13,6 +13,7 @@ include_once("test_api.php");
 
 
 function test_agent_learn() {
+	global $basePath;
 	global $version;
 	global $copyright;
 
@@ -53,7 +54,7 @@ function test_agent_learn() {
 	//aside from learning, test ability to detect really new news only
 	//TODO: fix parsing so 'john doe founder' is parsed out of 'there is john doe founder elected'
 	//TODO: ... and remove the silly donts below
-	file_put_contents("html/test.html","<html><body>there is . john doe founder elected</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>there is . john doe founder elected</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("My reading person in http://localtest.com/test.html.");
 	say("What is person text?");
@@ -62,30 +63,30 @@ function test_agent_learn() {
 	get("Ok.");
 	say("You reading person in http://localtest.com/test.html!");
 	get("Not.");
-	file_put_contents("html/test.html","<html><body>there is . john doe director appointed</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>there is . john doe director appointed</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("My reading person in http://localtest.com/test.html.");
 	say("What is person text, times?");
 	get("There text john doe director, times today; text john doe founder, times 2015-01-01.");
-	file_put_contents("html/test.html","<html><body>there is . john doe founder re-elected</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>there is . john doe founder re-elected</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	//get("Not.");
 	get("My reading person in http://localtest.com/test.html.");
 	say("What is person text, times?");
 	get("There text john doe director, times today; text john doe founder, times 2015-01-01; text john doe founder, times today.");
-	file_put_contents("html/test.html","<html><body>there is . john doe director dismissed</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>there is . john doe director dismissed</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("Not.");
 	say("What is person text, times?");
 	//get("There text john doe founder, times 2015-01-01.");
 	get("There text john doe director, times today; text john doe founder, times 2015-01-01; text john doe founder, times today.");
-	file_put_contents("html/test.html","<html><body>there is . ali baba founder suggested by . john doe director recently</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>there is . ali baba founder suggested by . john doe director recently</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("My reading person in http://localtest.com/test.html.");
 	say("What is person text, times?");
 	//TODO: consider how to avoid getting redundant john doe today (not easy, if not counting times precisely and excluding curent time from evaluation!)
 	get("There text ali baba founder, times today; text john doe director, times today; text john doe founder, times 2015-01-01; text john doe founder, times today.");
-	file_put_contents("html/test.html","<html><body>there is . ali baba founder approved. john doe presented stuff. john doe director gave overview.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>there is . ali baba founder approved. john doe presented stuff. john doe director gave overview.</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("Not.");
 	say("What times today?");
@@ -99,7 +100,7 @@ function test_agent_learn() {
 	get("There text 'there is . ali baba founder approved. john doe presented stuff. john doe director gave overview.', times yesterday.");
 	say("You reading person in http://localtest.com/test.html!");
 	get("Not.");
-	file_put_contents("html/test.html","<html><body>there is . joe johns CTO appointed</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>there is . joe johns CTO appointed</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("My reading person in http://localtest.com/test.html.");
 	say("What times today, is person firstname, lastname?");
@@ -274,6 +275,7 @@ function test_agent_learn() {
 function test_agent_agglomerate() {
 	global $version;
 	global $copyright;
+	global $basePath;
 	$timeout = 3;
 	
 	//login, registration, verification
@@ -287,8 +289,8 @@ function test_agent_agglomerate() {
 	say("You forget everything!");
 	get("Ok.");
 
-	file_put_contents("html/sitea/test.html","<html><body>there is . john doe founder joined</body></html>");
-	file_put_contents("html/siteb/test.html","<html><body>there is . john doe founder elected</body></html>");
+	file_put_contents($basePath."html/sitea/test.html","<html><body>there is . john doe founder joined</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder elected</body></html>");
 	say("my knows '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	get("Ok.");
 	say("my trusts '\$firstname \$lastname {CEO CTO Founder Director}'.");
@@ -324,7 +326,7 @@ function test_agent_agglomerate() {
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
 	get("There not.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . john doe founder adviced</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder adviced</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
@@ -337,7 +339,7 @@ function test_agent_agglomerate() {
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
 	get("There not.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . john doe founder declared</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder declared</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' text?");
@@ -352,7 +354,7 @@ function test_agent_agglomerate() {
 	
 	//TODO
 	//Test snapshotting in STM:
-	file_put_contents("html/sitea/test.html","<html><body></body></html>");
+	file_put_contents($basePath."html/sitea/test.html","<html><body></body></html>");
 	say("times today new false.");
 	get("Ok.");
 	say("no there times today.");
@@ -362,22 +364,22 @@ function test_agent_agglomerate() {
 	say("You forget everything!");
 	get("Ok.");
 //TODO: make this working WITHOUT "and" and WITH it!!!
-	//file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. and yy yyy cto said.</body></html>");
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said .</body></html>");
+	//file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. and yy yyy cto said.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said .</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text xx xxx founder; text yy yyy cto.");
 	say("New true new false.");//discard news
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said . zz zzz cto announced .</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said . zz zzz cto announced .</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text zz zzz cto.");
 	say("New true new false.");//discard news	
 //TODO:make this working!
-	//file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. finally, yy yyy cto shouted. later, zz zzz cto spelled.</body></html>");
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. yy yyy cto shouted. zz zzz cto spelled.</body></html>");
+	//file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. finally, yy yyy cto shouted. later, zz zzz cto spelled.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. yy yyy cto shouted. zz zzz cto spelled.</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -386,8 +388,8 @@ function test_agent_agglomerate() {
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' times, text?");
 	get("There text xx xxx founder, times today; text yy yyy cto, times today; text zz zzz cto, times today.");	
 //TODO: make this working
-	//file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. next, vv vvv cto shouted. then, ww www cto spelled.</body></html>");	
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. vv vvv cto shouted. ww www cto spelled.</body></html>");	
+	//file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. next, vv vvv cto shouted. then, ww www cto spelled.</body></html>");	
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. vv vvv cto shouted. ww www cto spelled.</body></html>");	
 	say("You reading!");
 	sleep($timeout);	
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -395,7 +397,7 @@ function test_agent_agglomerate() {
 	say("New true new false.");//discard news
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' times, text?");
 	get("There text vv vvv cto, times today; text ww www cto, times today; text xx xxx founder, times today; text yy yyy cto, times today; text zz zzz cto, times today.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . yy yyy founder declared. zz zzz director shouted. ww www cto spelled.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . yy yyy founder declared. zz zzz director shouted. ww www cto spelled.</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -406,10 +408,10 @@ function test_agent_agglomerate() {
 	say("no there is '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("no there times today.");
 	say("You forget everything!");
-	file_put_contents("html/sitea/test.html","<html><body></body></html>");
+	file_put_contents($basePath."html/sitea/test.html","<html><body></body></html>");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
 	get("There not.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said .</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said .</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -422,7 +424,7 @@ function test_agent_agglomerate() {
 	say("no there times today.");
 	say("What times today?");
 	get("There not.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said . zz zzz cto announced .</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said . zz zzz cto announced .</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -430,7 +432,7 @@ function test_agent_agglomerate() {
 	say("new true new false.");
 	say("no there is '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("no there times today.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. yy yyy cto shouted. zz zzz cto spelled.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. yy yyy cto shouted. zz zzz cto spelled.</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -438,7 +440,7 @@ function test_agent_agglomerate() {
 	say("new true new false.");
 	say("no there is '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("no there times today.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. vv vvv cto shouted. ww www cto spelled.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. vv vvv cto shouted. ww www cto spelled.</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -451,7 +453,7 @@ function test_agent_agglomerate() {
 	say("no there times today.");
 	say("What times today?");
 	get("There not.");
-	file_put_contents("html/siteb/test.html","<html><body>there is . yy yyy founder declared. zz zzz director shouted. ww www cto spelled.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . yy yyy founder declared. zz zzz director shouted. ww www cto spelled.</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
@@ -490,7 +492,7 @@ function test_agent_agglomerate() {
 	say("What your things?");
 	get();
 	say("What your things count?");
-	get("My things count 85.");
+	get("My things count 87.");
 
 	say("Your trusts no john.");
 	get("Ok.");
@@ -506,6 +508,7 @@ function test_agent_agglomerate() {
 function test_agent_parse() {
 	global $version;
 	global $copyright;
+	global $basePath;
 	$timeout = 3;
 
 	//login, registration, verification
@@ -527,56 +530,56 @@ function test_agent_parse() {
 	
 	say("You forget everything!");
 
-	file_put_contents("html/siteb/test.html","<html><body>here is period xx xxx founder found.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>here is period xx xxx founder found.</body></html>");
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text xx xxx founder.");
 	say("new true new false.");
 	say("no there times today.");
 	
-	file_put_contents("html/siteb/test.html","<html><body>here is. xx xxx founder found.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>here is. xx xxx founder found.</body></html>");
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text xx xxx founder.");
 	say("new true new false.");
 	say("no there times today.");
 	
-	file_put_contents("html/siteb/test.html","<html><body>amazing xx xxx founder declared.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>amazing xx xxx founder declared.</body></html>");
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text xx xxx founder.");
 	say("new true new false.");
 	say("no there times today.");
 	
-	file_put_contents("html/siteb/test.html","<html><body>there is . xx xxx founder declared. next, vv vvv cto shouted. then, ww www cto spelled.</body></html>");	
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. next, vv vvv cto shouted. then, ww www cto spelled.</body></html>");	
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text vv vvv cto; text ww www cto; text xx xxx founder.");
 	say("new true new false.");
 	say("no there times today.");
 
-	file_put_contents("html/siteb/test.html","<html><body>there is . finally, xx xxx founder declared. next, where aa aaa cto shouted. then, there is ww www cto spelled.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . finally, xx xxx founder declared. next, where aa aaa cto shouted. then, there is ww www cto spelled.</body></html>");
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text aa aaa cto; text ww www cto; text xx xxx founder.");
 	say("new true new false.");
 	say("no there times today.");
 	
-	file_put_contents("html/siteb/test.html","<html><body>there is . bb bbb founder declared. vv vvv cto shouted. ww www cto spelled.</body></html>");	
+	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . bb bbb founder declared. vv vvv cto shouted. ww www cto spelled.</body></html>");	
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text bb bbb founder; text vv vvv cto; text ww www cto.");
 	say("new true new false.");
 	say("no there times today.");
 	
-	file_put_contents("html/siteb/test.html","<html><body>my xx xxx cto cried.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>my xx xxx cto cried.</body></html>");
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text xx xxx cto.");
 	say("new true new false.");
 	say("no there times today.");
 	
-	file_put_contents("html/siteb/test.html","<html><body>xx xxx ceo presented.</body></html>");
+	file_put_contents($basePath."html/siteb/test.html","<html><body>xx xxx ceo presented.</body></html>");
 	say("You reading '\$firstname \$lastname {CEO CTO Founder Director}' in http://localtest.com/siteb/test.html!");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text xx xxx ceo.");

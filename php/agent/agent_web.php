@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 include_once("test_api.php");
 
 function test_agent_web() {
+	global $basePath;
 	global $version;
 	global $copyright;
 	
@@ -372,7 +373,7 @@ brk();
 		//say_site("http://localtest.com/nsk/sibkray1.html");
 		say_site("http://localtest.com/test.html");
 		
-		file_put_contents("html/test.html",
+		file_put_contents($basePath."html/test.html",
 		//"2016 году . владимир кехман согласился прийти на публичные слушания . поддельные пятитысячные купюры «ходят» по новосибирску . гибдд создает спецотряд для ловли лихачей на дорогах . кехмана обязали вернуть исторический облик оперного театра . пикет в защиту ганчара: никто не хочет разбираться в деле . спасатели вытащили из снега машину с замерзающими людьми . детские сады и школы закрывают на карантин . экологи отказались от иска к «норд сити моллу» . . все новости >> предложить новость >> итоговый рейтинг: городецкий – плюс 1, толоконский – минус 8");
 		//"2016 году . владимир кехман . поддельные  . пикет в защиту в деле . спасатели рейтинг: городецкий – плюс 1, толоконский – минус 8");
 		//"владимир кехман . поддельные  . пикет в защиту в деле . спасатели рейтинг: городецкий – плюс 1");
@@ -416,10 +417,10 @@ brk();
 	
 	//test images
 	if (true){
-		file_put_contents("html/test/garbage.jpg","stub");
-		file_put_contents("html/test/stuff.jpg","stub");
-		file_put_contents("html/test/junk.jpg","stub");
-		file_put_contents("html/test.html","<html><head><base href=\"http://localtest.com/test/\"></head><body>                                                                                                                                                                                                                                                                                                                                                                                         any                                                              of                                                                                  my plain garbage <img src=\"http://localtest.com/test/garbage.jpg\"/> is my test garbage and it is not<img src=\"stuff.jpg\"/> my dummy stuff or just some kind of any annoying and weird dirty <img src=\"junk.jpg\"/> junk garbage.</body></html>");
+		file_put_contents($basePath."html/test/garbage.jpg","stub");
+		file_put_contents($basePath."html/test/stuff.jpg","stub");
+		file_put_contents($basePath."html/test/junk.jpg","stub");
+		file_put_contents($basePath."html/test.html","<html><head><base href=\"http://localtest.com/test/\"></head><body>                                                                                                                                                                                                                                                                                                                                                                                         any                                                              of                                                                                  my plain garbage <img src=\"http://localtest.com/test/garbage.jpg\"/> is my test garbage and it is not<img src=\"stuff.jpg\"/> my dummy stuff or just some kind of any annoying and weird dirty <img src=\"junk.jpg\"/> junk garbage.</body></html>");
 		say_site("http://localtest.com/test.html");
 		say_thing("plain \$word");
 		say_thing("test \$word");
@@ -446,7 +447,7 @@ brk();
 	//test links
 	if (true){
 		//TODO: google missed:
-		file_put_contents("html/test.html","<html><head><base href=\"http://localtest.com/test/\"></head><body>                                                                                                                                                                                                                                                                                                                                                                                         any                                                              of                                                                                  my plain garbage. <a href=\"http://google.com\">google site link</a>. is my test garbage and it is not.<a href=\"http://microsoft.com\">site of microsoft.</a> my dummy stuff or just some kind of any annoying and weird dirty .<a href=\"http://facebook.com\" target=\"_blank\">Facebook site</a> . junk garbage.  just test site.</body></html>");
+		file_put_contents($basePath."html/test.html","<html><head><base href=\"http://localtest.com/test/\"></head><body>                                                                                                                                                                                                                                                                                                                                                                                         any                                                              of                                                                                  my plain garbage. <a href=\"http://google.com\">google site link</a>. is my test garbage and it is not.<a href=\"http://microsoft.com\">site of microsoft.</a> my dummy stuff or just some kind of any annoying and weird dirty .<a href=\"http://facebook.com\" target=\"_blank\">Facebook site</a> . junk garbage.  just test site.</body></html>");
 		say_site("http://localtest.com/test.html");
 		say_thing("site");
 		say("You reading!");
@@ -466,7 +467,7 @@ brk();
 		say_thing("test dummy");
 		say_site("http://localtest.com/test.html");
 		//test html codes
-		file_put_contents("html/test.html","<html><body>1&#8212;2&#8364;-&laquo;quoted&raquo;- test dummy</body></html>");
+		file_put_contents($basePath."html/test.html","<html><body>1&#8212;2&#8364;-&laquo;quoted&raquo;- test dummy</body></html>");
 		sleep($sleep_seconds);
 		println("http://localtest.com/test.html:".file_get_contents("http://localtest.com/test.html"));//to ensure file is re-cached by server :-)
 		say("You reading!");
@@ -477,7 +478,7 @@ brk();
 		//get("There is http://localtest.com/test.html, text 1—2€-«quoted»- test dummy, times today.");
 		get("There is http://localtest.com/test.html, text '1—2€-\"quoted\"- test dummy', times today.");
 		del_news_today();
-		file_put_contents("html/test.html","<html><body><div class=\"ngs-footer__info\">&copy; ЗАО &laquo;НГС&raquo;</div></body></html>");
+		file_put_contents($basePath."html/test.html","<html><body><div class=\"ngs-footer__info\">&copy; ЗАО &laquo;НГС&raquo;</div></body></html>");
 		say("You reading!");
 		sleep($sleep_seconds);
 		say("What times today text?");
@@ -495,7 +496,7 @@ brk();
 	if (true)
 	{
 		say_site("http://localtest.com/test.html");
-		file_put_contents("html/test.html","my test stuff is here and it is just a test stuff, not test dummy. is is test actually, not a test stuff garbage.</body></html>");
+		file_put_contents($basePath."html/test.html","my test stuff is here and it is just a test stuff, not test dummy. is is test actually, not a test stuff garbage.</body></html>");
 		say_thing("test \$word");
 		say("You reading!");
 		sleep($sleep_seconds);
@@ -637,7 +638,7 @@ brk();
 		//$pat = "{[{[владимир городецкий] [в . городецкий]} \$suffix]}";//OK
 		$pat = "{[{[владимир городецкий] [в. городецкий]} \$suffix]}";//OK
 		say_thing($pat);
-		file_put_contents("html/test.html","<html><body>владимир филиппович городецкий сказал раз.</body></html>");
+		file_put_contents($basePath."html/test.html","<html><body>владимир филиппович городецкий сказал раз.</body></html>");
 		say("You reading!");
 		sleep($sleep_seconds);
 		say("What new true text?");
@@ -645,7 +646,7 @@ brk();
 		del_news_today();
 		say_thing($pat,false);
 
-		file_put_contents("html/test.html","<html><body>в. городецкий написал два.</body></html>");
+		file_put_contents($basePath."html/test.html","<html><body>в. городецкий написал два.</body></html>");
 		say("You reading!");
 		sleep($sleep_seconds);
 		say("What new true text?");
@@ -659,7 +660,7 @@ brk();
 		/*
 		//TODO:
 		// pattern: $x y 
-		file_put_contents("html/test.html","<html><body>в. ф. городецкий сделал два.</body></html>");
+		file_put_contents($basePath."html/test.html","<html><body>в. ф. городецкий сделал два.</body></html>");
 		say("You reading!");
 		sleep($sleep_seconds);
 		say("What new true text?");
@@ -672,8 +673,8 @@ brk();
 		//$pat = "{[\$prefix {[владимир городецкий] [в . городецкий]}]}";//GET:There text однажды владимир городецкий.
 		$pat = "{[\$prefix {[владимир городецкий] [в . городецкий]}] [{[владимир городецкий] [в . городецкий]} \$suffix]}";
 		say_thing($pat);
-		//file_put_contents("html/test.html","<html><body>однажды пошел владимир филиппович городецкий.</body></html>");
-		file_put_contents("html/test.html","<html><body>бывший мэр в. ф. городецкий.</body></html>");
+		//file_put_contents($basePath."html/test.html","<html><body>однажды пошел владимир филиппович городецкий.</body></html>");
+		file_put_contents($basePath."html/test.html","<html><body>бывший мэр в. ф. городецкий.</body></html>");
 		say("You reading!");
 		sleep($sleep_seconds);
 		say("What new true text?");

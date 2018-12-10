@@ -42,6 +42,7 @@ import net.webstructor.comm.Socializer;
 import net.webstructor.comm.TCPListener;
 import net.webstructor.comm.HTTPListener;
 import net.webstructor.comm.CmdLiner;
+import net.webstructor.comm.Telegrammer;
 import net.webstructor.comm.eth.Ethereum;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.goog.GApi;
@@ -119,6 +120,9 @@ public class Farm extends Body {
 			new Emailer(this).start();	
 		if (console)
 			new CmdLiner(this).start();
+		if (!AL.empty(self().getString(telegram_token)))
+			//System.out.println(self().getString(telegram_token));
+			new Telegrammer(this).start();
 		if (social) {
 			//TODO: this in other place, changeable online?
 			String fb_id = self().getString(facebook_id);

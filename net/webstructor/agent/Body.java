@@ -52,7 +52,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.3.1";
+	public final static String VERSION = "1.3.2";
 	public final static String COPYRIGHT = "Copyright © 2018 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -104,6 +104,10 @@ public abstract class Body extends Anything implements Environment
 	public static final String vkontakte_id = "vkontakte id";
 	public static final String vkontakte_key = "vkontakte key";
 	public static final String vkontakte_token = "vkontakte token";
+	//public static final String telegram_id = "telegram id";
+	//public static final String telegram_key = "telegram key";
+	public static final String telegram_token = "telegram token";
+	public static final String telegram_offset = "telegram offset";
 	public static final String steemit_id = "steemit id";
 	public static final String steemit_url = "steemit url";
 	public static final String golos_id = "golos id";
@@ -126,6 +130,7 @@ public abstract class Body extends Anything implements Environment
 		google_id, google_key, //google_token,
 		facebook_id, facebook_key, facebook_token,
 		vkontakte_id, vkontakte_key, vkontakte_token,
+		/*telegram_id, telegram_key,*/ telegram_token, telegram_offset,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
 		AL.version
 	};

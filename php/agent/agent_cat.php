@@ -42,6 +42,7 @@ function cleanup(){
 }
 
 function test_agent_cluster() {
+	global $basePath;
 	init();
 	
 	/*
@@ -69,11 +70,11 @@ function test_agent_cluster() {
 	A: "Боря работает фандрайзером" categories "работает".	
 	*/
 	
-	file_put_contents("html/test/cat/fly.html","<html><body>fly is an insect</body></html>");
-	file_put_contents("html/test/cat/eagle.html","<html><body>eagle is a bird</body></html>");
-	file_put_contents("html/test/cat/snake.html","<html><body>snake is a reptile</body></html>");
-	file_put_contents("html/test/cat/french.html","<html><body>french live in france</body></html>");
-	file_put_contents("html/test/cat/chinese.html","<html><body>chinese live in china</body></html>");
+	file_put_contents($basePath."html/test/cat/fly.html","<html><body>fly is an insect</body></html>");
+	file_put_contents($basePath."html/test/cat/eagle.html","<html><body>eagle is a bird</body></html>");
+	file_put_contents($basePath."html/test/cat/snake.html","<html><body>snake is a reptile</body></html>");
+	file_put_contents($basePath."html/test/cat/french.html","<html><body>french live in france</body></html>");
+	file_put_contents($basePath."html/test/cat/chinese.html","<html><body>chinese live in china</body></html>");
 	say("There new true, text 'http://localtest.com/test/cat/fly.html', times today, trust true.");
 	say("There new true, text 'http://localtest.com/test/cat/eagle.html', times today, trust true.");
 	say("There new true, text 'http://localtest.com/test/cat/snake.html', times today, trust true.");

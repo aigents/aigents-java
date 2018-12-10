@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 include_once("test_api.php");
 
 function test_agent_patterns() {
+	global $basePath;
 	global $version;
 	global $copyright;
 	say("My login.");
@@ -25,7 +26,7 @@ function test_agent_patterns() {
 	//test two-side variables
 	say("My knows '\$x dolphins \$y'.");
 	get("Ok.");
-	file_put_contents("html/test.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
 	say("You reading '\$x dolphins \$y' in http://localtest.com/test.html!");
 	get("My reading \$x dolphins \$y in http://localtest.com/test.html.");
 	say("What is '\$x dolphins \$y' text?");
@@ -41,9 +42,9 @@ function test_agent_patterns() {
 	say("My knows '\$x dolphins \$y'.");
 	say("My knows 'to dolphins'.");
 	get("Ok.");
-	file_put_contents("html/test.html","<html><body>Here is the story. Link 1 <a href=\"test1.html\">to dolphins</a>. Link 2 <a href=\"test2.html\">to dolphins</a>. They are just great.</body></html>");
-	file_put_contents("html/test1.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
-	file_put_contents("html/test2.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Link 1 <a href=\"test1.html\">to dolphins</a>. Link 2 <a href=\"test2.html\">to dolphins</a>. They are just great.</body></html>");
+	file_put_contents($basePath."html/test1.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test2.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
 	say("You reading '\$x dolphins \$y' in http://localtest.com/test.html!");
 	get("My reading \$x dolphins \$y in http://localtest.com/test.html.");
 	say("What is '\$x dolphins \$y' text?");
@@ -65,37 +66,37 @@ function test_agent_patterns() {
 	get("Path not.");
 
 	say("No there is dolphins.");
-	file_put_contents("html/test.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text everyone knows that dolphins are cool.");	
 
 	say("No there is dolphins.");
-	file_put_contents("html/test.html","<html><body>Here is the story. Everyone knows dolphins as animals. Dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone knows dolphins as animals. Dolphins are cool. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text dolphins are cool; text everyone knows dolphins as animals.");
 	
 	say("No there is dolphins.");
-	file_put_contents("html/test.html","<html><body>Here is what. Everyone knows dolphins.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is what. Everyone knows dolphins.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text everyone knows dolphins.");
 	
 	say("No there is dolphins.");
-	file_put_contents("html/test.html","<html><body>Everyone knows dolphins. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Everyone knows dolphins. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text everyone knows dolphins.");
 	
 	say("No there is dolphins.");
-	file_put_contents("html/test.html","<html><body>Everyone knows dolphins. Dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Everyone knows dolphins. Dolphins are cool. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text dolphins are cool.");
 	
 	say("No there is dolphins.");
-	file_put_contents("html/test.html","<html><body>Everyone knows dolphins. Dolphins are cool. People and dolphins should be friends.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Everyone knows dolphins. Dolphins are cool. People and dolphins should be friends.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text people and dolphins should be friends.");
@@ -110,7 +111,7 @@ function test_agent_patterns() {
 	$seabeings = '{dolphins whales} {live exist}'; 
 	say_thing($seabeings);
 	say("No there is '".$seabeings."'.");
-	file_put_contents("html/test.html","<html><body>They tell dolphins are cool. I know that whales live in the sea. You know dolphins are mammals.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>They tell dolphins are cool. I know that whales live in the sea. You know dolphins are mammals.</body></html>");
 	say("You reading '".$seabeings."' in http://localtest.com/test.html!");
 	say("What is '".$seabeings."' text?");
 	get("There text i know that whales live in the sea.");
@@ -123,7 +124,7 @@ function test_agent_patterns() {
 	$seabeings = '{dolphins whales} {live exist} $somewhere';
 	say_thing($seabeings);
 	say("No there is '".$seabeings."'.");
-	file_put_contents("html/test.html","<html><body>They tell dolphins are cool. I know that whales live in the sea. You know dolphins are mammals.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>They tell dolphins are cool. I know that whales live in the sea. You know dolphins are mammals.</body></html>");
 	say("You reading '".$seabeings."' in http://localtest.com/test.html!");
 	say("What is '".$seabeings."' text?");
 	get("There text whales live in the sea.");
@@ -356,7 +357,7 @@ function test_agent_patterns() {
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 85.");
+	get("My things count 87.");
 	
 	say("Your trusts no john.");
 	get("Ok.");

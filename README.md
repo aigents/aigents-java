@@ -29,8 +29,8 @@ org
 ```
 
 ## Build instructions
-1. Run build script with Linux shell as **sh build**
-2. Run test script with Linux shell as *sh test*
+1. Run build script with Linux shell as **sh build.sh**
+2. Run test script with Linux shell as *sh test.sh*
 - See test pre-requisites in the "test" shell script file
 - Successful tests pass will be indicated with **SUCCESS!** in the very end
 3. Pick built Java jar file as **Aigents.jar**
