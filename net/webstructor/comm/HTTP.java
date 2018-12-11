@@ -110,6 +110,10 @@ public abstract class HTTP {
  	}
 
 	public static String simple(String url,String urlParameters,String method,int timeout) throws IOException {
+		return simple(url,urlParameters,method,timeout,null);
+	}
+	
+	public static String simple(String url,String urlParameters,String method,int timeout,String cType) throws IOException {
 		URL obj = new URL(url);
 		//HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -121,6 +125,11 @@ public abstract class HTTP {
 		con.setRequestMethod(method);
 		con.setRequestProperty("User-Agent", Body.http_user_agent);
 		con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");//TODO:
+		
+		if (cType != null){//provide extra info for multipart post requests
+			con.setRequestProperty("Content-Length", String.valueOf(urlParameters.length()));
+			con.setRequestProperty("Content-Type", cType);
+		}
 
 		// Send post request
 		con.setUseCaches(false);
@@ -132,10 +141,13 @@ public abstract class HTTP {
  
 		InputStream is;
 		int status = con.getResponseCode();
-		if(status >= 400)
+ 		if(status >= 400)
 		    is = con.getErrorStream();
 		else
 		    is = con.getInputStream();
+ 		
+		if (is == null)
+			throw new IOException("No stream on status "+status);
 		
 		BufferedReader in = new BufferedReader(new InputStreamReader(is));
 		String inputLine;

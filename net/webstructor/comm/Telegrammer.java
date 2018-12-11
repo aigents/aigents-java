@@ -39,7 +39,37 @@ import net.webstructor.al.Period;
 import net.webstructor.core.Thing;
 import net.webstructor.peer.Session;
 
+/*
+TODO:
+- OAuth for Site
+	https://medium.com/@alexandershogenov/%D0%B4%D0%B5%D0%BB%D0%B0%D0%B5%D0%BC-oauth-%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8E-telegram-%D0%BD%D0%B0-%D1%81%D0%B2%D0%BE%D1%91%D0%BC-%D1%81%D0%B0%D0%B9%D1%82%D0%B5-74d0d63095b0
+	https://core.telegram.org/widgets/login
+- Bots
+	Functions (same as for Slack!?)
+		- get messages across chats/groups
+		- build reports across chats/groups
+		- build social graphs across chats/groups (each is a hyperlink linking its members)
+		- study dynamics of topics
+		- study reputations implicitly/probabilistically (because of no explicit ratings)
+		- answer questions in groups ("anonymous" no-auth mode)
+		- provide alerts in groups ("anonymous" no-auth mode)
+			https://www.shellhacks.com/ru/telegram-api-send-message-personal-notification-bot/
+	https://tlgrm.ru/docs/bots/api
+	https://core.telegram.org/bots
+		- TODO use in groups
+		- TODO web login
+		- TODO inline mode
+			https://core.telegram.org/bots/inline
+				https://core.telegram.org/bots/api#inline-mode
+ Resources:
+	https://core.telegram.org/bots/api#senddocument
+	https://core.telegram.org/bots/api#sending-files
+	https://philsturgeon.uk/api/2016/01/04/http-rest-api-file-uploads/
+ */
 public class Telegrammer extends Communicator {
+	
+	public static final long PERIOD_MIN = 1*Period.SECOND; 
+	public static final long PERIOD_MAX = 16*Period.SECOND; 
 	
 	protected Thing self;
 	protected int timeout = 0;
@@ -52,9 +82,38 @@ public class Telegrammer extends Communicator {
 
 	public void output(Session session, String message) throws IOException {
 		String token = self.getString(Body.telegram_token,null);
-		String url = base_url+token+"/sendMessage";
-		String par = "chat_id="+session.getKey()+"&text="+URLEncoder.encode(message,"UTF-8");
-		HTTP.simple(url,par,"POST",timeout);		
+		try {
+			if (!message.startsWith("<html>")) {
+				if (message.length() > 4096)
+					message = message.substring(0,4093) + "...";
+				//send text message
+				String url = base_url+token+"/sendMessage";
+				String par = "chat_id="+session.getKey()+"&text="+URLEncoder.encode(message,"UTF-8");
+				HTTP.simple(url,par,"POST",timeout);
+			} else {
+				//https://habr.com/sandbox/103022/
+				String boundary = "--bndry--";
+				String url = base_url+token+"/sendDocument";
+				String par = "\r\n"
+					+"--"+boundary+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"chat_id\"\r\n"
+		            +"\r\n"
+		            +session.getKey()+"\r\n"
+					+"--"+boundary+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"document\"; filename=\"report.html\"\r\n"
+		            +"Content-Type: text/html\r\n"
+		            +"\r\n"
+		            +message+"\r\n"
+					+"--"+boundary+"--\r\n";
+				String response = HTTP.simple(url,par,"POST",timeout,"multipart/form-data; boundary="+boundary);
+				JsonReader jr = Json.createReader(new StringReader(response));
+				JsonObject result = jr.readObject();
+				if (!HTTP.getJsonBoolean(result, "ok", false))
+					throw new Exception("Telegram error sendDocument: "+result.toString());
+			}
+		} catch (Exception e){
+			body.error("Telegram error",e);
+		}
 	}
 	
 	private long handle(String response) throws IOException{
@@ -116,21 +175,33 @@ public class Telegrammer extends Communicator {
 		try {
 			body.debug("Telegrammer started.");
 			long offset = AL.integer(self.getString(Body.telegram_offset,"-1"),-1L);
+			long period = PERIOD_MIN;
+			String current_token = "";
 			while (alive()) {
 				//TODO: configurable period
-				long period = 5*Period.SECOND;
 				try {
 					Thread.sleep(period);
 					String token = self.getString(Body.telegram_token,null);
 					if (token == null)
 						continue;
+					if (!token.equals(current_token)){
+						String response = HTTP.simple(base_url+token+"/deleteWebhook","","POST",timeout);
+						body.debug("Telegram deleteWebhook "+token+": "+response);
+						current_token = token;
+					}
 					String url = base_url+token+"/getUpdates";
 					//parameter=value&also=another
 					String par = "offset="+Long.toString(offset);
 					String response = HTTP.simple(url,par,"POST",timeout);
 					long new_offset = handle(response);
-					if (new_offset != -1)
+					if (new_offset != -1){
 						self.setString(Body.telegram_offset,Long.toString(offset = ++new_offset));
+						if (period > PERIOD_MIN)
+							period /= 2;
+					}else{
+						if (period < PERIOD_MAX)
+							period *= 2;
+					}
 				} catch (Exception e) {		
 					body.error("Telegrammer error:",e);
 				}
