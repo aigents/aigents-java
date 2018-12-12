@@ -25,10 +25,12 @@ package net.webstructor.comm;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
@@ -127,17 +129,27 @@ public abstract class HTTP {
 		con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");//TODO:
 		
 		if (cType != null){//provide extra info for multipart post requests
-			con.setRequestProperty("Content-Length", String.valueOf(urlParameters.length()));
+			//con.setRequestProperty("Content-Length", String.valueOf(urlParameters.length()));
 			con.setRequestProperty("Content-Type", cType);
 		}
 
 		// Send post request
 		con.setUseCaches(false);
 		con.setDoOutput(true);
-		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-		wr.writeBytes(urlParameters);
-		wr.flush();
-		wr.close();
+		if (!AL.empty(urlParameters)){
+			if (cType != null){//Used when POST request is sent by Telegrammer in UTF8
+				//TODO: use same below for other cases!?
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(con.getOutputStream(), "UTF-8"));
+				bw.write(urlParameters);
+				bw.flush();
+				bw.close();
+			} else {
+				DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+				wr.writeBytes(urlParameters);
+				wr.flush();
+				wr.close();
+			}
+		}
  
 		InputStream is;
 		int status = con.getResponseCode();

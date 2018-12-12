@@ -101,7 +101,7 @@ public class Telegrammer extends Communicator {
 		            +session.getKey()+"\r\n"
 					+"--"+boundary+"\r\n"
 		  			+"Content-Disposition: form-data; name=\"document\"; filename=\"report.html\"\r\n"
-		            +"Content-Type: text/html\r\n"
+		            +"Content-Type: text/html; charset=utf-8\r\n"
 		            +"\r\n"
 		            +message+"\r\n"
 					+"--"+boundary+"--\r\n";
