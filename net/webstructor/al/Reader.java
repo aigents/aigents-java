@@ -64,7 +64,11 @@ public class Reader extends AL {
 	}
 	
 	public static boolean read(String input, Set set) {
-		Iter it = new Iter(Parser.parse(input));
+		return read(input, set, null);
+	}
+	
+	public static boolean read(String input, Set set, String delimiters) {
+		Iter it = new Iter(Parser.parse(input,delimiters,null));
 		return read(it,set,null);
 	}
 
@@ -306,6 +310,16 @@ public class Reader extends AL {
 				}):
 			new Seq(new Object[]{new Any(pats.toArray())});
 		return seq;		
+	}
+	
+	/**
+	 * Build pattern of expected slots of named variables in order
+	 */
+	public static Seq pattern(Anything owner, String[] terms) {
+		Object vars[] = new Object[terms.length];
+		for (int i=0; i<terms.length; i++)
+			vars[i] = new Property(owner,terms[i]);
+		return new Seq(vars);		
 	}
 	
 	public static boolean hasVariables(String pattern) {

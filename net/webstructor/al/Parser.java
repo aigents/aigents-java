@@ -116,11 +116,15 @@ public class Parser {
 	//stupid parsing to chunks (including commas)
 	//TODO: break into sentences instead
 	public static Seq parse(String input) {
-		return parse(input,(List)null);
+		return parse(input,(String)null,(List)null);
 	}
 	
 	public static Seq parse(String input,List positions) {
 		return parse(input,null,false,true,true,false,positions);
+	}
+
+	public static Seq parse(String input,String delimiters,List positions) {
+		return parse(input,delimiters,false,true,true,false,null);
 	}
 
 	public static Seq parse(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling) {
@@ -132,7 +136,7 @@ public class Parser {
 		Parser parser = new Parser(input,quoting,urling); 
 		for (;;) {
 			int pos = parser.pos; 
-			String s = parser.parseTerm(regexp,tolower);
+			String s = parser.parseTerm(regexp,tolower,delimiters);
 			if (s == null)
 				break;
 			if (delimiters != null && delimiters.indexOf(s) != -1)
@@ -151,7 +155,7 @@ public class Parser {
 		ArrayList chunks = new ArrayList();
 		Parser parser = new Parser(input,quoting,urling); 
 		for (;;) {
-			String s = parser.parseTerm(regexp,tolower);
+			String s = parser.parseTerm(regexp,tolower,delimiters);
 			if (s == null)
 				break;
 			if (breakers != null && breakers.indexOf(s) != -1){//breaker token
@@ -210,11 +214,14 @@ public class Parser {
 	
 	//TODO:get rid of
 	public String parse() {
-		return parseTerm(false,true);
+		return parseTerm(false,true,null);
 	}
 	
 	//TODO: return brackets [({})] as individuals
 	public String parseTerm(boolean regexp,boolean tolower) {
+		return parseTerm(regexp,tolower,null);
+	}
+	public String parseTerm(boolean regexp,boolean tolower,String delimiters) {
 		char quoted = 0;
 		int begin = -1;
 		int cur = pos;
@@ -265,16 +272,21 @@ public class Parser {
 			}
 			else
 			if (begin == -1) { //not forming token
+				if (delimiters != null && delimiters.indexOf(c) != -1)
+					;//skip delimiters
+				else
 				if (AL.punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size)) {//return symbol
 					String s = input.substring(cur,cur+1);
 					pos = ++cur;
 					return tolower ? s.toLowerCase() : s;
-				}
+				} else
 				if (AL.spaces.indexOf(c) == -1)//start froming token
 					begin = cur;
 				//else skip delimiters
 			} else { //in the middle of the token
-				if (AL.punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size)) {//return token
+				if ((AL.punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size))
+						|| (delimiters != null && delimiters.indexOf(c) != -1)
+						) {//return token
 					String s = input.substring(begin,cur);
 					if (!(urling && AL.isURL(s) && c =='?')){//TODO: any other URL characters? 
 						pos = cur;//stay at delimiter to return symbol later

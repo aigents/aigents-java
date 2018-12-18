@@ -19,6 +19,7 @@ include_once("agent_sites.php");
 include_once("agent_think.php");
 include_once("agent_web.php");
 include_once("agent_cat.php");
+include_once("agent_chat.php");
 
 function test_once() {
 	global $version;
@@ -52,7 +53,10 @@ function test_once() {
 	
 	//test clistering and classification
 	test_agent_cluster();
-	
+
+	//test free-text chat capabilities
+	test_chat();
+		
 	test_summary();
 }
 

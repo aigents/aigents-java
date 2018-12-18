@@ -70,6 +70,7 @@ public class Telegrammer extends Communicator {
 	
 	public static final long PERIOD_MIN = 1*Period.SECOND; 
 	public static final long PERIOD_MAX = 16*Period.SECOND; 
+	public static final String name = "telegram"; 
 	
 	protected Thing self;
 	protected int timeout = 0;
@@ -79,16 +80,17 @@ public class Telegrammer extends Communicator {
 		super(env);
 		self = body.self();
 	}
-
+	
 	public void output(Session session, String message) throws IOException {
 		String token = self.getString(Body.telegram_token,null);
+		String chat_id = session.getKey().substring(name.length());
 		try {
 			if (!message.startsWith("<html>")) {
 				if (message.length() > 4096)
 					message = message.substring(0,4093) + "...";
 				//send text message
 				String url = base_url+token+"/sendMessage";
-				String par = "chat_id="+session.getKey()+"&text="+URLEncoder.encode(message,"UTF-8");
+				String par = "chat_id="+chat_id+"&text="+URLEncoder.encode(message,"UTF-8");
 				HTTP.simple(url,par,"POST",timeout);
 			} else {
 				//https://habr.com/sandbox/103022/
@@ -98,7 +100,7 @@ public class Telegrammer extends Communicator {
 					+"--"+boundary+"\r\n"
 		  			+"Content-Disposition: form-data; name=\"chat_id\"\r\n"
 		            +"\r\n"
-		            +session.getKey()+"\r\n"
+		            +chat_id+"\r\n"
 					+"--"+boundary+"\r\n"
 		  			+"Content-Disposition: form-data; name=\"document\"; filename=\"report.html\"\r\n"
 		            +"Content-Type: text/html; charset=utf-8\r\n"
@@ -163,8 +165,8 @@ public class Telegrammer extends Communicator {
 				//TODO: use for session id either
 				//from_id - for private authenticated sessions
 				//chat_id - for public anonymous sessions
-				//TODO: dom't try to authenticate other users in public anonymous sessions 
-            	net.webstructor.peer.Session session = body.sessioner.getSession(this,from_id);
+				//TODO: dom't try to authenticate other users in public anonymous sessions
+            	net.webstructor.peer.Session session = body.sessioner.getSession(this,name+from_id);
             	body.conversationer.handle(this, session, text);
 			}
 		}

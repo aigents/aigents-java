@@ -53,6 +53,9 @@ public class Session  {
 	protected String input = null;
 	protected String output = null;
 
+	//protected HashMap expected = new HashMap();
+	private String[] expected = null;
+
 	public Session(Sessioner sessioner,Communicator communicator,String type,String key) {
 		this.sessioner = sessioner;
 		this.communicator = communicator;
@@ -67,6 +70,14 @@ public class Session  {
 		this(sessioner,communicator,type,key);
 		this.peer = new Thing(peer,null);
 		this.authenticated = true;
+	}
+	
+	public void expect(String[] expected){
+		this.expected = expected;
+	}
+	
+	public String[] expected(){
+		return this.expected;
 	}
 	
 	public void clear(){

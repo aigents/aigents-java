@@ -41,10 +41,20 @@ class Verification extends Registration {
 		check(session);
 		if (q == null || a == null) {
 			session.mode = new Registration();
+			session.expect(null);
 			return true;			
 		}
+		if (Reader.read(session.input, cancel_pattern)) {
+			session.mode = new Login();
+			session.peer = null;
+			session.expect(null);
+			return true;
+		}
 		Seq seq = Reader.pattern(AL.i_my,temp,new String[] {q});	
-		if (session.mood != AL.interrogation && Reader.read(session.input, seq)) {
+		if (session.mood != AL.interrogation && (Reader.read(session.input, seq) 
+				|| (session.expected() != null && Reader.read(session.input,Reader.pattern(temp, session.expected()),",")) 
+				))
+			{
 			String answer = temp.getString(q);
 			if (a.equalsIgnoreCase(answer)) {
 				session.mode= new Conversation();
@@ -58,11 +68,13 @@ class Verification extends Registration {
 					session.sessioner.body.error(e.toString(), e);
 				}
 				session.fails = 0;
+				session.expect(null);
 				return false;
 			}
-			if (++session.fails >= 3){
+			if (++session.fails >= 4){
 				session.mode = new Login();
 				session.clear();
+				session.expect(null);
 				return true;
 			}
 		}
@@ -71,6 +83,7 @@ class Verification extends Registration {
 				//'what my $secret_question?' => back to verirfication
 				if (q != null && session.read(Reader.pattern(AL.i_my,new String[] {q,Peer.secret_question,Peer.secret_answer}))){
 					session.mode = new VerificationChange();
+					session.expect(null);
 					return true;
 				}
 				//TODO: get out of this junk which causes dead loop!!!???
@@ -79,11 +92,6 @@ class Verification extends Registration {
 				//	session.mode = new Conversation();
 				//	return true;
 				//}
-			} else
-			if (Reader.read(session.input, cancel_pattern)) {
-				session.mode = new Login();
-				session.peer = null;
-				return true;
 			}
 		}
 		session.output = Writer.what("your", session.peer, new All(new String[]{q}));

@@ -39,6 +39,9 @@ import net.webstructor.core.Thing;
 
 class Registration extends Mode {	
 
+	public static final String[] question_answer = new String[]{Peer.secret_question,Peer.secret_answer};
+	public static final String[] answer_only = new String[]{Peer.secret_answer};
+	
 	String q = null;
 	String a = null;
 
@@ -91,6 +94,13 @@ class Registration extends Mode {
 	public boolean process(Session session) {
 		if (noSecretQuestion(session))
 			return answer(session);
+
+		if (Reader.read(session.input, cancel_pattern)) {
+			session.mode = new Login();
+			session.peer = null;
+			session.expect(null);
+			return true;
+		}
 		
 		//states: have no question, have question with no answer, have question and answer
 		//if have no question
@@ -106,14 +116,19 @@ class Registration extends Mode {
 					new Any(1,AL.i_my),	
 					new Any(new Object[]{
 						new Seq(new Object[]{"secret", "question",new Property(session.peer,Peer.secret_question)}),	
-						new Seq(new Object[]{"secret", "answer"  ,new Property(session.peer,Peer.secret_answer)})	
+						new Seq(new Object[]{"secret", "answer"  ,new Property(session.peer,Peer.secret_answer)})
 						})	
 					});	
-			Reader.read(session.input, seq);
+			if (!Reader.read(session.input, seq))//well-formed AL
+				if (session.expected() != null){
+					Seq p = Reader.pattern(session.peer, session.expected());
+					Reader.read(session.input,p,",");//free-text
+				}
 			check(session);
-			if (q == null)
-				session.output = Writer.what("your", session.peer, 
-						new All(new String[]{Peer.secret_question,Peer.secret_answer}));
+			if (q == null){
+				session.expect(question_answer);
+				session.output = Writer.what("your", session.peer,new All(question_answer));
+			}
 		}
 		if (q != null && a == null) {
 			//TODO: spaces breakdown for "pet name"!
@@ -125,21 +140,20 @@ class Registration extends Mode {
 						new Seq(new Object[]{"secret", "answer",new Property(session.peer,Peer.secret_answer)})	
 						})	
 					});	
-			Reader.read(session.input, seq);
+			if (!Reader.read(session.input, seq))
+				if (session.expected() != null)
+					Reader.read(session.input,Reader.pattern(session.peer, session.expected()));//free-text
 			check(session);
-			if (a == null)
-				session.output = Writer.what("your", session.peer, new All(new String[]{Peer.secret_answer}));
+			if (a == null){
+				session.output = Writer.what("your", session.peer, new All(answer_only));
+				session.expect(answer_only);
+			}
 		}
 		if (q != null && a != null) {
 			session.updateRegistration();
 			session.mode= new Verification();
 			storedPeer.update(session.peer,null);
-			return true;
-		}
-		
-		if (Reader.read(session.input, cancel_pattern)) {
-			session.mode = new Login();
-			session.peer = null;
+			session.expect(new String[]{q});
 			return true;
 		}
 		

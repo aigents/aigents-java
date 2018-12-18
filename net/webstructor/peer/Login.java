@@ -294,9 +294,15 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 
 		if (session.mood == AL.declaration || session.mood == AL.direction) {
 			//using $ to explicitly denote variables
+			//AL-style sentence
 			//[{i my} {[name $name] [email $email] [surname $surname] [birth date $birth_date]}]
-			Reader.read(session.input, Reader.pattern(AL.i_my,session.peer,login_context));
-			session.sessioner.body.output("Login:"+Writer.toString(session.peer)+".");	
+			if (!Reader.read(session.input, Reader.pattern(AL.i_my,session.peer,login_context))){
+				//freetext-style sentence
+				//[$email $name $surname]
+				if (session.expected() != null)
+					Reader.read(session.input, Reader.pattern(session.peer,session.expected()),",");
+			}
+			session.sessioner.body.output("Login:"+Writer.toString(session.peer)+".");
 		}
 		
 		Collection peers = null;
@@ -316,11 +322,14 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		if (!AL.empty(peers) && peers.size() == 1) {
 			session.peer = new Thing((Thing)peers.iterator().next(),null);
 			//if registered -  Verification
-			if (session.peer.getString("secret answer") != null)
+			if (session.peer.getString(Peer.secret_answer) != null){
 				session.mode= new Verification();
-			else
+				session.expect(new String[]{session.peer.getString(Peer.secret_question)});
+			}else{
 			//if not registered - Registration
 				session.mode= new Registration();
+				session.expect(null);
+			}
 			return true;
 		}
 		
@@ -332,6 +341,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			//if no unresolved - Error
 			if (unresolved.size() == 0) {
 				session.output = "Too many peers.";//TODO:what?
+				session.expect(null);
 				return true;
 			}
 			//if unresolved - keep unresolving
@@ -345,7 +355,8 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				//TODO: do this default initialization in some other place!
 				//must initialize parameter sheets for peers anyway otherwise they can't be quaried by ALL-kind "open" queries
 				storedPeer.setString(Peer.check_cycle,"3 hours");//TODO:move out of here?
-				session.mode= new Registration();
+				session.mode = new Registration();
+				session.expect(null);
 				return true;
 			}
 			//if unresolved - keep unresolving
@@ -357,6 +368,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		}
 		
 		//ask all items at once:
+		session.expect(unresolved.toStrings());
 		session.output = Writer.what("your", session.peer, unresolved);
 		//ask every item one-by-one:
 		//session.output = Writer.what("your", session.peer, new All(new Object[]{unresolved.get(0)}));
