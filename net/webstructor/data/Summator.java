@@ -82,6 +82,15 @@ public class Summator extends HashMap implements Linker {
 		normalize(false,false);//no log10, no zero
 	}
 
+	public void multiply(double factor){
+		for (Iterator it = keySet().iterator(); it.hasNext();){
+			Object key = it.next();
+			Object val = get(key);
+			double f = ((Double)val).doubleValue();
+			put(key,new Double(f * factor));
+		}
+	}
+	
 	public void normalize(boolean log10,boolean zero){
 		double max = 0;
 		double min = Double.MAX_VALUE;
@@ -166,7 +175,7 @@ public class Summator extends HashMap implements Linker {
 	}
 	
 	//count average, average-other, accuracy
-	public double[] accuracy(Summator other){
+	public double[] accuracyByThreshold(Summator other){
 		double avga = 0;
 		double avgb = 0;
 		double matches = 0;
@@ -199,6 +208,41 @@ public class Summator extends HashMap implements Linker {
 				matches++;
 		}
 		return new double[]{n,avga,avgb,matches/n};
+	}
+	
+	//compute goodness, badness and balance
+	//accuracy for goodness ("equality") Ag=SUM(EvaluatedGoodness * ExpectedGoodness)/SUM(ExpectedGoodness)
+	//accuracy for badness ("security") Ab=SUM((1-EvaluatedGoodness) * (1-ExpectedGoodness))/SUM(1-ExpectedGoodness)
+	//balaced accuracy A=(Ag+Ab)/2
+	public double[] accuraciesWithBalance(Summator other){
+		double references = 0;
+		double matches = 0;
+		double sum_g = 0;
+		double sum_b = 0;
+		double norm_g = 0;
+		double norm_b = 0;
+		for (Iterator it = keySet().iterator(); it.hasNext();){
+			Object key = it.next();
+			references++;
+			Number eval_value = other.value(key);
+			if (eval_value == null)//skip misalignments
+				continue;
+			matches++;
+			double ref_g = value(key).doubleValue() / 100;
+			double ref_b = 1 - ref_g;
+			norm_g += ref_g;
+			norm_b += ref_b;
+			double val_g = eval_value.doubleValue() / 100;
+			double val_b = 1 - val_g;
+			sum_g += val_g * ref_g;
+			sum_b += val_b * ref_b;
+			//System.out.println(""+key+"\t"+ref_g+"\t"+ref_b+"\t"+val_g+"\t"+val_b);
+		}
+		if (matches == 0)
+			return null;
+		sum_g /= norm_g;
+		sum_b /= norm_b;
+		return new double[]{references,matches,matches/references,sum_g,sum_b,(sum_g+sum_b)/2};
 	}
 	
 	/**

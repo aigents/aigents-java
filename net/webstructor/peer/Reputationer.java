@@ -796,12 +796,33 @@ public class Reputationer {
 		//TODO: move out from here
 		if (Str.has(args,"compute","accuracy")){
 			Object[][] files = Str.get(args,new String[]{"file"},null,null); 
+			//Object[][] factors = Str.get(args,new String[]{"factor"},new Class[]{Double.class},new String[]{"1.0"}); 
 			if (!AL.empty(files) && files.length == 2 && !AL.empty(files[0])  && !AL.empty(files[1])){
 				Summator s0 = new Summator(env,(String)files[0][0]);
 				Summator s1 = new Summator(env,(String)files[1][0]);
-				double[] p = s0.accuracy(s1);
-				if (p != null && p.length == 4)
-					out.println("count "+p[0]+"\t average "+p[1]+"\t avarage "+p[2]+"\t accuracy "+p[3]);
+				s0.normalize();
+				s1.normalize();
+				/*
+				if (!AL.empty(factors) && factors.length > 0)
+					s0.multiply(((Double)factors[0][0]).doubleValue());
+				if (!AL.empty(factors) && factors.length > 1)
+					s1.multiply(((Double)factors[1][0]).doubleValue());
+				*/
+				double[] p = s0.accuracyByThreshold(s1);
+				double[] b = s0.accuraciesWithBalance(s1);
+				if (p != null && p.length == 4){
+					/*
+					out.println("count "+p[0]+"\taverage "+p[1]+"\taverage "+p[2]+"\taccuracy "+p[3]
+							+"\texpected "+b[0]+"\tevaluated "+b[1]+"\tpercentage "+b[2]
+							+"\tgoodness "+b[3]+"\tbadness "+b[4]+"\tbalance "+b[5]);
+							*/
+					out.println("count\taverage_ref\taverage_eval"
+							+"\texpected\tevaluated\tpercentage"
+							+"\taccuracy\tgoodness\tbadness\tbalance");
+					out.println(""+p[0]+"\t"+p[0]+"\t"+p[1]
+							+"\t"+b[0]+"\t"+b[1]+"\t"+b[2]
+							+"\t"+p[3]+"\t"+b[3]+"\t"+b[4]+"\t"+b[5]);
+				}
 				return true;
 			}
 		}
