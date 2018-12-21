@@ -55,7 +55,7 @@ import net.webstructor.main.Mainer;
 import net.webstructor.main.Tester;
 
 class ReputationParameters {
-	double conservativity = 0.5; // balance of using either older reputation (1.0) or latest one (0.0) when blending them, in range 0.0 to 1.0, default is 0.5;
+	double conservatism = 0.5; // balance of using either older reputation (1.0) or latest one (0.0) when blending them, in range 0.0 to 1.0, default is 0.5;
 	boolean logarithmicRatings = false; // whether or not apply log10(1+x) to ratings (no need for that if stored ratings are logarithmic already, like in case of Aigents Graphs); 
 	boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
 	double defaultReputation = 0.5; // default reputation value for newcomer Agents in range 0.0-1.0;
@@ -63,7 +63,8 @@ class ReputationParameters {
 	boolean normalizedRanks = false; //whether ranks should be normlized with minimal rating brought to zero, leaving highest at 1.0 (100%) 
 	boolean weightingRatings = false; //whether ratings should weighted if finaincial values for that are available 
 	long periodMillis = Period.DAY; // period of reputation recalculation/update;
-	boolean liquidRatings = true; //whether to blend ranks of raters with ratings ("liquid rank"); 
+	boolean liquidRatings = true; //whether to blend ranks of raters with ratings ("liquid rank");
+	BigDecimal ratingPrecision = null; //use to round/up or round down financaial values or weights as value = round(value/precision)
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
 			T&P — Time and period of reputation recalculation/update;
@@ -326,15 +327,15 @@ public class Reputationer {
 				double raterValue = !params.liquidRatings ? 1.0 : 
 						raterNumber == null? params.defaultReputation * 100: raterNumber.doubleValue();//0-100				
 				double ratingValue = rating[3] == null ? params.defaultRating : ((Number)rating[3]).doubleValue();//any value
-				if (params.logarithmicRatings)
-					ratingValue = ratingValue > 0 ? Math.log10(1 + ratingValue) : -Math.log10(1 - ratingValue);
+//				if (params.logarithmicRatings)
+//					ratingValue = ratingValue > 0 ? Math.log10(1 + ratingValue) : -Math.log10(1 - ratingValue);
 				differential.count(rating[2], raterValue * ratingValue, 0);
 			}
 		}
 		differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
 		
-		//differential.blend(state,params.conservativity,0,0);
-		differential.blend(state,params.conservativity,0,(int)Math.round(params.defaultReputation * 100));
+		//differential.blend(state,params.conservatism,0,0);
+		differential.blend(state,params.conservatism,0,(int)Math.round(params.defaultReputation * 100));
 		differential.normalize();
 		states.add(nextdate, type, null, new Counter(differential));
 		//TODO: save
@@ -465,7 +466,27 @@ public class Reputationer {
 			String to = (String)r[2];
 			Number value = (Number)r[3];
 			Number weight = (Number)r[4];
-			if (weight != null)//expect it is rating in range 0-100 with any weight 
+			if (weight != null){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
+				if (!params.weightingRatings){
+					weight = null;
+				} else {
+					if (params.ratingPrecision != null)
+						weight = new BigDecimal(weight.doubleValue()).divide(params.ratingPrecision);
+					if (params.logarithmicRatings){
+						double d = weight.doubleValue();
+						weight = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
+					}
+				}
+			}else{//no weight => so it is payment in any range (or - rating without weight)
+				if (params.ratingPrecision != null)
+					value = new BigDecimal(value.doubleValue()).divide(params.ratingPrecision);
+				if (params.logarithmicRatings){
+					double d = value.doubleValue();
+					value = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
+				}
+				weight = null;
+			}
+			if (weight != null)
 				value = new Integer((int)Math.round(value.doubleValue() * weight.doubleValue())); 
 			Date date = Time.date((Date)r[5]);
 			//TODO: store in FULL version of storage
@@ -559,6 +580,25 @@ public class Reputationer {
 			return true;
 		}
 		else
+		if (Str.has(args,"set","parameters")){
+			//TODO: boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
+			//TODO: double defaultRating = 0.5; // default rating value for “overall rating” and “per-dimension” ratings;
+			//TODO: long periodMillis = Period.DAY; // period of reputation recalculation/update;
+			if (Str.has(args, "default", null))
+				r.params.defaultReputation = Double.parseDouble(Str.arg(args, "default", String.valueOf(r.params.defaultReputation)));
+			if (Str.has(args, "conservatism", null))
+				r.params.conservatism = Double.parseDouble(Str.arg(args, "conservatism", String.valueOf(r.params.conservatism)));
+			if (Str.has(args, "precision", null))
+				r.params.ratingPrecision = new BigDecimal(Str.arg(args, "precision", "1.0"));
+			if (Str.has(args,"fullnorm"))
+				r.params.normalizedRanks = true;
+			r.params.logarithmicRatings = Str.has(args, "logratings");
+			r.params.weightingRatings = Str.has(args,"weighting");
+			if (Str.has(args,"liquid","false"))
+				r.params.liquidRatings = false;
+			return true;
+		}
+		else
 		if (Str.has(args,"update","ranks")){
 			//compute time range as date given date==until==since+period (default period = 1)
 			Date until = Time.day( Str.arg( args, Str.has(args,"date",null) ? "date" : "until" ,"today") );
@@ -569,9 +609,9 @@ public class Reputationer {
 			r.params.periodMillis = period * Period.DAY;//need at least one day
 			if (Str.has(args, "default", null))
 				r.params.defaultReputation = Double.parseDouble(Str.arg(args, "default", String.valueOf(r.params.defaultRating)));
-			if (Str.has(args, "conservativity", null))
-				r.params.conservativity = Double.parseDouble(Str.arg(args, "conservativity", String.valueOf(r.params.defaultRating)));
-			if (Str.has(args,"norm"))
+			if (Str.has(args, "conservatism", null))
+				r.params.conservatism = Double.parseDouble(Str.arg(args, "conservatism", String.valueOf(r.params.defaultRating)));
+			if (Str.has(args,"fullnorm"))
 				r.params.normalizedRanks = true;
 			if (Str.has(args,"liquid","false"))
 				r.params.liquidRatings = false;
@@ -675,20 +715,7 @@ public class Reputationer {
 					Object keyid = it.next();
 					out.print(keyid);//output to console
 					HashMap bydate = (HashMap)byid.get(keyid);
-					/*if (Str.has(args, "average")){
-						double sum = 0;
-						int cnt = 0;
-						for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){
-							Object val = bydate.get(day);
-							if (val != null){
-								sum += (new BigDecimal(val.toString())).doubleValue();
-								cnt++;
-							}
-						}
-						out.print('\t');
-						if (cnt != 0)
-							out.print(sum/cnt);
-					} else*/ {
+					{
 						//print every day
 						for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){
 							Object val = bydate.get(day);
@@ -714,10 +741,9 @@ public class Reputationer {
 		if (Str.has(args,"load","ratings")){
 			//TODO: two options - "file" and "folder"
 			String path = Str.arg(args,"file",null);
-			final BigDecimal precision = new BigDecimal(Str.arg(args, "precision", "1.0"));
-			final boolean log = Str.has(args, "logarithm");
-			if (Str.has(args,"weighting"))
-				r.params.weightingRatings = true;
+			r.params.ratingPrecision = new BigDecimal(Str.arg(args, "precision", "1.0"));
+			r.params.logarithmicRatings = Str.has(args, "logratings");
+			r.params.weightingRatings = (Str.has(args,"weighting"));
 			if (!AL.empty(path)){
 				DataLogger dl = new DataLogger(env, r.name);
 				boolean loaded = dl.load(path, new DataLogger.StringConsumer() {					
@@ -733,19 +759,28 @@ public class Reputationer {
 //TODO: fix scale for financial values and weights!!!???
 						BigDecimal value = null;
 						BigDecimal weight = null;
+						/*
 						if (tokens.length >= 15 && !AL.empty(tokens[14])){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
 							value = (new BigDecimal(tokens[5])).multiply(new BigDecimal(100));
 							if (!r.params.weightingRatings){
 								weight = null;
 							} else {
-								weight = (new BigDecimal(tokens[14])).divide(precision);
+								weight = (new BigDecimal(tokens[14])).divide(r.params.ratingPrecision);
 								if (log)
 									weight = new BigDecimal(Math.round(Math.log10(weight.doubleValue())));
 							}
 						}else{//no weight => so it is payment in any range
-							value = (new BigDecimal(tokens[5])).divide(precision);
+							value = (new BigDecimal(tokens[5])).divide(r.params.ratingPrecision);
 							if (log)
 								value = new BigDecimal(Math.round(Math.log10(value.doubleValue())));
+							weight = null;
+						}
+						*/
+						if (tokens.length >= 15 && !AL.empty(tokens[14])){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
+							value = (new BigDecimal(tokens[5])).multiply(new BigDecimal(100));//translate to percents
+							weight = new BigDecimal(tokens[14]);
+						}else{//no weight => so it is payment in any range
+							value = new BigDecimal(tokens[5]);
 							weight = null;
 						}
 						//[from type to value weight=null timestamp]

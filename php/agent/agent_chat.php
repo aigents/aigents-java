@@ -26,16 +26,32 @@ function test_chat() {
 	global $version;
 	global $copyright;
 
-	//TODO: start with login or hi
-	//TODO: logins - all forms
+	//TODO: freetext logins - all forms
+	
 	//TODO: make working
 	//say("logout");
-	//TODO: have smart greeting
-	//freetext login
+	
 	//TODO: free text interactions on news
 	//TODO: free ontology operations
 	//TODO: free text question answering using graphs
 	//TODO: what else?
+	
+	//TODO: on greeting (hi, hello, привет), use default prompt before asking question
+	//TODO: on any unrecogized input, try default prompt before asking question back
+	//TODO: have smart greeting - using pattern->response mechanics
+	
+	//freetext registration with mixed content
+	say("hi");
+	get("What your email, name, surname?");
+	say("secret");
+	get("What your email, name, surname?");
+	say("john@doe.org\njohn, doe");
+	get("What your secret question, secret answer?");
+	say("password\n\r\r\n123456querty");
+	get("What your password?");
+	say("123456querty");
+	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+	test_chat_cleanup();
 	
 	//freetext registration with no delimiters and email only
 	say("My login.");
@@ -96,17 +112,6 @@ function test_chat() {
 	say("123456querty");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	test_chat_cleanup();
-
-	//TODO: start with login or hi
-	//TODO: logins - all forms
-	//TODO: make working
-	//say("logout");
-	//TODO: have smart greeting
-	//freetext login
-	//TODO: free text interactions on news
-	//TODO: free ontology operations
-	//TODO: free text question answering using graphs	
-	//TODO: what else?
 }
 
 test_init();

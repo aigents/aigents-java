@@ -54,7 +54,7 @@ public class Str {
 	}
 
 	/**
-	 * Check if next string element past found one is present amd matching the expected
+	 * Check if next string element past found one is present and matching the expected
 	 * @param args - list of strings
 	 * @param name - target element before returned one
 	 * @param expected - expected element after the taret one
