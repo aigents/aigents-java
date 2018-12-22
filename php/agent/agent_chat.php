@@ -26,10 +26,7 @@ function test_chat() {
 	global $version;
 	global $copyright;
 
-	//TODO: freetext logins - all forms
-	
-	//TODO: make working
-	//say("logout");
+	//TODO: john@doe.org 123456querty
 	
 	//TODO: free text interactions on news
 	//TODO: free ontology operations
@@ -51,6 +48,39 @@ function test_chat() {
 	get("What your password?");
 	say("123456querty");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+	//testing email takeover attempt
+	say("what your name, email?");
+	get("My email '', name aigents.");
+	say("your email john@doe.org.");
+	get("Email john@doe.org is owned.");
+	say("what your email?");
+	get("My email ''.");
+	say("My logout");
+	get("Ok.");
+	//testing surname-less login
+	say("hi");
+	get("What your email, name, surname?");
+	say("john@doe.org,john");
+	get("What your password?");
+	say("123456querty");
+	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+	TODO:say("   \n   logout    \n   ");
+	get("Ok.");
+	say("I am back");
+	get("What your email, name, surname?");
+	say("\n    \r     john@doe.org");	
+	get("What your password?");
+	say("123456querty");
+	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+	say("bye");
+	get("Ok.");
+	say("  \n  hello   \n   ");
+	get("What your email, name, surname?");
+	say("      john@doe.org      ,        john     ");
+	get("What your password?");
+	say("   \n    \r   123456querty   \n   \r   ");
+	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+	//TODO: john@doe.org 123456querty
 	test_chat_cleanup();
 	
 	//freetext registration with no delimiters and email only
@@ -112,6 +142,7 @@ function test_chat() {
 	say("123456querty");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	test_chat_cleanup();
+
 }
 
 test_init();

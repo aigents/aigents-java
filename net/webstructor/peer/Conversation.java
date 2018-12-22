@@ -66,10 +66,12 @@ import net.webstructor.data.GraphCacher;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.TextMiner;
 import net.webstructor.self.Self;
+import net.webstructor.util.Array;
 
 class Conversation extends Mode {
 	
 	public static final String[] spider = new String[] {"spider","spidering","crawl","crawling"};
+	public static final String[] logout = new String[] {"logout","bye"};
 
 	private String spidering(Session session, String name, String id) {
 		String report = null;
@@ -125,7 +127,7 @@ class Conversation extends Mode {
 			session.mode = new Login();
 			return true;
 		} else
-		if (session.read(Reader.pattern(AL.i_my,new String[] {"logout"}))){//can logout at any point			
+		if (session.read(Reader.pattern(AL.i_my,logout)) || Array.contains(logout, session.input.toLowerCase())){//can logout at any point			
 			session.output = "Ok.";
 			session.mode = new Login();
 			session.peer = null;

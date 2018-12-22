@@ -30,6 +30,7 @@ import java.util.LinkedList;
 
 import net.webstructor.agent.Body;
 import net.webstructor.comm.Communicator;
+import net.webstructor.util.Array;
 
 class Message {
 	Session session;
@@ -87,8 +88,8 @@ class Worker extends Thread {
 		try {
 			message.session.communicator.output(message.session,outgoingMessage);
 
-			//TODO: post [ farewell, terminate ] 
-			if (message.text.toLowerCase().indexOf("bye")==0)
+			//TODO: post [ farewell, terminate ]
+			if (Array.contains(Conversation.logout, message.text.toLowerCase()))
 	        	message.session.communicator.terminate();	
 	        
 		} catch (IOException e) {
@@ -121,7 +122,7 @@ public class Conversationer {
 		if (text == null)
 			throw new IOException("No message from "+communicator.getClass().getName()+".");
 		synchronized (queue) {		
-			queue.add(new Message(session,text)); 
+			queue.add(new Message(session,text.trim())); 
 			queue.notify();
 		}
 		

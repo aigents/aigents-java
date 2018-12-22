@@ -308,7 +308,9 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		Collection peers = null;
 		if (!AL.empty(session.peer.getString(AL.email))){//checking by email only!!!
 			peers = session.sessioner.body.storager.get(session.peer,new String[]{AL.email});
-		}else{//checking by name if email is present
+			if (!AL.empty(peers) && peers.size() > 1)
+				peers = session.sessioner.body.storager.get(session.peer,new String[]{AL.email,AL.name});
+		}else{//checking by name if email is not present
 			peers = session.sessioner.body.storager.get(session.peer,new String[]{AL.name,Peer.surname});
 			if (AL.empty(peers))
 				peers = session.sessioner.body.storager.get(session.peer,new String[]{AL.name});
@@ -317,7 +319,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				AL.empty(((Thing)peers.iterator().next()).getString(AL.email)))
 				peers = null;
 		}
-		//TODO: streamline code above and belo
+		//TODO: streamline code above and below
 		
 		if (!AL.empty(peers) && peers.size() == 1) {
 			session.peer = new Thing((Thing)peers.iterator().next(),null);

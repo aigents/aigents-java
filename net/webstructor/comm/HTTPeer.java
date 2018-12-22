@@ -144,8 +144,9 @@ public class HTTPeer extends Communicator
 		}
 		
 		int beg = request.indexOf('?');
+		int eol = request.indexOf('\n');
 		int end = request.indexOf(' ',beg+1);
-		if (beg==-1 || end==-1)
+		if (beg==-1 || end==-1 || eol<=beg)//if no query in first header line
 			return null;
 		requestString = request.substring(beg+1,end).trim();
 		/*
@@ -240,6 +241,7 @@ public class HTTPeer extends Communicator
 		String request = null;
 		try {
 			in = new BufferedInputStream(socket.getInputStream());
+			out = new BufferedOutputStream(socket.getOutputStream());
 			request = input(); // read HTTP request
 			if (request == null) {
 				output(null,null);//return 404,TODO:better idea?
@@ -269,11 +271,8 @@ public class HTTPeer extends Communicator
 		    	return;
 		    }
 		    
-		    
-			out = new BufferedOutputStream(socket.getOutputStream());
 		    waiting = true;
 		    body.conversationer.handle(this, session, request);
-		    
 
 		    synchronized (this) {
 		    	while (waiting)

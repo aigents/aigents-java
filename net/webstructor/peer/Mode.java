@@ -42,7 +42,7 @@ import net.webstructor.util.Array;
 
 public abstract class Mode {
 	
-	static final protected Set cancel_pattern = Reader.patterns(null,null,"{no not login logout [my login] [my logout]}");
+	static final protected Set cancel_pattern = Reader.patterns(null,null,"{no not login logout [my login] [my logout] bye}");
 	
 	public abstract boolean process(Session session);
 	static protected String statement(Exception e) {
