@@ -223,26 +223,29 @@ public class Query
 		return properties;
 	}
 	
-	public void setThings(Thing thing, Seq seq, Thing setter) throws Exception {
+	public int setThings(Thing thing, Seq seq, Thing setter) throws Exception {
 		if (!accessible(thing,setter,new String[]{property(seq)},true))
 			throw new Mistake(Mistake.no_right);
 		if (seq.size() != 2) //TODO: sort this out
 			throw new Exception("invalid properties");
-		setThings(thing,(String)seq.get(0),seq.get(1),setter);
+		return setThings(thing,(String)seq.get(0),seq.get(1),setter);
 	}
 
-	protected void setThings(Thing thing, All all, Thing setter) throws Exception {
+	protected int setThings(Thing thing, All all, Thing setter) throws Exception {
 		if (!accessible(thing,setter,properties(all),true))
 			throw new Mistake(Mistake.no_right);
+		int updated = 0;
 		for (int j=0;j<all.size();j++) {
 			Object obj = all.get(j);
 			if (!(obj instanceof Seq))
 				throw new Exception("no property");//TODO:apply restrictive condition to current
-			setThings(thing,(Seq)obj,setter);
+			updated += setThings(thing,(Seq)obj,setter);
 		}
+		return updated;
 	}
 	
-	public void setThings(Seq query, Thing setter) throws Exception {
+	public int setThings(Seq query, Thing setter) throws Exception {
+		int updated = 0;
 		Object current = null;
 		for (int i=0; i<query.size(); i++) {
 			Object chain = query.get(i);
@@ -297,50 +300,36 @@ public class Query
 				if (current == null || !(current instanceof Thing || current instanceof Collection))
 					throw new Mistake(Mistake.no_thing);//TODO:apply restrictive condition to current	
 				if (current instanceof Thing)
-					setThings((Thing)current,(All)chain,setter);					
+					updated += setThings((Thing)current,(All)chain,setter);					
 				if (current instanceof Collection) {
 					for (Iterator it = ((Collection)current).iterator(); it.hasNext();)
-						setThings((Thing)it.next(),(All)chain,setter);					
+						updated += setThings((Thing)it.next(),(All)chain,setter);					
 				}
-				/*
-				if (!accessible((Thing)current,setter))
-					throw new Mistake(Mistake.no_right);
-				All all = (All)chain;
-				for (int j=0;j<all.size();j++) {
-					Object obj = all.get(j);
-					if (!(obj instanceof Seq))
-						throw new Exception("no property");//TODO:apply restrictive condition to current
-					if (current instanceof Thing)
-						setThings((Thing)current,(Seq)obj,setter);
-					else 
-					if (current instanceof Collection)
-						for (Iterator it = ((Collection)current).iterator(); it.hasNext();)
-							setThings((Thing)it.next(),(Seq)obj,setter);
-				}
-				*/
 			}
 			else
 			if (chain instanceof Seq) { // (pair of one AKA PREDICATE-OBJECT pair)
 				if (current == null)
 					throw new Mistake(Mistake.no_thing);//TODO:apply restrictive condition to current
 				if (current instanceof Thing)
-					setThings((Thing)current,(Seq)chain,setter);
+					updated += setThings((Thing)current,(Seq)chain,setter);
 				else 
 				if (current instanceof Collection) {
 					//TODO: this improvement fails unit tests - why?
 					//HashSet coll = new HashSet(((Collection)current).size());//clone to avoid concurrent access
 					//for (Iterator it = ((Collection)coll).iterator(); it.hasNext();)
 					for (Iterator it = ((Collection)current).iterator(); it.hasNext();)
-						setThings((Thing)it.next(),(Seq)chain,setter);
+						updated += setThings((Thing)it.next(),(Seq)chain,setter);
 				}
 				else
 					throw new Mistake(Mistake.no_thing);
 			}
 		}
+		return updated;
 	}
 
 	//set Thing property, strictly assuming isThing=>isMultiple
-	public void setThing(Thing thing,String name,Object val,boolean is,Thing setter) throws Exception {
+	public int setThing(Thing thing,String name,Object val,boolean is,Thing setter) throws Exception {
+		int updated = 0;
 		if (storager.isThing(name)) {
 			//TODO: now assuming isMultiple==isThing==true, other possibilities?
 			if (is) { // add things by name string
@@ -349,6 +338,7 @@ public class Query
 					Thing query = new Thing((String)val); // create query from name string
 					query.store(storager);
 					thing.addThing(name, query);
+					updated++;
 				}
 				else { // copy Thing objects if found 
 					Iterator it = coll.iterator();
@@ -357,13 +347,16 @@ public class Query
 						if (!(obj instanceof Thing))
 							throw new Exception(name+" not thing");
 						thing.addThing(name,((Thing)obj));
+						updated++;
 					}
 				}
 			} else { 
 				Collection coll = storager.getNamed((String)val);
 				if (!AL.empty(coll))
-					for (Iterator it = coll.iterator(); it.hasNext();)
+					for (Iterator it = coll.iterator(); it.hasNext();){
 						thing.delThing(name, (Thing)it.next());
+						updated++;
+					}
 			}
 		}	
 		else {
@@ -371,31 +364,34 @@ public class Query
 			if (is && Schema.unique(name) && !AL.empty(storager.getByName(name, val)))
 				throw new Mistake(name+" "+val+" is owned");
 			thing.set(name, is? val: null, setter);
+			updated++;
 		}
+		return updated;
 	}
 	
-	public void setThings(Thing thing,String name,Object arg,Thing setter) throws Exception {
+	public int setThings(Thing thing,String name,Object arg,Thing setter) throws Exception {
+		int updated = 0;
 		// could be list, string
 		if (arg instanceof String || arg instanceof Date) {
-			setThing(thing,name,arg,true,setter);
+			updated += setThing(thing,name,arg,true,setter);
 		}
 		else
 		if (arg instanceof Ref) {
 			Ref ref = (Ref)arg;
-			setThing(thing,name,(String)ref.get(0),ref.is(),setter);
+			updated += setThing(thing,name,(String)ref.get(0),ref.is(),setter);
 		}
 		else
 		if (arg instanceof All) {//list of items
 			All all = (All)arg;
 			for (int l=0; l<all.size(); l++) {
 				Object term = all.get(l);
-				if (term instanceof String || term instanceof Date || term instanceof Ref) {
-					setThings(thing,name,term,setter);
-				}
+				if (term instanceof String || term instanceof Date || term instanceof Ref)
+					updated += setThings(thing,name,term,setter);
 				else //TODO: query qualifier
 					throw new Exception("invalid "+name);
 			}
-		}					
+		}
+		return updated;
 	}
 
 	/**

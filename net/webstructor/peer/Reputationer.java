@@ -846,17 +846,21 @@ public class Reputationer {
 				double[] p = s0.accuracyByThreshold(s1);
 				double[] b = s0.accuraciesWithBalance(s1);
 				if (p != null && p.length == 4){
-					/*
-					out.println("count "+p[0]+"\taverage "+p[1]+"\taverage "+p[2]+"\taccuracy "+p[3]
-							+"\texpected "+b[0]+"\tevaluated "+b[1]+"\tpercentage "+b[2]
-							+"\tgoodness "+b[3]+"\tbadness "+b[4]+"\tbalance "+b[5]);
-							*/
-					out.println("count\taverage_ref\taverage_eval"
-							+"\texpected\tevaluated\tpercentage"
-							+"\taccuracy\tgoodness\tbadness\tbalance");
-					out.println(""+p[0]+"\t"+p[0]+"\t"+p[1]
+					out.println("cnt\tavg_ref\tavg_ev"
+							+"\ttotal\tmatch\tpct"
+							+"\tacc"
+							+"\tacc_g\tacc_bad\tacc_bal"+
+							"\trmsd_g"+"\trmsd_b\trmsd");
+					out.println(""+p[0]+"\t"+p[1]+"\t"+p[2]
 							+"\t"+b[0]+"\t"+b[1]+"\t"+b[2]
-							+"\t"+p[3]+"\t"+b[3]+"\t"+b[4]+"\t"+b[5]);
+							+"\t"+p[3]
+							+"\t"+b[3]+"\t"+b[4]+"\t"+b[5]
+							+"\t"+b[6]+"\t"+b[7]+"\t"+b[8]);
+					out.println("cnt\t"+p[0]+"\navg_ref\t"+p[1]+"\navg_ev\t"+p[2]+"\n"
+							+"total\t"+b[0]+"\nmatch\t"+b[1]+"\npct\t"+b[2]+"\n"
+							+"acc\t"+p[3]+"\n"
+							+"acc_g\t"+b[3]+"\nacc_b\t"+b[4]+"\nacc_bal\t"+b[5]+"\n"+
+							"rmsd_g\t"+b[6]+"\nrmsd_b\t"+b[7]+"\nrmsd\t"+b[8]+"\n");
 				}
 				return true;
 			}

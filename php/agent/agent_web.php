@@ -17,7 +17,7 @@ function test_agent_web() {
 	global $copyright;
 	
 	//TODO: fix - why it is needed!?
-	$sleep_seconds = 4;
+	$sleep_seconds = 5;
 	$test_all = false;
 
 	//login, registration, verification

@@ -330,12 +330,9 @@ public class Writer extends AL {
 			if (!empty(ref))
 				out.append(ref).append(' ');		
 			Collection things = (Collection)arg;
-			if (AL.empty(things))
+			if (AL.empty(things)){
 				out.append(not[0]);
-			else {
-				//if (things.size() > 1)			
-				//	out.append('(');
-				
+			}else {
 				String[] sorted = new String[things.size()];
 				int c = 0;
 				for (Iterator it = things.iterator(); it.hasNext(); )
@@ -347,9 +344,6 @@ public class Writer extends AL {
 						out.append(';').append(space);
 					out.append(sorted[i]);
 				}
-				
-				//if (things.size() > 1)			
-				//	out.append(')');
 			}
 		}
 		out.append('.');

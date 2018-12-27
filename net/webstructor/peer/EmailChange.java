@@ -46,22 +46,22 @@ class EmailChange extends Registration {
 			String email;
 			if (Reader.read(session.input, seq) && (email = temp.getString(AL.email)) != null) {
 				if (oldmail.equalsIgnoreCase(email)) {
-					session.output = "Ok.";
+					session.output("Ok.");
 					session.mode = new Conversation();
 					return false;
 				}	
 				try {
 					if (!AL.empty(session.sessioner.body.storager.getByName(AL.email, email))){
-						session.output = "Email "+email+" is owned.";
+						session.output("Email "+email+" is owned.");
 						return false;				
 					}
 				}catch(Exception e){
 					session.sessioner.body.error("EmailChange",e);
-					session.output = e.getMessage();
+					session.output(e.getMessage());
 					return false;				
 				}			
 				emailCode(session,newmail = email);			
-				session.output = emailNotification(newmail);
+				session.output(emailNotification(newmail));
 				return false;				
 			}
 			else {
@@ -78,13 +78,13 @@ class EmailChange extends Registration {
 				//session.sessioner.body.debug("New peer "+Writer.toString(session.peer)+".");
 				//session.sessioner.body.debug("Old peer "+Writer.toString(storedPeer)+".");
 				storedPeer.update(session.peer,null);
-				session.output = "Ok. Your email "+session.peer.getString(AL.email)+".";
+				session.output("Ok. Your email "+session.peer.getString(AL.email)+".");
 				return false;			
 			} else 
 			//reset verification
 			if (session.mood == AL.interrogation && Reader.read(session.input, Reader.pattern(AL.i_my,new String[] {"verification code"}))){
 				emailCode(session,newmail);	
-				session.output = emailNotification(newmail);
+				session.output(emailNotification(newmail));
 				return false;	
 			} else
 			//just any question
@@ -94,10 +94,10 @@ class EmailChange extends Registration {
 		}
 		if (Reader.read(session.input, cancel_pattern)) {//TODO: get rid of 'my logout' and 'my login' here
 			session.mode = new Conversation();
-			session.output = "Ok.";
+			session.output("Ok.");
 			return false;
 		}
-		session.output = "What your verification code?";//TODO:if that is possible!?
+		session.output("What your verification code?");//TODO:if that is possible!?
 		return false;
 	}
 }

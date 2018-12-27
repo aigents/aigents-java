@@ -63,13 +63,14 @@ public class AL {
 	public final static String areas 	= "areas";
 	public final static String sources 	= "sources";
 	public final static String patterns = "patterns";
+	public final static String responses = "responses";
 	public final static String image 	= "image";
 	public final static String path 	= "path";
 	public final static String text 	= "text"; // TODO: move this out to name?
 	public final static String version  = "version";
 
 	public final static String[] foundation = new String[]{
-		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,knows,sites,areas,sources,patterns,text
+		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,knows,sites,areas,sources,patterns,responses,text
 	};
 
 	//things

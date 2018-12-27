@@ -221,6 +221,9 @@ public class Summator extends HashMap implements Linker {
 		double sum_b = 0;
 		double norm_g = 0;
 		double norm_b = 0;
+		double rmsd = 0;
+		double rmsd_g = 0;
+		double rmsd_b = 0;
 		for (Iterator it = keySet().iterator(); it.hasNext();){
 			Object key = it.next();
 			references++;
@@ -236,13 +239,23 @@ public class Summator extends HashMap implements Linker {
 			double val_b = 1 - val_g;
 			sum_g += val_g * ref_g;
 			sum_b += val_b * ref_b;
+			//RMSD-s
+			//https://en.wikipedia.org/wiki/Root-mean-square_deviation
+			double d = ref_g - val_g; 
+			d *= d;
+			rmsd += d; 
+			rmsd_g += d * ref_g;
+			rmsd_b += d * ref_b;
 			//System.out.println(""+key+"\t"+ref_g+"\t"+ref_b+"\t"+val_g+"\t"+val_b);
 		}
 		if (matches == 0)
 			return null;
 		sum_g /= norm_g;
 		sum_b /= norm_b;
-		return new double[]{references,matches,matches/references,sum_g,sum_b,(sum_g+sum_b)/2};
+		rmsd = Math.sqrt(rmsd / matches);
+		rmsd_g = Math.sqrt(rmsd_g / norm_g);
+		rmsd_b = Math.sqrt(rmsd_b / norm_b);
+		return new double[]{references,matches,matches/references,sum_g,sum_b,(sum_g+sum_b)/2,rmsd_g,rmsd_b,rmsd};
 	}
 	
 	/**

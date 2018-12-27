@@ -136,16 +136,18 @@ function cat_build_links(data){
 		if (AL.empty(line))
 			break;
 		var link = line.trim().split("\t");
-		if (!AL.empty(link) && (link.length == 6 || (link.length == 5 && line.substring(0,1) == '\t'))){
-			if (link.length == 5)
+		if (!AL.empty(link)){
+			if (line.substring(0,1) == '\t')//id missed category label
 				link.unshift('');
-			var label = link[0];
-			var parent = link[1];
-			var child = link[2];
-			link[0] = child;
-			link[1] = parent;
-			link[2] = label;
-			links.push(link);
+			if (link.length >= 5){
+				var label = link[0];
+				var parent = link[1];
+				var child = link[2];
+				link[0] = child;
+				link[1] = parent;
+				link[2] = label;
+				links.push(link);
+			}
 		}
 	}
 	return links;
@@ -674,7 +676,7 @@ function page_onload(){
 
 Click to <button id="do_atoms_graph" onclick="do_atoms_graph()">Explore OpenCog Atoms</button> from script<br> 
 <input id="atoms_script_path" type="search" placeholder="Atom Types script path" style="width:100%" value="/test/nlp/atom_types.script"></input><br>
-(copy of <a href="https://github.com/opencog/atomspace/blob/master/opencog/atoms/proto/atom_types.script" target="_blank">https://github.com/opencog/atomspace/blob/master/opencog/atoms/proto/atom_types.script</a>)
+(copy of <a href="https://github.com/opencog/atomspace/blob/master/opencog/atoms/value/atom_types.script" target="_blank">https://github.com/opencog/atomspace/blob/master/opencog/atoms/value/atom_types.script</a>)
 <p>
 
 Click to <button id="do_mi_graph" onclick="do_mi_graph()">View Mutual Information</button> from file<br> 

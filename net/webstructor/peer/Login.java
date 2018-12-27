@@ -71,7 +71,7 @@ class Login extends Mode {
 					session.getStoredPeer().setString(Body.google_key, enstir[5]);
 			} else { 
 				session.sessioner.body.debug("Google+ failed: "+session.peer);
-				session.output = "Not.";
+				session.output("Not.");
 			}
 		}
 		return false;
@@ -89,8 +89,8 @@ class Login extends Mode {
 				bind(session,"vkontakte",ensti[4],ensti[3],ensti[0],ensti[1],ensti[2]);//id,offline token,email,name,surname
 			}
 			//TODO:restrict origin for better security if passing token?
-			session.output = "<html><body onload=\"top.postMessage(\'"
-					+(ensti == null ? "Error:" : "Success:")+session.input+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>";		
+			session.output("<html><body onload=\"top.postMessage(\'"
+					+(ensti == null ? "Error:" : "Success:")+session.input+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");		
 		}else
 		if (session.sessioner.body.vk != null) {
 			String id = session.peer.getString(Body.vkontakte_id);
@@ -105,7 +105,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				bind(session,"vkontakte",id,enst[3],enst[0],enst[1],enst[2]);//offline token,email,name,surname
 			} else { 
 				session.sessioner.body.debug("vkontakte login failed: "+session.peer);
-				session.output = "Not.";
+				session.output("Not.");
 			}
 		}
 		return false;
@@ -215,7 +215,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 					peer.set(Body.facebook_token, token);
 					session.mode = new Conversation();
 					session.peer = new Thing(peer,null);
-					session.output = session.welcome();
+					session.output(session.welcome());
 					session.authenticated = true;
 					return false;
 				} else {
@@ -225,13 +225,13 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 					peer.set(Body.facebook_id, id);
 					peer.set(Body.facebook_token, token);
 					session.mode= new Conversation();
-					session.output = session.welcome();
+					session.output(session.welcome());
 					session.authenticated = true;
 					try {
 						Peer.populateContent(session,Body.testEmail(email));
 						session.updateRegistration();
 					} catch (Exception e) {
-						session.output += " " + statement(e);
+						session.addOutput(" " + statement(e));
 						session.sessioner.body.error("Facebook "+e.toString(), e);
 					}
 					return false;
@@ -239,7 +239,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			}
 		}
 		session.sessioner.body.debug("Facebook fail:"+id+"/"+token);
-		session.output = "Not.";
+		session.output("Not.");
 		return false;
 	}
 	
@@ -285,7 +285,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				if (peer != null) {
 					session.mode= new Conversation();
 					session.peer = new Thing(peer,null);
-					session.output = session.welcome();
+					session.output(session.welcome());
 					session.authenticated = true;
 					return false;
 				}
@@ -301,6 +301,8 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				//[$email $name $surname]
 				if (session.expected() != null)
 					Reader.read(session.input, Reader.pattern(session.peer,session.expected()),",");
+				if (!AL.empty(session.expected()))
+					session.unexpect(session.peer);
 			}
 			session.sessioner.body.output("Login:"+Writer.toString(session.peer)+".");
 		}
@@ -342,7 +344,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		if (!AL.empty(peers) && peers.size() > 1) {
 			//if no unresolved - Error
 			if (unresolved.size() == 0) {
-				session.output = "Too many peers.";//TODO:what?
+				session.output("Too many peers.");//TODO:what?
 				session.expect(null);
 				return true;
 			}
@@ -371,7 +373,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		
 		//ask all items at once:
 		session.expect(unresolved.toStrings());
-		session.output = Writer.what("your", session.peer, unresolved);
+		session.output(Writer.what("your", session.peer, unresolved));
 		//ask every item one-by-one:
 		//session.output = Writer.what("your", session.peer, new All(new Object[]{unresolved.get(0)}));
 		return false;			

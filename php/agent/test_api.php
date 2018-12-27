@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 include_once("pest.php");
 
-$version = "1.3.4";
+$version = "1.3.5";
 $copyright = " Copyright © 2018 Anton Kolonin, Aigents.";
 
 $baseURL = "http://localhost:1180/?";
@@ -99,10 +99,10 @@ function test_o($out) {
 	println("SAY:".$out);
 }
 
-function test_i($in = null) {
+function test_i($in = null, $alts = null) {
 	global $last_message;
 	global $failed;
-	if ($in != null && !($in === $last_message)) {
+	if ($in != null && !($in === $last_message || ($alts !=null && in_array($last_message, $alts)))) {
 		println("GET:\n".$last_message."\nERROR - MUST BE:\n".$in);
 		$failed = $failed + 1;
 		exit();		
@@ -135,8 +135,8 @@ function say($in) {
 	test_o($in);
 }
 
-function get($in = null) {
-	test_i($in);
+function get($in = null, $alts = null) {
+	test_i($in,$alts);
 }
 
 function brk() {

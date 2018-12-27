@@ -52,7 +52,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.3.4";
+	public final static String VERSION = "1.3.5";
 	public final static String COPYRIGHT = "Copyright © 2018 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	

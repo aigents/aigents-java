@@ -84,6 +84,8 @@ get("Your login count 4, login time today, registration time today.");
 //setting user settings
 test_o("My sensitivity threshold 70, update time 9:00.");
 test_i("Ok.");
+say("What my sensitivity threshold, update time?");
+get("Your sensitivity threshold 70, update time 9:00.");
 test_o("My check cycle day, keeping days 10, sensitivity threshold 80.");
 test_i("Ok.");
 

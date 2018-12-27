@@ -127,7 +127,7 @@ class Registration extends Mode {
 			check(session);
 			if (q == null){
 				session.expect(question_answer);
-				session.output = Writer.what("your", session.peer,new All(question_answer));
+				session.output( Writer.what("your", session.peer,new All(question_answer)) );
 			}
 		}
 		if (q != null && a == null) {
@@ -145,7 +145,7 @@ class Registration extends Mode {
 					Reader.read(session.input,Reader.pattern(session.peer, session.expected()));//free-text
 			check(session);
 			if (a == null){
-				session.output = Writer.what("your", session.peer, new All(answer_only));
+				session.output( Writer.what("your", session.peer, new All(answer_only)) );
 				session.expect(answer_only);
 			}
 		}

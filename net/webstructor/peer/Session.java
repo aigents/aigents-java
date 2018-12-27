@@ -51,7 +51,7 @@ public class Session  {
 
 	//private ArrayList messages = new ArrayList();
 	protected String input = null;
-	protected String output = null;
+	private String output = null;
 
 	//protected HashMap expected = new HashMap();
 	private String[] expected = null;
@@ -78,6 +78,28 @@ public class Session  {
 	
 	public String[] expected(){
 		return this.expected;
+	}
+	
+	public void output(String output){
+		this.output = output;
+	}
+	
+	public void addOutput(String output){
+		this.output += output;
+	}
+	
+	public String output(){
+		return output;
+	}
+	
+	public void unexpect(Thing context){
+		if (peer != null && !AL.empty(expected)){
+			for (int i = 0; i < expected.length; i++){
+				String actual = context.getString(expected[i]);
+				if (!AL.empty(actual))
+					input = input.replaceAll(actual, "");
+			}
+		}
 	}
 	
 	public void clear(){

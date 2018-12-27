@@ -33,7 +33,7 @@ class VerificationChange extends Registration {
 		if (code == -1 || (session.mood == AL.interrogation && Reader.read(session.input, Reader.pattern(AL.i_my,new String[] {"verification code"})))){
 			String email = session.peer.getString("email");
 			emailCode(session,email);
-			session.output = emailNotification(email);
+			session.output(emailNotification(email));
 			session.fails = 0;
 			return false;
 		} else
@@ -56,7 +56,7 @@ class VerificationChange extends Registration {
 			session.clear();
 			return true;
 		}
-		session.output = "What your verification code?";//TODO:if that is possible!?
+		session.output("What your verification code?");//TODO:if that is possible!?
 		return false;
 	}
 }

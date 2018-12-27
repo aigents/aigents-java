@@ -93,6 +93,16 @@ public class MapMap {
 		return null;
 	}
 	
+	public java.util.Set getSubKeySet(Object key) {
+		HashMap map = getMap(key,false);
+		if (map != null) {
+			synchronized (map) {
+				return new HashSet(map.keySet());
+			}
+		}
+		return null;
+	}
+	
 	public Object getObject(Object key1,Object key2,boolean lazyAdd) {
 		HashMap map = getMap(key1,lazyAdd);
 		if (map != null) 

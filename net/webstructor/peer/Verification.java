@@ -58,13 +58,13 @@ class Verification extends Registration {
 			String answer = temp.getString(q);
 			if (a.equalsIgnoreCase(answer)) {
 				session.mode= new Conversation();
-				session.output = session.welcome();
+				session.output(session.welcome());
 				session.authenticated = true;
 				try {
 					String email = session.peer.getString(AL.email);
 					Peer.populateContent(session,Body.testEmail(email));
 				} catch (Exception e) {
-					session.output += " " + statement(e);
+					session.addOutput(" " + statement(e));
 					session.sessioner.body.error(e.toString(), e);
 				}
 				session.fails = 0;
@@ -94,7 +94,7 @@ class Verification extends Registration {
 				//}
 			}
 		}
-		session.output = Writer.what("your", session.peer, new All(new String[]{q}));
+		session.output(Writer.what("your", session.peer, new All(new String[]{q})));
 		return false;
 	}
 }

@@ -58,6 +58,7 @@ public class Storager {
 		AL.news,
 		AL.things,
 		AL.patterns,
+		AL.responses,
 		AL.sources
 	}; 
 	
@@ -607,7 +608,7 @@ public class Storager {
 		return obj instanceof String || obj instanceof Date;
 	}
 
-	//TODO: mere with exiting code or repurpose?
+	//TODO: merge with exiting code or repurpose?
 	/**
 	 * In graph A-B->C, C-D->E, get all possible values of C for B across A
 	 * optonally making sure each D has value of E 
@@ -642,4 +643,14 @@ public class Storager {
 		}
 		return (String[])names.toArray(new String[]{}); 
 	}
+
+	/**
+	 * In graph A-B->C, get all values of possible values of B across A
+	 * @param property - B from A->B->C 
+	 * @return
+	 */
+	public java.util.Set getValuesSet(String property){
+		return mapmap.getSubKeySet(property);
+	}
+
 }

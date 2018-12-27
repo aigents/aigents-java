@@ -128,7 +128,7 @@ class Conversation extends Mode {
 			return true;
 		} else
 		if (session.read(Reader.pattern(AL.i_my,logout)) || Array.contains(logout, session.input.toLowerCase())){//can logout at any point			
-			session.output = "Ok.";
+			session.output("Ok.");
 			session.mode = new Login();
 			session.peer = null;
 			session.authenticated = false;
@@ -148,7 +148,7 @@ class Conversation extends Mode {
 	  } catch (Exception e) {
 		  if (!(e instanceof Mistake))
 			  session.sessioner.body.error("Error handling: "+session.input, e);
-		  session.output = "Not. "+e.getMessage();
+		  session.output("Not. "+e.getMessage());
 		  return false;
 	  }
 	}
@@ -172,7 +172,7 @@ class Conversation extends Mode {
 			if (!ok.equals("Ok."))//TODO: fix hack!?
 				ensti = null;
 			//TODO:restrict origin for better security if passing token?
-			session.output = "<html><body onload=\"top.postMessage(\'"+(ensti == null ? "Error:" : "Success:")+session.input+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>";
+			session.output("<html><body onload=\"top.postMessage(\'"+(ensti == null ? "Error:" : "Success:")+session.input+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");
 			return false;		
 		}else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
@@ -181,9 +181,9 @@ class Conversation extends Mode {
 			String token = session.peer.getString(Body.vkontakte_token);
 			String enst[];
 			if (session.sessioner.body.vk != null && ((enst = session.sessioner.body.vk.verifyToken(id, token)) != null)) {
-				session.output = socialBind(session,Body.vkontakte_id, id,Body.vkontakte_token, enst[3]);
+				session.output(socialBind(session,Body.vkontakte_id, id,Body.vkontakte_token, enst[3]));
 			} else
-				session.output = "Not.";
+				session.output("Not.");
 			return false;		
 		} else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
@@ -193,14 +193,14 @@ class Conversation extends Mode {
 			String enstir[];//email,name,surname,token,id,refresh_token
 			if (session.sessioner.body.gapi != null && ((enstir = session.sessioner.body.gapi.verifyToken(id, token)) != null)) {
 				id = enstir[4];
-				session.output = socialBind(session,Body.google_id, id, Body.google_token, enstir[3]);
-				if ("Ok.".equals(session.output)) {//TODO: fix hack!?
+				session.output(socialBind(session,Body.google_id, id, Body.google_token, enstir[3]));
+				if ("Ok.".equals(session.output())) {//TODO: fix hack!?
 					session.getStoredPeer().set(Body.google_id,id);//TODO:straighten
 					if (!AL.empty(enstir[5]))//refresh_token as google_key
 						session.getStoredPeer().set(Body.google_key, enstir[5]);
 				}
 			} else
-				session.output = "Not.";
+				session.output("Not.");
 			return false;		
 		} else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
@@ -208,9 +208,9 @@ class Conversation extends Mode {
 			String id = session.peer.getString(Body.facebook_id);
 			String token = session.peer.getString(Body.facebook_token);
 			if (session.sessioner.body.fb != null && (token = session.sessioner.body.fb.verifyToken(id, token)) != null) {
-				session.output = socialBind(session,Body.facebook_id, id,Body.facebook_token, token);
+				session.output(socialBind(session,Body.facebook_id, id,Body.facebook_token, token));
 			} else
-				session.output = "Not.";
+				session.output("Not.");
 			return false;		
 		} else
 			
@@ -221,7 +221,7 @@ class Conversation extends Mode {
 			return true;			
 		} else 
 		if (session.input.length() == 0) { //repeated authentication seed for pre-authenticated session
-			session.output = "Ok.";
+			session.output("Ok.");
 			return false;			
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
@@ -232,25 +232,25 @@ class Conversation extends Mode {
 				if (session.sessioner.body.sitecacher != null)
 					session.sessioner.body.sitecacher.clear(true);//clear with LTM
 			}
-			session.output = "Ok.";
+			session.output("Ok.");
 			return false;
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,new String[] {"think","thinking"}))) {
 			Peer.trashPeerNews(session.sessioner.body,session.getStoredPeer());//this does think along the way!
-			session.output = "Ok.";
+			session.output("Ok.");
 			return false;			
 		} else
 			
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,spider))) {
 			Thing task = new Thing();
-			session.output = "Not.";
+			session.output("Not.");
 			if (session.read(new Seq(new Object[]{
 					new Any(1,AL.you),"spidering",new Property(task,"network"),
 					"id",new Property(task,"id")
 					}))) {
-				session.output = spidering(session, task.getString("network"), task.getString("id"));
+				session.output(spidering(session, task.getString("network"), task.getString("id")));
 			} else
 			if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,spider),new Property(task,"network")}))) {
@@ -259,7 +259,7 @@ class Conversation extends Mode {
 					Thing arg = new Thing();
 					session.read(arg,new String[]{"block"});			
 					long block = Long.parseLong(arg.getString("block","-1"));
-					session.output = "Ok. Spidering.";
+					session.output("Ok. Spidering.");
 					//TODO: run async
 					provider.resync(block);
 				}
@@ -307,17 +307,17 @@ class Conversation extends Mode {
 		        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"));
 				writer.write(sb.toString());
 				writer.close();
-				session.output = "Ok.";
+				session.output("Ok.");
 			} catch (Exception e) {
 				session.sessioner.body.error("Counting error ", e);
-				session.output = "Not.";
+				session.output("Not.");
 			}
 			return false;
 		} else
 				
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,Self.saving))) {
-			session.output = "Not.";
+			session.output("Not.");
 			Thing saver = new Thing();
 			if (!trusted(session))
 				;//TODO: "No right" handling
@@ -328,16 +328,16 @@ class Conversation extends Mode {
 				new Property(saver,Body.store_path),
 				}))){
 				if (Self.save(session.getBody(), saver.getString(Body.store_path)))
-					session.output = "Ok.";
+					session.output("Ok.");
 			}else{
 				if (Self.save(session.getBody(), session.sessioner.body.self().getString(Body.store_path)))
-					session.output = "Ok.";
+					session.output("Ok.");
 			}
 			return false;			
 		} else	
 		if ((session.mood == AL.direction || session.mood == AL.declaration) 
 			&& session.read(Reader.pattern(AL.you,Self.loading))) {
-			session.output = "Not.";
+			session.output("Not.");
 			Thing loader = new Thing();
 			if (session.read(new Seq(new Object[]{
 				new Any(1,AL.you),	
@@ -346,20 +346,20 @@ class Conversation extends Mode {
 				})))
 				//TODO:do we really need clear here?
 				if (Self.load(session.getBody(), loader.getString(Body.store_path)))
-					session.output = "Ok.";
+					session.output("Ok.");
 			return false;			
 		} else	
 		if ((session.mood == AL.direction || session.mood == AL.declaration) 
 			&& session.read(Reader.pattern(AL.you,Self.profiling))) {
 			//TODO: make network input as parameter
 			boolean started = session.getBody().act("profile", null);
-			session.output =  "My "+Self.profiling[0]+".";
-			session.output = (started ? "Ok. " : "Not. ") + session.output; 
+			String output = "My "+Self.profiling[0]+".";
+			session.output(started ? "Ok. " : "Not. " + output); 
 			return false;			
 		} else	
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,Self.reading))) {
-			session.output = "Not.";
+			session.output("Not.");
 			//TODO: understand context of 'knows': test_o("You reading 'sun flare' ... - must be test_o("You reading sun flare ...
 			Collection knows = (Collection) session.getStoredPeer().get(AL.knows);
 			if (!AL.empty(knows)) {
@@ -370,8 +370,8 @@ class Conversation extends Mode {
 						}))) {
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
-						session.output = "My "+Self.reading[0]+" "+reader.getString("thingname")+
-							" in "+Writer.toString(reader.getString("url"))+".";//"Ok.";
+						session.output("My "+Self.reading[0]+" "+reader.getString("thingname")+
+							" in "+Writer.toString(reader.getString("url"))+".");//"Ok.";
 				}
 				else  
 				// can fail if thingname is not supplied
@@ -382,15 +382,15 @@ class Conversation extends Mode {
 							}))) {
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
-						session.output = "My "+Self.reading[0]+" site "+Writer.toString(reader.getString("url"))+".";//"Ok.";
+						session.output("My "+Self.reading[0]+" site "+Writer.toString(reader.getString("url"))+".");//"Ok.";
 				}
 				else {
 					//TODO:use reader with arguments for async spawn!?
 					//session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", null))//just read all sites altogether
-						session.output = "Ok. My "+Self.reading[0]+".";
+						session.output("Ok. My "+Self.reading[0]+".");
 					else
-						session.output = "Not. My "+Self.reading[0]+".";
+						session.output("Not. My "+Self.reading[0]+".");
 				}
 			}
 			return false;
@@ -398,7 +398,7 @@ class Conversation extends Mode {
 			
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(new Seq(new Object[]{new Any(1,AL.you),"cluster"}))) {
-			session.output = "Not.";
+			session.output("Not.");
 			Thing reader = new Thing();
 			String json = null;
 			String[] texts = null;
@@ -428,11 +428,11 @@ class Conversation extends Mode {
 						data.set("categories", m.getCategoryNames());
 						data.set("category_documents", m.getCategoryDocuments());
 						data.set("category_features", m.getCategoryFatures());
-						session.output = Writer.toJSON(data);
+						session.output(Writer.toJSON(data));
 					} else
-						session.output = "You knows "+Writer.toString(m.getCategoryNames())+"."
+						session.output("You knows "+Writer.toString(m.getCategoryNames())+"."
 							+TextMiner.toString(m.getCategoryDocuments(),"sites",",",";\n")+"\n"
-							+TextMiner.toString(m.getCategoryFatures(),"patterns",",",";\n");
+							+TextMiner.toString(m.getCategoryFatures(),"patterns",",",";\n"));
 				}
 			}
 			return false;			
@@ -474,10 +474,10 @@ class Conversation extends Mode {
 								session.getStorager().setUpdate();
 							}
 						}
-					session.output = skipped > 0 ? "Not. There things." : "Ok.";
+					session.output(skipped > 0 ? "Not. There things." : "Ok.");
 				}
 			} catch (Exception e) {
-				session.output = statement(e);
+				session.output(statement(e));
 				session.sessioner.body.error(e.toString(), e);
 			}
 			return false;
@@ -491,30 +491,40 @@ class Conversation extends Mode {
 				for (Iterator it = message.iterator(); it.hasNext();) {
 					Statement query = (Statement)it.next();
 					session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
-					//TODO: do this peer saving and restoring more clever and not every time?
-					//get stored session peer pointer just in case it is changed in background
-					new Query(storager,session.sessioner.body.self()).setThings(query,storedPeer);
-					//get actual session peer parameters to access it another time
-					session.peer.update(storedPeer,Login.login_context);
-					out.append(out.length() > 0 ? " " : "").append("Ok.");
+					Query q = new Query(storager,session.sessioner.body.self());
+					int updated = q.setThings(query,storedPeer);
+					if (updated > 0){
+						out.append(out.length() > 0 ? " " : "").append("Ok.");
+						//TODO: do this peer saving and restoring more clever and not every time?
+						//get stored session peer pointer just in case it is changed in background
+						//get actual session peer parameters to access it another time
+						session.peer.update(storedPeer,Login.login_context);
+					}
 				}
-				session.output = out.toString();
+				if (out.length() == 0)
+					throw new Mistake(Mistake.no_thing);
+				session.output(out.toString());
 				return false;
 			} catch (Exception e) {
-				session.output = statement(e);
+				
+				//TODO: move out and re-use in "answer"
+				if (e instanceof Mistake && e.getMessage().equals(Mistake.no_thing))
+					if (Responser.response(session))
+						return false;
+				
+				session.output(statement(e));
 				if (!(e instanceof Mistake))
 					session.sessioner.body.error(e.toString(), e);
 				return false;
 			}
 		} 
 		//TODO: if such fallthrough is needed?
-		session.output = "Dear " 
+		session.output("Dear " 
 			+ (session.peer != null ? session.peer.getTitle(Peer.title) : "friend")
-			+ ", please contact us for help at "+Body.ORIGINSITE+".";
+			+ ", please contact us for help at "+Body.ORIGINSITE+".");
 		return false;
 	}//doAuthenticated
-	
-	
+		
 	//TODO: unifiy the code 
 	boolean tryReport(Storager storager,Session session) {
 		Thing arg = new Thing();
@@ -539,7 +549,7 @@ class Conversation extends Mode {
 			   		token = arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.provider()+" token") : null;
 				//TODO: name and language for opendata/steemit?
 				String report = provider.cachedReport(id,token,null,id,"",language,format,fresh,session.input,threshold,period,areas);
-				session.output = report != null ? report : "Not.";
+				session.output(report != null ? report : "Not.");
 				return true;			
 		} else	
 		if (session.read(new Seq(new Object[]{
@@ -559,7 +569,7 @@ class Conversation extends Mode {
 			   	String id = peer.getString(provider.provider()+" id");
 			   	String token = peer.getString(provider.provider()+" token");
 				String report = provider.cachedReport(id,token,null,name,surname,language,format,fresh,session.input,threshold,period,areas);
-				session.output = report != null ? report : "Not.";
+				session.output(report != null ? report : "Not.");
 				return true;	
 		}
 		return false;
@@ -598,7 +608,7 @@ class Conversation extends Mode {
 		} catch (Exception e) {
 			session.getBody().error("", e);
 		}
-		session.output = ok ? result : "Not.";
+		session.output(ok ? result : "Not.");
 		return true;
 	}
 	
@@ -654,7 +664,7 @@ class Conversation extends Mode {
 					limit,
 					format,
 					AL.empty(links) ? null : new String[]{links});
-			session.output = !AL.empty(graph) ? graph : "Not.";
+			session.output(!AL.empty(graph) ? graph : "Not.");
 			return true;			
 		} 
 		return false;
@@ -701,7 +711,7 @@ class Conversation extends Mode {
 		Thing arg = new Thing();
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 				&& session.read(Reader.pattern(AL.you,Self.parsing))) {
-			session.output = "Not.";
+			session.output("Not.");
 			// AL: you parse <text>, format <format>, language <language>, features <words|phrases|emoticons> 
 			String sdist = session.read(new Seq(new Object[]{"distance",new Property(arg,"distance")})) ? arg.getString("distance") : null; 
 			String text = session.read(new Seq(new Object[]{AL.text,new Property(arg,AL.text)})) ? arg.getString(AL.text) : null; 
@@ -710,9 +720,9 @@ class Conversation extends Mode {
 				Seq tokens = Parser.parse(text,AL.commas+AL.periods+AL.spaces,false,true,true,true);
 				Seq restricted = restrict(tokens,session.sessioner.body.languages);				
 				Set grams = Parser.grams(restricted,distance);
-				session.output = "There text "+Writer.toString(text)+
+				session.output("There text "+Writer.toString(text)+
 						", tokens "+Writer.toString(tokens)+
-						", grams "+Writer.toString(grams)+".";
+						", grams "+Writer.toString(grams)+".");
 				
 			}
 			return true;

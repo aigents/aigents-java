@@ -162,9 +162,9 @@ function test_agent_cat() {
 
 	//TODO:
 	say("You learn good!");//learn all patterns of text with good
-	get("Ok.");
+	get();//get("Ok.");
 	say("You learn bad!");//learn all patterns of text with bad
-	get("Ok.");
+	get();//get("Ok.");
 	
 	say("What bad patterns?");
 	get();//get("Bad patterns dislike, ':-('.");

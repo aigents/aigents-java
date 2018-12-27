@@ -92,14 +92,14 @@ public abstract class Mode {
 			if (!AL.empty(area)){
 				session.peer.addThing(AL.areas, session.sessioner.body.storager.getThing(area));
 			}
-			session.output = "Ok.";
+			session.output("Ok.");
 			return true;
 		}
 		if (Reader.read(session.input, Reader.pattern(AL.i_my,temp,new String[]{Peer.language}))){
 			if (session.peer == null)
 				session.peer = new Thing();
 			session.peer.setString(Peer.language,temp.getString(Peer.language));
-			session.output = "Ok.";
+			session.output("Ok.");
 			return true;
 		}
 		return false;
@@ -136,16 +136,21 @@ public abstract class Mode {
 				//TODO: move to ontology
 				String format = peer.getString("format");
 				if (!AL.empty(format) && format.equalsIgnoreCase("json")){
-					session.output = Writer.toJSON(clones);
+					session.output(Writer.toJSON(clones));
 					return false;
 				}
 			}
-			session.output = Writer.toPrefixedString(
+			
+			//TODO: unhack the hack?
+			if (clones == null && Responser.response(session))
+				return false;
+			
+			session.output(Writer.toPrefixedString(
 					session,//TODO: fix hack!
-					query, clones);
+					query, clones));
 			return false;						
 		} catch (Exception e) {
-			session.output = statement(e);
+			session.output(statement(e));
 			if (!(e instanceof Mistake))
 				session.sessioner.body.error(e.toString(), e);
 			return false;
@@ -176,9 +181,9 @@ public abstract class Mode {
 							//execute query: [thing,thing,thing,...,set]
 							Collection clones = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(query,peer); 
 							//format news feed
-							session.output = createRSS(clones,area,session.sessioner.body.site());
+							session.output(createRSS(clones,area,session.sessioner.body.site()));
 						} catch (Exception e) {
-							session.output = statement(e);
+							session.output(statement(e));
 							session.sessioner.body.error(e.toString(), e);
 						}
 						return true;
