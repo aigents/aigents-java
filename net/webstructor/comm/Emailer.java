@@ -59,7 +59,9 @@ class Email {
 	public String to;
 	public String subject;
 	public String text;
-	public Email(String to, String subject, String text) {
+	public String from;
+	
+	public Email(String from, String to, String subject, String text) {
 		this.to = to;
 		this.subject = subject;
 		this.text = text;
@@ -69,8 +71,8 @@ class Email {
 //TODO: split into JavaEmailer and LinuxEmailer
 public class Emailer extends Communicator {
 	public static final String DEFAULT_PASSWORD = "replace this with proper password";
-	private static final long DEFAULT_EMAIL_CYCLE_MS = 10*60*1000;
-	private static final long MINIMUM_EMAIL_CYCLE_MS = 10*1000;
+	private static final long DEFAULT_EMAIL_CYCLE_MS = 60*Period.MINUTE;
+	private static final long MINIMUM_EMAIL_CYCLE_MS = 1*Period.MINUTE;
 	
 	private static final String[] blacklist = {
 		"mailer-daemon"
@@ -80,6 +82,7 @@ public class Emailer extends Communicator {
 	private String email_login = "";
 	private String email_password = DEFAULT_PASSWORD;
 	private int email_retries = 10;
+	private long email_cycle = DEFAULT_EMAIL_CYCLE_MS;
 
 	private int errors = 0;
 	
@@ -113,6 +116,9 @@ public class Emailer extends Communicator {
         email_retries = AL.integer(self.getString(Body.email_retries,Integer.toString(email_retries)),email_retries);
         if (!valid(email))
         	email = email_login;
+        email_cycle = new Period(DEFAULT_EMAIL_CYCLE_MS).parse(self.getString(Body.email_cycle,new Period(DEFAULT_EMAIL_CYCLE_MS).toString()));
+        if (email_cycle < MINIMUM_EMAIL_CYCLE_MS)
+        	email_cycle = MINIMUM_EMAIL_CYCLE_MS;
         
         /*
         //TODO: This was used to solve problem with sporadic illegalstateexception in pop3folder.close on android
@@ -145,15 +151,14 @@ public class Emailer extends Communicator {
 	}
 	
 	public void run() {
-		long next = System.currentTimeMillis();
+		long next = 0;
 		while (alive()) {
 			try {
-				updateProps();
-		        long email_cycle = new Period(DEFAULT_EMAIL_CYCLE_MS).parse(body.self().getString(Body.email_cycle,new Period(DEFAULT_EMAIL_CYCLE_MS).toString()));
 				for (;;){
-					Thread.sleep(MINIMUM_EMAIL_CYCLE_MS);
 					long now = System.currentTimeMillis();
-					if (pending() || now > next){//process email if either time comes or have to send something
+					if (pending() || now >= next){//process email if either time comes or have to send something
+						updateProps();
+						next = now + email_cycle;
 						try {
 							if (emailable()){
 								body.reply("Emailing times "+new Date(System.currentTimeMillis()).toString()+".");
@@ -168,9 +173,8 @@ public class Emailer extends Communicator {
 							if (++errors > email_retries)
 								terminate();
 						}
-						if (next < now)
-							next = now + email_cycle;
 					}
+					body.sleep(MINIMUM_EMAIL_CYCLE_MS);
 				}
 			} catch (Exception e) {
 				//TODO: what if sleep fails?
@@ -209,17 +213,21 @@ public class Emailer extends Communicator {
 			throw new IOException("No peer email.");
 		if (Body.testEmail(email))//don't send emails to test accounts
 			return;
-		
+		String from = email_login;//TODO:body.self().getString(AL.email,email_login)
+		String to = peer.getString(AL.email);
+		email(from,to,subject,text);
+	}
+	
+	public void email(String from,String to,String subject,String text) throws IOException {
 		//TODO: put this hack straight
 		//TODO: alternative support for windows with no sendmail
 		//if no SMTP configured, send email via command line
 		if (AL.empty(body.self().getString(Body.mail_smtp_host))){
-			sendmail(email_login,peer.getString(AL.email),subject,text);
+			sendmail(from,to,subject,text);
 			return;
 		}
-		
 		synchronized (outQueue) {
-			outQueue.add(new Email(email,subject,text));
+			outQueue.add(new Email(from,to,subject,text));
 		}
 	}
 	
@@ -264,12 +272,14 @@ public class Emailer extends Communicator {
         msg.setRecipients(Message.RecipientType.TO, address);
         msg.setSubject(email.subject);
         msg.setSentDate(new Date());
-        msg.setText(email.subject);
+        //https://stackoverflow.com/questions/47367258/what-is-difference-between-settext-and-setcontent-in-bodymimepart-class
 //TODO:why both?
-        msg.setText(email.text);
+        //msg.setText(email.subject);
+        //msg.setText(email.text);
 //TODO:encoding (some people's mailers don't get this right) 
-        //msg.setContent(email.text,"text/plain");//TODO:test Message's content as a Multipart object. 
-        //msg.saveChanges();
+        msg.setContent(email.text,"text/plain;charset=UTF-8");
+        //TODO:test Message's content as a Multipart object. 
+        //msg.saveChanges();//TODO:eliminate!?
         bus.sendMessage(msg, address);                                
 	}
 	
@@ -292,20 +302,6 @@ public class Emailer extends Communicator {
     			//TODO:check email oversending count check for safety reasons 
     			if (email == null)
     				break;
-    			/*
-                Message msg;
-                InternetAddress[] address = {new InternetAddress(email.to)};
-                msg = new MimeMessage(session);
-                msg.setFrom(from);
-                msg.setRecipients(Message.RecipientType.TO, address);
-                msg.setSubject(email.subject);
-                msg.setSentDate(new Date());
-                msg.setText(email.subject);
-                msg.setText(email.text);
-                //msg.setContent(email.text,"text/plain");//TODO:test Message's content as a Multipart object. 
-                //msg.saveChanges();
-                bus.sendMessage(msg, address);           
-                */                     
     			sendMail(session,from,bus,email);
                 body.output("Email sent to "+email.to+".");//TODO:cleanup
     		}
@@ -444,15 +440,18 @@ public class Emailer extends Communicator {
 	}	
 
 	private static void sendmailTest(String from,String to,String subject,String text) throws Exception {
-		System.out.println("to:"+to);
+		System.out.println("from:"+from+" to:"+to);
 		String err = sendmailExec(from, to, subject + " to "+ to , text + " to " + to);
-		System.out.println(err);
+		System.out.println(err == null ? "Ok." : err);
 	}
 	
 	public static void main(String[] args) {
 		try {
-			if (args.length > 1)
-			Emailer.sendmailTest(args[0],args[1],"test sendmail","Мама мылА РаМу");
+			if (args.length > 1){
+				Emailer.sendmailTest(args[0],args[1],
+						args.length > 2 ? args[2] : "test sendmail",
+						args.length > 3 ? args[3] : "Мама мылА РаМу");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

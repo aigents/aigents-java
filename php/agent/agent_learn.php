@@ -276,7 +276,7 @@ function test_agent_agglomerate() {
 	global $version;
 	global $copyright;
 	global $basePath;
-	$timeout = 3;
+	$timeout = 4;
 	
 	//login, registration, verification
 	say("My name john, email john@doe.org, surname doe.");

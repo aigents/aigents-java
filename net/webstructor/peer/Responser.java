@@ -73,7 +73,7 @@ class Responser {
 		}
 		//3
 		HashSet all_responses = new HashSet();
-		Iter iter = new Iter(Parser.parse(session.input));//build with original text positions preserved for image matching
+		Iter iter = new Iter(Parser.parse(session.input()));//build with original text positions preserved for image matching
 		if (!AL.empty(all_patterns)) for (Iterator it = all_patterns.iterator(); it.hasNext();){
 			iter.pos(0);//reset 
 			Thing instance = new Thing();

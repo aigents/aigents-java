@@ -78,9 +78,9 @@ class Login extends Mode {
 	}
 
 	public boolean vkontakte(Session session) {
-		if (session.sessioner.body.vk != null && session.input.indexOf("vkontakte_id=")==0){
+		if (session.sessioner.body.vk != null && session.input().indexOf("vkontakte_id=")==0){
 			//update VK login upon callback
-			String ensti[] = session.sessioner.body.vk.verifyRedirect(session.input);
+			String ensti[] = session.sessioner.body.vk.verifyRedirect(session.input());
 			if (ensti != null) {
 				//TODO: refresh token?
 				session.peer.set(Body.vkontakte_token, ensti[3]);//token
@@ -90,7 +90,7 @@ class Login extends Mode {
 			}
 			//TODO:restrict origin for better security if passing token?
 			session.output("<html><body onload=\"top.postMessage(\'"
-					+(ensti == null ? "Error:" : "Success:")+session.input+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");		
+					+(ensti == null ? "Error:" : "Success:")+session.input()+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");		
 		}else
 		if (session.sessioner.body.vk != null) {
 			String id = session.peer.getString(Body.vkontakte_id);
@@ -270,7 +270,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				session.read(Reader.pattern(AL.i_my,session.peer,new String[] {AL.email,AL.name,Peer.surname}));//optional?
 				return vkontakte(session);//flow via Aigents Language (client token)
 			}
-			if (session.input.indexOf("vkontakte_id=")==0)
+			if (session.input().indexOf("vkontakte_id=")==0)
 				return vkontakte(session);//flow via redirect (server token) 
 		}
 		
@@ -296,11 +296,11 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			//using $ to explicitly denote variables
 			//AL-style sentence
 			//[{i my} {[name $name] [email $email] [surname $surname] [birth date $birth_date]}]
-			if (!Reader.read(session.input, Reader.pattern(AL.i_my,session.peer,login_context))){
+			if (!Reader.read(session.input(), Reader.pattern(AL.i_my,session.peer,login_context))){
 				//freetext-style sentence
 				//[$email $name $surname]
 				if (session.expected() != null)
-					Reader.read(session.input, Reader.pattern(session.peer,session.expected()),",");
+					Reader.read(session.input(), Reader.pattern(session.peer,session.expected()),",");
 				if (!AL.empty(session.expected()))
 					session.unexpect(session.peer);
 			}
@@ -366,7 +366,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			//if unresolved - keep unresolving
 		}
 
-		if (Reader.read(session.input, cancel_pattern)) {
+		if (Reader.read(session.input(), cancel_pattern)) {
 			unresolved = new All(login_context);
 			session.peer = null;
 		}

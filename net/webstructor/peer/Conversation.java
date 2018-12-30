@@ -27,6 +27,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.StringReader;
@@ -54,6 +55,7 @@ import net.webstructor.al.Statement;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.StringUtil;
+import net.webstructor.comm.Emailer;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.comm.Socializer;
 import net.webstructor.core.Mistake;
@@ -127,7 +129,7 @@ class Conversation extends Mode {
 			session.mode = new Login();
 			return true;
 		} else
-		if (session.read(Reader.pattern(AL.i_my,logout)) || Array.contains(logout, session.input.toLowerCase())){//can logout at any point			
+		if (session.read(Reader.pattern(AL.i_my,logout)) || Array.contains(logout, session.input().toLowerCase())){//can logout at any point			
 			session.output("Ok.");
 			session.mode = new Login();
 			session.peer = null;
@@ -147,7 +149,7 @@ class Conversation extends Mode {
 		}
 	  } catch (Exception e) {
 		  if (!(e instanceof Mistake))
-			  session.sessioner.body.error("Error handling: "+session.input, e);
+			  session.sessioner.body.error("Error handling: "+session.input(), e);
 		  session.output("Not. "+e.getMessage());
 		  return false;
 	  }
@@ -165,14 +167,14 @@ class Conversation extends Mode {
 		//binding Social Network accounts
 		//TODO: refactor for unification
 		//TODO: ensure no id stealing happens (re-steal, if so)
-		if (session.sessioner.body.vk != null && session.input.indexOf("vkontakte_id=")==0){
+		if (session.sessioner.body.vk != null && session.input().indexOf("vkontakte_id=")==0){
 			//update VK login upon callback
-			String ensti[] = session.sessioner.body.vk.verifyRedirect(session.input);
+			String ensti[] = session.sessioner.body.vk.verifyRedirect(session.input());
 			String ok = ensti == null ? null : socialBind(session,Body.vkontakte_id, ensti[4],Body.vkontakte_token, ensti[3]);
 			if (!ok.equals("Ok."))//TODO: fix hack!?
 				ensti = null;
 			//TODO:restrict origin for better security if passing token?
-			session.output("<html><body onload=\"top.postMessage(\'"+(ensti == null ? "Error:" : "Success:")+session.input+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");
+			session.output("<html><body onload=\"top.postMessage(\'"+(ensti == null ? "Error:" : "Success:")+session.input()+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");
 			return false;		
 		}else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
@@ -220,7 +222,7 @@ class Conversation extends Mode {
 			session.mode = new EmailChange();
 			return true;			
 		} else 
-		if (session.input.length() == 0) { //repeated authentication seed for pre-authenticated session
+		if (session.input().length() == 0) { //repeated authentication seed for pre-authenticated session
 			session.output("Ok.");
 			return false;			
 		} else
@@ -437,7 +439,9 @@ class Conversation extends Mode {
 			}
 			return false;			
 		} else	
-		
+		if (tryEmailer(storager,session))//if email send tried successflly 
+			return false;//no further interaction is needed
+		else
 		if (tryRSS(storager,session))//if RSS feed tried successflly 
 			return false;//no further interaction is needed
 		else
@@ -453,10 +457,10 @@ class Conversation extends Mode {
 		if (tryReputationer(storager,session))//if graphing tried successfully 
 			return false;//no further interaction is needed
 		else
-		if (Reader.read(session.input, new Any(1,AL.not)))
+		if (Reader.read(session.input(), new Any(1,AL.not)))
 		{
 			try {
-				Statement query = session.reader.parseStatement(session,session.input,session.getStoredPeer());
+				Statement query = session.reader.parseStatement(session,session.input(),session.getStoredPeer());
 				session.sessioner.body.output("Dec:"+Writer.toString(query)+".");	
 				if (!AL.empty(query)) {
 					int skipped = 0;
@@ -487,7 +491,7 @@ class Conversation extends Mode {
 			try {
 				Thing storedPeer = session.getStoredPeer();
 				StringBuilder out = new StringBuilder();
-				Collection message = session.reader.parseStatements(session,session.input,session.getStoredPeer());
+				Collection message = session.reader.parseStatements(session,session.input(),session.getStoredPeer());
 				for (Iterator it = message.iterator(); it.hasNext();) {
 					Statement query = (Statement)it.next();
 					session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
@@ -541,14 +545,14 @@ class Conversation extends Mode {
 				String[] areas = session.read(new Seq(new Object[]{"areas",new Property(arg,"areas")})) ? new String[]{arg.getString("areas")} : null;
 				Thing peer = session.getStoredPeer();
 				String language = peer.getString(Peer.language);
-				boolean fresh = session.input.contains("fresh");
+				boolean fresh = session.input().contains("fresh");
 				Socializer provider = session.sessioner.body.provider(arg.getString("network"));
 				String id = arg.getString("id");
 				String token = session.read(new Seq(new Object[]{"token",new Property(arg,"token")})) ? arg.getString("token") : null;
 			   	if (AL.empty(token)) //if token is not supplied explicitly
 			   		token = arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.provider()+" token") : null;
 				//TODO: name and language for opendata/steemit?
-				String report = provider.cachedReport(id,token,null,id,"",language,format,fresh,session.input,threshold,period,areas);
+				String report = provider.cachedReport(id,token,null,id,"",language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");
 				return true;			
 		} else	
@@ -564,18 +568,18 @@ class Conversation extends Mode {
 			   	String name = peer.getString(AL.name);
 			   	String surname = peer.getString(Peer.surname);
 			   	String language = peer.getString(Peer.language);
-				boolean fresh = session.input.contains("fresh");
+				boolean fresh = session.input().contains("fresh");
 			   	Socializer provider = session.sessioner.body.provider(arg.getString("network"));
 			   	String id = peer.getString(provider.provider()+" id");
 			   	String token = peer.getString(provider.provider()+" token");
-				String report = provider.cachedReport(id,token,null,name,surname,language,format,fresh,session.input,threshold,period,areas);
+				String report = provider.cachedReport(id,token,null,name,surname,language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");
 				return true;	
 		}
 		return false;
 	}
 	
-	//TODO: move to other place
+	//TODO: A MUST - move to other place to avoid concurrent use of files ad redundant memory use
 	HashMap reputationers = new HashMap();
 	boolean tryReputationer(Storager storager,Session session) {
 		Thing arg = new Thing();
@@ -600,7 +604,7 @@ class Conversation extends Mode {
 			ps = new PrintStream(baos, true, charset.name());
 			ps.print("Ok.\n");
 			//TODO: get data as object!?
-			ok = Reputationer.act(session.getBody(), r, ps, Parser.split(session.input, " \t,;"));
+			ok = Reputationer.act(session.getBody(), r, ps, session.args());
 			if (ok)
 				result = new String(baos.toByteArray(), charset);
 			ps.close();
@@ -610,6 +614,36 @@ class Conversation extends Mode {
 		}
 		session.output(ok ? result : "Not.");
 		return true;
+	}
+
+	boolean tryEmailer(Storager storager,Session session) {
+		Thing arg = new Thing();
+		if (session.read(new Seq(new Object[]{AL.email,"to",new Property(arg,"to"),"subject",new Property(arg,"subject"),"text",new Property(arg,"text")}))){
+			session.read(arg,new String[]{"from"});			
+			String from = arg.getString("from");
+			if (AL.empty(from))
+				from = session.getPeer().getString(AL.email);
+			if (AL.empty(from))
+				from = session.getSelfPeer().getString(AL.email);
+			String to = arg.getString("to");
+			String text = arg.getString("text");
+			String subject = arg.getString("subject");
+			if (Emailer.valid(from) && Emailer.valid(to) && !AL.empty(text)){
+				if (AL.empty(subject))
+					subject = session.sessioner.body.signature();
+				try {
+					text += "\n"+session.sessioner.body.signature();
+					Emailer e = Emailer.getEmailer();
+					e.email(from,to,subject,text);
+					session.output("Ok.");
+				} catch (IOException e) {
+					session.sessioner.body.error("Sending email from "+from+" to "+to, e);
+					session.output("Not.");
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	//TODO:

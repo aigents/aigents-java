@@ -759,23 +759,6 @@ public class Reputationer {
 //TODO: fix scale for financial values and weights!!!???
 						BigDecimal value = null;
 						BigDecimal weight = null;
-						/*
-						if (tokens.length >= 15 && !AL.empty(tokens[14])){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
-							value = (new BigDecimal(tokens[5])).multiply(new BigDecimal(100));
-							if (!r.params.weightingRatings){
-								weight = null;
-							} else {
-								weight = (new BigDecimal(tokens[14])).divide(r.params.ratingPrecision);
-								if (log)
-									weight = new BigDecimal(Math.round(Math.log10(weight.doubleValue())));
-							}
-						}else{//no weight => so it is payment in any range
-							value = (new BigDecimal(tokens[5])).divide(r.params.ratingPrecision);
-							if (log)
-								value = new BigDecimal(Math.round(Math.log10(value.doubleValue())));
-							weight = null;
-						}
-						*/
 						if (tokens.length >= 15 && !AL.empty(tokens[14])){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
 							value = (new BigDecimal(tokens[5])).multiply(new BigDecimal(100));//translate to percents
 							weight = new BigDecimal(tokens[14]);

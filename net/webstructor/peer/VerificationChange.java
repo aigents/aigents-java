@@ -30,7 +30,7 @@ import net.webstructor.core.Thing;
 class VerificationChange extends Registration {	
 	public boolean process(Session session) {
 		//if (code == -1 || session.mood == AL.interrogation){
-		if (code == -1 || (session.mood == AL.interrogation && Reader.read(session.input, Reader.pattern(AL.i_my,new String[] {"verification code"})))){
+		if (code == -1 || (session.mood == AL.interrogation && Reader.read(session.input(), Reader.pattern(AL.i_my,new String[] {"verification code"})))){
 			String email = session.peer.getString("email");
 			emailCode(session,email);
 			session.output(emailNotification(email));
@@ -41,7 +41,7 @@ class VerificationChange extends Registration {
 			return answer(session);
 		else { //if (code != -1)
 			Thing storedPeer = session.getStoredPeer();
-			if (Reader.read(session.input, Reader.pattern(AL.i_my,new String[] {"verification code "+code}))) {
+			if (Reader.read(session.input(), Reader.pattern(AL.i_my,new String[] {"verification code "+code}))) {
 				session.peer.setString(Peer.secret_question,null);
 				session.peer.setString(Peer.secret_answer,null);
 				session.mode = new Registration();
@@ -51,7 +51,7 @@ class VerificationChange extends Registration {
 				return true;			
 			}
 		}
-		if (Reader.read(session.input, cancel_pattern) || ++session.fails >= 3) {
+		if (Reader.read(session.input(), cancel_pattern) || ++session.fails >= 3) {
 			session.mode = new Login();
 			session.clear();
 			return true;

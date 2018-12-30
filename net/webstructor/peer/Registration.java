@@ -95,7 +95,7 @@ class Registration extends Mode {
 		if (noSecretQuestion(session))
 			return answer(session);
 
-		if (Reader.read(session.input, cancel_pattern)) {
+		if (Reader.read(session.input(), cancel_pattern)) {
 			session.mode = new Login();
 			session.peer = null;
 			session.expect(null);
@@ -119,10 +119,10 @@ class Registration extends Mode {
 						new Seq(new Object[]{"secret", "answer"  ,new Property(session.peer,Peer.secret_answer)})
 						})	
 					});	
-			if (!Reader.read(session.input, seq))//well-formed AL
+			if (!Reader.read(session.input(), seq))//well-formed AL
 				if (session.expected() != null){
 					Seq p = Reader.pattern(session.peer, session.expected());
-					Reader.read(session.input,p,",");//free-text
+					Reader.read(session.input(),p,",");//free-text
 				}
 			check(session);
 			if (q == null){
@@ -140,9 +140,9 @@ class Registration extends Mode {
 						new Seq(new Object[]{"secret", "answer",new Property(session.peer,Peer.secret_answer)})	
 						})	
 					});	
-			if (!Reader.read(session.input, seq))
+			if (!Reader.read(session.input(), seq))
 				if (session.expected() != null)
-					Reader.read(session.input,Reader.pattern(session.peer, session.expected()));//free-text
+					Reader.read(session.input(),Reader.pattern(session.peer, session.expected()));//free-text
 			check(session);
 			if (a == null){
 				session.output( Writer.what("your", session.peer, new All(answer_only)) );

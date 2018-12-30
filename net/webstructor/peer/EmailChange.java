@@ -44,7 +44,7 @@ class EmailChange extends Registration {
 					});	
 			String oldmail = session.peer.getString(AL.email);
 			String email;
-			if (Reader.read(session.input, seq) && (email = temp.getString(AL.email)) != null) {
+			if (Reader.read(session.input(), seq) && (email = temp.getString(AL.email)) != null) {
 				if (oldmail.equalsIgnoreCase(email)) {
 					session.output("Ok.");
 					session.mode = new Conversation();
@@ -70,7 +70,7 @@ class EmailChange extends Registration {
 			}
 		} else {
 			//code verified
-			if (Reader.read(session.input, Reader.pattern(AL.i_my,new String[] {"verification code "+code}))) {
+			if (Reader.read(session.input(), Reader.pattern(AL.i_my,new String[] {"verification code "+code}))) {
 				session.peer.update(storedPeer,null);
 				session.peer.setString(AL.email, newmail);				
 				session.mode = new Conversation();
@@ -82,7 +82,7 @@ class EmailChange extends Registration {
 				return false;			
 			} else 
 			//reset verification
-			if (session.mood == AL.interrogation && Reader.read(session.input, Reader.pattern(AL.i_my,new String[] {"verification code"}))){
+			if (session.mood == AL.interrogation && Reader.read(session.input(), Reader.pattern(AL.i_my,new String[] {"verification code"}))){
 				emailCode(session,newmail);	
 				session.output(emailNotification(newmail));
 				return false;	
@@ -92,7 +92,7 @@ class EmailChange extends Registration {
 				return answer(session);
 			}
 		}
-		if (Reader.read(session.input, cancel_pattern)) {//TODO: get rid of 'my logout' and 'my login' here
+		if (Reader.read(session.input(), cancel_pattern)) {//TODO: get rid of 'my logout' and 'my login' here
 			session.mode = new Conversation();
 			session.output("Ok.");
 			return false;

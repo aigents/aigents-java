@@ -65,7 +65,7 @@ public abstract class Mode {
 				"What my sites name, trust?",
 				"What my knows name, trust, relevance?",
 				"What my knows name, trust?"}; 
-		if (session.mood == AL.interrogation && Array.containsIgnoreCase(allowed_questions, session.input))
+		if (session.mood == AL.interrogation && Array.containsIgnoreCase(allowed_questions, session.input()))
 			return true;
 		return false;
 	}
@@ -84,7 +84,7 @@ public abstract class Mode {
 	//TODO: do this via generic functionality such as temporary proxy peer?
 	boolean setProperties(Session session) {
 		Thing temp = new Thing();
-		if (Reader.read(session.input, Reader.pattern(AL.i_my,temp,new String[]{AL.areas}))){
+		if (Reader.read(session.input(), Reader.pattern(AL.i_my,temp,new String[]{AL.areas}))){
 			String area = temp.getString(AL.areas);
 			if (session.peer == null)
 				session.peer = new Thing();
@@ -95,7 +95,7 @@ public abstract class Mode {
 			session.output("Ok.");
 			return true;
 		}
-		if (Reader.read(session.input, Reader.pattern(AL.i_my,temp,new String[]{Peer.language}))){
+		if (Reader.read(session.input(), Reader.pattern(AL.i_my,temp,new String[]{Peer.language}))){
 			if (session.peer == null)
 				session.peer = new Thing();
 			session.peer.setString(Peer.language,temp.getString(Peer.language));
@@ -126,7 +126,7 @@ public abstract class Mode {
 	boolean answer(Session session) {
 		Thing peer = getSessionAreaPeer(session);
 		try {
-			Seq query = session.reader.parseStatement(session,session.input,peer);
+			Seq query = session.reader.parseStatement(session,session.input(),peer);
 			session.sessioner.body.output("Int:"+Writer.toString(query)+"?");			
 			//execute query: [thing,thing,thing,...,set]
 			Collection clones = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker)

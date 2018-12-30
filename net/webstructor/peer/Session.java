@@ -50,7 +50,8 @@ public class Session  {
 	int fails = 0;
 
 	//private ArrayList messages = new ArrayList();
-	protected String input = null;
+	private String input = null;//raw input
+	private String args[] = null;//pre-parsed input
 	private String output = null;
 
 	//protected HashMap expected = new HashMap();
@@ -78,6 +79,14 @@ public class Session  {
 	
 	public String[] expected(){
 		return this.expected;
+	}
+	
+	public String input(){
+		return input;
+	}
+	
+	public String[] args(){
+		return args;
 	}
 	
 	public void output(String output){
@@ -207,6 +216,7 @@ public class Session  {
 	protected void comprehend(String input) {
 		this.mood = reader.readMood(input);
 		this.input = input; 
+		this.args = Parser.split(this.input, " \t,;");//"compile it"
 	}
 
 	protected String express() {

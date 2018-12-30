@@ -167,7 +167,7 @@ public class HttpFileReader implements Reader
         			return lastmodified;
         		} catch (Exception e) {
         			if (env != null)
-        				env.error("Reading path "+docName, e);
+        				env.error("HttpFileReader.canReadDocDate reading path "+docName + ": "+e.toString(), null);
         			return -1;
         		} finally {
         			if (conn != null)
@@ -394,18 +394,20 @@ public class HttpFileReader implements Reader
     				br.close();
             	conn.disconnect();
     		} catch (Exception e) {
+    			String error = "HttpFileReader.readDocData reading path " + docName + ": "+e.toString();
     			if (env != null)
-    				env.error("Reading path "+docName, e);
+    				env.error(error, null);
     			else
-    				throw new IOException ("Reading " + docName + ": "+e.toString());
+    				throw new IOException(error);
     		} finally {
     			try {
     				if (br != null)br.close();
     			} catch (IOException ex) {
-        			if (env != null)
-        				env.error("Closing path "+docName, ex);
+    				String error = "HttpFileReader.readDocData closing path " + docName + ": "+ex.toString();
+    		    	if (env != null)
+        				env.error(error, ex);
         			else
-        				throw new IOException ("Closing " + docName + ": "+ex.toString());
+        				throw new IOException(error);
     			}
     			if (conn != null)
     				conn.disconnect();

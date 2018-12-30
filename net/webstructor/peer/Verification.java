@@ -44,15 +44,15 @@ class Verification extends Registration {
 			session.expect(null);
 			return true;			
 		}
-		if (Reader.read(session.input, cancel_pattern)) {
+		if (Reader.read(session.input(), cancel_pattern)) {
 			session.mode = new Login();
 			session.peer = null;
 			session.expect(null);
 			return true;
 		}
 		Seq seq = Reader.pattern(AL.i_my,temp,new String[] {q});	
-		if (session.mood != AL.interrogation && (Reader.read(session.input, seq) 
-				|| (session.expected() != null && Reader.read(session.input,Reader.pattern(temp, session.expected()),",")) 
+		if (session.mood != AL.interrogation && (Reader.read(session.input(), seq) 
+				|| (session.expected() != null && Reader.read(session.input(),Reader.pattern(temp, session.expected()),",")) 
 				))
 			{
 			String answer = temp.getString(q);

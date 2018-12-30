@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URLDecoder;
 import java.util.StringTokenizer;
 
@@ -201,7 +202,8 @@ public class HTTPeer extends Communicator
 		return request;
 	}
 	
-	public void output(Session session, String resultString) throws IOException {		//TODO: session stuff
+	public void output(Session session, String resultString) throws IOException {
+		try {
 		//TODO:use session
 		if (resultString != null) {
 	        if (http_format.equals("html")) {
@@ -235,6 +237,11 @@ public class HTTPeer extends Communicator
 	    	notify();//to let the process running
 	    }
 	    //logger.log(StringUtil.first(result,MAX_INPUT),"response");//TODO rework	
+		} catch (SocketException e){
+			body.error("SocketException in HTTPeer.output session " + session.getKey()
+					+ (session.getAreaPeer() == null ? "" : " name " +session.getAreaPeer().getName())
+					+ " text "+resultString+" error "+e.getMessage(),null);
+		}
 	}
 	
 	private void process() {
