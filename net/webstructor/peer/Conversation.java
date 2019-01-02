@@ -116,7 +116,7 @@ class Conversation extends Mode {
 	  try {
 		Storager storager = session.sessioner.body.storager;
 		/*
-		//TODO: wigh fixin bunch of unit tests
+		//TODO: with fixing bunch of unit tests
 		//if logged peer is no longer valid, logout 
 		if (session.authenticated && session.getStoredPeer() == null){
 			session.authenticated = false;
@@ -439,7 +439,10 @@ class Conversation extends Mode {
 			}
 			return false;			
 		} else	
-		if (tryEmailer(storager,session))//if email send tried successflly 
+		if (tryAlerter(storager,session))//if alert sent successflly 
+			return false;//no further interaction is needed
+		else
+		if (tryEmail(storager,session))//if email send tried successflly 
 			return false;//no further interaction is needed
 		else
 		if (tryRSS(storager,session))//if RSS feed tried successflly 
@@ -582,6 +585,7 @@ class Conversation extends Mode {
 	//TODO: A MUST - move to other place to avoid concurrent use of files ad redundant memory use
 	HashMap reputationers = new HashMap();
 	boolean tryReputationer(Storager storager,Session session) {
+		boolean ok = false;
 		Thing arg = new Thing();
 		if (!trusted(session))//for superusers only, so far...
 			return false;
@@ -591,32 +595,59 @@ class Conversation extends Mode {
 		final Charset charset = StandardCharsets.UTF_8;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		PrintStream ps;
-		boolean ok = false;
 		String result = null;
 		try {
 			String network = arg.getString("word"); 
-			Reputationer r;
-			synchronized (reputationers){
-				r = (Reputationer)reputationers.get(network);
-				if (r == null)
-					reputationers.put(network, r = new Reputationer(session.getBody(),network,null,true));//with daily states
-			}
+			Reputationer r = Reputationer.get(network);
+			if (r == null)
+				r = new Reputationer(session.getBody(),network,null,true);
 			ps = new PrintStream(baos, true, charset.name());
 			ps.print("Ok.\n");
 			//TODO: get data as object!?
 			ok = Reputationer.act(session.getBody(), r, ps, session.args());
-			if (ok)
+			if (ok){
 				result = new String(baos.toByteArray(), charset);
+				Reputationer.add(network, r);
+				ok = true;
+			}
 			ps.close();
 			baos.close();
 		} catch (Exception e) {
 			session.getBody().error("", e);
 		}
 		session.output(ok ? result : "Not.");
-		return true;
+		return ok;
 	}
 
-	boolean tryEmailer(Storager storager,Session session) {
+	boolean tryAlerter(Storager storager,Session session) {
+		Thing arg = new Thing();
+		Collection peers;
+		String text;
+		if (session.args().length > 3 && session.args()[0].equalsIgnoreCase("alert") &&
+				session.read(arg,new String[]{"email","name","surname","text"}) >= 2 &&
+				!AL.empty(peers = storager.get(new Thing(arg,Login.login_context),null)) && 
+				!AL.empty(peers) &&
+				!AL.empty(text = arg.getString("text"))){
+			for (Iterator it = peers.iterator(); it.hasNext();){
+				Thing peer = (Thing)it.next();
+				Thing self = session.getStoredPeer();
+				//send notification to all matching peers of those who trust to this peer
+				if (peer == self || peer.hasThing(AL.trust, self)){
+					try {
+						session.sessioner.body.update(peer, null, text, session.sessioner.body.signature());
+						session.output("Ok.");
+					} catch (IOException e) {
+						session.sessioner.body.error("Alerting "+peer.getTitle(Login.login_context), e);
+						session.output("Not.");
+					}
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	boolean tryEmail(Storager storager,Session session) {
 		Thing arg = new Thing();
 		if (session.read(new Seq(new Object[]{AL.email,"to",new Property(arg,"to"),"subject",new Property(arg,"subject"),"text",new Property(arg,"text")}))){
 			session.read(arg,new String[]{"from"});			

@@ -510,11 +510,11 @@ function test_login_old() {
 	test_o("What name john email, surname?");
 	test_i("John email doe@john.org, surname dare; email john@doe.org, surname doe.");
 	test_o("What your things?");
-	get("My things activity time, aigents, areas, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, john, keeping days, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram offset, telegram token, things, things count, time, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+	get("My things activity time, aigents, areas, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, john, keeping days, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram offset, telegram token, things, things count, time, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
 	say("What times today?");//debug
 	get("There not.");
 	test_o("What your things count?");
-	test_i("My things count 88.");
+	test_i("My things count 89.");
 	say("What your things?");
 	get();	
 	say("What your trusts?");
@@ -525,7 +525,7 @@ function test_login_old() {
 	test_o("No email doe@john.org, name John, surname Dare.");
 	test_i("Ok.");
 	test_o("What your things count?");
-	test_i("My things count 87.");	
+	test_i("My things count 88.");	
 	say("Your trusts no John.");
 	get("Ok.");	
 	test_o("No email john@doe.org, name John, surname Doe.");
@@ -539,7 +539,7 @@ function test_login_old() {
 	say("What your things?");
 	get();
 	test_o("What your things count?");
-	test_i("My things count 88.");
+	test_i("My things count 89.");
 	say("What your trusts?");
 	get("My trusts john.");
 	test_o("You save test2.txt!");
@@ -630,7 +630,7 @@ function test_login_areas() {
 	say("What your things?");
 	get();
 	say("What your things count?");
-	get("My things count 87.");
+	get("My things count 88.");
 	say("my areas academgorodok.");
 	get("Ok.");
 	say("my shares academgorodok.");
@@ -860,7 +860,7 @@ function test_login_areas() {
 	get("Ok.");
 	
 	say("What your things count?");
-	get("My things count 88.");
+	get("My things count 89.");
 	say("What your things?");
 	get();
 	say("Your trusts no John.");

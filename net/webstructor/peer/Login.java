@@ -147,32 +147,10 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			storedPeer.set(provider_id, id);
 			storedPeer.set(provider_token, token);
 			session.login(provider,storedPeer);
-			/*
-			session.sessioner.body.debug(provider+" auto-log: "+storedPeer);
-			session.mode = new Conversation();
-			session.peer = new Thing(storedPeer,null);
-			session.output = session.welcome();
-			session.authenticated = true;
-			*/
 			return false;
 		} else {
 			// if not matched, auto register
 			session.register(provider, peer, email);
-			/*
-			peer.store(session.sessioner.body.storager);
-			session.sessioner.body.debug(provider+" auto-reg: "+peer);
-			session.mode = new Conversation();
-			session.peer = new Thing(peer,null);
-			session.output = session.welcome();
-			session.authenticated = true;
-			try {
-				Peer.populateContent(session,Body.testEmail(email));
-				session.updateRegistration();
-			} catch (Exception e) {
-				session.output += " " + statement(e);
-				session.sessioner.body.error(provider+" error: "+e.toString(), e);
-			}
-			*/
 			return false;
 		}
 	}
@@ -216,7 +194,6 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 					session.mode = new Conversation();
 					session.peer = new Thing(peer,null);
 					session.output(session.welcome());
-					session.authenticated = true;
 					return false;
 				} else {
 					// if not matched, auto register
@@ -226,7 +203,6 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 					peer.set(Body.facebook_token, token);
 					session.mode= new Conversation();
 					session.output(session.welcome());
-					session.authenticated = true;
 					try {
 						Peer.populateContent(session,Body.testEmail(email));
 						session.updateRegistration();
@@ -286,7 +262,6 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 					session.mode= new Conversation();
 					session.peer = new Thing(peer,null);
 					session.output(session.welcome());
-					session.authenticated = true;
 					return false;
 				}
 			} catch (Exception e) {} //sad, so...			

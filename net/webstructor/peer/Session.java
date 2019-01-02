@@ -227,9 +227,12 @@ public class Session  {
 		return Reader.read(input, set);
 	}
 	
-	protected void read(Thing arg,String[] props){
+	protected int read(Thing arg,String[] props){
+		int cnt = 0;
 		if (arg != null && !AL.empty(props)) for (int i = 0; i < props.length; i++)
-			read(new Seq(new Object[]{props[i],new Property(arg,props[i])}));
+			if (read(new Seq(new Object[]{props[i],new Property(arg,props[i])})))
+				cnt++;
+		return cnt;
 	}
 	
 	protected String welcome() {
@@ -241,8 +244,10 @@ public class Session  {
 		
 		//TODO: consider what to do if user logs in with multiple keys from different browsers
 		peer.setString(Peer.login_token, this.key);
-		
+
 		sessioner.body.updateStatus(peer);//spawn status update process here asynchronously
+		authenticated = true;
+
 		return "Ok. Hello "+peer.getTitle(Peer.title)+"!"+"\nMy "+Body.notice();
 	}
 
@@ -267,7 +272,6 @@ public class Session  {
 		session.mode = new Conversation();
 		session.peer = new Thing(storedPeer,null);
 		session.output = session.welcome();
-		session.authenticated = true;
 	}
 	
 	public void register(String provider, Thing peer, String email) {

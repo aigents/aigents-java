@@ -37,6 +37,8 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.core.Thing;
+import net.webstructor.core.Updater;
+import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
 
 /*
@@ -66,7 +68,7 @@ TODO:
 	https://core.telegram.org/bots/api#sending-files
 	https://philsturgeon.uk/api/2016/01/04/http-rest-api-file-uploads/
  */
-public class Telegrammer extends Communicator {
+public class Telegrammer extends Communicator implements Updater {
 	
 	public static final long PERIOD_MIN = 1*Period.SECOND; 
 	public static final long PERIOD_MAX = 16*Period.SECOND; 
@@ -79,11 +81,16 @@ public class Telegrammer extends Communicator {
 	public Telegrammer(Body env) {
 		super(env);
 		self = body.self();
+		env.register("telegram", this);
 	}
 	
 	public void output(Session session, String message) throws IOException {
-		String token = self.getString(Body.telegram_token,null);
 		String chat_id = session.getKey().substring(name.length());
+		output(chat_id, message);
+	}
+	
+	private void output(String chat_id, String message) throws IOException {
+		String token = self.getString(Body.telegram_token,null);
 		try {
 			if (!message.startsWith("<html>")) {
 				if (message.length() > 4096)
@@ -165,7 +172,7 @@ public class Telegrammer extends Communicator {
 				//TODO: use for session id either
 				//from_id - for private authenticated sessions
 				//chat_id - for public anonymous sessions
-				//TODO: dom't try to authenticate other users in public anonymous sessions
+				//TODO: don't try to authenticate other users in public anonymous sessions
             	net.webstructor.peer.Session session = body.sessioner.getSession(this,name+from_id);
             	body.conversationer.handle(this, session, text);
 			}
@@ -212,5 +219,22 @@ public class Telegrammer extends Communicator {
 		} catch (Exception e) {
 			body.error("Telegrammer error:",e);
 		}
+	}
+
+	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
+		//TODO:unhack the hack!?
+		String login_token = peer.getString(Peer.login_token);
+		if (!AL.empty(login_token) && login_token.startsWith(name)){
+			String chat_id = login_token.substring(name.length());
+			StringBuilder sb = new StringBuilder();
+			if (!AL.empty(subject))
+				sb.append(subject).append('\n');
+			sb.append(content);
+			if (!AL.empty(signature))
+				sb.append('\n').append(signature);
+			output(chat_id, sb.toString());
+			return true;
+		}
+		return false;
 	}
 }

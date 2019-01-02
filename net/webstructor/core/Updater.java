@@ -1,12 +1,3 @@
-package net.webstructor.comm;
-
-import java.io.IOException;
-
-import net.webstructor.agent.Body;
-import net.webstructor.core.Thing;
-import net.webstructor.core.Updater;
-import net.webstructor.peer.Session;
-
 /*
  * MIT License
  * 
@@ -30,21 +21,10 @@ import net.webstructor.peer.Session;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package net.webstructor.core;
 
-//TODO imlement cofiguration and SMTP protocol for SMS/text messages handling
-public class SMTPer extends Communicator implements Updater {
+import java.io.IOException;
 
-	public SMTPer(Body body) {
-		super(body);
-		//TODO
-	}
-
-	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
-		//TODO
-		return false;
-	}
-
-	public void output(Session session, String message) throws IOException {
-		//TODO
-	}
+public interface Updater {
+	public boolean update(Thing peer, String subject, String content, String signature)  throws IOException;
 }

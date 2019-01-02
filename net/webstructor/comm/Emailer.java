@@ -38,6 +38,8 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.core.Thing;
+import net.webstructor.core.Updater;
+import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
 
 import javax.mail.Address;
@@ -69,7 +71,7 @@ class Email {
 }
 
 //TODO: split into JavaEmailer and LinuxEmailer
-public class Emailer extends Communicator {
+public class Emailer extends Communicator implements Updater {
 	public static final String DEFAULT_PASSWORD = "replace this with proper password";
 	private static final long DEFAULT_EMAIL_CYCLE_MS = 60*Period.MINUTE;
 	private static final long MINIMUM_EMAIL_CYCLE_MS = 1*Period.MINUTE;
@@ -106,6 +108,7 @@ public class Emailer extends Communicator {
 			emailer = this;
 		//logger = new Logger("emailer");
 		body.sleep(100);
+		body.register("email", this);
 	}
 
 	private void updateProps() {
@@ -439,6 +442,20 @@ public class Emailer extends Communicator {
 		return true;
 	}	
 
+	public boolean update(Thing peer, String subject, String content, String signature) throws IOException{
+		String email = peer.getString(AL.email);
+		if (!AL.empty(email) && !Body.testEmail(email) && Emailer.valid(email)) {
+			String notify = peer.getString(Peer.email_notification);
+			if (AL._true.equals(notify)){
+				if (AL.empty(subject))
+					subject = content.length() < 50 ? content : content.substring(0,50) + "...";
+				Emailer.getEmailer().email(peer, subject, content+"\n"+signature);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private static void sendmailTest(String from,String to,String subject,String text) throws Exception {
 		System.out.println("from:"+from+" to:"+to);
 		String err = sendmailExec(from, to, subject + " to "+ to , text + " to " + to);

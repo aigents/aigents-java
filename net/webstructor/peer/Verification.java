@@ -59,7 +59,6 @@ class Verification extends Registration {
 			if (a.equalsIgnoreCase(answer)) {
 				session.mode= new Conversation();
 				session.output(session.welcome());
-				session.authenticated = true;
 				try {
 					String email = session.peer.getString(AL.email);
 					Peer.populateContent(session,Body.testEmail(email));

@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
@@ -38,6 +40,7 @@ import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Archiver;
 import net.webstructor.core.Environment;
+import net.webstructor.core.Updater;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.GraphCacher;
@@ -49,10 +52,10 @@ import net.webstructor.data.LangPack;
 import net.webstructor.self.Thinker;
 import net.webstructor.util.Array;
 
-public abstract class Body extends Anything implements Environment
+public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.3.6";
+	public final static String VERSION = "1.3.9";
 	public final static String COPYRIGHT = "Copyright © 2018 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -104,8 +107,7 @@ public abstract class Body extends Anything implements Environment
 	public static final String vkontakte_id = "vkontakte id";
 	public static final String vkontakte_key = "vkontakte key";
 	public static final String vkontakte_token = "vkontakte token";
-	//public static final String telegram_id = "telegram id";
-	//public static final String telegram_key = "telegram key";
+	public static final String telegram_id = "telegram id";
 	public static final String telegram_token = "telegram token";
 	public static final String telegram_offset = "telegram offset";
 	public static final String steemit_id = "steemit id";
@@ -130,7 +132,7 @@ public abstract class Body extends Anything implements Environment
 		google_id, google_key, //google_token,
 		facebook_id, facebook_key, facebook_token,
 		vkontakte_id, vkontakte_key, vkontakte_token,
-		/*telegram_id, telegram_key,*/ telegram_token, telegram_offset,
+		telegram_token, telegram_offset,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
 		AL.version
 	};
@@ -141,8 +143,6 @@ public abstract class Body extends Anything implements Environment
 	
 	public static final String[] properties = Array.merge(strings, things);
 	
-	//protected static Body body = null;
-
 	public Sessioner sessioner;
 	public Conversationer conversationer;
 	public Thinker thinker;
@@ -163,6 +163,7 @@ public abstract class Body extends Anything implements Environment
 	//TODO:configuration on-line
 	protected boolean console;
 	
+	private HashMap updaters = new HashMap();//registry of updaters, such as Emailer, SMTPer or Telegrammer
 		
 	public Body(boolean log, int conversationers) {		
 		sessioner = new Sessioner(this);
@@ -364,4 +365,28 @@ public abstract class Body extends Anything implements Environment
 	public String site(){
 		return self().getString(Body.http_origin,Body.ORIGINSITE);
 	}
+	
+	public Updater register(String name, Updater updater){
+		synchronized (updaters){
+			updaters.put(name, updater);
+		}
+		return updater;
+	}
+	
+	public boolean update(Thing thing, String subject, String content, String signature) throws IOException{
+		boolean updated = false;
+		for (Iterator it = updaters.values().iterator(); it.hasNext();){
+			Updater u = (Updater)it.next();
+			try {
+				if (AL.empty(signature))
+					signature = signature();
+				if (u.update(thing, subject, content, signature))
+					updated = true; 
+			} catch (Exception e) {
+				error("Update error for "+thing.getName()+" via "+u.getClass().getSimpleName(),e);
+			}
+		}
+		return updated;
+	}
+	
 }

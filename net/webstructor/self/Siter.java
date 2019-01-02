@@ -45,7 +45,6 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.cat.StringUtil;
-import net.webstructor.comm.Emailer;
 import net.webstructor.comm.HTTP;
 import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
@@ -703,10 +702,12 @@ public class Siter {
 	 * @return
 	 */
 	String[] digest(Thing thing, String path, Collection news){
-		StringBuilder subject = new StringBuilder();
+		if (AL.empty(news))//no news - no digest
+			return null;
+		//StringBuilder subject = new StringBuilder();
 		StringBuilder content = new StringBuilder();
 		String[] unneededNames = new String[]{AL.is,AL.times,AL.sources,AL.text};
-		String best = "";
+		//String best = "";
 		if (!AL.empty(path))
 			content.append(path).append('\n');
 		//TODO: group by real path under common root path and have only one path per same-real-path group in digest
@@ -716,8 +717,8 @@ public class Siter {
 			Thing t = (Thing)it.next();
 			String nl_text = t.getString(AL.text);
 			//TODO:more intelligent approach for subject formation?
-			if (best.length() == 0 || (nl_text.length() > best.length() && nl_text.length() <100))
-				best = nl_text;
+			//if (best.length() == 0 || (nl_text.length() > best.length() && nl_text.length() <100))
+			//	best = nl_text;
 			
 			//real path
 			Collection sources = t.getThings(AL.sources);
@@ -737,8 +738,9 @@ public class Siter {
 				content.append('\n');
 			}
 		}
-		subject.append(best).append(" (").append(thing.getName()).append(")");
-		return new String[]{subject.toString(),content.toString()};
+		//subject.append(best).append(" (").append(thing.getName()).append(")");
+		//return new String[]{subject.toString(),content.toString()};
+		return new String[]{thing.getName(),content.toString()};
 	}
 	
 	//TODO: if forcer is given, don't update others
@@ -753,10 +755,10 @@ public class Siter {
 		try {
 			Collection peers = storager.get(query,(Thing)null);//forcer?
 			String[] digest = digest(thing,path,news);
-			if (!AL.empty(peers))
+			if (!AL.empty(digest) && !AL.empty(peers))
 			for (Iterator it = peers.iterator(); it.hasNext();) {
 				Thing peer = (Thing)it.next();
-				update(storager,peer,thing,news,digest[0],digest[1],"\n"+body.signature());
+				update(storager,peer,thing,news,digest[0],digest[1],body.signature());
 				
 				//TODO: make this more efficient
 				//get list of peers trusted by the peer:
@@ -775,7 +777,7 @@ public class Siter {
 				}
 			}
 		} catch (Exception e) {
-			body.error("Spidering failed ",e);
+			body.error("Spidering update failed ",e);
 		}
 	}
 	
@@ -785,6 +787,7 @@ public class Siter {
 			t.set(AL._new, AL._true, peer);
 		}
 		
+		/*
 		String email = peer.getString(AL.email);
 		if (!AL.empty(email) && !Body.testEmail(email) && Emailer.valid(email)) {
 //TODO: from body
@@ -797,6 +800,8 @@ public class Siter {
 			if (!AL.empty(phone))
 				body.textMessage(phone, subject, content+signature);
 		}
+		*/
+		body.update(peer, subject, content, signature);
 	}
 
 	//get count of news not trusted by the 1st peer trusted by self

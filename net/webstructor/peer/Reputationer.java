@@ -203,6 +203,20 @@ public class Reputationer {
 	private boolean ratings_modified = false;
 	private boolean ranks_modified = false;
 	
+	private static HashMap reputationers = new HashMap();
+	public static Reputationer get(String network){
+		synchronized (reputationers) {
+			return (Reputationer)reputationers.get(network);
+		}
+	}
+
+	public static void add(String network,Reputationer reputationer){
+		synchronized (reputationers) {
+			if (reputationers.get(network) == null)
+				reputationers.put(network,reputationer);
+		}
+	}
+	
 	public Reputationer(Environment env, String name, String path, boolean dailyStates){
 		cacher = new GraphCacher(name,env,path);
 		if (dailyStates)
