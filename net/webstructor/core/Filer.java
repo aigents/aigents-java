@@ -212,16 +212,17 @@ public class Filer {
 	
 	public void save(String path, Serializable o){
 		try {
-			File parent = env.getFile(path).getParentFile();
+			File file = env.getFile(path);
+			File parent = file.getParentFile();
 			if (parent != null && !parent.exists())
 				parent.mkdirs();
-			FileOutputStream fi = new FileOutputStream(path);
+			FileOutputStream fi = new FileOutputStream(file.getPath());
 	        ObjectOutputStream out = new ObjectOutputStream(fi);
 	        out.writeObject(o);
 	        out.close();
 	        fi.close();
 		} catch (IOException e) {
-            env.error("Can't serialize to path "+path, e);
+            env.error("Filer can not serialize to path "+path, e);
 	 	}
 	}
 	

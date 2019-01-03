@@ -353,6 +353,16 @@ public abstract class Body extends Anything implements Environment, Updater
 	//to be overridden by extender
 	public File getFile(String path) {
 		return new File(path);
+		/*
+		//The following code is supposed to work for Android
+		String base = System.getProperty("user.dir");
+		File f = new File(path);
+		File p = f.getParentFile();
+		File r = p == null
+			? new File(base, f.getName())
+			: new File(getFile(p.getPath()), f.getName());
+		return r;
+		*/
 	}
 	
 	//to be overridden by extender
