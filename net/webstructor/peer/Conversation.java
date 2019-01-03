@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -123,7 +123,7 @@ class Conversation extends Mode {
 			session.peer = null;
 		}*/
 		//update "session properties" in "proxy peer"
-		if (!session.authenticated && setProperties(session))
+		if (!session.authenticated() && setProperties(session))
 			return false;
 		if (session.peer == null) { // not authenticated, but in the process
 			session.mode = new Login();
@@ -132,16 +132,15 @@ class Conversation extends Mode {
 		if (session.read(Reader.pattern(AL.i_my,logout)) || Array.contains(logout, session.input().toLowerCase())){//can logout at any point			
 			session.output("Ok.");
 			session.mode = new Login();
-			session.peer = null;
-			session.authenticated = false;
+			session.logout();
 			return false;			
 		} else
-		if (!session.authenticated && !session.isSecurityLocal() &&
+		if (!session.authenticated() && !session.isSecurityLocal() &&
 			session.read(Reader.pattern(AL.i_my,new String[] {"secret question","secret answer"}))){
 			session.mode = new VerificationChange();
 			return true;			
 		} else
-		if (session.authenticated) {
+		if (session.authenticated()) {
 			return doAuthenticated(storager,session);
 		} else {
 			session.mode = new Login();//TODO: really, just back to login?
@@ -632,9 +631,9 @@ class Conversation extends Mode {
 				Thing peer = (Thing)it.next();
 				Thing self = session.getStoredPeer();
 				//send notification to all matching peers of those who trust to this peer
-				if (peer == self || peer.hasThing(AL.trust, self)){
+				if (peer == self || peer.hasThing(AL.trusts, self)){
 					try {
-						session.sessioner.body.update(peer, null, text, session.sessioner.body.signature());
+						session.sessioner.body.update(peer, null, text, "- "+self.getTitle(Login.login_context));
 						session.output("Ok.");
 					} catch (IOException e) {
 						session.sessioner.body.error("Alerting "+peer.getTitle(Login.login_context), e);

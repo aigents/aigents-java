@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -144,7 +144,7 @@ public class Ethereum extends SocialCacher {
 		Date until = args.length > 3 ? Time.day(args[3]) : null;
 		Environment env = new Mainer();
 		Ethereum eth = new Ethereum(null,"ethereum","https://mainnet.infura.io/",key);
-		InfuraFeeder feeder = new InfuraFeeder(env,eth,user_id,new LangPack(),since,until);
+		InfuraFeeder feeder = new InfuraFeeder(env,eth,user_id,new LangPack(env),since,until);
 		try {
 			feeder.getFeed(null, Time.today(-1), Time.today(+1), new StringBuilder());
 		} catch (IOException e) {

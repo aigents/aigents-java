@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import net.webstructor.al.AL;
+import net.webstructor.core.Environment;
 import net.webstructor.util.ArrayPositionComparator;
 
 public class Counter extends HashMap implements Linker { 
@@ -48,8 +49,8 @@ public class Counter extends HashMap implements Linker {
 	public Counter(Linker other) {
 		count(other);
 	}
-	public Counter(String path) {
-		File file = new File(path);
+	public Counter(Environment env, String path) {
+		File file = env != null ? env.getFile(path) : new File(path);
 		if (!file.exists() || !file.isFile() || !file.canRead())
 			return;
 		BufferedReader reader;

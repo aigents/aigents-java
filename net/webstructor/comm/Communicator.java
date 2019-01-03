@@ -26,6 +26,7 @@ package net.webstructor.comm;
 import java.io.IOException;
 
 import net.webstructor.agent.Body;
+import net.webstructor.core.Anything;
 import net.webstructor.peer.Session;
 
 public abstract class Communicator extends Thread
@@ -48,4 +49,8 @@ public abstract class Communicator extends Thread
 	public boolean alive() {
 		return bAlive;
 	}	
+	
+	public void login(Session session, Anything peer) {
+		//pass by default
+	}
 }

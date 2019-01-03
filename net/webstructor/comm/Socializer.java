@@ -239,7 +239,7 @@ public abstract class Socializer extends HTTP {
 	}
 
 	private String getCachedReport(final String user_id, final int report_days, final String format, boolean fresh){
-		File file = new File(reportingPath(user_id,report_days,format));
+		File file = body.getFile(reportingPath(user_id,report_days,format));
 		long fileTime = file.lastModified();
 		long thisTime = System.currentTimeMillis();
 		long fileAge = thisTime - fileTime;
@@ -304,7 +304,7 @@ public abstract class Socializer extends HTTP {
 	}
 
 	public final String cacheReport(SocialFeeder feeder, HashMap feeds, String user_id, String access_token, String key, String name, String surname, String language, String format, java.util.Set options, int threshold) {
-		File file = new File(reportingPath(user_id,feeder.getDays(),format));
+		File file = body.getFile(reportingPath(user_id,feeder.getDays(),format));
 		//TODO: use feeds
 		String report = report(feeder,feeds,user_id,access_token,key,name,surname,language,format,options,threshold);
 		if (!AL.empty(report))

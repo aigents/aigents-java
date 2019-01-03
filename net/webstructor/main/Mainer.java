@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -121,4 +121,8 @@ public class Mainer implements Environment {
         }
         return sr;
     }
+    
+	public File getFile(String path) {
+		return new File(path);
+	}
 }

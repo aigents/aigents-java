@@ -59,7 +59,7 @@ public class Reporter {
 	
 	public Reporter(Environment env,String path){
 		this.env = env;
-		File file = new File(path);
+		File file = env.getFile(path);
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {

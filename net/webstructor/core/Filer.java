@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,35 +46,6 @@ public class Filer {
 	public Filer (Environment env){
 		this.env = env;
 	}
-	/*
-	private File getPath(Seq cond){
-		if (cond.size() != 2 || !(cond.get(0) instanceof String) || !(cond.get(1) instanceof String))
-			return null;
-		File path = new File( ((String)cond.get(0)) + "/" + ((String)cond.get(1)) );
-		return path.exists()? path : null;
-	}
-	Collection get(Seq query){
-		if (AL.empty(query))
-			return null;
-		if (query.size() != 2)
-			return null;
-		if (!(query.get(0) instanceof Seq) || !(query.get(1) instanceof String))
-			return null;
-		File path = getPath((Seq)query.get(0));
-		if (path == null || !path.isDirectory())
-			return null;
-		File[] files = path.listFiles();
-		if (AL.empty(files))
-			return null;
-		ArrayList result = new ArrayList(files.length);
-		for (int i = 0; i < files.length; i++){
-			if (files[i].isDirectory()){
-				Thing t = new Thing();
-			}
-		}
-		return null;
-	}
-	*/
 	
 	private static final int MAX_FILE_NAME_LENGTH = 255;
 	
@@ -102,14 +73,15 @@ public class Filer {
 		String fileName = path(path,true);
 		if (AL.empty(fileName))
 			return;
+		File file = null;
 		try {
 			String dirName = path(path,false);
 			if (!AL.empty(dirName)){
-				File dir = new File(dirName);
+				File dir = env.getFile(dirName);
 				if (!dir.exists())
 					dir.mkdirs();
 			}
-			File file = new File(fileName);
+			file = env.getFile(fileName);//new File(fileName);
 			file.createNewFile();
 			BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
 			if (!AL.empty(data))
@@ -120,7 +92,7 @@ public class Filer {
 		} catch (IOException e) {
 			//e.g. long path
 			//http://stackoverflow.com/questions/14484368/how-do-i-detemine-the-max-path-length-allowed-when-creating-a-file-in-java
-			env.error("Filer putting", e);
+			env.error("Filer putting "+fileName+" as "+file, e);
 		}
 	}
 	
@@ -133,7 +105,7 @@ public class Filer {
 		String fileName = path(path,true);
 		if (AL.empty(fileName))
 			return null;
-		File file = new File(fileName);
+		File file = env.getFile(fileName);
 		if (file.exists() && file.isFile()){
 			if (!data)
 				return "";
@@ -155,7 +127,7 @@ public class Filer {
 		String fileName = path(path,true);
 		if (AL.empty(fileName))
 			return null;
-		File file = new File(fileName);
+		File file = env.getFile(fileName);
 		if (file.exists() && file.isDirectory()){
 			//TODO: iterate all files and found collection of the latest ones and return it
 			File[] files = file.listFiles();
@@ -178,7 +150,7 @@ public class Filer {
 	}
 	
 	public void del(String rootDirName){ 
-		File file = new File(rootDirName);
+		File file = env.getFile(rootDirName);
 		del(file);
 	}
 	
@@ -193,7 +165,7 @@ public class Filer {
 
 	public Object load(String path){
         try {
-        	File f = new File(path);
+        	File f = env.getFile(path);
         	if(!f.exists() || f.isDirectory())
         	    return null;
         	FileInputStream fi = new FileInputStream(path);
@@ -212,7 +184,7 @@ public class Filer {
 	public BufferedWriter openWriter(String path, boolean append, String status) {
 		if (AL.empty(path))
 			return null;
-		File parent = new File(path).getParentFile();
+		File parent = env.getFile(path).getParentFile();
 		if (parent != null && !parent.exists())
 			parent.mkdirs();
 		try {
@@ -226,7 +198,7 @@ public class Filer {
 	public PrintStream openStream(String path, boolean append, String status) {
 		if (AL.empty(path))
 			return null;
-		File parent = new File(path).getParentFile();
+		File parent = env.getFile(path).getParentFile();
 		if (parent != null && !parent.exists())
 			parent.mkdirs();
 		try {
@@ -240,7 +212,7 @@ public class Filer {
 	
 	public void save(String path, Serializable o){
 		try {
-			File parent = new File(path).getParentFile();
+			File parent = env.getFile(path).getParentFile();
 			if (parent != null && !parent.exists())
 				parent.mkdirs();
 			FileOutputStream fi = new FileOutputStream(path);

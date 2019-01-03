@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +23,12 @@
  */
 package net.webstructor.core;
 
+import java.io.File;
+
 public interface Environment {
 	public void debug(String str);
 	public void error(String str,Throwable e);
 	public int checkMemory();//in range 0-100 percents
 	//public int getMaxNews();//TODO: move this out of here!!!
+	public File getFile(String path);
 }

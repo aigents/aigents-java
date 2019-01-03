@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,8 +55,8 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.3.9";
-	public final static String COPYRIGHT = "Copyright © 2018 Anton Kolonin, Aigents.";
+	public final static String VERSION = "1.4.1";
+	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
 	//public final static int MAX_TRUSTED_NEWS = 500;//999; 
@@ -172,7 +172,6 @@ public abstract class Body extends Anything implements Environment, Updater
 		storager = new Storager(this);//TODO:init by db/file access, but not a this body
 		archiver = new Archiver(this);
 		schema = new Schema(storager);
-		languages = new LangPack();
 
 		Thing self = self();
 		//http://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
@@ -193,6 +192,10 @@ public abstract class Body extends Anything implements Environment, Updater
 			logger = new Logger("aigents-log");
 	}
 
+	public void start() {
+		languages = new LangPack(this);
+	}
+	
 	//TODO: make configurable plugins for each provider
 	public Socializer provider(String name){
 		Socializer provider = "facebook".equals(name) ? (Socializer)fb :
@@ -274,7 +277,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		output("D:"+str);
 	}
 	
-	private void print(PrintWriter pw, Throwable t){
+	private static void print(PrintWriter pw, Throwable t){
 		if (t.getMessage() != null);
 			pw.println(t.getMessage());
 		t.printStackTrace(pw);
@@ -282,14 +285,26 @@ public abstract class Body extends Anything implements Environment, Updater
 			print(pw,t.getCause());
 	}
 	
+	public static String toString(Throwable e){
+		StringWriter errors = new StringWriter();
+		PrintWriter pw = new PrintWriter(errors);
+		print(pw,e);
+		pw.flush();
+		errors.flush();
+		return errors.toString();
+	}
+	
 	public synchronized void error(String str,Throwable e) {
 		if (e != null){
+			/*
 			StringWriter errors = new StringWriter();
 			PrintWriter pw = new PrintWriter(errors);
 			print(pw,e);
 			pw.flush();
 			errors.flush();
 			str = str+":"+errors.toString();
+			*/
+			str = str+":"+toString(e);
 		}
 		output("E:"+str);
 		System.err.println(str);

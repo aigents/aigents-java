@@ -36,6 +36,7 @@ import javax.json.JsonReader;
 import net.webstructor.agent.Body; 
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
+import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
 import net.webstructor.core.Updater;
 import net.webstructor.peer.Peer;
@@ -84,9 +85,31 @@ public class Telegrammer extends Communicator implements Updater {
 		env.register("telegram", this);
 	}
 	
+	public String key(String chat_id,String from_id){
+		return (new StringBuilder(name).append(':').append(chat_id).append(':').append(from_id)).toString();
+	}
+	
+//TODO: make private
+	/**
+	 * @param key of form name:chat_id:from_id
+	 * @return array of name, chat_id, from_id 
+	 */
+	public String[] ids(String key){
+		String[] ids = key.split(":");
+		return ids != null && ids.length == 3 ? ids: null;
+	}
+	
 	public void output(Session session, String message) throws IOException {
-		String chat_id = session.getKey().substring(name.length());
-		output(chat_id, message);
+		String chat_id = session.getPeer().getString(Body.telegram_id);
+		if (AL.empty(chat_id)){
+			String[] ids = ids(session.getKey());
+			if (ids != null){
+				//TODO: support group conversations
+				chat_id = ids[2];//from_id
+			}
+		}
+		if (!AL.empty(chat_id))
+			output(chat_id, message);
 	}
 	
 	private void output(String chat_id, String message) throws IOException {
@@ -156,13 +179,14 @@ public class Telegrammer extends Communicator implements Updater {
 				String from_id = String.valueOf(HTTP.getJsonLong(from, "id", 0L));
 				boolean from_bot = HTTP.getJsonBoolean(from, "is_bot", false);
 				String from_username = HTTP.getJsonString(from, "username", null);
-				/*
-				String from_name = HTTP.getJsonString(from, "first_name", null);
-				String from_surname = HTTP.getJsonString(from, "last_name", null);
-				String from_language = HTTP.getJsonString(from, "language_code", null);
+//TODO: use for auth/registration and account binding
+				//String from_name = HTTP.getJsonString(from, "first_name", null);
+				//String from_surname = HTTP.getJsonString(from, "last_name", null);
+//TODO: use for set-language
+				//String from_language = HTTP.getJsonString(from, "language_code", null);
 				String chat_id = String.valueOf(HTTP.getJsonLong(chat, "id", 0L));
-				String chat_type = HTTP.getJsonString(chat, "type", "private");//TODO:private by default!?
-				*/
+//TODO: distinguish private and group chats
+				//String chat_type = HTTP.getJsonString(chat, "type", "private");//TODO:private by default!?
 				if (AL.empty(from_username) || AL.empty(from_id) || from_bot)
 					continue;
 				//TODO: autoregister:
@@ -173,7 +197,7 @@ public class Telegrammer extends Communicator implements Updater {
 				//from_id - for private authenticated sessions
 				//chat_id - for public anonymous sessions
 				//TODO: don't try to authenticate other users in public anonymous sessions
-            	net.webstructor.peer.Session session = body.sessioner.getSession(this,name+from_id);
+            	net.webstructor.peer.Session session = body.sessioner.getSession(this,key(chat_id,from_id));
             	body.conversationer.handle(this, session, text);
 			}
 		}
@@ -221,18 +245,28 @@ public class Telegrammer extends Communicator implements Updater {
 		}
 	}
 
+	public void login(Session session, Anything peer) {
+		peer.setString(Body.telegram_id, ids(session.getKey())[2]);
+	}
+	
 	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
-		//TODO:unhack the hack!?
-		String login_token = peer.getString(Peer.login_token);
-		if (!AL.empty(login_token) && login_token.startsWith(name)){
-			String chat_id = login_token.substring(name.length());
+		String from_id = peer.getString(Body.telegram_id);
+		if (AL.empty(from_id)){//backup path - get from id from the session
+			String login_token = peer.getString(Peer.login_token);
+			if (!AL.empty(login_token)){
+				String[] ids = login_token == null ? null : ids(login_token);
+				if (ids != null && name.equals(ids[0]) && ids[1].equals(ids[2]))//if there is a private conversation session
+					from_id = ids[2];
+			}
+		}
+		if (!AL.empty(from_id)){
 			StringBuilder sb = new StringBuilder();
 			if (!AL.empty(subject))
 				sb.append(subject).append('\n');
 			sb.append(content);
 			if (!AL.empty(signature))
 				sb.append('\n').append(signature);
-			output(chat_id, sb.toString());
+			output(from_id, sb.toString());
 			return true;
 		}
 		return false;

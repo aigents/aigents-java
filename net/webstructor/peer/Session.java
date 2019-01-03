@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,10 +45,11 @@ public class Session  {
 	Mode mode = null;
 	String key;
 	String type;
-	boolean authenticated = false;
 	int mood = AL.declaration;
 	int fails = 0;
 
+	private boolean authenticated = false;
+	
 	//private ArrayList messages = new ArrayList();
 	private String input = null;//raw input
 	private String args[] = null;//pre-parsed input
@@ -71,6 +72,15 @@ public class Session  {
 		this(sessioner,communicator,type,key);
 		this.peer = new Thing(peer,null);
 		this.authenticated = true;
+	}
+	
+	public boolean authenticated(){
+		return this.authenticated;
+	}
+	
+	public void logout(){
+		this.peer = null;
+		this.authenticated = false;
 	}
 	
 	public void expect(String[] expected){
@@ -244,6 +254,8 @@ public class Session  {
 		
 		//TODO: consider what to do if user logs in with multiple keys from different browsers
 		peer.setString(Peer.login_token, this.key);
+		
+		communicator.login(this, peer);//set session conext to peer if needed
 
 		sessioner.body.updateStatus(peer);//spawn status update process here asynchronously
 		authenticated = true;

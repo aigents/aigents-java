@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -559,7 +559,7 @@ if (block % 100 == 0){
 	
 	public static void accountSpider(String name,String[] peers,int range,int days) throws Exception {
 		Mainer env = new Mainer();
-		LangPack lp = new LangPack();
+		LangPack lp = new LangPack(env);
 		GraphCacher gc = new GraphCacher(name, env);
 		Steemit api = new Steemit(null,name,"https://api.steemit.com");
 		HashSet peerset = new HashSet(Arrays.asList(peers));

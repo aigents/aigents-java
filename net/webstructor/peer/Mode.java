@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -106,7 +106,7 @@ public abstract class Mode {
 	}
 
 	Thing getSessionAreaPeer(Session session){
-		Thing peer = session.peer != null && session.authenticated ? session.getStoredPeer() : null;
+		Thing peer = session.peer != null && session.authenticated() ? session.getStoredPeer() : null;
 		
 		//for authenticated session with some session context 
 		//TODO: for the time being, get "opinion leader" for the first of session "areas", if specified

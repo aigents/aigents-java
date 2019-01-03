@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@ package net.webstructor.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -62,7 +61,7 @@ public class DataLogger extends Filer {
 	}
 	
 	public boolean load(String path, StringConsumer consumer){
-		if (AL.empty(path) || !(new File(path)).exists())
+		if (AL.empty(path) || !(env.getFile(path)).exists())
 			return false;
 		try {
 			//TODO: HTTP reader option

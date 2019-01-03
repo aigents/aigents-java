@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -74,12 +74,6 @@ public class Farm extends Body {
 		
 		String argstring = Array.toString(args);
 		
-		/*if (args != null){
-			for (int i = 0; i < args.length; i++)
-				System.out.println("arg "+i+":"+args[i]);
-			System.out.println("args:"+argstring);
-		}*/
-		
 		//check custom options override
 		Thing opts = new Thing();
 		Reader.read(argstring,Reader.pattern(null,opts,new String[]{"console"}));
@@ -98,6 +92,7 @@ public class Farm extends Body {
 	}
 	
 	public void start() {
+		super.start();
 		//load from the path happens in Selfer constructor
 		selfer = new Selfer(this);
 		selfer.start();

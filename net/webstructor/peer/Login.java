@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -220,7 +220,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 	}
 	
 	public boolean process(Session session) {
-		if (!session.authenticated && setProperties(session))
+		if (!session.authenticated() && setProperties(session))
 			return false;
 		
 		if (tryRSS(session.getStorager(),session))//if RSS feed tried successflly 
@@ -250,9 +250,10 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				return vkontakte(session);//flow via redirect (server token) 
 		}
 		
+		//TODO: make this class-specific contextualization into virutal methods!
 		//get email and name+surname+birth_date out of input
 		if (session.communicator.getClass() == Emailer.class)//auto-login by email
-			session.peer.setString("email", session.key);
+			session.peer.setString(AL.email, session.key);
 
 		//TODO:auto-login for single user - remove or extend for email case?
 		if (session.isSecurityLocal()) {

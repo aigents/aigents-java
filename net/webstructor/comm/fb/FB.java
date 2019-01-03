@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -192,7 +192,7 @@ public class FB extends Socializer {
 		Date since = args.length > 2 ? Time.day(args[2]) : null;
 		Date until = args.length > 3 ? Time.day(args[3]) : null;
 		Environment env = new Mainer();
-		Feeder feeder = new Feeder(env,user_id,new LangPack(),false,since,until);
+		Feeder feeder = new Feeder(env,user_id,new LangPack(env),false,since,until);
 		try {
 			feeder.getFeed(token, since, until);
 		} catch (IOException e) {

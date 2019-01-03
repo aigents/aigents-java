@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 package net.webstructor.data;
 
 import net.webstructor.al.AL;
+import net.webstructor.core.Environment;
 import net.webstructor.util.Array;
 
 /**
@@ -35,7 +36,7 @@ public class LangPack {
 	Lang[] langs;
 	private Counter words = null; 
 	
-	public LangPack(){
+	public LangPack(Environment env){
 		
 		langs = new Lang[]{
 			new Lang("ru","russian","аеёиоуыэюя","бвгджзйклмнпрстфхцчшщ","ьъ-",new String[]{
@@ -67,7 +68,7 @@ public class LangPack {
 					"no", "yes", "own", "mine", "me", "each", "can", "could", "would", "should", "had", "has",
 					"when", "out", "also", "only", "about", "us", "via", "then", "who"
 					})};
-		loadLexicon();
+		loadLexicon(env);
 	}
 	//TODO: unify '-' and '&' as either scrub, special and splitters!!!
 	
@@ -87,10 +88,10 @@ public class LangPack {
 		return null;
 	}
 	
-	void loadLexicon(){
+	void loadLexicon(Environment env){
 		for (int l = 0; l < langs.length; l++){
 			String path = "lexicon_"+langs[l].name+".txt";
-			Counter c = new Counter(path);//load counter from file
+			Counter c = new Counter(env,path);//load counter from file
 			if (!AL.empty(c)){
 				c.normalize();//normalize counter to [1..100]
 				if (AL.empty(words))
