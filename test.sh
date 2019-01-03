@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Pre-requisite:
 
 # 1. Make sure the current folder contains Aigents.jar built
@@ -31,4 +33,3 @@ php -d include_path=./php/agent/ -f ./php/agent/agent_test.php
 
 # Kill Aigents server
 kill -9 $(ps -A -o pid,args | grep java | grep 'net.webstructor.agent.Farm' | awk '{print $1}')
-
