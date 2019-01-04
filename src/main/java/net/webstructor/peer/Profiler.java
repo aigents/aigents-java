@@ -212,7 +212,7 @@ public class Profiler {
 			//new String[]{"Rank,%","Like","Likes","Comments","Date","Text","Links"},
 			Object[][] data = feeder.getNews();	
 			if (!AL.empty(data)){
-				Date since = Time.today(-body.retentionDays());
+				Date since = Time.today(-body.attentionDays());
 				for (int i = 0; i < data.length; i++){
 					Boolean like = (Boolean)data[i][1];
 					Date time = (Date)data[i][4];

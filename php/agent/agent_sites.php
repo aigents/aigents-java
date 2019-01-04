@@ -281,7 +281,7 @@ http://indianexpress.com/elections/
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 88.");
+	get("My things count 89.");
 	//finalize
 	say("Your trusts no john.");
 	get("Ok.");
@@ -417,7 +417,7 @@ function test_extractor() {
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 88.");
+	get("My things count 89.");
 	//finalize
 	say("Your trusts no john.");
 	get("Ok.");

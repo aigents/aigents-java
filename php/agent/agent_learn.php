@@ -492,7 +492,7 @@ function test_agent_agglomerate() {
 	say("What your things?");
 	get();
 	say("What your things count?");
-	get("My things count 88.");
+	get("My things count 89.");
 
 	say("Your trusts no john.");
 	get("Ok.");

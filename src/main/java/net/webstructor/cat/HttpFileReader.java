@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -165,7 +165,7 @@ public class HttpFileReader implements Reader
 	        				br.close();
                     }
         			return lastmodified;
-        		} catch (Exception e) {
+        		} catch (Throwable e) {
         			if (env != null)
         				env.error("HttpFileReader.canReadDocDate reading path "+docName + ": "+e.toString(), null);
         			return -1;
@@ -384,8 +384,8 @@ public class HttpFileReader implements Reader
         			"gzip".equals(content_encoding) ?
         				new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream()))) :
         				new BufferedReader(new InputStreamReader(conn.getInputStream(), charset));
-    			String sCurrentLine;
-    			while ((sCurrentLine = br.readLine()) != null) {
+        		String sCurrentLine;
+        		while ((sCurrentLine = br.readLine()) != null) {
     				sb.append(sCurrentLine);
     				if (eol != null)
     					sb.append(eol);
@@ -393,7 +393,7 @@ public class HttpFileReader implements Reader
     			if (br != null)
     				br.close();
             	conn.disconnect();
-    		} catch (Exception e) {
+    		} catch (Throwable e) {
     			String error = "HttpFileReader.readDocData reading path " + docName + ": "+e.toString();
     			if (env != null)
     				env.error(error, null);

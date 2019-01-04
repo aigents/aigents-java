@@ -147,7 +147,13 @@ public class GraphCacher {
 			if (graph == null){
 				if (env.checkMemory() > MEMORY_THRESHOLD)
 					clearUnsync(null);
-				graph = (Graph)filer.load(pathPrefix+Time.day(date,false)+".ser");
+				String path = pathPrefix+Time.day(date,false)+".ser";
+				try {
+					graph = (Graph)filer.load(path);
+				} catch (java.lang.OutOfMemoryError e) {
+					env.error("GraphCacher can not load "+path+" memory "+env.checkMemory(), e);
+					//on graph memory error, just start over from the scratch!
+				}
 				if (graph == null)
 					graph = new Graph();
 				graphs.put(date, graph);

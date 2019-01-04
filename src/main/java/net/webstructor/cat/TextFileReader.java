@@ -29,10 +29,19 @@ import java.io.FileInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import net.webstructor.core.Environment;
+
 public class TextFileReader implements Reader
 {
+		protected Environment env = null;
+		
 		public TextFileReader()
 		{
+        }
+
+		public TextFileReader(Environment env)
+		{
+			this.env = env;
         }
 
         public boolean canReadDoc(String docName)
@@ -43,7 +52,9 @@ public class TextFileReader implements Reader
                 try {
                 	File fi = new File(docName);
                     return fi.exists() && fi.isFile();
-                } catch (Exception e) {
+                } catch (Throwable e) {
+                	if (env != null)
+                		env.error("TextFileReader can not read "+docName, e);
                     if (e!=null) // fool compiler
                         return false;
                 }
@@ -53,16 +64,6 @@ public class TextFileReader implements Reader
 
         public String readDocData(String docName) throws IOException
         {
-        	/*
-            StreamReader sr = 
-                new StreamReader(
-                new BufferedStream(
-                new FileStream(docName,FileMode.Open,FileAccess.Read)
-                ));
-            String data = sr.ReadToEnd();
-            sr.Close();
-            return data;
-            */
         	StringBuffer sb = new StringBuffer();
             BufferedReader br = null;
     		try {
@@ -72,9 +73,13 @@ public class TextFileReader implements Reader
     			while ((sCurrentLine = br.readLine()) != null) {
     				sb.append(sCurrentLine).append('\n');//so the file can be tokenized by lines next
     			}
-    		} catch (IOException e) {
-    			e.printStackTrace();
-                throw new IOException ("Reading " + docName + ": "+e.toString());
+    		} catch (Throwable e) {
+            	if (env != null)
+            		env.error("TextFileReader can not read data "+docName, e);
+    			else {
+    				e.printStackTrace();
+    				throw new IOException ("Reading " + docName + ": "+e.toString());
+    			}
     		} finally {
     			try {
     				if (br != null)br.close();

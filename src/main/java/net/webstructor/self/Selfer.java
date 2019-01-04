@@ -135,7 +135,7 @@ public class Selfer extends Thread {
 			body.debug("Forgetting start "+new Date(start_time)+".");
 			Self.clear(body,Schema.foundation);
 			long end_time = System.currentTimeMillis();
-			body.debug("Forgetting end "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+			body.debug("Forgetting stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 			next_forget_time = start_time + forget_cycle;
 		}
 	}

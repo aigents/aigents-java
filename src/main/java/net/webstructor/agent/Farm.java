@@ -196,7 +196,7 @@ public class Farm extends Body {
 				Collection peers;
 				peers = (Collection)storager.getByName(AL.is,Schema.peer);
 				if (!AL.empty(peers)){
-					Date since = Time.today(-retentionDays());//was Time.today(0);
+					Date since = Time.today(-attentionDays());//was Time.today(0);
 					peers = new ArrayList(peers);
 					for (Iterator it = peers.iterator(); it.hasNext();){
 						Thing peer = (Thing)it.next();
@@ -233,7 +233,7 @@ public class Farm extends Body {
 			//TODO: to other place, separate "socializer" class?
 			Collection peers = (Collection)storager.getByName(AL.is,Schema.peer);
 			if (!AL.empty(peers)){
-				Date since = Time.today(-retentionDays());
+				Date since = Time.today(-attentionDays());
 				peers = new ArrayList(peers);
 				int i = 0;
 				for (Iterator it = peers.iterator(); it.hasNext();){

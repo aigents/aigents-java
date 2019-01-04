@@ -70,7 +70,7 @@ public class Spider {
 			//Collection activePeers = new ArrayList();
 			
 			if (!AL.empty(peers)){
-				Date since = Time.today(-body.retentionDays());
+				Date since = Time.today(-body.attentionDays());
 				for (Iterator it = peers.iterator(); it.hasNext();){
 					Thing peer = (Thing)it.next();
 					Date activityTime = (Date)peer.get(Peer.activity_time);

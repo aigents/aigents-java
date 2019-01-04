@@ -55,7 +55,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.4.1";
+	public final static String VERSION = "1.4.2";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -84,7 +84,8 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String cookie_domain = "cookie domain";
 	public static final String store_path = "store path";
 	public static final String store_cycle = "store cycle";
-	public static final String retention_period = "retention period";
+	public static final String retention_period = "retention period";//LTM
+	public static final String attention_period = "attention period";//STM
 	public static final String email_login = "email login";
 	public static final String email_password = "email password";
 	public static final String email_cycle = "email cycle";
@@ -124,7 +125,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		tcp_port, tcp_timeout,
 		http_port, http_timeout, http_threads, http_origin, http_secure, cookie_name, cookie_domain,
 		store_path, store_cycle,
-		retention_period,
+		attention_period, retention_period,
 		AL.email, email_login, email_password, email_cycle, email_retries,
 		mail_smtp_host, mail_smtp_auth, mail_smtp_port, mail_smtp_ssl_enable, mail_smtp_starttls_enable, 
 		mail_store_protocol, 
@@ -185,7 +186,8 @@ public abstract class Body extends Anything implements Environment, Updater
 		self.setString(http_origin,Body.ORIGINSITE);
 		self.setString(store_path,"./al.txt");
 		self.setString(store_cycle,"60 sec");
-		self.setString(retention_period,"7");//TODO: use "days" and Period
+		self.setString(attention_period,"7");//TODO: use "days" and Period
+		self.setString(retention_period,"31");//TODO: use "days" and Period
 		
 		if (log)
 			//logger = new Logger("selfer");
@@ -375,9 +377,8 @@ public abstract class Body extends Anything implements Environment, Updater
 	abstract public void updateStatusRarely();
 	
 	//TODO: move out somewhere
-	public int retentionDays() {
-		//int days_to_retain = Integer.parseInt(body.self().getString(Body.retention_period, "7"));
-		int days_to_retain = new Period(self().getString(Body.retention_period, "14"),Period.DAY).getDays();
+	public int attentionDays() {
+		int days_to_retain = new Period(self().getString(Body.attention_period, "14"),Period.DAY).getDays();
 		if (days_to_retain <= 0)
 			days_to_retain = 7;
 		return days_to_retain;

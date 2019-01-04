@@ -111,9 +111,10 @@ public class Filer {
 				return "";
 			if (!file.canRead())
 				return null;
-			TextFileReader reader = new TextFileReader();
+			TextFileReader reader = new TextFileReader(env);
 			try {
-				return reader.readDocData(fileName);
+				//return reader.readDocData(fileName);
+				return reader.readDocData(file.getPath());
 			} catch (IOException e) {
 				//e.g. long path
 				//http://stackoverflow.com/questions/14484368/how-do-i-detemine-the-max-path-length-allowed-when-creating-a-file-in-java
@@ -168,7 +169,7 @@ public class Filer {
         	File f = env.getFile(path);
         	if(!f.exists() || f.isDirectory())
         	    return null;
-        	FileInputStream fi = new FileInputStream(path);
+        	FileInputStream fi = new FileInputStream(f.getPath());
             ObjectInputStream in = new ObjectInputStream(fi);
             Object o = in.readObject();
             in.close();
@@ -221,7 +222,7 @@ public class Filer {
 	        out.writeObject(o);
 	        out.close();
 	        fi.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
             env.error("Filer can not serialize to path "+path, e);
 	 	}
 	}

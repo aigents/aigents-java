@@ -216,7 +216,7 @@ public class Siter {
 			}
 			java.util.Set peersSite = storager.get(AL.trusts,rootPath);
 			if (!AL.empty(peers)){
-				Date since = Time.today(-body.retentionDays());
+				Date since = Time.today(-body.attentionDays());
 				for (Iterator it = peers.iterator(); it.hasNext();){
 					Thing peer = (Thing)it.next();
 					int news_limit = StringUtil.toIntOrDefault(peer.getString(Peer.news_limit),10,3);

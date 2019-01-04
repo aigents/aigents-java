@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 package net.webstructor.main;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -43,13 +44,12 @@ public class Logger {
 	}
 
 	private long m_ticket = 0;
-	//private int m_day = 0;
-	//private int m_month = 0;
 	private Date m_date = null;
 	private BufferedWriter m_writer = null;
 	private OutputStreamWriter m_streamWriter = null;
 	private SimpleDateFormat m_timeFormat;
 	private String m_prefix = "webcat";
+	private int m_retentionDays = 0; 
 
 	public Logger() {
 		m_timeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS"); 
@@ -59,6 +59,35 @@ public class Logger {
 		this();
 		m_prefix = prefix;
 	}
+
+	public void setRetentionDays(int days) {
+		synchronized (this){
+			this.m_retentionDays = days;
+		}
+	}
+
+	public void cleanup() {
+		int days;
+		synchronized (this){
+			days = m_retentionDays;
+		}
+		if (days > 0){
+			Date day = Time.date(new Date(), -days);//last day to keep
+			for (int i=0;i<=365;i++){//look as far as one year back
+				day = Time.date(day,-1);//next day to clean
+				File log = new File(getLogFileName(day));
+				if (!log.exists())
+					break;//delete all what we can
+				if (!log.delete())
+					break;
+			}
+		}
+	}
+	
+	public String getLogFileName(Date date) {
+		String name = new SimpleDateFormat("yyyy-MM-dd").format(date);
+		return m_prefix+"-"+name+"-log.txt";
+	}
 	
 	private synchronized long getTicket() {
 		return ++m_ticket;
@@ -67,9 +96,8 @@ public class Logger {
 	private void reopenFile(Date date) throws IOException {
 		if (m_writer != null)
 			m_writer.close();
-		String name = new SimpleDateFormat("yyyy-MM-dd").format(date); 
 		m_writer = new BufferedWriter(m_streamWriter = new OutputStreamWriter(
-        	    new FileOutputStream(m_prefix+"-"+name+"-log.txt",true), "UTF-8"));
+        	    new FileOutputStream(getLogFileName(date),true), "UTF-8"));
 	}
 	
 	private void flush() throws IOException {
@@ -80,14 +108,6 @@ public class Logger {
 	
 	private void checkReopenFile(Date now) throws IOException {
 		//TODO: check if file is missed and re-create if so
-		/*
-		int month = 1+now.getMonth();
-  		int day = 1+now.getDay();
-		if (day != m_day || month != m_month)
-			reopenFile(now);
-		m_day = day;
-		m_month = month;
-		*/
 		Date date = Time.date(now);
 		if (m_date == null || !date.equals(m_date)){
 			reopenFile(now);

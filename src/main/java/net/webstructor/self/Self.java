@@ -141,7 +141,7 @@ public class Self {
 	public static void clear(Body body,String[] exceptions) {
 		//1) first, forget timed things
 		//TODO: consider, for non-free version, retain trusted things
-		int days_to_retain = body.retentionDays();
+		int days_to_retain = body.attentionDays();
 		Date[] days = new Date[days_to_retain];
 		for (int i = 0; i < days_to_retain; i++) {
 			days[i] = Time.today(-i);
@@ -168,6 +168,13 @@ public class Self {
 		//4) if memory is low, do Java GC
 		if (body.checkMemory() > 90)
 			System.gc();
+		
+		//5) clear logs
+		body.logger().setRetentionDays(Integer.valueOf(body.self().getString(Body.retention_period,"0")).intValue());
+		body.logger().cleanup();
+		
+		//6) clear graph cachers
+		//TODO:
 	}
 	
 	public static boolean save(Body body,String path) {
