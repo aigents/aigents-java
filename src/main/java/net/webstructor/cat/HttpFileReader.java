@@ -374,10 +374,10 @@ public class HttpFileReader implements Reader
         
         public String readDocData(String docName, String eol) throws IOException
         {
-        	StringBuffer sb = new StringBuffer();
         	HttpURLConnection conn = null;
             BufferedReader br = null;
     		try {
+            	StringBuilder sb = new StringBuilder();
     			conn = openWithRedirect(docName);
     			br = content_encoding == null ?
         			new BufferedReader(new InputStreamReader(conn.getInputStream())) :
@@ -393,8 +393,9 @@ public class HttpFileReader implements Reader
     			if (br != null)
     				br.close();
             	conn.disconnect();
+        		return sb.toString();
     		} catch (Throwable e) {
-    			String error = "HttpFileReader.readDocData reading path " + docName + ": "+e.toString();
+    			String error = "HttpFileReader.readDocData reading path " + docName + ": "+e.toString()+" memory "+env.checkMemory();
     			if (env != null)
     				env.error(error, null);
     			else
@@ -412,7 +413,7 @@ public class HttpFileReader implements Reader
     			if (conn != null)
     				conn.disconnect();
     		}    		
-    		return sb.toString();
+    		return "";//TODO:null?
         }
 
         public static boolean isAbsoluteURL(String path) {

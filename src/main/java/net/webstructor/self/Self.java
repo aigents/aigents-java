@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -170,10 +170,19 @@ public class Self {
 			System.gc();
 		
 		//5) clear logs
-		body.logger().setRetentionDays(Integer.valueOf(body.self().getString(Body.retention_period,"0")).intValue());
-		body.logger().cleanup();
+		if (body.logger() != null){
+			//TODO: retention days for logs is attention days for system?
+			body.logger().setRetentionDays(Integer.valueOf(body.self().getString(Body.attention_period,"0")).intValue());
+			body.logger().cleanup();
+		}
 		
-		//6) clear graph cachers
+		//6) clear LTM
+		if (body.archiver != null){
+			int retention_days = Integer.valueOf(body.self().getString(Body.retention_period,"31")).intValue();
+			body.archiver.clear(retention_days == 0 ? null : Time.today(-retention_days));
+		}
+		
+		//7) clear graph cachers
 		//TODO:
 	}
 	

@@ -74,7 +74,7 @@ public class HttpServer extends Thread
 		// return URLDecoder.decode(request,"");
 		/*
 		// this converts "%20" to " " (which is good) but lacks converting the rest
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		int start=0;
 		for (;;)
 		{
@@ -94,7 +94,7 @@ public class HttpServer extends Thread
 		}
 		return sb.toString();
 		*/
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		int start=0;
 		for (;;)
 		{
@@ -128,7 +128,7 @@ public class HttpServer extends Thread
 		if (q==-1 || e==-1)
 			return "HTTP request is wrong: "+request;
 		String cmd = request.substring(q+1,e).trim();
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		if (cmd.equalsIgnoreCase("stop"))
 		{
 			bDone = true;
@@ -184,7 +184,7 @@ public class HttpServer extends Thread
 		                              connection.getInputStream(  )
 		                             );
 		      // read the first line only; that's all we need
-		      StringBuffer request = new StringBuffer(MAX_INPUT);
+		      StringBuilder request = new StringBuilder(MAX_INPUT);
 		      int count = 0;
 		      while (true) {
 		        int c = in.read(  );

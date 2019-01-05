@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ public class HTML2Text
         if( source == null || source.length() == 0) {
            return "" ;
         }
-        StringBuffer buf = new StringBuffer(source.length()/2) ;
+        StringBuilder buf = new StringBuilder(source.length()/2) ;
         int startOfText = 0 ; ;
 		int pos=look4Tag(source,0,BODY); // skip html header
 		if(pos == -1) pos = 0;
@@ -69,7 +69,7 @@ public class HTML2Text
         return buf.toString() ;
     }
 	
-	private static final void addText(StringBuffer buf, String str){
+	private static final void addText(StringBuilder buf, String str){
 		
 		char c=' ';
 		char pc=' ';

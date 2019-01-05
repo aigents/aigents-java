@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@ public class LinkItem extends Item
     	long l = m_ids.longValue();
 		int id1 = (int)(l>>32);
 		int id2 = (int)(l&0xFFFFFFFF);
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (open!=null)
 			sb.append(open);
 		sb.append(store.getItem(id1).toString(store,open,inner,close));

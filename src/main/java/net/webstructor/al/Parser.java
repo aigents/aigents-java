@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -134,9 +134,10 @@ public class Parser {
 	public static Seq parse(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling,List positions) {
 		ArrayList chunks = new ArrayList();
 		Parser parser = new Parser(input,quoting,urling); 
+		String s;
 		for (;;) {
 			int pos = parser.pos; 
-			String s = parser.parseTerm(regexp,tolower,delimiters);
+			s = parser.parseTerm(regexp,tolower,delimiters);
 			if (s == null)
 				break;
 			if (delimiters != null && delimiters.indexOf(s) != -1)
@@ -154,8 +155,9 @@ public class Parser {
 		ArrayList sentences = new ArrayList();
 		ArrayList chunks = new ArrayList();
 		Parser parser = new Parser(input,quoting,urling); 
+		String s;
 		for (;;) {
-			String s = parser.parseTerm(regexp,tolower,delimiters);
+			s = parser.parseTerm(regexp,tolower,delimiters);
 			if (s == null)
 				break;
 			if (breakers != null && breakers.indexOf(s) != -1){//breaker token
@@ -225,12 +227,13 @@ public class Parser {
 		char quoted = 0;
 		int begin = -1;
 		int cur = pos;
+		String s;
 		for (; cur < input.length(); cur++) {
 			char c = input.charAt(cur);
 			if (begin == -1 && c == '/' && regexp) {//regexp
-				String reg = tryRegexp(cur);
-				if (reg != null)
-					return reg;
+				s = tryRegexp(cur);
+				if (s != null)
+					return s;
 			}
 			if (!this.quoting && (c == '\'' || c == '\"')) { // ignore quoting
 				//
@@ -257,18 +260,10 @@ public class Parser {
 					cur++;
 				else
 				if (quoted == c) {
-					String s = input.substring(begin,cur);
+					s = input.substring(begin,cur);
 					this.pos = ++cur;
 					return Array.replace(s, escapedQuotes, unescapedQuotes);//no .toLowerCase() for quoted strings!
 				}
-//TODO: remove redundant nonsense?
-/*
-				if (quoted == c) {
-					String s = input.substring(begin,cur);
-					pos = ++cur;
-					return (s);//no .toLowerCase() for quoted strings!
-				}
-*/
 			}
 			else
 			if (begin == -1) { //not forming token
@@ -276,7 +271,7 @@ public class Parser {
 					;//skip delimiters
 				else
 				if (AL.punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size)) {//return symbol
-					String s = input.substring(cur,cur+1);
+					s = input.substring(cur,cur+1);
 					pos = ++cur;
 					return tolower ? s.toLowerCase() : s;
 				} else
@@ -287,14 +282,14 @@ public class Parser {
 				if ((AL.punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size))
 						|| (delimiters != null && delimiters.indexOf(c) != -1)
 						) {//return token
-					String s = input.substring(begin,cur);
+					s = input.substring(begin,cur);
 					if (!(urling && AL.isURL(s) && c =='?')){//TODO: any other URL characters? 
 						pos = cur;//stay at delimiter to return symbol later
 						return tolower ? s.toLowerCase() : s;
 					}
 				}
 				if (AL.spaces.indexOf(c) != -1) {//return token
-					String s = input.substring(begin,cur);
+					s = input.substring(begin,cur);
 					pos = ++cur;//skip delimiter
 					return tolower ? s.toLowerCase() : s;
 				}
@@ -349,9 +344,10 @@ public class Parser {
 	}
 
 	public String parseAny(String[] any,boolean force) {
+		String[] seq;
 		for (int i = 0; i<any.length; i++) {
 			int cur = pos;
-			String[] seq = split(any[i],AL.spaces);//TODO:invent anything better?
+			seq = split(any[i],AL.spaces);//TODO:invent anything better?
 			if (parseSeq(seq,force)) {
 				if (!force)
 					pos = cur;//rollback if only trying
@@ -375,8 +371,9 @@ public class Parser {
 		
 	public boolean parseSeq(String[] seq, boolean force) {
 		int cur = pos;
+		String s;
 		for (int i = 0; i<seq.length; i++) {
-			String s = parse();//.toLowerCase();
+			s = parse();//.toLowerCase();
 			if (s == null || !s.equals(seq[i])) {
 				pos = cur;//rollback
 				return false;
@@ -389,8 +386,9 @@ public class Parser {
 	
 	public String[] parseAll(String[] any) {
 		ArrayList set = new ArrayList();
+		String[] seq;
 		for (int i = 0; i<any.length; i++) {
-			String[] seq = split(any[i],AL.spaces);
+			seq = split(any[i],AL.spaces);
 			if (parseSeq(seq,true))
 				set.add(any[i]);
 		}

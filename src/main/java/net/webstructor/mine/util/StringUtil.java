@@ -159,7 +159,7 @@ public final class StringUtil
 
     public static String toString(Relation[] rels,String relDelim,String fieldDelim,String itemDelim)
     {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         if (rels!=null)
             for (int i=0;i<rels.length;i++)
                 sb.append(toString(rels[i],fieldDelim,itemDelim)).append(relDelim);
@@ -168,7 +168,7 @@ public final class StringUtil
 
     public static String toString(Item[] rels,String br)
     {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         if (rels!=null)
         {
             for (int i=0;i<rels.length;i++)
@@ -185,7 +185,7 @@ public final class StringUtil
 
     public static String toString(RelevantItem[] rels,String br)
     {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         if (rels!=null)
         {
             for (int i=0;i<rels.length;i++)
@@ -205,7 +205,7 @@ public final class StringUtil
 
     public static String toString(Relation rel,String fieldDelim,String elementDelim)
     {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         sb
             .append(rel.getType()).append(fieldDelim)
             .append(rel.getId()).append(fieldDelim)
@@ -226,7 +226,7 @@ public final class StringUtil
      */
     public static String toXML(Relation rel)
     {
-    	StringBuffer sb = new StringBuffer("<rel ");
+    	StringBuilder sb = new StringBuilder("<rel ");
         sb
             .append(" type=\"").append(rel.getType()).append("\"")
             .append(" id=\"").append(rel.getId()).append("\"")
@@ -244,7 +244,7 @@ public final class StringUtil
     		return "";
     	if (s.indexOf('&')!=-1)
     	{
-    		StringBuffer sb = new StringBuffer();
+    		StringBuilder sb = new StringBuilder();
     		for (int i=0;i<s.length();i++)
     		{
     			char c = s.charAt(i); 
@@ -344,7 +344,7 @@ public final class StringUtil
 
     public static String toString(int[] ids,String delim)
     {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         if (ids!=null && ids.length>0)
         {
             sb.append(toString(ids[0]));
@@ -356,7 +356,7 @@ public final class StringUtil
 
     public static String toString(String[] strs,String br)
     {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         if (strs!=null && strs.length>0)
         {
             sb.append(strs[0]);
@@ -368,7 +368,7 @@ public final class StringUtil
 
     public static String toStringFrom(String[] strs,int from)
     {
-        StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         if (strs!=null && strs.length>from)
         {
             sb.append(strs[from]);
@@ -380,7 +380,7 @@ public final class StringUtil
     
     public static String toHtml(String[] strs,int[] weightPercents)
     {
-        StringBuffer sb = new StringBuffer("<html><body>");
+    	StringBuilder sb = new StringBuilder("<html><body>");
         if (strs!=null && strs.length>0)
         {
             for (int i=0;i<strs.length;i++)

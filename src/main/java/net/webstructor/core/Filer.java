@@ -150,18 +150,27 @@ public class Filer {
 		return null;
 	}
 	
-	public void del(String rootDirName){ 
+	public void del(String rootDirName, Date before){
 		File file = env.getFile(rootDirName);
-		del(file);
+		del(file,before);
 	}
 	
-	public boolean del(File dir){ 
+	public void del(String rootDirName){ 
+		del(rootDirName, null);
+	}
+	
+	public boolean del(File dir,Date before){
+		long time = before == null ? Long.MAX_VALUE : before.getTime();
 		if (dir.isDirectory()) { 
 			String[] children = dir.list(); 
 			for (int i=0; i<children.length; i++)
-				del(new File(dir, children[i])); 
-	  	}  
-	  	return dir.delete(); 
+				del(new File(dir, children[i]),before); 
+	  	}
+		//if old enough AND either is a file OR has all contents deleted earlier
+		if (dir.lastModified() < time && (!dir.isDirectory() || dir.list().length == 0))
+			return dir.delete();
+		else
+			return false;
 	} 
 
 	public Object load(String path){

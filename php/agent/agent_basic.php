@@ -15,7 +15,7 @@ function test_basic() {
 global $version;
 global $copyright;
 
-$timeout = 3;
+$timeout = 4;
 
 //login, registration, verification
 test_o("My login.");

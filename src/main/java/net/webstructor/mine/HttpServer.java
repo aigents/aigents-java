@@ -63,7 +63,7 @@ public static String decode(String request) throws Exception
 	// return URLDecoder.decode(request,"");
 	/*
 	// this converts "%20" to " " (which is good) but lacks converting the rest
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	int start=0;
 	for (;;)
 	{
@@ -83,7 +83,7 @@ public static String decode(String request) throws Exception
 	}
 	return sb.toString();
 	*/
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	int start=0;
 	for (;;)
 	{
@@ -111,7 +111,7 @@ public static String decode(String request) throws Exception
 }
 
 protected String wrapHtml(String text){
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append("<HTML><SCRIPT>function doLoad() {if (top && top.accept) {top.accept(document.body.innerHTML);}}"); 
 	sb.append("</SCRIPT><BODY onload=\"doLoad()\">");
 	sb.append(text);
@@ -162,7 +162,7 @@ public void run(  )
                                 connection.getInputStream(  )
                                );
         // read the first line only; that's all we need
-        StringBuffer request = new StringBuffer(80);
+        StringBuilder request = new StringBuilder(80);
         while (true) {
           int c = in.read(  );
           if (c == '\r' || c == '\n' || c == -1) break;

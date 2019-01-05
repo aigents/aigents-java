@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ public class StringItem extends Item {
     }
 
     public String toString(MemoryStore store, String open, String inner, String close) {
-		StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
 		if (open!=null)
 			sb.append(open);
 		if (m_ids!=null)

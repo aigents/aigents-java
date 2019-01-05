@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -165,7 +165,7 @@ public final class StringUtil
 
     public static String toString(Item[] items,MemoryStore store,String relDelim,String fieldDelim,String itemDelim)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (items!=null)
             for (int i=0;i<items.length;i++)
                 sb.append(toString(items[i],store,fieldDelim,itemDelim)).append(relDelim);
@@ -179,7 +179,7 @@ public final class StringUtil
     
     public static String toString(int ids[],MemoryStore store,String openDelim,String innerDelim,String closeDelim)
     {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
     	if (ids!=null) for (int i=0;i<ids.length;i++){
     		Item it = store.getItem(ids[i]);
     		sb.append(it.toString(store,openDelim,innerDelim,closeDelim));
@@ -189,7 +189,7 @@ public final class StringUtil
     
     public static String toString(Item it,MemoryStore store,String fieldDelim,String elementDelim)
     {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         sb
             .append(it.getType()).append(fieldDelim)
             .append(it.getId()).append(fieldDelim)
@@ -206,7 +206,7 @@ public final class StringUtil
     
     public static String toString(Item it,MemoryStore store,Format format)
     {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         sb
             .append(it.getType()).append(Format.m_fieldDelim)
             .append(it.getId()).append(Format.m_fieldDelim)
@@ -228,7 +228,7 @@ public final class StringUtil
     /*
     public static String toXML(Item it)
     {
-    	StringBuffer sb = new StringBuffer("<item ");
+    	StringBuilder sb = new StringBuilder("<item ");
         sb
             .append(" type=\"").append(it.getType()).append("\"")
             .append(" id=\"").append(it.getId()).append("\"")
@@ -246,7 +246,7 @@ public final class StringUtil
     		return "";
     	if (s.indexOf('&')!=-1)
     	{
-    		StringBuffer sb = new StringBuffer();
+    		StringBuilder sb = new StringBuilder();
     		for (int i=0;i<s.length();i++)
     		{
     			char c = s.charAt(i); 
@@ -351,7 +351,7 @@ public final class StringUtil
 
     public static String toString(int[] ids,String delim)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (ids!=null && ids.length>0)
         {
             sb.append(toString(ids[0]));
@@ -363,7 +363,7 @@ public final class StringUtil
 
     public static String toString(String[] strs,String br)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (strs!=null && strs.length>0)
         {
             sb.append(strs[0]);
@@ -375,7 +375,7 @@ public final class StringUtil
 
     public static String toStringFrom(String[] strs,int from)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (strs!=null && strs.length>from)
         {
             sb.append(strs[from]);
@@ -387,7 +387,7 @@ public final class StringUtil
     
     public static String toHtml(String[] strs,int[] weightPercents)
     {
-        StringBuffer sb = new StringBuffer("<html><body>");
+        StringBuilder sb = new StringBuilder("<html><body>");
         if (strs!=null && strs.length>0)
         {
             for (int i=0;i<strs.length;i++)

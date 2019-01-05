@@ -187,7 +187,7 @@ public class Emailer extends Communicator implements Updater {
 
 	private static String sendmailExec(String from,String to,String subject,String text) throws Exception {
 		int result = -1;
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		String cmd = "From:"+from+"\nTo:"+to+"\nSubject:"+subject+"\nContent-Type: text/plain; charset=\"UTF-8\"\n\n"+text+"\n";
 		String line;
 	    Process p = Runtime.getRuntime().exec("sendmail -t");

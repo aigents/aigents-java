@@ -37,9 +37,12 @@ public class Archiver {
 		filer = new Filer(env);
 	}
 	//TODO: given configured long-term retention period
+	public void clear(Date till){
+		filer.del("is-text",till);
+		filer.del("is-instances",till);
+	}
 	public void clear(){
-		filer.del("is-text");
-		filer.del("is-instances");
+		clear(null);
 	}
 	public void put(String source, String text){
 		try {
