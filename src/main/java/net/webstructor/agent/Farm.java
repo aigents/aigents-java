@@ -68,7 +68,7 @@ public class Farm extends Body {
 	private boolean web;
 	private boolean telnet;
 	private boolean social;
-	
+
 	public Farm(String[] args,boolean logger,boolean console,boolean email,boolean web,boolean telnet,boolean social,int conversationers) {
 		super(logger,conversationers);
 		

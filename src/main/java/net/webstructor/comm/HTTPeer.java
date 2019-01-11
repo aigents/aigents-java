@@ -37,6 +37,7 @@ import java.util.StringTokenizer;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.peer.Session;
+import net.webstructor.util.Str;
 
 public class HTTPeer extends Communicator
 {
@@ -122,12 +123,12 @@ public class HTTPeer extends Communicator
 	
 	//https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html
 	protected String parseHeader(String request) { // throws Exception 
-		String s = HTTP.parseBetween(request, "Content-Length: ", "\n");
+		String s = Str.parseBetween(request, "Content-Length: ", "\n");
 		if (!AL.empty(s))
 			contentLength = Integer.valueOf(s.trim()).intValue();
 		
 		cookieString = null;
-		String c = HTTP.parseBetween(request, "Cookie: ", "\n");
+		String c = Str.parseBetween(request, "Cookie: ", "\n");
 		if (c != null)
 			c = c.trim();
 		if (!AL.empty(c)){

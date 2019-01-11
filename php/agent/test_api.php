@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 include_once("pest.php");
 
-$version = "1.4.2";
+$version = "1.4.3";
 $copyright = " Copyright © 2019 Anton Kolonin, Aigents.";
 
 $baseURL = "http://localhost:1180/?";
@@ -96,12 +96,16 @@ $failed = 0;
 function test_o($out) {
 	global $last_message;
 	$last_message = url_test_pest($out);
+	if ($last_message != null)
+		$last_message = trim($last_message);
 	println("SAY:".$out);
 }
 
 function test_i($in = null, $alts = null) {
 	global $last_message;
 	global $failed;
+	if ($in != null)
+		$in = trim($in);
 	if ($in != null && !($in === $last_message || ($alts !=null && in_array($last_message, $alts)))) {
 		println("GET:\n".$last_message."\nERROR - MUST BE:\n".$in);
 		$failed = $failed + 1;
@@ -205,5 +209,27 @@ function del_news_today(){
 	say("No there times today.");
 }
 
+function login($name = "john", $email = "john@doe.org", $surname = "doe", $question = "q", $answer = "a"){
+	global $version, $copyright;
+	say("My name ".$name.", email ".$email.", surname ".$surname.".");
+	get("What your secret question, secret answer?");
+	say("My secret question ".$question.", secret answer ".$answer.".");
+	get("What your ".$question."?");
+	say("My ".$question." ".$answer.".");
+	get("Ok. Hello John Doe!\nMy Aigents " . $version . $copyright);
+}
+
+function logout($name = "john"){
+	say("Your trusts no " . $name . ".");
+	get("Ok.");
+	say("No name " . $name . ".");
+	get("Ok.");
+	say("No there times today.");
+	get("Ok.");
+	say("What times today?");
+	get("There not.");
+	say("My logout.");
+	get("Ok.");
+}
 
 ?>

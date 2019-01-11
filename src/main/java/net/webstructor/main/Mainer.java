@@ -31,6 +31,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import net.webstructor.core.Environment;
+import net.webstructor.data.Cacher;
 
 public class Mainer implements Environment {
 
@@ -124,5 +125,9 @@ public class Mainer implements Environment {
     
 	public File getFile(String path) {
 		return new File(path);
+	}
+
+	public void register(String path, Cacher cacher) {
+		//TODO pass or save on exit?
 	}
 }

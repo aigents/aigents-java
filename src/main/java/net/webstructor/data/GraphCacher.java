@@ -23,6 +23,7 @@
  */
 package net.webstructor.data;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,7 +38,7 @@ import net.webstructor.core.Filer;
 import net.webstructor.main.Mainer;
 import net.webstructor.util.Array;
 
-public class GraphCacher {
+public class GraphCacher implements Cacher {
 
 	//TODO: make parameter
 	public static final int MEMORY_THRESHOLD = 75;
@@ -45,6 +46,7 @@ public class GraphCacher {
 	private HashMap graphs = new HashMap(); //date-based graphs
 	private Filer filer;
 	private Environment env;
+	private String name;
 	private String nameCapital;
 	private String pathDir;
 	private String pathPrefix;
@@ -52,10 +54,12 @@ public class GraphCacher {
 	
 	public GraphCacher(String name, Environment env, String path){
 		filer = new Filer(env);
+		this.name = name;
 		this.nameCapital = Writer.capitalize(name);
 		this.pathDir = (AL.empty(path) ? "" : path + (path.endsWith("/") ? "" : "/")) + name;
 		this.pathPrefix = pathDir+"/"+name+"_";//"ethereum/ethereum_"
 		this.env = env;
+		env.register(name, this);
 	}
 
 	public GraphCacher(String name, Environment env){
@@ -67,27 +71,48 @@ public class GraphCacher {
 	}
 	
 	public void clear(boolean everything){
+		clear(everything, null);
+	}
+	
+	public void clear(boolean everything, Date till){
 		synchronized (graphs){
 			env.debug(nameCapital+" graphs forget memory "+env.checkMemory());
-			clearUnsync(null);
+			clearUnsync(null,till);
 			env.debug(nameCapital+" graphs forgot memory "+env.checkMemory());
 			if (everything){
 				filer.del(pathDir);
+			} else 
+			if (till != null){
+				String still = Time.day(till,false);
+				int date_pos_in_name = name.length() + 1;
+				File dir = env.getFile(pathDir);
+				if (dir.isDirectory()){//sanity check
+					String[] files = dir.list();
+					for (int i = 0; i < files.length; i++){
+						String name = files[i].substring(date_pos_in_name);
+						if (name.compareTo(still) < 0)
+							filer.del(new File(dir, files[i]),null);
+					}
+				}
 			}
 		}
 	}
 	
 	private void clearUnsync(Date except){
+		clearUnsync(except, null);
+	}
+	
+	private void clearUnsync(Date except, Date till){
 		saveGraphsUnsync();//save what is not saved
 		int total = graphs.size();
 		int cleared = 0;
-		if (except == null){
+		if (except == null && till == null){
 			cleared = total;
 			graphs.clear();
 		}else
 			for (Iterator it = graphs.keySet().iterator(); it.hasNext();){
 				Date date = (Date)it.next();
-				if (!date.equals(except)){
+				if (!date.equals(except) && (till == null || date.before(till))){
 					cleared++;
 					graphs.remove(date);
 					it = graphs.keySet().iterator();//start over with clean iterator

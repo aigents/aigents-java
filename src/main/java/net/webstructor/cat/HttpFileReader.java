@@ -37,8 +37,8 @@ import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 
 import net.webstructor.util.Array;
+import net.webstructor.util.Str;
 import net.webstructor.al.AL;
-import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
 import net.webstructor.main.Mainer;
 
@@ -228,7 +228,7 @@ public class HttpFileReader implements Reader
 	        	for (int i = 0; i < lines.size(); i++) {
 					line = (String)lines.get(i);
 					if (line.indexOf(agentPrefix) != -1) {
-						agent = HTTP.parseBetween(line, agentPrefix, "#", false);
+						agent = Str.parseBetween(line, agentPrefix, "#", false);
 						if (!AL.empty(agent))
 							agent = agent.trim();
 						if (!agent.equals("*") && !thisagent.startsWith(agent))
@@ -241,7 +241,7 @@ public class HttpFileReader implements Reader
 					//TODO: Visit-time
 					//TODO: $
 		   			if (line.indexOf(crawlDelay) != -1) {
-						String str = HTTP.parseBetween(line, crawlDelay, "#", false);
+						String str = Str.parseBetween(line, crawlDelay, "#", false);
 						if (!AL.empty(str))
 							crawlDelaySeconds = Integer.valueOf(str.trim());
 		   			} else
@@ -259,7 +259,7 @@ public class HttpFileReader implements Reader
 	   				} else
 		   			if (line.indexOf(allowPrefix) != -1) {
 	   					String mask = line.substring(allowPrefix.length()).trim();
-	   					String submask = HTTP.parseBetween(mask, "*", "*");
+	   					String submask = Str.parseBetween(mask, "*", "*");
 	   					if ((!AL.empty(submask) && path.contains(submask))
 	   						|| (!AL.empty(mask) && path.startsWith(mask))) {
 	   						int length = mask.length();

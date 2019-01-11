@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@ import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.Socializer;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.util.Str;
 
 /*
 https://vk.com/support
@@ -104,9 +105,9 @@ public class VK extends Socializer {
 
 	public String[] verifyRedirect(String input) {
 		body.debug(provider()+" redirect: "+input);
-		String vkontakte_id = Socializer.parseBetween(input, "vkontakte_id=", "&");
-		String code = Socializer.parseBetween(input, "code=", "&");
-		String redirect_uri = Socializer.parseBetween(input, "state=", null);
+		String vkontakte_id = Str.parseBetween(input, "vkontakte_id=", "&");
+		String code = Str.parseBetween(input, "code=", "&");
+		String redirect_uri = Str.parseBetween(input, "state=", null);
 		String ensti[] = verifyCode(vkontakte_id, code, redirect_uri);
 		return ensti;
 	}

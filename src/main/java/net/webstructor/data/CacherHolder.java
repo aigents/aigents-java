@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2018-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,15 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.core;
+package net.webstructor.data;
 
-import java.io.File;
-import net.webstructor.data.Cacher;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
 
-public interface Environment {
-	public void debug(String str);
-	public void error(String str,Throwable e);
-	public int checkMemory();//in range 0-100 percents
-	public File getFile(String path);
-	public void register(String path, Cacher cacher);
+public class CacherHolder {
+	/*
+	registry
+	- get
+	- add
+	- clear all
+	- update all
+	- compact all
+	*/
+	
+	private Map cachers = new HashMap();
+	
+	public Cacher get(String name){
+		synchronized (cachers){
+			Object o = cachers.get(name);
+			return o instanceof Cacher ? (Cacher)o : null;
+		}
+	}
+
+	public boolean put(String name, Cacher o){
+		synchronized (cachers){
+			if (cachers.containsKey(name))
+				return false;
+			cachers.put(name, o);
+			return true;
+		}
+	}
+	
+	public void clear(Date till){
+		Collection all;
+		synchronized (cachers){
+			all = new ArrayList(cachers.keySet());
+		}
+		for (Iterator it = all.iterator(); it.hasNext();){
+			Cacher gc = get((String)it.next());
+			gc.clear(false,till);
+		}
+	}
 }

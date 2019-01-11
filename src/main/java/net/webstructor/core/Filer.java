@@ -34,6 +34,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -159,17 +160,26 @@ public class Filer {
 		del(rootDirName, null);
 	}
 	
-	public boolean del(File dir,Date before){
+	public boolean del(File file,Date before){
 		long time = before == null ? Long.MAX_VALUE : before.getTime();
-		if (dir.isDirectory()) { 
-			String[] children = dir.list(); 
+		if (file.isDirectory()) { 
+			String[] children = file.list(); 
 			for (int i=0; i<children.length; i++)
-				del(new File(dir, children[i]),before); 
+				del(new File(file, children[i]),before); 
 	  	}
 		//if old enough AND either is a file OR has all contents deleted earlier
-		if (dir.lastModified() < time && (!dir.isDirectory() || dir.list().length == 0))
-			return dir.delete();
-		else
+		if (file.lastModified() < time && (!file.isDirectory() || file.list().length == 0)){
+			//dir.delete();
+			//https://stackoverflow.com/questions/46121457/file-delete-returning-false-even-file-is-writable
+			try {
+				if (file.exists())
+					Files.delete(file.toPath());
+				return true;
+			} catch (IOException e) {
+				env.error("Filer can not delete "+file.getAbsolutePath(), e);
+				return false;
+			}
+		}else
 			return false;
 	} 
 

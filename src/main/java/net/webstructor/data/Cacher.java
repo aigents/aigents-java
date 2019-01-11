@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2018-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,15 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.core;
+package net.webstructor.data;
 
-import java.io.File;
-import net.webstructor.data.Cacher;
+import java.util.Date;
 
-public interface Environment {
-	public void debug(String str);
-	public void error(String str,Throwable e);
-	public int checkMemory();//in range 0-100 percents
-	public File getFile(String path);
-	public void register(String path, Cacher cacher);
+public interface Cacher { 
+	public void clear(boolean everything, Date till);
 }

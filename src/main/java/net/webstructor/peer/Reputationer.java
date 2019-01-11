@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2018 Stichting SingularityNET
+ * Copyright (c) 2018-2019 Stichting SingularityNET
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -232,6 +232,8 @@ public class Reputationer {
 	 */
 	public void clear_ratings(){
 		cacher.clear(true);
+		latest_graph = null;
+		latest_date = null;
 		ratings_modified = false;
 	}
 	

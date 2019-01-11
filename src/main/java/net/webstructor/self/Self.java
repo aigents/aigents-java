@@ -139,6 +139,9 @@ public class Self {
 	}
 	
 	public static void clear(Body body,String[] exceptions) {
+		int retention_days = Integer.valueOf(body.self().getString(Body.retention_period,"31")).intValue();
+		Date retention_day = retention_days == 0 ? null : Time.today(-retention_days);
+		
 		//1) first, forget timed things
 		//TODO: consider, for non-free version, retain trusted things
 		int days_to_retain = body.attentionDays();
@@ -178,12 +181,11 @@ public class Self {
 		
 		//6) clear LTM
 		if (body.archiver != null){
-			int retention_days = Integer.valueOf(body.self().getString(Body.retention_period,"31")).intValue();
-			body.archiver.clear(retention_days == 0 ? null : Time.today(-retention_days));
+			body.archiver.clear(retention_day);
 		}
 		
 		//7) clear graph cachers
-		//TODO:
+		body.grapher.clear(retention_day);
 	}
 	
 	public static boolean save(Body body,String path) {

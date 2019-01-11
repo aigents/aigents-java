@@ -2,7 +2,7 @@
  * MIT License
  * 
  * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
- * Copyright (c) 2018 SingularityNET
+ * Copyright (c) 2018-2019 SingularityNET
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -134,4 +134,26 @@ public class Str {
 		}
 		return builder;
 	}
+
+	public static String parseBetween(String source, String pre, String post) {
+		return parseBetween(source, pre, post, true);
+	}
+	    
+	public static String parseBetween(String source, String pre, String post, boolean aMustPost) {
+		if (source != null) {
+			int beg = source.indexOf(pre);
+			if (beg != -1){
+				beg += pre.length();
+				if (post == null)
+					return source.substring(beg);
+				int end = source.indexOf(post, beg);
+				if (end != -1)
+					return source.substring(beg,end);
+				if (!aMustPost)
+					return source.substring(beg);
+			}
+		}
+		return null;
+	}
+	    
 }

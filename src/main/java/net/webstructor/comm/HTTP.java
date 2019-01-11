@@ -259,7 +259,7 @@ public abstract class HTTP {
 		//System.out.println(response.toString());
 		return response.toString(); 
 	}
- 	
+ 	/*
     public static String parseBetween(String source, String pre, String post) {
     	return parseBetween(source, pre, post, true);
     }
@@ -281,7 +281,8 @@ public abstract class HTTP {
     	}
     	return null;
     }
-    
+*/
+
     //http://projects.fivethirtyeight.com/facebook-primary/
     public static String getJsonString(JsonObject data, String name, String def) {
 		return data.keySet().contains(name) ? data.getString(name) : def;

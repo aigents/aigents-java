@@ -43,7 +43,9 @@ import net.webstructor.core.Environment;
 import net.webstructor.core.Updater;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
+import net.webstructor.data.Cacher;
 import net.webstructor.data.GraphCacher;
+import net.webstructor.data.CacherHolder;
 import net.webstructor.data.Translator;
 import net.webstructor.main.Logger;
 import net.webstructor.peer.Conversationer;
@@ -55,7 +57,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.4.2";
+	public final static String VERSION = "1.4.3";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -160,6 +162,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public Socializer golos = null;
 	public Socializer ethereum = null;
 	public GraphCacher sitecacher = null;
+	public CacherHolder grapher = new CacherHolder();
 	
 	//TODO:configuration on-line
 	protected boolean console;
@@ -194,6 +197,10 @@ public abstract class Body extends Anything implements Environment, Updater
 			logger = new Logger("aigents-log");
 	}
 
+	public void register(String path, Cacher cacher) {
+		grapher.put(path, cacher);
+	}
+	
 	public void start() {
 		languages = new LangPack(this);
 	}
