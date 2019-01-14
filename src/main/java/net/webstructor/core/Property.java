@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,13 +52,19 @@ public class Property extends Anything {
 	protected Storager storager = null;
 	private boolean hasPatterns = false;
 
-	public Property(Anything owner,String name) {
+	public Property(Anything owner,String name,String def) {
 		this.owner = owner;
 		this.name = name;
+		if (def != null)
+			owner.setString(name, def);
+	}
+	
+	public Property(Anything owner,String name) {
+		this(owner,name,null);
 	}
 	
 	public Property(Storager storager,Anything owner,String name) {
-		this(owner,name);
+		this(owner,name,null);
 		this.storager = storager;
 		compile();//needs storager and owner to be present
 	}

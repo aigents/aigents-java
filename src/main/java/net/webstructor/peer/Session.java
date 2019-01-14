@@ -36,7 +36,7 @@ import net.webstructor.al.*;
 
 public class Session  {	
 
-	Writer writer;
+	//Writer writer;
 	Reader reader;
 
 	Sessioner sessioner;
@@ -65,7 +65,7 @@ public class Session  {
 		this.key = key;
 		this.mode = new Conversation();
 		this.reader = new Reader(sessioner.body);
-		this.writer = new Writer(sessioner.body);
+		//this.writer = new Writer(sessioner.body);
 	}
 
 	public Session(Sessioner sessioner,Communicator communicator,String type,String key,Thing peer) {
@@ -238,10 +238,15 @@ public class Session  {
 	}
 	
 	protected int read(Thing arg,String[] props){
+		return read(arg,props,null);
+	}
+	protected int read(Thing arg,String[] props,String[] defaults){
 		int cnt = 0;
-		if (arg != null && !AL.empty(props)) for (int i = 0; i < props.length; i++)
-			if (read(new Seq(new Object[]{props[i],new Property(arg,props[i])})))
+		if (arg != null && !AL.empty(props)) for (int i = 0; i < props.length; i++){
+			String def = defaults != null && i < defaults.length ? defaults[i] : null;
+			if (read(new Seq(new Object[]{props[i],new Property(arg,props[i],def)})))
 				cnt++;
+		}
 		return cnt;
 	}
 	

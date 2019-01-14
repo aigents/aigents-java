@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -195,7 +195,7 @@ public class Siter {
 		linker = new Imager();
 		this.cacher = new Cacher(body,storager,forced,time);
 		this.tillTime = tillTime;
-		this.range = range > 0 ? range : DEFAULT_RANGE;
+		this.range = range < 0 ? 0 : range;
 		this.newsLimit = limit;
 		
 		//first, try to get things specified by thing name name (if explicitly provided)
@@ -487,42 +487,6 @@ public class Siter {
 				matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions); 
 			}
 		}
-		//TODO: cleanup
-		if (matches > 0){
-			/*
-			Collection collected = thingPaths.getObjects(thing, path == null ? "" : path);
-			for (Iterator it = collected.iterator(); it.hasNext();){
-				Thing instance = (Thing)it.next();
-				instance.store(storager);
-				try {
-					if (path != null)
-						storager.add(instance, AL.sources, path);
-				} catch (Exception e) {
-					body.error(e.toString(), e);
-				}
-			}
-			*/
-			/*
-			Object[] texts = thingTexts.getSubKeyObjects(thing);
-			Collection collected2 = new ArrayList();
-			for (int i = 0; i < texts.length; i++){
-				Thing instance = (Thing)thingTexts.getObject(thing, texts[i], false);
-				instance.store(storager);
-				try {
-					if (path != null)
-						storager.add(instance, AL.sources, path);
-				} catch (Exception e) {
-					body.error(e.toString(), e);
-				}
-				collected2.add(instance);
-			}
-			
-			update(storager,thing,collected2,rootPath);
-			
-			thingPaths.clear();
-			thingTexts.clear();
-			*/
-		}
 		return matches;
 	}
 	
@@ -592,7 +556,8 @@ public class Siter {
 		return null;
 	}
 	
-	private Seq relaxPattern(Thing instance, String context, Seq patseq, String about) {
+	//TODO: move to other place
+	public static Seq relaxPattern(Storager storager, Thing instance, String context, Seq patseq, String about) {
 		if (AL.empty(patseq))
 			return patseq;
 		Object pat[] = new Object[patseq.size() + (context == null ? 0 : 1) + (about == null ? 0 : 1)];
@@ -605,15 +570,17 @@ public class Siter {
 			pat[i++] = new Property(storager,instance,about);
 		return new Seq(pat);
 	}
-	
+
 	//TODO: make smarter patterns like "[?prefix patseq ?postfix]" and make them supported by matcher!?
-	private boolean readAutoPatterns(Iter iter, Seq patseq, Thing instance, StringBuilder summary) {
-		if (Reader.read(iter, relaxPattern(instance,"context",patseq,"about"), summary))
-			return true;
-		if (Reader.read(iter, relaxPattern(instance,null,patseq,"about"), summary))
-			return true;
-		if (Reader.read(iter, relaxPattern(instance,"context",patseq,null), summary))
-			return true;
+	public static boolean readAutoPatterns(Storager storager, Iter iter, Seq patseq, Thing instance, StringBuilder summary) {
+		if (!Property.containedIn(patseq)){
+			if (Reader.read(iter, relaxPattern(storager, instance,"context",patseq,"about"), summary))
+				return true;
+			if (Reader.read(iter, relaxPattern(storager, instance,null,patseq,"about"), summary))
+				return true;
+			if (Reader.read(iter, relaxPattern(storager, instance,"context",patseq,null), summary))
+				return true;
+		}
 		return Reader.read(iter, patseq, summary);
 	}
 	
@@ -628,27 +595,12 @@ public class Siter {
 			Seq patseq = Reader.pattern(storager,instance, patstr);
 			
 			StringBuilder summary = new StringBuilder();
-			//boolean read = isRigidPattern(patseq) 
-			boolean read = !Property.containedIn(patseq) 
-				? readAutoPatterns(iter,patseq,instance,summary)
-				: Reader.read(iter, patseq, summary);
+			boolean read = readAutoPatterns(storager,iter,patseq,instance,summary);
 			if (!read)
 				break;
 			
 			//plain text before "times" and "is" added
 			String nl_text = summary.toString();
-			
-			/*Thing existing;
-			//if ((existing = existing(thing,instance,path,false,null) != null)//old version
-			//if ((existing = existing(thing,instance,path,false,nl_text) != null)//new path-full identity
-			if ((existing = existing(thing,instance,null,false,nl_text)) != null){//new path-less identity
-				if (forcer == null) {
-					existing.set(AL.times,now);//update temporal snapshot in-memory
-					body.archiver.update(patstr,nl_text,now);//update temporal snapshot in LTM
-				}
-				continue;
-			}
-			*/
 			
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
@@ -717,8 +669,6 @@ public class Siter {
 			Thing t = (Thing)it.next();
 			String nl_text = t.getString(AL.text);
 			//TODO:more intelligent approach for subject formation?
-			//if (best.length() == 0 || (nl_text.length() > best.length() && nl_text.length() <100))
-			//	best = nl_text;
 			
 			//real path
 			Collection sources = t.getThings(AL.sources);
@@ -738,8 +688,6 @@ public class Siter {
 				content.append('\n');
 			}
 		}
-		//subject.append(best).append(" (").append(thing.getName()).append(")");
-		//return new String[]{subject.toString(),content.toString()};
 		return new String[]{thing.getName(),content.toString()};
 	}
 	
@@ -786,21 +734,6 @@ public class Siter {
 			Thing t = (Thing)it.next();
 			t.set(AL._new, AL._true, peer);
 		}
-		
-		/*
-		String email = peer.getString(AL.email);
-		if (!AL.empty(email) && !Body.testEmail(email) && Emailer.valid(email)) {
-//TODO: from body
-			String notify = peer.getString(Peer.email_notification);
-			if (AL._true.equals(notify))			
-				Emailer.getEmailer().email(peer, subject, content+signature);
-		} else {
-			String phone = peer.getString(Peer.phone);
-//TODO: via Texter Communicator
-			if (!AL.empty(phone))
-				body.textMessage(phone, subject, content+signature);
-		}
-		*/
 		body.update(peer, subject, content, signature);
 	}
 

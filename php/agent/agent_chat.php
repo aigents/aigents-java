@@ -280,8 +280,65 @@ function test_chat() {
 /**/
 }
 
+function test_search() {
+	login();
+	
+	say("what is temperature");
+	get("There not.");
+	say("search temperature in http://localtest.com/test/");
+	get("There sources http://localtest.com/test/, text the outside temperature is 22 c°.");
+	say("what is temperature");
+	get("There about is 22 c°, context the outside, is temperature, sources http://localtest.com/test/, text the outside temperature is 22 c°, times today.");
+	say("what is test");
+	get("There not.");
+	say("search test in http://localtest.com/test/test.pdf");
+	get("There sources http://localtest.com/test/test.pdf, text this is a test page.");
+	say("what is test");
+	get("There about page, context this is a, is test, sources http://localtest.com/test/test.pdf, text this is a test page, times today.");
+
+	say("search products in http://localtest.com/sitea/, range 0, limit 1");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("what is products text");
+	get("There text about us products info contact us.");
+	say("No there is products.");
+	get("Ok.");
+	say("what is products text");
+	get("There not.");
+	say("search products in http://localtest.com/sitea/, range 2, limit 1");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("what is products text");
+	get("There text about us products info contact us.");
+	say("No there is products.");
+	say("search products in http://localtest.com/sitea/, range 2, limit 10");
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("what is products text");
+	get("There text about us products info contact us; text our products make corporations more profitable; text our products make people happier.");
+	say("No there is products.");
+	say("search products in http://localtest.com/sitea/, range 1, limit 10");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("what is products text");
+	get("There text about us products info contact us.");
+	say("search products in http://localtest.com/siteb/");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
+	say("search products in http://localtest.com/sitea/");
+	get("Not.");
+	say("search products in http://localtest.com/siteb/");
+	get("Not.");
+	say("what is products, times today text, sources");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
+	say("search products");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
+	say("search our products");
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/siteb/, text our products contact information about our company.");
+	say("search 'products make'");
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
+	
+	logout();
+}
+
 test_init();
 test_chat();
+test_search();
 test_summary();
 
 ?>

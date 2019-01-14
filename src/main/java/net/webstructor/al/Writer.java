@@ -336,7 +336,6 @@ public class Writer extends AL {
 				String[] sorted = new String[things.size()];
 				int c = 0;
 				for (Iterator it = things.iterator(); it.hasNext(); )
-					//sorted[c++] = toString(it.next(),things);
 					sorted[c++] = toString(it.next());
 				Arrays.sort(sorted);
 				for (int i=0;i<sorted.length;i++) {

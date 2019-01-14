@@ -104,7 +104,7 @@ public class Spider {
 						break;
 					}
 					long timePerSite = tillTime == 0 ? 0 : (tillTime - currentTime) / remainingSites;
-					int siteRange = 0; //TODO: configure
+					int siteRange = Siter.DEFAULT_RANGE; //TODO: configure
 					int newsLimit = 0; //TODO: configure
 					spider((String)it.next(), null, time, timePerSite == 0 ? 0 : currentTime + timePerSite, false, siteRange, newsLimit);
 					remainingSites--;

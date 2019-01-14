@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -256,7 +256,12 @@ public class Storager {
 					arg = Time.day((String)arg);
 				res = get((String)name,arg);
 			}
-		}
+		} else 
+		if (arg instanceof Date){
+			if (!isTime((String)name))
+				arg = Time.day((Date)arg, false);
+			res = get((String)name,arg);
+		} else
 		if (arg instanceof Set) { //e.g. is (person, adult)
 			Set set = (Set)arg;
 			if (set.size() > 0)

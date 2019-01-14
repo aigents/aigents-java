@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -319,6 +319,16 @@ public class Thing extends Anything { // implements ORObject
 			return null;
 		if (o instanceof String)
 			return (String)o;
+		if (o instanceof java.util.Set){
+			StringBuilder sb = new StringBuilder();
+			for (Iterator it = ((java.util.Set) o).iterator(); it.hasNext();){
+				Object e = it.next();
+				if (sb.length()>0)
+					sb.append(", ");//TODO: unhack the hack!?
+				sb.append(e instanceof Thing ? ((Thing)e).getName() : e.toString());
+			}
+			return sb.toString();
+		}
 		return null;//o.toString();//TODO:what?
 	}
 

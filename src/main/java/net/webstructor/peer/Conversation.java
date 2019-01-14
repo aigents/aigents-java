@@ -47,6 +47,8 @@ import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
 import net.webstructor.al.Any;
+import net.webstructor.al.All;
+import net.webstructor.al.Iter;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
@@ -68,7 +70,9 @@ import net.webstructor.data.GraphCacher;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.TextMiner;
 import net.webstructor.self.Self;
+import net.webstructor.self.Siter;
 import net.webstructor.util.Array;
+import net.webstructor.cat.HttpFileReader;
 
 class Conversation extends Mode {
 	
@@ -438,6 +442,9 @@ class Conversation extends Mode {
 			}
 			return false;			
 		} else	
+		if (trySearcher(storager,session))//if search is done successflly 
+			return false;//no further interaction is needed
+		else
 		if (tryAlerter(storager,session))//if alert sent successflly 
 			return false;//no further interaction is needed
 		else
@@ -618,6 +625,120 @@ class Conversation extends Mode {
 		return ok;
 	}
 
+	boolean trySearcher(final Storager storager,final Session session) {
+		Thing peer = getSessionAreaPeer(session);
+		Thing arg = new Thing();
+		if (session.read(new Seq(new Object[]{
+				"search",new Property(arg,"thingname"),
+				new Any(1,new String[]{"site","in","url"}),new Property(arg,"url")
+				}))) {
+			String topic = arg.getString("thingname");
+			final String site = arg.getString("url");
+			if (AL.isURL(site)){
+				Collection sites = storager.getNamed(site);
+				if (AL.empty(sites))
+					new Thing(site).store(storager);
+				Collection topics = storager.getNamed(topic);
+				if (AL.empty(topics))
+					new Thing(topic).store(storager);
+				session.read(arg,new String[]{"range","limit","minutes"},new String[]{"3","10","5"});			
+				if (session.getBody().act("read", arg)){				
+					String out;
+					try {
+						Seq q = new Seq(new Object[]{
+									new All(new Object[]{new Seq(new Object[]{"is",topic}),new Seq(new Object[]{"times","today"})})
+								,new String[]{"sources","text"}});
+						//TODO: apply relevance
+						// put found news in news feed if found
+						// put searched topics and sites to the sites and things as untrusted for history
+						Query.Filter filter = new Query.Filter(){
+							public boolean passed(Thing thing) {
+								Collection s = thing.getThings(AL.sources);
+								if (!AL.empty(s) && 
+									HttpFileReader.alignURL(site, ((Thing)s.iterator().next()).getName(), true) != null)
+									return true;
+								return false;
+							}};
+						out = answer(session,peer,q,filter);
+						if (AL.empty(out)){
+							q = new Seq(new Object[]{new Seq(new Object[]{"is",topic}),new String[]{"sources","text"}});
+							out = answer(session,getSessionAreaPeer(session),q,filter);
+						}
+						session.output(!AL.empty(out) ? out : "Not.");
+					} catch (Throwable e) {
+						session.sessioner.body.error("Searcher "+session.input(), e);
+						session.output("Not.");
+					}
+					return true;
+				}
+			}
+			session.output("Not.");
+			return true;
+		} else
+		if (session.read(new Seq(new Object[]{
+				"search",new Property(arg,"thingname")}))) {
+			session.read(arg,new String[]{"time","days"},new String[]{"today","1"});
+			final String topic = arg.getString("thingname");
+			int days = Integer.valueOf(arg.getString("days")).intValue();
+			Date first = Time.day(arg.getString("time"));
+			String out;
+			try {
+				for (int day = 0; day < days; day++){
+					Date time = Time.date(first,-day);
+					//first see for instances of topic
+					Seq q = new Seq(new Object[]{
+							new All(new Object[]{new Seq(new Object[]{"is",topic}),
+							new Seq(new Object[]{"times",time})})
+						,new String[]{"sources","text"}});
+					out = answer(session,peer,q,null);
+					if (!AL.empty(out)){
+						session.output(out);
+						return true;
+					}
+					//if not found, extend for all texts and search in them with siter matcher
+					q = new Seq(new Object[]{new Seq(new Object[]{"times",time}),new String[]{"text","is"}});
+					//query for all texts
+					Collection texts = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(q,peer);
+					if (!AL.empty(texts)){
+						ArrayList res = new ArrayList();
+						StringBuilder summary = new StringBuilder();
+						//iterate over collection of texts
+						for (Iterator it = texts.iterator(); it.hasNext();){
+							Thing t = (Thing)it.next();
+							String text = t.getString(AL.text);
+							String source = t.getString(AL.is);
+							if (AL.empty(text) || !AL.isURL(source))//check site instances only
+								continue;
+							//add all findings to resulting collection
+							Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,null));
+							for (;;){
+								summary.setLength(0);
+								Thing instance = new Thing();
+								Seq patseq = Reader.pattern(storager,instance,topic);
+								if (!Siter.readAutoPatterns(storager,iter,patseq,instance,summary))
+									break;
+								instance.setString(AL.text, summary.toString());
+								//TODO:unhack the hack, making sources as text!?
+								instance.setString("sources",source);
+								res.add(new Thing(instance,new String[]{"text","sources"}));
+							}
+						}
+						//flush final collection to out
+						if (!AL.empty(res)){
+							session.output(format(session, peer, q, res));//TODO:q?!
+							return true;
+						}
+					}
+				}
+			} catch (Throwable e) {
+				session.sessioner.body.error("Searcher "+session.input(), e);
+			}
+			session.output("Not.");
+			return true;
+		}
+		return false;
+	}
+	
 	boolean tryAlerter(Storager storager,Session session) {
 		Thing arg = new Thing();
 		Collection peers;

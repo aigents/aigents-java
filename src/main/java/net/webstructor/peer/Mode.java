@@ -23,6 +23,7 @@
  */
 package net.webstructor.peer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -45,7 +46,7 @@ public abstract class Mode {
 	static final protected Set cancel_pattern = Reader.patterns(null,null,"{no not login logout [my login] [my logout] bye}");
 	
 	public abstract boolean process(Session session);
-	static protected String statement(Exception e) {
+	static protected String statement(Throwable e) {
 		String message = e.getMessage();
 		return Writer.capitalize(message != null ? message : e.toString())+".";		
 	}	
@@ -123,33 +124,56 @@ public abstract class Mode {
 		return peer;
 	}
 	
+	String format(Session session, Thing peer, Seq query, Collection coll){
+		//dump query to output
+		String format;//TODO: move to ontology
+		return peer != null && !AL.empty(format = peer.getString("format")) && format.equalsIgnoreCase("json")
+			? Writer.toJSON(coll) 
+			: Writer.toPrefixedString(
+					session,//TODO: fix hack!
+					query, coll);
+	}
+	
+	String answer(Session session, Thing peer, Seq query, Query.Filter filter) throws Throwable {
+		//execute query: [thing,thing,thing,...,set]
+		Collection clones = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker)
+			.getThings(query,peer);
+		if (AL.empty(clones))
+			return null;
+		if (filter != null){
+			Collection filtered = new ArrayList(clones.size());
+			for (Iterator it = clones.iterator(); it.hasNext();){
+				Thing t = (Thing)it.next();
+				if (filter.passed(t))
+					filtered.add(t);
+			}
+			if (AL.empty(filtered))
+				return null;
+			clones = filtered;
+		}
+		//dump query to output
+		return format(session, peer, query, clones);
+	}
+	
 	boolean answer(Session session) {
 		Thing peer = getSessionAreaPeer(session);
 		try {
 			Seq query = session.reader.parseStatement(session,session.input(),peer);
-			session.sessioner.body.output("Int:"+Writer.toString(query)+"?");			
-			//execute query: [thing,thing,thing,...,set]
-			Collection clones = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker)
-				.getThings(query,peer); 
-			//dump query to output
-			if (peer != null){
-				//TODO: move to ontology
-				String format = peer.getString("format");
-				if (!AL.empty(format) && format.equalsIgnoreCase("json")){
-					session.output(Writer.toJSON(clones));
-					return false;
-				}
-			}
-			
-			//TODO: unhack the hack?
-			if (clones == null && Responser.response(session))
+			session.sessioner.body.output("Int:"+Writer.toString(query)+"?");
+
+			String out = answer(session, peer, query, null);
+			if (!AL.empty(out)){
+				session.output(out);
 				return false;
-			
-			session.output(Writer.toPrefixedString(
-					session,//TODO: fix hack!
-					query, clones));
+			}
+
+			//TODO: unhack the hack?
+			if (AL.empty(out) && Responser.response(session))
+				return false;
+
+			session.output(Writer.toPrefixedString(session,query,null));//just to say nothing
 			return false;						
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			session.output(statement(e));
 			if (!(e instanceof Mistake))
 				session.sessioner.body.error(e.toString(), e);

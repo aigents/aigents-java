@@ -36,6 +36,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
 import net.webstructor.util.Array;
 import net.webstructor.util.Str;
 import net.webstructor.al.AL;
@@ -52,11 +55,12 @@ public class HttpFileReader implements Reader
     	final static String disallowPrefix = "disallow:";
     	final static String crawlDelay = "crawl-delay:";
 		protected String userAgent = null; 
+		protected String content_type = null;
 		protected String content_encoding = null;
 		protected String charset = null;
 		private HashMap robotsMaps = new HashMap();//map of all sites being read into respective arrays of those robots.txt files
 		private HashMap crawlTimes = new HashMap();//map of all times visiting the particular site
-		private String contentTypes[] = {"text/html","text/plain"};
+		private String contentTypes[] = {"text/html","text/plain","application/pdf"};
 		protected Environment env = null;
 		protected String cookies = null;
 		private boolean debug = true;//TODO: false
@@ -103,7 +107,7 @@ public class HttpFileReader implements Reader
             String type = conn.getContentType();
             if (AL.empty(type))
             	type= URLConnection.guessContentTypeFromName(path);
-			return type;
+			return type == null ? type : type.toLowerCase();
 		}
 
 	    public boolean canReadDoc(String docName){
@@ -124,27 +128,19 @@ public class HttpFileReader implements Reader
         		try {
         			conn = openWithRedirect(docName);
                     String typeString = getContentType(docName,conn);
-                    String type = Array.prefix(contentTypes, typeString);
-                    if (!AL.empty(typeString) && type == null) //unsupported content type
+                    content_type = Array.prefix(contentTypes, typeString);
+                    if (!AL.empty(typeString) && content_type == null) //unsupported content type
                     	return -1;
                     //https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
                     content_encoding = conn.getContentEncoding();
                     long lastmodified = conn.getLastModified();
                     
-                    /*for (int i = 0;; i++) {
-                        String headerName = conn.getHeaderFieldKey(i);
-                        String headerValue = conn.getHeaderField(i);
-                        if (headerName == null && headerValue == null)
-                        	break;
-                        if ("Set-Cookie".equalsIgnoreCase(headerName))
-                        	cookies = headerValue;
-                    }*/
                     String setcookies = getCookies(conn);
                     if (!AL.empty(setcookies))
                     	cookies = setcookies;
                     
-                    if (AL.empty(charset) && !AL.empty(type)) {
-                    	int i = typeString.indexOf(charsetPrefix, type.length());
+                    if (AL.empty(charset) && !AL.empty(content_type)) {
+                    	int i = typeString.indexOf(charsetPrefix, content_type.length());
                     	if (i != -1)
                     		charset = typeString.substring(i+charsetPrefix.length());
                     }
@@ -377,8 +373,25 @@ public class HttpFileReader implements Reader
         	HttpURLConnection conn = null;
             BufferedReader br = null;
     		try {
-            	StringBuilder sb = new StringBuilder();
     			conn = openWithRedirect(docName);
+    			//try to read pdf
+    			if (content_type.endsWith("pdf")){
+    				String text = "";
+    				try {
+    					Class.forName("org.apache.pdfbox.pdmodel.PDDocument");
+        				PDDocument document = PDDocument.load(conn.getInputStream());
+        				if (!document.isEncrypted()) {
+        				    PDFTextStripper stripper = new PDFTextStripper();
+        				    text = stripper.getText(document);
+        				}
+        				document.close();
+    				} catch( ClassNotFoundException e ) {
+    					env.error("HttpFileReader readDocData "+docName,e);
+    				}
+    				return text;
+    			}
+    			//if not a pdf, try to read plain text or html
+            	StringBuilder sb = new StringBuilder();
     			br = content_encoding == null ?
         			new BufferedReader(new InputStreamReader(conn.getInputStream())) :
         			"gzip".equals(content_encoding) ?
