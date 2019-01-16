@@ -109,6 +109,8 @@ public class Summator extends HashMap implements Linker {
 		}
 		if (max == 0)
 			return;
+		if (max == min)//catchup for single value
+			min = 0;
 		for (Iterator it = keySet().iterator(); it.hasNext();){
 			Object key = it.next();
 			Object val = get(key);

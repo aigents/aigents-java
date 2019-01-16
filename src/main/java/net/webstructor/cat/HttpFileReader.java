@@ -375,7 +375,7 @@ public class HttpFileReader implements Reader
     		try {
     			conn = openWithRedirect(docName);
     			//try to read pdf
-    			if (content_type.endsWith("pdf")){
+    			if (!AL.empty(content_type) && content_type.endsWith("pdf")){
     				String text = "";
     				try {
     					Class.forName("org.apache.pdfbox.pdmodel.PDDocument");
@@ -383,6 +383,11 @@ public class HttpFileReader implements Reader
         				if (!document.isEncrypted()) {
         				    PDFTextStripper stripper = new PDFTextStripper();
         				    text = stripper.getText(document);
+//TODO: fix hack!?
+        				    text = text.replaceAll("\n", " ");
+        				    text = text.replaceAll("\r", " ");
+        				    if (text.indexOf('\n') != -1 || text.indexOf('\r') != -1)
+        				    	env.error("HttpFileReader readDocData encodinf error "+docName, null);
         				}
         				document.close();
     				} catch( ClassNotFoundException e ) {
@@ -410,7 +415,7 @@ public class HttpFileReader implements Reader
     		} catch (Throwable e) {
     			String error = "HttpFileReader.readDocData reading path " + docName + ": "+e.toString()+" memory "+env.checkMemory();
     			if (env != null)
-    				env.error(error, null);
+    				env.error(error, e);
     			else
     				throw new IOException(error);
     		} finally {

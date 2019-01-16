@@ -131,7 +131,8 @@ public class Streamer {
 		path = body.getFile(path).getPath();
 		BufferedReader reader = Mainer.getReader(path);
 		int line_no = 0;
-		String line;
+		String line = "";
+		try {
 		if (reader == null)
 			return false;
 		storager.clear(Schema.roots,null);
@@ -202,6 +203,9 @@ public class Streamer {
 				thing.store(storager);
 			}
   		}
+		} catch (Exception e){
+			body.error("Streamer line "+line_no+" "+line, e);
+		}
 		reader.close();
 		new Merger(body,storager).merge(byId.values());
     	return true;

@@ -24,7 +24,7 @@
 rm -rf ./al_test.txt *log.txt www is-instances is-text test*.txt
 
 # Run Aigents
-java -cp lib/mail.jar:lib/javax.json-1.0.2.jar:Aigents.jar net.webstructor.agent.Farm store path './al_test.txt', cookie domain localtest.com, console off &
+java -cp lib/pdfbox-app-2.0.0-RC2.jar:lib/mail.jar:lib/javax.json-1.0.2.jar:Aigents.jar net.webstructor.agent.Farm store path './al_test.txt', cookie domain localtest.com, console off &
 sleep 5
 echo Aigents server started.
 
