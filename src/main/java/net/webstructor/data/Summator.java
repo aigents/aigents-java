@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -91,7 +91,7 @@ public class Summator extends HashMap implements Linker {
 		}
 	}
 	
-	public void normalize(boolean log10,boolean zero){
+	public void normalize(boolean log10,boolean fullnorm){
 		double max = 0;
 		double min = Double.MAX_VALUE;
 		for (Iterator it = keySet().iterator(); it.hasNext();){
@@ -104,7 +104,7 @@ public class Summator extends HashMap implements Linker {
 			}
 			if (f > 0 && max < f)
 				max = f;
-			if (zero && min > f)
+			if (fullnorm && min > f)
 				min = f;
 		}
 		if (max == 0)
@@ -114,7 +114,7 @@ public class Summator extends HashMap implements Linker {
 		for (Iterator it = keySet().iterator(); it.hasNext();){
 			Object key = it.next();
 			Object val = get(key);
-			double newval = zero ? (((Double)val).doubleValue() - min) / (max - min) : ((Double)val).doubleValue() / max; 
+			double newval = fullnorm ? (((Double)val).doubleValue() - min) / (max - min) : ((Double)val).doubleValue() / max; 
 			put(key, new Double(newval * 100));
 		}
 	}

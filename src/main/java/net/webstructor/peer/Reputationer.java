@@ -60,7 +60,7 @@ class ReputationParameters {
 	boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
 	double defaultReputation = 0.5; // default reputation value for newcomer Agents in range 0.0-1.0;
 	double decayedReputation = 0.0; // target repuatation level to decay for inactive Agents
-	double defaultRating = 0.5; // default rating value for “overall rating” and “per-dimension” ratings;
+	double defaultRating = 0.25; // default rating value for “overall rating” and “per-dimension” ratings;
 	boolean normalizedRanks = false; //whether ranks should be normlized with minimal rating brought to zero, leaving highest at 1.0 (100%) 
 	boolean weightingRatings = false; //whether ratings should weighted if finaincial values for that are available 
 	long periodMillis = Period.DAY; // period of reputation recalculation/update;
@@ -345,9 +345,9 @@ public class Reputationer {
 				Number raterNumber = state.value(rating[0]);//value in range 0-100%
 				double raterValue = !params.liquidRatings ? 1.0 : 
 						raterNumber == null? params.defaultReputation * 100: raterNumber.doubleValue();//0-100				
-				double ratingValue = rating[3] == null ? params.defaultRating : ((Number)rating[3]).doubleValue();//any value
-//				if (params.logarithmicRatings)
-//					ratingValue = ratingValue > 0 ? Math.log10(1 + ratingValue) : -Math.log10(1 - ratingValue);
+				if (rating[3] == null)
+						continue;
+				double ratingValue = ((Number)rating[3]).doubleValue();
 				differential.count(rating[2], raterValue * ratingValue, 0);
 			}
 		}
@@ -356,7 +356,8 @@ public class Reputationer {
 		differential.blend(state,params.conservatism,
 				(int)Math.round(params.decayedReputation * 100), //for new reputation to decay
 				(int)Math.round(params.defaultReputation * 100));//for old reputation to stay
-		differential.normalize();
+		//differential.normalize();
+		differential.normalize(false,params.implicitDownrating);//TODO: if we really need fullnorm on downrating?
 		states.add(nextdate, type, null, new Counter(differential));
 		//TODO: save
 		ranks_modified = true;
@@ -486,7 +487,21 @@ public class Reputationer {
 			String to = (String)r[2];
 			Number value = (Number)r[3];
 			Number weight = (Number)r[4];
+			//Note that we assume it is EITHER explicit rating with financial weight OR implicit financial rating!
 			if (weight != null){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
+				if (params.implicitDownrating && params.defaultRating > 0){
+					if (value == null)
+						value = new BigDecimal(0);
+					else {//scale rating values to range -100 to +100
+						double d = params.defaultRating * 100;
+						double v = value.doubleValue();
+						v = v < d ? (v - d) / d : (v - d) / (100 - d);
+						value = new BigDecimal(v);
+					}
+				}else{
+					if (value == null)
+						value = new BigDecimal(params.defaultRating * 100);
+				}
 				if (!params.weightingRatings){
 					weight = null;
 				} else {
@@ -610,20 +625,6 @@ public class Reputationer {
 			Date until = Time.day( Str.arg( args, Str.has(args,"date",null) ? "date" : "until" ,"today") );
 			Date since = Time.day( Str.arg( args, "since", Time.day(until, false) ) );
 			set_parameters(r,args);
-			/*TODO remove 20190115
-			int period = Integer.parseInt(Str.arg(args,"period","1"));
-			r.params.periodMillis = period * Period.DAY;//need at least one day
-			if (Str.has(args, "default", null))
-				r.params.defaultReputation = Double.parseDouble(Str.arg(args, "default", String.valueOf(r.params.defaultReputation)));
-			if (Str.has(args, "decayed", null))
-				r.params.decayedReputation = Double.parseDouble(Str.arg(args, "decayed", String.valueOf(r.params.decayedReputation)));
-			if (Str.has(args, "conservatism", null))
-				r.params.conservatism = Double.parseDouble(Str.arg(args, "conservatism", String.valueOf(r.params.defaultRating)));
-			if (Str.has(args,"fullnorm"))
-				r.params.normalizedRanks = true;
-			if (Str.has(args,"liquid","false"))
-				r.params.liquidRatings = false;
-			*/
 			int period = (int)((r.params.periodMillis + Period.DAY - 1)/ Period.DAY);//need at least one day
 			int computed = 0;
 			env.debug("Updating "+r.name+" since "+Time.day(since,false)+" to "+Time.day(until,false)+" period "+period);
@@ -743,6 +744,7 @@ public class Reputationer {
 		}
 		else
 		if (Str.has(args,"add","ratings")){
+			set_parameters(r,args);
 			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,"1","today"});  
 			if (AL.empty(ratings))
 				return false;
@@ -753,11 +755,6 @@ public class Reputationer {
 		if (Str.has(args,"load","ratings")){
 			//TODO: two options - "file" and "folder"
 			String path = Str.arg(args,"file",null);
-			/*TODO remove 20190115
-			r.params.ratingPrecision = new BigDecimal(Str.arg(args, "precision", "1.0"));
-			r.params.logarithmicRatings = Str.has(args, "logratings");
-			r.params.weightingRatings = (Str.has(args,"weighting"));
-			*/
 			set_parameters(r,args);
 			if (!AL.empty(path)){
 				DataLogger dl = new DataLogger(env, r.name);
@@ -868,7 +865,7 @@ public class Reputationer {
 	
 	public static void set_parameters(final Reputationer r, final String[] args){
 		//TODO: boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
-		//TODO: double defaultRating = 0.5; // default rating value for “overall rating” and “per-dimension” ratings;
+		//TODO: double defaultRating = 0.25; // default rating value for “overall rating” and “per-dimension” ratings;
 		//TODO: long periodMillis = Period.DAY; // period of reputation recalculation/update;
 		if (Str.has(args, "default", null))
 			r.params.defaultReputation = Double.parseDouble(Str.arg(args, "default", String.valueOf(r.params.defaultReputation)));
