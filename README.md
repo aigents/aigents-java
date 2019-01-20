@@ -11,7 +11,7 @@
 - **mail.jar** ([Java Mail 1.4.7](http://www.java2s.com/Code/Jar/j/Downloadjavaxmailapi147jar.htm)) - needed for Aigents e-mail operations
 - **servlet.jar** ([Java Servlet 2.5](http://www.java2s.com/Code/Jar/s/Downloadservlet25jar.htm)) - needed for Aigents/Webstructor exposure as a servlet
 - **javax.json-1.0.2.jar** ([JSON Libarary](http://www.java2s.com/Code/Jar/j/Downloadjavaxjson102jar.htm)) - needed for Aigents JSON interoperability
-- **pdfbox-app-2.0.0-RC2.jar** ([Apache PDFBox Library](https://pdfbox.apache.org/) [version 2.0.0 RC2](http://central.maven.org/maven2/org/apache/pdfbox/pdfbox/2.0.0-RC2/pdfbox-2.0.0-RC2.jar)  - needed to parse PDF documents
+- **pdfbox-app-2.0.0.jar** ([Apache PDFBox Application](https://pdfbox.apache.org/) [version 2.0.0](https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox-app/2.0.0)) - needed to parse PDF documents
 - **jfxrt.jar** ([Java FX](https://www.oracle.com/technetwork/java/javafx2-archive-download-1939373.html)) - needed for Aigents Desktop User Interface
 - **appbundler-1.0.jar** ([Java App Bundler for Mac](https://docs.oracle.com/javase/7/docs/technotes/guides/jweb/packagingAppsForMac.html)) - needed for Aigents OSX Application
 - **org** ([Jar Class Loader](https://github.com/raisercostin/eclipse-jarinjarloader)) - need for launching Aigents from Jar file automatically, have to be placed in the following structure under **lib** root: 

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Rsrc-Class-Path: ./ ./servlet.jar ./mail.jar ./javax.json-1.0.2.jar ./pdfbox-app-2.0.0-RC2.jar
+Rsrc-Class-Path: ./ servlet.jar mail.jar javax.json-1.0.2.jar pdfbox-app-2.0.0-RC2.jar
 Class-Path: .
 Rsrc-Main-Class: net.webstructor.gui.App
 Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
