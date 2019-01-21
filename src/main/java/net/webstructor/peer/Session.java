@@ -95,6 +95,10 @@ public class Session  {
 		return input;
 	}
 	
+	public String toString(){
+		return input();
+	}
+	
 	public String[] args(){
 		return args;
 	}

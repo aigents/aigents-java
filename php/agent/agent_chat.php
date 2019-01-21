@@ -25,7 +25,7 @@ function test_chat_cleanup() {
 function test_chat() {
 	global $version;
 	global $copyright;
-
+	
 	//TODO: free text interactions on news
 	//any news?
 	//what's new?
@@ -167,6 +167,24 @@ function test_chat() {
 	test_chat_cleanup();
 		
 /**/
+	
+	//classic loging flow for GUI App
+	say("Login.");
+	get("What your email, name, surname?");
+	say("john@doe.org");
+	get("What your name, surname?");
+	say("john");
+	get("What your surname?");
+	say("doe");
+	get("What your secret question, secret answer?");
+	say("My secret question password.");
+	get("What your secret answer?");
+	say("My secret answer 123456querty.");
+	get("What your password?");
+	say("My password 123456querty");
+	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+	test_chat_cleanup();
+	
 	//freetext registration with mixed content
 	say("hi");
 	get("What your email, name, surname?");

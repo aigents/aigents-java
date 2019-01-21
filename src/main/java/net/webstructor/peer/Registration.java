@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -111,23 +111,27 @@ class Registration extends Mode {
 		//  conversation
 		Thing storedPeer = session.getStoredPeer();
 		check(session);
+		//if (session.input().equals("My secret question password."))
+		//	System.out.println(session.input());
 		if (q == null) {
-			Seq seq = new Seq(new Object[]{
-					new Any(1,AL.i_my),	
-					new Any(new Object[]{
-						new Seq(new Object[]{"secret", "question",new Property(session.peer,Peer.secret_question)}),	
-						new Seq(new Object[]{"secret", "answer"  ,new Property(session.peer,Peer.secret_answer)})
-						})	
-					});	
-			if (!Reader.read(session.input(), seq))//well-formed AL
+			Property pq = new Property(session.peer,Peer.secret_question);
+			Property pa = new Property(session.peer,Peer.secret_answer);
+			Seq seq = new Seq(new Object[]{new Any(1,AL.i_my),new Any(new Object[]{new Seq(new Object[]{"secret","question",pq}),new Seq(new Object[]{"secret", "answer"  ,pa})})});
+			if (!Reader.read(session.input(), seq))//well-formed AL for q and a
 				if (session.expected() != null){
 					Seq p = Reader.pattern(session.peer, session.expected());
-					Reader.read(session.input(),p,",");//free-text
+						Reader.read(session.input(),p,",");//free-text
 				}
 			check(session);
 			if (q == null){
 				session.expect(question_answer);
 				session.output( Writer.what("your", session.peer,new All(question_answer)) );
+				return false;
+			}
+			if (a == null){
+				session.output( Writer.what("your", session.peer, new All(answer_only)) );
+				session.expect(answer_only);
+				return false;
 			}
 		}
 		if (q != null && a == null) {
@@ -147,6 +151,7 @@ class Registration extends Mode {
 			if (a == null){
 				session.output( Writer.what("your", session.peer, new All(answer_only)) );
 				session.expect(answer_only);
+				return false;
 			}
 		}
 		if (q != null && a != null) {
