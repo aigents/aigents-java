@@ -351,13 +351,17 @@ public class Reputationer {
 				differential.count(rating[2], raterValue * ratingValue, 0);
 			}
 		}
+//System.out.println(state);
+//System.out.println(differential);
 		differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
-		
+//System.out.println(differential);
 		differential.blend(state,params.conservatism,
 				(int)Math.round(params.decayedReputation * 100), //for new reputation to decay
 				(int)Math.round(params.defaultReputation * 100));//for old reputation to stay
-		//differential.normalize();
 		differential.normalize(false,params.implicitDownrating);//TODO: if we really need fullnorm on downrating?
+//System.out.println(differential);
+//if (params.implicitDownrating)
+//	System.out.println("----------");
 		states.add(nextdate, type, null, new Counter(differential));
 		//TODO: save
 		ranks_modified = true;
@@ -496,7 +500,7 @@ public class Reputationer {
 						double d = params.defaultRating * 100;
 						double v = value.doubleValue();
 						v = v < d ? (v - d) / d : (v - d) / (100 - d);
-						value = new BigDecimal(v);
+						value = new BigDecimal(v * 100);
 					}
 				}else{
 					if (value == null)
