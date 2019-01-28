@@ -85,11 +85,17 @@ public class Counter extends HashMap implements Linker {
 			e1.printStackTrace();
 		}
 	}
+	//TODO:fix to round properly!!!
+	//TODO:move to other place
+	public static int round(Number value){
+		//return value.intValue();
+		return value instanceof Integer || value instanceof Long || value instanceof Short ? value.intValue() : Math.round(value.floatValue());
+	}
 	public Linker count(Linker other){
 		if (other != null)
 			for (Iterator it = other.keys().iterator(); it.hasNext();){
 				Object key = it.next();
-				count(key,other.value(key).intValue());
+				count(key,round(other.value(key)));
 			}
 		return this;
 	}

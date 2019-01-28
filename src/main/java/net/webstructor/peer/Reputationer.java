@@ -363,6 +363,7 @@ public class Reputationer {
 //if (params.implicitDownrating)
 //	System.out.println("----------");
 		states.add(nextdate, type, null, new Counter(differential));
+		//states.add(nextdate, type, null, new Summator(differential));
 		//TODO: save
 		ranks_modified = true;
 		return 0;
@@ -948,7 +949,7 @@ public class Reputationer {
 				
 		//test retrieve API after after rank and update
 		r.get_ranks(date10,null,null,null,false,0,0,a = new ArrayList());
-		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((4 100) (3 66) (5 66))");
+		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((4 100) (3 67) (5 67))");
 
 		//test rate API (again)
 		//3 rates 1 100 (power 50)
@@ -964,7 +965,7 @@ public class Reputationer {
 				
 		//test retrieve API after after rank and update
 		r.get_ranks(date9,null,null,null,false,0,0,a = new ArrayList());
-		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((2 100) (1 77) (4 66) (3 44) (5 44))");
+		t.assume(Writer.toString(a.toArray(new Object[][]{})),"((2 100) (1 78) (4 67) (3 45) (5 45))");
 		
 		//TODO: saving results and clearing on startup
 	}

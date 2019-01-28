@@ -43,6 +43,14 @@ public class Summator extends HashMap implements Linker {
 	public Summator(){
 	}
 	
+	public Summator(Linker other) {
+		for (Iterator it = other.keys().iterator(); it.hasNext();){
+			Object key = it.next();
+			Number val = value(key);
+			put(key,new Double(val.doubleValue()));
+		}
+	}
+	
 	public Summator(Environment env, String path){
 		load(env,path);
 	}
