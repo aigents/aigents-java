@@ -510,26 +510,39 @@ public class Reputationer {
 				if (!params.weightingRatings){
 					weight = null;
 				} else {
+					//if Precision parameter is set to value other than 1.0, the financial values of the implicit or explicit ratings are re-scaled with Qij = Round(Qij  / Precision).
 					if (params.ratingPrecision != null)
 						weight = new BigDecimal(weight.doubleValue()).divide(params.ratingPrecision);
+					//if LogRatings option is set to True, financial values of the implicit or explicit ratings are scaled to logarithmic scale as Qij = If(Qij  < 0, - log10(1 - Qij ), log10(1 + Qij )), where negative value may be corresponding to the case of transaction withdrawal or cancellation.
 					if (params.logarithmicRatings){
 						double d = weight.doubleValue();
 						weight = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
 					}
 				}
 			}else{//no weight => so it is payment in any range (or - rating without weight)
+				//if Precision parameter is set to value other than 1.0, the financial values of the implicit or explicit ratings are re-scaled with Qij = Round(Qij  / Precision).
 				if (params.ratingPrecision != null)
 					value = new BigDecimal(value.doubleValue()).divide(params.ratingPrecision);
+				//if LogRatings option is set to True, financial values of the implicit or explicit ratings are scaled to logarithmic scale as Qij = If(Qij  < 0, - log10(1 - Qij ), log10(1 + Qij )), where negative value may be corresponding to the case of transaction withdrawal or cancellation.
 				if (params.logarithmicRatings){
 					double d = value.doubleValue();
 					value = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
 				}
 				weight = null;
 			}
+			//In current Aigents implementation of the Liquid Rank algorithm https://arxiv.org/pdf/1806.07342.pdf
+			//weighted ratings are stored "blended" so the rating values are multiplied by financial weights and rounded to
+			//integers and stored in that way.
+			//This has to be fixed, because "ideal reputation system" should be able to do aggregation of ratings so the 
+			//rating value and financial weight should be stored separately for each of the original ratings.
+			//Also, the blended rating is saved as integer value so it rounded up before storing.
 			if (weight != null)
-				value = new Integer((int)Math.round(value.doubleValue() * weight.doubleValue())); 
+				value = new Integer((int)Math.round(value.doubleValue() * weight.doubleValue()));
+			else
+				value = new Integer((int)Math.round(value.doubleValue()));
 			Date date = Time.date((Date)r[5]);
 			//TODO: store in FULL version of storage
+			//... separate store of rating and weight as big decimal or double ... 
 			//store in light version of storage
 			if (latest_date == null || !latest_date.equals(date)){
 				//TODO: ensure to save the graph!?
@@ -750,7 +763,7 @@ public class Reputationer {
 		else
 		if (Str.has(args,"add","ratings")){
 			set_parameters(r,args);
-			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,"1","today"});  
+			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,null,"today"});  
 			if (AL.empty(ratings))
 				return false;
 			r.add_ratings(ratings);

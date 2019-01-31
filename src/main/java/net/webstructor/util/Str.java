@@ -88,8 +88,12 @@ public class Str {
 			for (; j < names.length; j++){
 				int k = Array.index(args, names[j], i);
 				String value = (k != -1 && (k + 1) < args.length) ? args[k+1] : null;
-				if (value == null && defaults != null && types.length == names.length)
-					value = defaults[j];
+				if (value == null){
+					if (defaults != null && types.length == names.length)
+						value = defaults[j];
+					else
+						break;
+				}
 				if (value != null) {
 					o[j] = value;
 					if (types != null && types.length == names.length){
@@ -103,8 +107,7 @@ public class Str {
 							o[j] = Time.day(value);
 					} 
 					next = Math.max(next,k + 2);
-				}else
-					break;
+				}
 			}
 			if (j == names.length){//completed
 				res.add(o);
