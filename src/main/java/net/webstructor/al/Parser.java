@@ -118,13 +118,14 @@ public class Parser {
 	public static Seq parse(String input) {
 		return parse(input,(String)null,(List)null);
 	}
-	
+
 	public static Seq parse(String input,List positions) {
 		return parse(input,null,false,true,true,false,positions);
 	}
 
 	public static Seq parse(String input,String delimiters,List positions) {
-		return parse(input,delimiters,false,true,true,false,null);
+		//return parse(input,delimiters,false,true,true,false,null);//urling=false
+		return parse(input,delimiters,false,true,true,true,null);//urling=true
 	}
 
 	public static Seq parse(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling) {
@@ -291,14 +292,16 @@ public class Parser {
 				if (AL.spaces.indexOf(c) != -1) {//return token
 					s = input.substring(begin,cur);
 					pos = ++cur;//skip delimiter
-					return tolower ? s.toLowerCase() : s;
+					return !tolower || (urling && AL.isURL(s)) ? s : s.toLowerCase();
 				}
 				//else keep forming token
 			}				
 		}
 		pos = cur;
-		if (begin != -1)
-			return tolower ? input.substring(begin).toLowerCase() : input.substring(begin);
+		if (begin != -1){
+			s = input.substring(begin);
+			return !tolower || (urling && AL.isURL(s)) ? s : s.toLowerCase();
+		}
 		return null;//TODO:fix
 	}
 

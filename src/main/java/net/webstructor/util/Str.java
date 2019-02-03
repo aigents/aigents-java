@@ -38,9 +38,24 @@ public class Str {
 	 * @return
 	 */
 	public static String arg(String[] args, String name, String def){
-		int i = Array.index(args, name);
+		int i = Array.index(args, name, false);
 		String str = i < 0 || ++i >= args.length ? def : args[i]; 
 		return str;
+	}
+	
+	/**
+	 * Get next string element past found one or null
+	 * @param args - list of strings
+	 * @param names - list of alterative target elements before returned one
+	 * @return
+	 */
+	public static String arg(String[] args, String[] names, String def){
+		for (int n = 0; n < names.length; n++){
+			int i = Array.index(args, names[n], false);
+			if (i >= 0)
+				return ++i >= args.length ? def : args[i];
+		}
+		return def;
 	}
 	
 	/**
@@ -86,7 +101,7 @@ public class Str {
 			int j = 0;
 			int next = 0;
 			for (; j < names.length; j++){
-				int k = Array.index(args, names[j], i);
+				int k = Array.index(args, names[j], i, false);
 				String value = (k != -1 && (k + 1) < args.length) ? args[k+1] : null;
 				if (value == null){
 					if (defaults != null && types.length == names.length)

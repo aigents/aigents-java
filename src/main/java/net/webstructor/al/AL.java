@@ -198,7 +198,7 @@ public class AL {
 					sb.append(' ');
 				sb.append(token);
 			}
-			int column = Array.index(columns,name);
+			int column = Array.index(columns,name,true);//TODO: should be sensitive=false!? 
 			if (column < 0 || column >= o.length)
 				;//throw new Exception("ddd");//TODO:throw exception
 			else

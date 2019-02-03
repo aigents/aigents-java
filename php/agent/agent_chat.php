@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2018 Anton Kolonin, Aigents Group
+Copyright 2018-2019 Anton Kolonin, Aigents Group
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -16,7 +16,6 @@ function test_chat_cleanup() {
 	get("Ok.");
 	say("No name john.");
 	say("You forget!");
-	get("Ok.");
 	get("Ok.");
 	say("My logout.");
 	get("Ok.");
@@ -300,7 +299,14 @@ function test_chat() {
 
 function test_search() {
 	login();
-	
+	say("SEARCH 'temperature is \$number' IN http://localtest.com/test/Test.pdf");
+	get("There sources 'http://localtest.com/test/Test.pdf', text temperature is 22.");
+	say("No there times today.");
+	get("Ok.");
+	say("Search temperature Url 'http://localtest.com/test/Test.pdf'");
+	get("There sources 'http://localtest.com/test/Test.pdf', text the outside temperature is 22 c°.");
+	say("No there times today.");
+	get("Ok.");
 	say("what is temperature");
 	get("There not.");
 	say("search temperature in http://localtest.com/test/");
@@ -309,10 +315,10 @@ function test_search() {
 	get("There about is 22 c°, context the outside, is temperature, sources http://localtest.com/test/, text the outside temperature is 22 c°, times today.");
 	say("what is test");
 	get("There not.");
-	say("search test in http://localtest.com/test/test.pdf");
-	get("There sources http://localtest.com/test/test.pdf, text this is a test page.");
+	say("search test in http://localtest.com/test/Test.pdf");
+	get("There sources 'http://localtest.com/test/Test.pdf', text this is a test page.");
 	say("what is test");
-	get("There about page, context this is a, is test, sources http://localtest.com/test/test.pdf, text this is a test page, times today.");
+	get("There about page, context this is a, is test, sources 'http://localtest.com/test/Test.pdf', text this is a test page, times today.");
 
 	say("search products in http://localtest.com/sitea/, range 0, limit 1");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
@@ -351,12 +357,16 @@ function test_search() {
 	say("search 'products make'");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
 	
+	say("No there times today.");
+	get();
+	say("You forget!");
+	get();
 	logout();
 }
 
 test_init();
-test_chat();
 test_search();
+test_chat();
 test_summary();
 
 ?>

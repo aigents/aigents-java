@@ -78,6 +78,7 @@ class Conversation extends Mode {
 	
 	public static final String[] spider = new String[] {"spider","spidering","crawl","crawling"};
 	public static final String[] logout = new String[] {"logout","bye"};
+	public static final String[] in_site = new String[] {"site","in","url"};
 
 	private String spidering(Session session, String name, String id) {
 		String report = null;
@@ -371,7 +372,7 @@ class Conversation extends Mode {
 				Thing reader = new Thing();
 				if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,Self.reading),new Property(reader,"thingname"),
-						new Any(1,new String[]{"site","in","url"}),new Property(reader,"url")
+						new Any(1,in_site),new Property(reader,"url")
 						}))) {
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
@@ -383,7 +384,7 @@ class Conversation extends Mode {
 				// TODO: decide what to do with this hack!
 				if (session.read(new Seq(new Object[]{
 							new Any(1,AL.you),new Any(1,Self.reading),
-							new Any(1,new String[]{"site","in","url"}),new Property(reader = new Thing(),"url")
+							new Any(1,in_site),new Property(reader = new Thing(),"url")
 							}))) {
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
@@ -630,7 +631,7 @@ class Conversation extends Mode {
 		Thing arg = new Thing();
 		if (session.read(new Seq(new Object[]{
 				"search",new Property(arg,"thingname"),
-				new Any(1,new String[]{"site","in","url"}),new Property(arg,"url")
+				new Any(1,in_site),new Property(arg,"url")
 				}))) {
 			String topic = arg.getString("thingname");
 			final String site = arg.getString("url");

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -150,15 +150,20 @@ public class Array {
 		return false;
 	}
 
-	public static int index(String[] samples,String string) {
-		return index(samples,string,0);
+	public static int index(String[] samples,String string,boolean sensitive) {
+		return index(samples,string,0,sensitive);
 	}
 	
-	public static int index(String[] samples,String string,int pos) {
+	public static int index(String[] samples,String string,int pos,boolean sensitive) {
 		if (samples != null && string != null)
 			for (int i=pos; i<samples.length; i++)
-				if (samples[i].equals(string))
-					return i;
+				if (sensitive){
+					if (samples[i].equals(string))
+						return i;
+				}else{
+					if (samples[i].equalsIgnoreCase(string))
+						return i;
+				}
 		return -1;
 	}
 	
