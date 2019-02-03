@@ -629,10 +629,7 @@ class Conversation extends Mode {
 	boolean trySearcher(final Storager storager,final Session session) {
 		Thing peer = getSessionAreaPeer(session);
 		Thing arg = new Thing();
-		if (session.read(new Seq(new Object[]{
-				"search",new Property(arg,"thingname"),
-				new Any(1,in_site),new Property(arg,"url")
-				}))) {
+		if (session.read(new Seq(new Object[]{"search",new Property(arg,"thingname"),new Any(1,in_site),new Property(arg,"url")}))) {
 			String topic = arg.getString("thingname");
 			final String site = arg.getString("url");
 			if (AL.isURL(site)){
@@ -676,9 +673,8 @@ class Conversation extends Mode {
 			session.output("Not.");
 			return true;
 		} else
-		if (session.read(new Seq(new Object[]{
-				"search",new Property(arg,"thingname")}))) {
-			session.read(arg,new String[]{"time","days"},new String[]{"today","1"});
+		if (session.read(new Seq(new Object[]{"search",new Property(arg,"thingname")}))) {
+			session.read(arg,new String[]{"time","days"},new String[]{"today","365"});//search entire year by default
 			final String topic = arg.getString("thingname");
 			int days = Integer.valueOf(arg.getString("days")).intValue();
 			Date first = Time.day(arg.getString("time"));
@@ -708,7 +704,7 @@ class Conversation extends Mode {
 							Thing t = (Thing)it.next();
 							String text = t.getString(AL.text);
 							String source = t.getString(AL.is);
-							if (AL.empty(text) || !AL.isURL(source))//check site instances only
+							if (AL.empty(text) || AL.empty(source) || !AL.isURL(source))//check site instances only
 								continue;
 							//add all findings to resulting collection
 							Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,null));
