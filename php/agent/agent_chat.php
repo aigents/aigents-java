@@ -1,13 +1,27 @@
 <?php
 /*
-Copyright 2018-2019 Anton Kolonin, Aigents Group
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ * MIT License
+ * 
+ * Copyright (c) 2014-2019 by Anton Kolonin, Aigents
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 include_once("test_api.php");
 
@@ -165,8 +179,6 @@ function test_chat() {
 	//cleanup
 	test_chat_cleanup();
 		
-/**/
-	
 	//classic loging flow for GUI App
 	say("Login.");
 	get("What your email, name, surname?");
@@ -294,11 +306,47 @@ function test_chat() {
 	say("123456querty");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	test_chat_cleanup();
-/**/
+
 }
 
 function test_search() {
 	login();
+	
+	//search in LTM graph
+	say("You forget everything!");
+	get("Ok.");
+	say("search products in http://localtest.com/sitea/products.html");
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("search products, period 0");
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("No there times today.");
+	get("Ok.");
+	say("You forget!");
+	get("Ok.");
+	say("What times today?");
+	get("There not.");
+	say("www id products graph date today, period 0");
+	get("products worded http://localtest.com/sitea/personal.html 100.\nproducts worded http://localtest.com/sitea/index.html 100.\nproducts worded http://localtest.com/sitea/corporate.html 100.");
+	say("www id make graph date today, period 0");
+	get("make worded http://localtest.com/sitea/personal.html 100.\nmake worded http://localtest.com/sitea/corporate.html 100.\nmake worded http://localtest.com/sitea/mission.html 100.");
+	say("Search products, period 0");
+	get("Sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/index.html, text about us products info contact us; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
+	say("Search products make \$x, period 0");
+	get("Sources http://localtest.com/sitea/corporate.html, text products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text products make people happier.");
+	say("What times today?");
+	get("There not.");
+	say("Search people");
+	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
+	say("Search make people happier");
+	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
+	say("Search make people happy");
+	get("Not.");
+	say("Search 'make people {happy happier}'");
+	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
+	say("Search make people {happy happier}");
+	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
+
+	//test seach in file/URL
 	say("SEARCH 'temperature is \$number' IN http://localtest.com/test/Test.pdf");
 	get("There sources 'http://localtest.com/test/Test.pdf', text temperature is 22.");
 	say("No there times today.");
@@ -348,6 +396,8 @@ function test_search() {
 	get("Not.");
 	say("search products in http://localtest.com/siteb/");
 	get("Not.");
+	
+	//test search in STM
 	say("what is products, times today text, sources");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
 	say("search products");

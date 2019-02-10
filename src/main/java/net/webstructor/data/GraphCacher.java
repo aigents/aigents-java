@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -190,7 +190,7 @@ public class GraphCacher implements Cacher {
 		}
 	}
 
-	public Graph getSubgraph(String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links){
+	public Graph getSubgraph(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links){
 		GraphCacher grapher = this;
 		HashSet todo = Array.toSet(ids);		
 		HashSet visited = new HashSet();

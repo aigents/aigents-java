@@ -124,8 +124,8 @@ public class Parser {
 	}
 
 	public static Seq parse(String input,String delimiters,List positions) {
-		//return parse(input,delimiters,false,true,true,false,null);//urling=false
-		return parse(input,delimiters,false,true,true,true,null);//urling=true
+		//return parse(input,delimiters,false,true,true,false,positions);//urling=false
+		return parse(input,delimiters,false,true,true,true,positions);//urling=true
 	}
 
 	public static Seq parse(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling) {

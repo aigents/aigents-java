@@ -1,13 +1,27 @@
 <?php
 /*
-Copyright 2018 Anton Kolonin, Aigents Group
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ * MIT License
+ * 
+ * Copyright (c) 2014-2019 by Anton Kolonin, Aigents
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 include_once("test_api.php");
 
@@ -15,7 +29,7 @@ function test_basic() {
 global $version;
 global $copyright;
 
-$timeout = 4;
+$timeout = 5;
 
 //login, registration, verification
 test_o("My login.");
@@ -86,7 +100,7 @@ test_o("My sensitivity threshold 70, update time 9:00.");
 test_i("Ok.");
 say("What my sensitivity threshold, update time?");
 get("Your sensitivity threshold 70, update time 9:00.");
-test_o("My check cycle day, keeping days 10, sensitivity threshold 80.");
+test_o("My check cycle day, retention period 10, sensitivity threshold 80.");
 test_i("Ok.");
 
 //test personal properties se/unset
@@ -190,8 +204,8 @@ test_o("My pet name Toby.");
 test_i("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 
 //conversation
-test_o("What my keeping days, sensitivity threshold, update time, check cycle?");
-test_i("Your check cycle day, keeping days 10, sensitivity threshold 80, update time 9:00.");
+test_o("What my retention period, sensitivity threshold, update time, check cycle?");
+test_i("Your check cycle day, retention period 10, sensitivity threshold 80, update time 9:00.");
 
 //describe sites
 test_o("My sites http://www.weather.com, http://www.accuweather.com.");
@@ -314,9 +328,9 @@ test_i("Ok.");
 test_o("You save test1.txt!");
 test_i("Ok.");
 test_o("What your things?");
-test_i("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, http://localtest.com/test, http://weather.yahoo.com, http://www.accuweather.com, http://www.weather.com, ignores, items limit, john, keeping days, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, region, registration time, retention period, scale, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, storm, surname, t \$value \$scale, tcp port, tcp timeout, telegram id, telegram offset, telegram token, temperature, temperature \$value \$scale, text, there, there, things, things count, time, trusts, trusts limit, update time, value, version, vkontakte id, vkontakte key, vkontakte token, word.");
+test_i("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, http://localtest.com/test, http://weather.yahoo.com, http://www.accuweather.com, http://www.weather.com, ignores, items limit, john, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, region, registration time, retention period, scale, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, storm, surname, t \$value \$scale, tcp port, tcp timeout, telegram id, telegram offset, telegram token, temperature, temperature \$value \$scale, text, there, there, things, things count, time, trusts, trusts limit, update time, value, version, vkontakte id, vkontakte key, vkontakte token, word.");
 test_o("What your things count?");
-test_i("My things count 103.");
+test_i("My things count 102.");
 test_o("What times today is, region?");
 test_i("There is storm, region altay; is storm, region florida.");
 test_o("Times today times 2000-01-01");//enforce GC
@@ -324,15 +338,15 @@ test_i("Ok.");
 test_o("You forget!");
 test_i("Ok.");
 test_o("What your things count?");
-test_i("My things count 100.");
+test_i("My things count 99.");
 test_o("What times today is, region?");
 test_i("There not.");
 test_o("You load test1.txt!");
 test_i("Ok.");
 test_o("What your things count?");
-test_i("My things count 103.");
+test_i("My things count 102.");
 test_o("What your things?");
-test_i("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, http://localtest.com/test, http://weather.yahoo.com, http://www.accuweather.com, http://www.weather.com, ignores, items limit, john, keeping days, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, region, registration time, retention period, scale, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, storm, surname, t \$value \$scale, tcp port, tcp timeout, telegram id, telegram offset, telegram token, temperature, temperature \$value \$scale, text, there, there, things, things count, time, trusts, trusts limit, update time, value, version, vkontakte id, vkontakte key, vkontakte token, word.");
+test_i("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, http://localtest.com/test, http://weather.yahoo.com, http://www.accuweather.com, http://www.weather.com, ignores, items limit, john, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, region, registration time, retention period, scale, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, storm, surname, t \$value \$scale, tcp port, tcp timeout, telegram id, telegram offset, telegram token, temperature, temperature \$value \$scale, text, there, there, things, things count, time, trusts, trusts limit, update time, value, version, vkontakte id, vkontakte key, vkontakte token, word.");
 
 //test creating instances of real site
 test_o("My knows test.");
@@ -573,8 +587,8 @@ test_o("My email doe@john.org.");
 test_i("What your pet name?");
 test_o("My pet name Toby.");
 test_i("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
-test_o("What my keeping days, sensitivity threshold, update time, check cycle?");
-test_i("Your check cycle day, keeping days 10, sensitivity threshold 80, update time 9:00.");
+test_o("What my retention period, sensitivity threshold, update time, check cycle?");
+test_i("Your check cycle day, retention period 10, sensitivity threshold 80, update time 9:00.");
 
 //complete cleanup
 test_o("My trusts no temperature, no storm.");
@@ -602,9 +616,9 @@ test_i("Ok.");
 
 //check removal of things
 test_o("What your things?");
-test_i("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, http://weather.yahoo.com, http://www.weather.com, ignores, items limit, john, keeping days, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram offset, telegram token, things, things count, time, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+test_i("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook id, facebook key, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, http://weather.yahoo.com, http://www.weather.com, ignores, items limit, john, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram offset, telegram token, things, things count, time, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
 test_o("What your things count?");
-test_i("My things count 91.");
+test_i("My things count 90.");
 
 //TODO: forgetting
 test_o("There text 1 yesterday, times yesterday, new true, trust true, sources http://weather.yahoo.com.");

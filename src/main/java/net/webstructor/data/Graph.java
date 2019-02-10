@@ -92,6 +92,27 @@ public class Graph implements Serializable {
 		}
 	}
 
+	public void countTargets(Set sources, String[] links, Counter targets){
+		if (!AL.empty(sources)){
+			for (Iterator it = sources.iterator(); it.hasNext();){
+				String id = (String)it.next();
+				HashMap linkers = getLinkers(id,false);//get outgoing links
+				if (AL.empty(linkers))
+					continue;
+				for (Iterator lit = linkers.keySet().iterator(); lit.hasNext();){
+					String property = (String)lit.next();
+					if (AL.empty(links) || Array.contains(links, property)){//check link property
+						Linker l = (Linker)linkers.get(property);
+						for (Iterator tit = l.keys().iterator(); tit.hasNext();){
+							Object target = tit.next();
+							targets.count(target);
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	//get subgraph for list of sources given specified links, storing links in collector and collecting targets
 	public Graph getSubgraphTargets(Set sources, Set visited, String[] links, Graph collector, Set targets){
 		if (!AL.empty(sources)){

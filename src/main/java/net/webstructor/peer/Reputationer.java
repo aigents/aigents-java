@@ -446,7 +446,7 @@ public class Reputationer {
 	//TODO: return weight and time
 	protected Object[][] get_ratings(String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links){
 		//TODO: sorting results for stability!?
-		Graph result = cacher.getSubgraph(ids, date, period, range, threshold, limit, format, links);
+		Graph result = cacher.getSubgraph(ids, date, period, range, threshold, limit, links);
 		Object[][] o = result.toArray();
 		//TODO: sort
 		Arrays.sort(o,new ArrayPositionComparator(0,2));//asc id order!?

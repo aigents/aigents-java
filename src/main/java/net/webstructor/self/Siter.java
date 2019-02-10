@@ -379,45 +379,33 @@ public class Siter {
 			return true;
 		return false;
 	}
-	
-	/*
-	private boolean linkMatch(String text,Collection things) {
-		if (!AL.empty(things)) {
-			for (Iterator it = things.iterator();it.hasNext();)
-				if (linkMatch(storager,text,(Thing)it.next()))
-					return true;
-		}
-		return false;
-	}
 
-	private boolean linkMatch(Storager storager,String text,Thing thing) {
-		Iter iter = new Iter(Parser.parse(text));
-		//first, try to get patterns for the thing
-		Collection patterns = (Collection)thing.get(AL.patterns);
-		//next, if none, create the pattern for the thing name manually
-		if (AL.empty(patterns)) {
-			//auto-pattern from thing name split apart
-			if (linkMatch(storager,thing.getName(),iter))
-				return true;
-		} 
-		else { //if (!AL.empty(patterns)) {
-			for (Iterator it = patterns.iterator(); it.hasNext();)				
-				if (linkMatch(storager,((Thing)it.next()).getName(),iter))
-					return true;
+	private void index(String path,Date time,Iter iter,ArrayList links){
+		if (body.sitecacher != null){
+			//TODO: actual time of the page
+			Graph g = body.sitecacher.getGraph(Time.day(time));//daily graph
+			//index links
+			if (!AL.empty(links))
+			for (Iterator it = links.iterator(); it.hasNext();){
+				String[] link = (String[])it.next();
+				String linkUrl = HttpFileReader.alignURL(path,link[0],false);//relaxed, let any "foreign" links
+				//String linkText = link[1];//TODO: use to evaluate source name as the best-weighted link!?
+				if (!AL.empty(linkUrl) && g.getValue(path, linkUrl, "links") == null){
+					g.addValue(path, linkUrl, "links", 1);
+					g.addValue(linkUrl, path, "linked", 1);
+				}
+			}
+			//index words (site->words->word, word->worded->site)
+//TODO: check configuration if need word index!?
+//TODO prevent double-triple-etc indexing on repeated reads!?
+//TODO unify with path in in-text ...
+			for (iter.pos(0); iter.has();){
+				Object o = iter.next();
+				//g.addValue(path, o, "words", 1);
+				g.addValue(o, path, "worded", 1);
+			}			
 		}
-		return false;	
 	}
-
-	private boolean linkMatch(Storager storager,String patstr, Iter iter) {
-		iter.pos(0);//reset 
-		Thing instance = new Thing();
-		Seq patseq = Reader.pattern(storager,instance, patstr);
-		//StringBuilder summary = new StringBuilder();
-		if (Reader.read(iter, patseq, null))
-			return true;
-		return false;
-	}
-	*/
 	
 	boolean readPage(String path,Date time,ArrayList links,Collection things) {
 		Thread.yield();
@@ -428,12 +416,16 @@ public class Siter {
 		
 		body.reply("Spidering site page begin "+path+".");
 		if (!AL.isURL(path)) // if not http url, parse the entire text
-			result = match(storager,path,time,null,things);
+			//result = match(storager,path,time,null,things);
+			result = match(storager,new Iter(Parser.parse(path)),null,time,null,things);//with no positions
 		else
 		//TODO: distinguish skipped || failed in readIfUpdated ?
 		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path)))) {
-			result = match(storager,text,time,path,things);
-			if (!AL.empty(links) && body.sitecacher != null){
+			ArrayList positions = new ArrayList();
+			Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
+			//result = match(storager,text,time,path,things);
+			result = match(storager,iter,positions,time,path,things);
+			/*if (!AL.empty(links) && body.sitecacher != null){
 				//TODO: actual time of the page
 				Graph g = body.sitecacher.getGraph(Time.day(time));//daily graph
 				for (Iterator it = links.iterator(); it.hasNext();){
@@ -445,7 +437,8 @@ public class Siter {
 						g.addValue(linkUrl, path, "linked", 1);
 					}
 				}
-			}
+			}*/
+			index(path,time,iter,links);
 			//TODO: add source name as page title by default?
 		} else {
 			skipped = true;//if not read
@@ -459,22 +452,26 @@ public class Siter {
 	}
 
 	//get all things for the thing name
-	private boolean match(Storager storager,String text,Date time,String path,Collection things) {
+	//private boolean match(Storager storager,String text,Date time,String path,Collection things) {
+	private boolean match(Storager storager,Iter iter,ArrayList positions,Date time,String path,Collection things) {
 		int matches = 0;
-		if (text != null) {
+		//if (text != null) {
+		if (iter != null && iter.size() > 0) {
 			if (!AL.empty(things)) {
 				for (Iterator it = things.iterator();it.hasNext();)
-					matches += match(storager,text,(Thing)it.next(),time,path);
+					//matches += match(storager,text,(Thing)it.next(),time,path);
+					matches += match(storager,iter,positions,(Thing)it.next(),time,path);
 			}
 		}
 		return matches > 0;
 	}
 	
 	//match all Patterns of one Thing for one Site and send updates to subscribed Peers
-	private int match(Storager storager,String text,Thing thing,Date time,String path) {
+	//private int match(Storager storager,String text,Thing thing,Date time,String path) {
+	private int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path) {
 		//TODO: re-use iter building it one step above
-		ArrayList positions = new ArrayList();
-		Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
+		//ArrayList positions = new ArrayList();
+		//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
 		int matches = 0;
 		//first, try to get patterns for the thing
 		Collection patterns = (Collection)thing.get(AL.patterns);
@@ -624,7 +621,7 @@ public class Siter {
 			instance.addThing(AL.is, thing);
 			instance.set(AL.times, time);
 			instance.setString(AL.text,nl_text);
-			Integer textPos = (Integer)positions.get(iter.cur() - 1);
+			Integer textPos = positions == null ? new Integer(0) : (Integer)positions.get(iter.cur() - 1);
 			if (imager != null){
 				String image = imager.getAvailableImage(path,textPos);
 				if (!AL.empty(image))
