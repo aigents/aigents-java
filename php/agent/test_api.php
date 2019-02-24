@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "1.5.0";
+$version = "1.5.1";
 $copyright = " Copyright © 2019 Anton Kolonin, Aigents.";
 
 $baseURL = "http://localhost:1180/?";
@@ -244,6 +244,15 @@ function logout($name = "john"){
 	get("There not.");
 	say("My logout.");
 	get("Ok.");
+}
+
+//get response from command line shell
+function cmd($cmd){
+	global $last_message;
+	exec($cmd,$out);
+	//print(cmd);
+	//print_r($out);
+	$last_message = join("\n",$out);
 }
 
 ?>

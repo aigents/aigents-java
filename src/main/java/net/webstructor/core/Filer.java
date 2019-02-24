@@ -246,6 +246,23 @@ public class Filer {
 	 	}
 	}
 	
+	public static final int STORAGE_SPACE_BYTES_MIN = 500000000;//0.5G
+	public static final int STORAGE_SPACE_RATIO_MIN = 5;//5%
+	
+	public static boolean isEnoughRoom(String path){
+		File f = new File(AL.empty(path) ? "." : path);
+		long free = f.getUsableSpace();
+		if (free == 0)//if does not work (Android!?), try other way
+			free = f.getFreeSpace();
+		long total = f.getTotalSpace();
+		if (total == 0)//if does not work, ignore
+			return true;
+		long ratio = Math.round(((double)free)/total * 100);
+		if (free < STORAGE_SPACE_BYTES_MIN || ratio < STORAGE_SPACE_RATIO_MIN)
+			return false;
+		return true;
+	}
+	
 }
 
 

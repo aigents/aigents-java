@@ -315,6 +315,10 @@ function test_search() {
 	//search in LTM graph
 	say("You forget everything!");
 	get("Ok.");
+	
+	say("search whatever");
+	get("Not.");
+	
 	say("search products in http://localtest.com/sitea/products.html");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
 	say("search products, period 0");

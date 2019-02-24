@@ -75,6 +75,13 @@ function test_reputation() {
 	get("Ok.\n2	50	100\n3		63");
 	say("reputation network testnet  get ratings  date 2018-10-14  ids 2");
 	get("Ok.\n2	rate-d	1	100\n2	rate-s	3	50");
+
+	//check command-line and graph saving
+	cmd("java -cp Aigents.jar:bin/* net.webstructor.peer.Reputationer reputation network testnet get ranks since 2018-10-13 until 2018-10-14 id 2 id 3",$out);
+	get("2	50	100\n3		63");
+	cmd("java -cp Aigents.jar:bin/* net.webstructor.peer.Reputationer reputation network testnet get ratings  date 2018-10-14  ids 2",$out);
+	get("2	rate-d	1	100\n2	rate-s	3	50");
+
 	//check that data can be forgotten
 	say("Your retention period 30.");
 	get("Ok.");
@@ -86,7 +93,7 @@ function test_reputation() {
 	get("Ok.");
 	say("reputation network testnet  get ratings  date 2018-10-14  ids 2");
 	get("Ok.");
-		
+	
 	logout();
 }
 

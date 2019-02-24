@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,17 +34,26 @@ import java.util.Set;
 import net.webstructor.al.AL;
 import net.webstructor.al.Writer;
 import net.webstructor.util.Array;
+import net.webstructor.core.Filer;
 
-//TODO: make this thread-safe
-//TODO: reverse order for target and property
+//TODO: make this thread-safe (assuming it is synchroniseable outside)?
+//TODO: reverse order for target and property (assuming it is already used)?
 
 /* Fuzzy graph of multiple Linkers ( a( p(x,y,...), q(x,y,...), ... ), b( p(x,y,...), q(x,y,...), ... ) */
 public class Graph implements Serializable {
 	private static final long serialVersionUID = 3671961535358554573L;
 	
+	transient private boolean modified = false;//not modified on load and creation blank
 	private long age = 0;
 	private HashMap binders = new HashMap();
 	
+	public void save(Filer filer, String path){
+		filer.save(path, this);
+		modified = false;
+	}
+	public boolean modified(){
+		return modified;
+	}
 	public void clear(){
 		binders.clear();
 	}
@@ -53,6 +62,7 @@ public class Graph implements Serializable {
 	}
 	public void setAge(long age){
 		this.age = age;
+		modified = true;
 	}
 	public HashMap getLinkers(Object context,boolean add) {// a => a->( p(x,y,...), q(x,y,...), ... )
 		Object o = binders.get(context);
@@ -60,6 +70,7 @@ public class Graph implements Serializable {
 			if (!add)
 				return null;
 			binders.put(context, o = new HashMap());
+			modified = true;
 		}
 		return (HashMap)o;
 	}
@@ -72,6 +83,7 @@ public class Graph implements Serializable {
 			if (!add)
 				return null;
 			linkers.put(target, l = new Counter());
+			modified = true;
 		}
 		return l;
 	}
@@ -83,12 +95,14 @@ public class Graph implements Serializable {
 	public void addValue(Object context, Object target, Object property, int amount) {// a,p,x => a->p->x
 		Linker linker = (Linker) getLinker(context,property,true);
 		linker.count(target,amount);
+		modified = true;
 	}
 	public void addValues(Object context, Object property, Linker targetValues) {
 		Linker linker = (Linker) getLinker(context,property,true);
 		for (Iterator it = targetValues.keys().iterator(); it.hasNext();){
 			String target = (String)it.next();
 			linker.count(target, targetValues.value(target).intValue());
+			modified = true;
 		}
 	}
 
@@ -174,6 +188,7 @@ public class Graph implements Serializable {
 				}
 			}
 		}
+		modified = true;
 	}
 
 	public Graph getSubgraph(int threshold){
@@ -194,46 +209,6 @@ public class Graph implements Serializable {
 		}
 		return g;
 	}
-	
-	//TODO: remove!!!
-	/*
-	public Graph getNormalizedSubgraph(int threshold){
-		int maxVal = 0;
-		Graph g = new Graph();
-		//get max
-		for (Iterator it = binders.keySet().iterator(); it.hasNext();){
-			String source = (String)it.next();
-			HashMap linkers = (HashMap)binders.get(source);
-			for (Iterator lit = linkers.keySet().iterator(); lit.hasNext();){
-				String property = (String)lit.next();
-				Linker linker = (Linker)linkers.get(property);
-				for (Iterator tit = linker.keys().iterator(); tit.hasNext();){
-					Object target = tit.next();
-					int value = linker.value(target).intValue();
-					if (maxVal < value)
-						maxVal = value;
-				}
-			}
-		}
-		//get subgraph
-		for (Iterator it = binders.keySet().iterator(); it.hasNext();){
-			String source = (String)it.next();
-			HashMap linkers = (HashMap)binders.get(source);
-			for (Iterator lit = linkers.keySet().iterator(); lit.hasNext();){
-				String property = (String)lit.next();
-				Linker linker = (Linker)linkers.get(property);
-				for (Iterator tit = linker.keys().iterator(); tit.hasNext();){
-					Object target = tit.next();
-					int value = linker.value(target).intValue();
-					value = Math.round(((float)linker.value(target).intValue()) * 100 / maxVal);
-					if (value >= threshold)
-						g.addValue(source, target, property, value);
-				}
-			}
-		}
-		return g;
-	}
-	*/
 	
 	Summator getNodeImportances(Set seeds, String[] links, boolean directed, boolean weighted, int iterations){
 		final int REPUTATION_MAX_CYCLES = 100;//1000 - too long on huge graphs

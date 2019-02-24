@@ -117,7 +117,8 @@ class GraphStater implements Stater {
 		filer.del(path);
 	}
 	public void save(){
-		filer.save(path, graph);
+		if (graph.modified())
+			graph.save(filer, path);
 	}
 	public boolean hasState(Object date, String[] domains) {
 		return !AL.empty(graph.getLinkers(date, false));
@@ -315,7 +316,10 @@ public class Reputationer {
 		//TODO:start asynchronously
 		//return 1;
 		int period = (int)Math.round(((double)params.periodMillis)/Period.DAY);
-		return build(Time.date(date,-period),date,domains);//build synchronously
+		int success = build(Time.date(date,-period),date,domains);//build synchronously
+		if (success == 0)
+			states.save();
+		return success;
 	}
 	
 	private int build(Date prevdate, Date nextdate, String[] domains){
@@ -623,21 +627,26 @@ public class Reputationer {
 		int size = Integer.valueOf(Str.arg(args,"size","0")).intValue();
 		
 		//TODO: make any commands handle-able 
+		if (Str.has(args,"save","ratings")){
+			r.save_ratings();
+			return true;
+		}
+		if (Str.has(args,"save","ranks")){
+			r.save_ranks();
+			return true;
+		}
 		if (Str.has(args,"clear","ratings")){
 			r.clear_ratings();
 			return true;
 		}
-		else
 		if (Str.has(args,"clear","ranks")){
 			r.clear_ranks();
 			return true;
 		}
-		else
 		if (Str.has(args,"set","parameters")){
 			set_parameters(r,args);
 			return true;
 		}
-		else
 		if (Str.has(args,"update","ranks")){
 			//compute time range as date given date==until==since+period (default period = 1)
 			Date until = Time.day( Str.arg( args, Str.has(args,"date",null) ? "date" : "until" ,"today") );

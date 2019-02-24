@@ -11,7 +11,7 @@
 # Mac: /private/etc/hosts
 # Linux: /etc/hosts
 # Windows: c:\WINDOWS\system32\drivers\etc\hosts 
-# 3.2. Go to folder "http" under this folder
+# 3.2. Go to folder "html" under this folder
 # 3.3. Start Web server
 # Python 2: 
 # sudo python -m SimpleHTTPServer 80

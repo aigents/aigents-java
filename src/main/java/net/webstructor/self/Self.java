@@ -36,7 +36,9 @@ import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
+import net.webstructor.al.Writer;
 import net.webstructor.cat.StringUtil;
+import net.webstructor.core.Filer;
 import net.webstructor.core.Thing;
 import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
@@ -139,14 +141,31 @@ public class Self {
 	}
 	
 	public static void clear(Body body,String[] exceptions) {
+		//0) setup attetion and retention days
+		int attention_days = Integer.valueOf(body.self().getString(Body.attention_period,"14")).intValue();
 		int retention_days = Integer.valueOf(body.self().getString(Body.retention_period,"31")).intValue();
+		boolean storage_ok = Filer.isEnoughRoom(body.self().getString(Body.store_path,"."));
+		if (!storage_ok){
+			//alert owner
+			Thing owner = body.getSelfPeer();
+			if (owner != null) try {
+				body.update(owner, "Low storage", Writer.toString(body.self(), null, new String[]{Body.retention_period,Body.attention_period}, false), body.signature());
+			} catch (Exception e) {
+				body.error("Update error on low storage",e);
+			}
+			//decrease retention period 1.5 times on insufficient disk space
+			body.self().setString(Body.retention_period,String.valueOf(retention_days = retention_days * 2 / 3));
+			if (attention_days > retention_days && attention_days > 7)
+				body.self().setString(Body.attention_period,String.valueOf(attention_days = retention_days));
+		}
+		if (attention_days <=0 )
+			attention_days = 1;
 		Date retention_day = retention_days == 0 ? null : Time.today(-retention_days);
 		
 		//1) first, forget timed things
 		//TODO: consider, for non-free version, retain trusted things
-		int days_to_retain = body.attentionDays();
-		Date[] days = new Date[days_to_retain];
-		for (int i = 0; i < days_to_retain; i++) {
+		Date[] days = new Date[attention_days];
+		for (int i = 0; i < attention_days; i++) {
 			days[i] = Time.today(-i);
 		}
 		Collection olds = body.storager.get(AL.times,days,false);
@@ -175,7 +194,7 @@ public class Self {
 		//5) clear logs
 		if (body.logger() != null){
 			//TODO: retention days for logs is attention days for system?
-			body.logger().setRetentionDays(Integer.valueOf(body.self().getString(Body.attention_period,"0")).intValue());
+			body.logger().setRetentionDays(attention_days);
 			body.logger().cleanup();
 		}
 		

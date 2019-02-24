@@ -156,8 +156,10 @@ public class Session  {
 	}
 	
 	public Thing getSelfPeer() {
-		Collection peers = (Collection)sessioner.body.self().get(AL.trusts);
-		return AL.empty(peers) ? null : (Thing)peers.iterator().next(); 
+		//TODO cleaup 20190224
+		//Collection peers = (Collection)sessioner.body.self().get(AL.trusts);
+		//return AL.empty(peers) ? null : (Thing)peers.iterator().next();
+		return sessioner.body.getSelfPeer();
 	}
 
 	//TODO: move to storager?

@@ -137,12 +137,14 @@ public class GraphCacher implements Cacher {
 				Date date = (Date)it.next();
 				Graph graph = (Graph)graphs.get(date);
 				synchronized (graph){//TODO: if this is really needed, not an overkill?
+				if (graph.modified()){
 					if (graph.getAge() < this.age){
 						graph.setAge(this.age);
 						String path = pathPrefix+Time.day(date,false)+".ser";
 						env.debug(nameCapital+" graphs saving "+path);
-						filer.save(path, graph);
+						graph.save(filer, path);
 					}
+				}
 				}
 			}
 		}
@@ -154,12 +156,14 @@ public class GraphCacher implements Cacher {
 			if (env.checkMemory() > MEMORY_THRESHOLD)
 				clearUnsync(date);
 			synchronized (graph){//TODO: if this is really needed, not an overkill?
+			if (graph.modified()){
 				graph.setAge(age);
 				if (this.age < age)
 					this.age = age;
 				String path = pathPrefix+Time.day(date,false)+".ser";
 				env.debug(nameCapital+" graphs saving "+path);
-				filer.save(path, graph);
+				graph.save(filer, path);
+			}
 			}
 			env.debug(nameCapital+" graphs saved for "+date+" memory "+env.checkMemory());
 		}

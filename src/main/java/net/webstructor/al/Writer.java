@@ -66,6 +66,12 @@ public class Writer extends AL {
 		toString(out, thing, context, null, false);
 	}
 	
+	public static String toString(Thing thing, Object context, String[] names, boolean form) {
+		StringBuilder sb = new StringBuilder();
+		toString(sb,thing,null,names,true);
+		return sb.toString();
+	}
+	
 	public static void toString(StringBuilder out,Thing thing, Object context, String[] names, boolean form) {
 		if (context != null) {
 			//TODO: make unique reference AKA buildQualifier

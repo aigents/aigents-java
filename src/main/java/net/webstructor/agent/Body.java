@@ -57,7 +57,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.5.0";
+	public final static String VERSION = "1.5.1";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -383,7 +383,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	abstract public void updateStatus(Thing peer);
 	abstract public void updateStatusRarely();
 	
-	//TODO: move out somewhere
+	//TODO: move out somewhere or remove as not used 20190224 
 	public int attentionDays() {
 		int days_to_retain = new Period(self().getString(Body.attention_period, "14"),Period.DAY).getDays();
 		if (days_to_retain <= 0)
@@ -397,6 +397,11 @@ public abstract class Body extends Anything implements Environment, Updater
 	
 	public String site(){
 		return self().getString(Body.http_origin,Body.ORIGINSITE);
+	}
+	
+	public Thing getSelfPeer() {
+		Collection peers = (Collection)self().get(AL.trusts);
+		return AL.empty(peers) ? null : (Thing)peers.iterator().next(); 
 	}
 	
 	public Updater register(String name, Updater updater){
