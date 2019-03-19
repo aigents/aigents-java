@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,11 +27,15 @@ public interface Linker {
 
 	public void count(Object key,int count);
 	
+	public void count(Object key,ComplexNumber[] cn);
+	
 	public void count(Object key);
 
 	public java.util.Set keys();
 
 	public int size();
+
+	public Object get(Object key);	
 
 	public Number value(Object key);	
 

@@ -35,9 +35,6 @@ import net.webstructor.util.ArrayPositionComparator;
 
 public class Summator extends HashMap implements Linker {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 2442648004211475042L;
 
 	public Summator(){
@@ -64,6 +61,14 @@ public class Summator extends HashMap implements Linker {
 		Double counter = (Double)get(key);
 		put(key, new Double(value + (counter == null ? def : counter.doubleValue() )));
 	}
+
+	public void count(Object key,ComplexNumber[] cn){
+		Object counter = get(key);
+		if (counter == null)
+			this.put(key, cn);
+		else
+			this.put(key, ComplexNumber.add((ComplexNumber[])counter,cn));
+	}
 	
 	public void count(Object key){
 		count(key,1);
@@ -74,7 +79,8 @@ public class Summator extends HashMap implements Linker {
 	}
 
 	public Number value(Object key){
-		return (Number)get(key);
+		Object o = get(key);
+		return o instanceof Number ? (Number)get(key) : o instanceof ComplexNumber[] ? ComplexNumber.toNumber((ComplexNumber[])o) : null;
 	}
 
 	public Number value(Object key,int def){
@@ -146,6 +152,19 @@ public class Summator extends HashMap implements Linker {
 		double stddev = Math.sqrt(disp/n);
 		double avg = sum2 / (2 * n);
 		return stddev / avg;
+	}
+	
+	public boolean divide(Summator other){
+		for (Iterator it = keySet().iterator(); it.hasNext();)
+			if (!other.containsKey(it.next()))
+				return false;
+		for (Iterator it = keySet().iterator(); it.hasNext();){
+			Object key = it.next();
+			double a = value(key).doubleValue();
+			double b = other.value(key).doubleValue();
+			put(key, new Double(a/b));
+		}
+		return true;
 	}
 	
 	public double pearson(Summator other){

@@ -241,11 +241,17 @@ public class Writer extends AL {
 		if (obj instanceof Float)
 			out.append(((Float)obj).floatValue());
 		else	
+		if (obj instanceof Double)
+			out.append(((Float)obj).doubleValue());
+		else	
 		if (obj instanceof Boolean)
 			out.append(((Boolean)obj).booleanValue());
 		else	
 		if (obj instanceof Integer)
 			out.append(((Integer)obj).intValue());
+		else	
+		if (obj instanceof Number)
+			out.append(((Number)obj).toString());
 		else	
 		if (obj instanceof String) 
 			//TODO:fix quotable hack!

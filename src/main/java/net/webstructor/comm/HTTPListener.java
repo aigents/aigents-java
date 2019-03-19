@@ -46,6 +46,8 @@ public class HTTPListener extends TCPListener {
 	protected int threads = 2;//2;//0 - synchronous single-threaded, > 0 - asynchronous multi-threaded;
 	protected boolean http_secure = false;
 	
+	Slacker slacker; //TODO have all child Communicators registered as handlers/filters/plugins
+	
 	public HTTPListener(Body body) {
 		super(body);
 		Thing self = body.self();
@@ -56,6 +58,8 @@ public class HTTPListener extends TCPListener {
 		http_timeout = AL.integer(self.getString(Body.http_timeout,Integer.toString(http_timeout)),http_timeout);
 		http_origin = self.getString(Body.http_origin,http_origin);
 		http_secure = "true".equalsIgnoreCase(self.getString(Body.http_secure,"false"));
+		
+		slacker = new Slacker(body);
 	}
 	
 	protected synchronized String getCookie() {

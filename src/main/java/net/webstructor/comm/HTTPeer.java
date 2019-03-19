@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,8 +85,8 @@ public class HTTPeer extends Communicator
 	}
 	
 	//http://stackoverflow.com/questions/10687358/java-socket-inputstream-read-returns-1-always-just-before-end
-	private String inputHeader() throws Exception {
-	      StringBuilder request = new StringBuilder(input_max);
+	private String inputHeader(StringBuilder request) throws Exception {
+	      //StringBuilder request = new StringBuilder(input_max);
 	      boolean end = false;
 	      for (;;) {
 	        int c = in.read();
@@ -191,16 +191,21 @@ public class HTTPeer extends Communicator
 	}
 
 	//TODO: POST/PUT, besides GET
-	private String input() throws Exception {
-		String header = inputHeader();
+	private void input(String[] requestdata) throws Exception {
+	    StringBuilder header_sb = new StringBuilder(input_max);
+		String header = inputHeader(header_sb).toString();
+		String url = Str.parseBetween(header, " ", " ");
+		if (!AL.empty(url))
+			requestdata[0] = url.trim();
 		if (header == null || header.length() < 1) {
-			return null;
+			return;
 			//throw new IOException("No HTTP header.");
 		}
 		String request = parseHeader(header);
 		if (AL.empty(request) && header.startsWith("POST"))
 			request = inputData();
-		return request;
+		requestdata[1] = header;
+		requestdata[2] = request;
 	}
 	
 	public void output(Session session, String resultString) throws IOException {
@@ -250,7 +255,9 @@ public class HTTPeer extends Communicator
 		try {
 			in = new BufferedInputStream(socket.getInputStream());
 			out = new BufferedOutputStream(socket.getOutputStream());
-			request = input(); // read HTTP request
+			String url_header_request[] = {null,null,null};
+			input(url_header_request); // read HTTP request
+			request = url_header_request[2];
 			if (request == null) {
 				output(null,null);//return 404,TODO:better idea?
 				return;
@@ -259,9 +266,8 @@ public class HTTPeer extends Communicator
 			if (cookieString == null) { // generate cookie for new sessions
 				cookieString = parent.getCookie();
 			}
-		    Session session = body.sessioner.getSession(this,cookieString);
 
-		    //TODO: hack properly
+		    //TODO: hack properly using filters
 		    //TODO: fix header
 		    if (request.startsWith("u=") && AL.isURL(request.substring(2))){
 		    	request = request.substring(2);
@@ -279,7 +285,13 @@ public class HTTPeer extends Communicator
 		    	return;
 		    }
 		    
+		    //TODO: if found filter/handler for url_header_request, pass that to the one
+		    if (parent.slacker.handleHTTP(this,url_header_request[0],url_header_request[1],url_header_request[2])){
+		    	return;
+		    }
+		    
 		    waiting = true;
+		    Session session = body.sessioner.getSession(this,cookieString);
 		    body.conversationer.handle(this, session, request);
 
 		    synchronized (this) {
@@ -334,4 +346,3 @@ public class HTTPeer extends Communicator
 	}
 	
 }//class
-

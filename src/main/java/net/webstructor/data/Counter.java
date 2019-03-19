@@ -99,6 +99,13 @@ public class Counter extends HashMap implements Linker {
 			}
 		return this;
 	}
+	public void count(Object key,ComplexNumber[] cn){
+		Object counter = get(key);
+		if (counter == null)
+			this.put(key, cn);
+		else
+			this.put(key, ComplexNumber.add((ComplexNumber[])counter,cn));
+	}
 	public void count(Object key,int count){
 		Integer counter = (Integer)get(key);
 		this.put(key, new Integer(count + (counter == null ? 0 : counter.intValue() )));
@@ -114,7 +121,8 @@ public class Counter extends HashMap implements Linker {
 		return keySet();
 	}
 	public Number value(Object key) {
-		return (Number)get(key);
+		Object o = get(key);
+		return o instanceof Number ? (Number)get(key) : o instanceof ComplexNumber[] ? ComplexNumber.toNumber((ComplexNumber[])o) : null;
 	}
 	public Number value(Object key,int def){
 		Number value = value(key);

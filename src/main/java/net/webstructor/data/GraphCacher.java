@@ -194,7 +194,7 @@ public class GraphCacher implements Cacher {
 		}
 	}
 
-	public Graph getSubgraph(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links){
+	public Graph getSubgraphRaw(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links){
 		GraphCacher grapher = this;
 		HashSet todo = Array.toSet(ids);		
 		HashSet visited = new HashSet();
@@ -211,7 +211,11 @@ public class GraphCacher implements Cacher {
 			next.removeAll(visited);
 			todo = next;
 		}
-		
+		return all;
+	}
+	
+	public Graph getSubgraph(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links){
+		Graph all= getSubgraphRaw(ids, date, period, range, threshold, limit, links);
 		all.normalize();
 		Graph candidate = all;
 		Graph result = new Graph();

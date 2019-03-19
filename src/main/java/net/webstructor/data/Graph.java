@@ -97,6 +97,11 @@ public class Graph implements Serializable {
 		linker.count(target,amount);
 		modified = true;
 	}
+	public void addValue(Object context, Object target, Object property, ComplexNumber[] cn) {// a,p,x => a->p->x
+		Linker linker = (Linker) getLinker(context,property,true);
+		linker.count(target,cn);
+		modified = true;
+	}
 	public void addValues(Object context, Object property, Linker targetValues) {
 		Linker linker = (Linker) getLinker(context,property,true);
 		for (Iterator it = targetValues.keys().iterator(); it.hasNext();){
@@ -105,7 +110,6 @@ public class Graph implements Serializable {
 			modified = true;
 		}
 	}
-
 	public void countTargets(Set sources, String[] links, Counter targets){
 		if (!AL.empty(sources)){
 			for (Iterator it = sources.iterator(); it.hasNext();){
@@ -145,7 +149,11 @@ public class Graph implements Serializable {
 							//if (!sources.contains(target)){
 							if (!visited.contains(target)){
 								targets.add(target);
-								collector.addValue(id, target, property, l.value(target).intValue());
+								Object o = l.get(target);
+								if (o instanceof ComplexNumber[])
+									collector.addValue(id, target, property, (ComplexNumber[])o);
+								else
+									collector.addValue(id, target, property, l.value(target).intValue());
 							}
 						}
 					}
@@ -383,7 +391,7 @@ public class Graph implements Serializable {
 		return sb.toString();
 	}
 	
-	public ArrayList toList(){
+	public ArrayList toList(boolean expand){
 		ArrayList list = new ArrayList(); 
 		Set contexts = binders.keySet(); 
 		for (Iterator c = contexts.iterator(); c.hasNext();){
@@ -400,9 +408,16 @@ public class Graph implements Serializable {
 							for (Iterator l = links.iterator(); l.hasNext();){
 								Object target = l.next();
 								//TODO: normalize!!!???
-								Number value = linker.value(target);
-								//tuna is fish 134.
-								list.add(new Object[]{context,property,target,value});
+								Object o = linker.get(target);//may be Number or ComplexNumber[]
+								//tuna is fish 134. //if not a ComplexNumber[]
+								if (o instanceof Number || !expand)
+									list.add(new Object[]{context,property,target,o});
+								else if (o instanceof ComplexNumber[]){
+									ComplexNumber[] cn = (ComplexNumber[])o;
+									for (int i = 0; i < cn.length; i++)
+										list.add(cn[i].b == null ? new Object[]{context,property,target,cn[i].a}
+												: new Object[]{context,property,target,cn[i].a,cn[i].b});
+								}
 							}
 						}
 					}
@@ -411,10 +426,6 @@ public class Graph implements Serializable {
 		}
 		//context property target value
 		return list;
-	}
-	
-	public Object[][] toArray(){
-		return (Object[][]) toList().toArray(new Object[][]{});
 	}
 	
 	//temporary hack to prevent Eclipse crashing on huge StringBuilder-s

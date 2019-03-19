@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.webstructor.al.AL;
+import net.webstructor.data.ComplexNumber;
 import net.webstructor.data.Counter;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
@@ -55,6 +56,8 @@ import net.webstructor.main.Mainer;
 import net.webstructor.main.Tester;
 
 class ReputationParameters {
+	boolean denomination = false; // true to denominate weighted ratings by sum of weight, false to don't
+	boolean complexRatings = true; // true to store ratings as arrays of ComplexNumbers, false to compress them in integer
 	double conservatism = 0.5; // balance of using either older reputation (1.0) or latest one (0.0) when blending them, in range 0.0 to 1.0, default is 0.5;
 	boolean logarithmicRatings = false; // whether or not apply log10(1+x) to ratings (no need for that if stored ratings are logarithmic already, like in case of Aigents Graphs); 
 	boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
@@ -68,6 +71,7 @@ class ReputationParameters {
 	BigDecimal ratingPrecision = null; //use to round/up or round down financaial values or weights as value = round(value/precision)
 	boolean implicitDownrating = false; //boolean option with True value to translate original explicit rating values in range 0.5-0.0 to negative values in range 0.0 to -1.0 and original values in range 1.0-0.5 to interval 1.0-0.0, respectively
 	boolean temporalAggregation = false; //boolean option with True value to force aggregation of all explicit ratings between each unique combination of two agents with computing weighted average of ratings across the observation period
+	boolean rankUnrated = false; //boolean option to store defaul ratings so inactive agents may get reputaion growth or decay (based on default and decayed settings) over time  
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
 			T&P — Time and period of reputation recalculation/update;
@@ -194,6 +198,7 @@ class GraphCacherStater implements Stater {
 
 //TODO: synchroizaion
 public class Reputationer {
+	protected Environment env;
 
 	//system context properties
 	protected Stater states = null; //date/timestamp->account->dimension/aspect->domain/category->value or enclosed HashMap with dimensions/aspects
@@ -222,6 +227,7 @@ public class Reputationer {
 	}
 	
 	public Reputationer(Environment env, String name, String path, boolean dailyStates){
+		this.env = env;
 		cacher = new GraphCacher(name,env,path);
 		if (dailyStates)
 			states = new GraphCacherStater();
@@ -333,39 +339,69 @@ public class Reputationer {
 		Linker state = prevstate == null ? new Counter() : (Linker)prevstate.get(type);
 		
 		Summator differential = new Summator(); 
+		Summator normalizer = new Summator(); 
+		Summator raters = new Summator();
 
 		//compute incremental reputation over time period
 		for (Date day = Time.date(prevdate, +1); day.compareTo(nextdate) <= 0; day = Time.date(day, +1)){
 			Graph daily = cacher.getGraph(day);
 			//TODO: Iterator interface and graph iterator func with Doer callback interface Doer { public int do(Object[] context); }
 			//TODO: skip reverse ratings 
-			List ratings = daily.toList();
+			List ratings = daily.toList(false);//don't expand
 			if (AL.empty(ratings))
 				continue;
 			for (int i = 0; i < ratings.size(); i++){
 				Object[] rating = (Object[])ratings.get(i);// [from type to value]
+				if (rating[0] == null || rating[1] == null || rating[2] == null || rating[3] == null)
+					continue;
 				if (!((String)rating[1]).endsWith("s"))//skip reverse ratings
 					continue;
-				Number raterNumber = state.value(rating[0]);//value in range 0-100%
-				double raterValue = !params.liquidRatings ? 1.0 : 
-						raterNumber == null? params.defaultReputation * 100: raterNumber.doubleValue();//0-100				
-				if (rating[3] == null)
-						continue;
-				double ratingValue = ((Number)rating[3]).doubleValue();
-				differential.count(rating[2], raterValue * ratingValue, 0);
+				Object rater = rating[0];
+				Object ratee = rating[2];
+				Object value = rating[3];
+				Number raterNumber = state.value(rater);//value in range 0-100%
+				if (raterNumber == null)
+					raterNumber = new Double( params.defaultReputation * 100 );//0-100
+				
+				if (!raters.containsKey(rater))//save all pre-existing and default rater values
+					raters.put(rater, raterNumber);
+				
+				double raterValue = !params.liquidRatings ? 1.0 : raterNumber.doubleValue();
+				if (value instanceof Number){
+					double ratingValue = ((Number)value).doubleValue();
+					differential.count(ratee, raterValue * ratingValue, 0);
+				}else if (value instanceof ComplexNumber[]){
+					ComplexNumber[] c = (ComplexNumber[])value;
+					for (int j = 0; j < c.length; j++){
+						double[] r = calcRating(c[j].a,c[j].b);
+						differential.count(ratee, raterValue * Math.round(r[0]), 0);//TODO: no round!?
+						if (params.denomination && r.length > 1)
+							normalizer.count(ratee, r[1], 0);
+					}
+				}
 			}
 		}
-//System.out.println(state);
-//System.out.println(differential);
+		
+		if (params.denomination && !normalizer.isEmpty())
+			if (!differential.divide(normalizer))
+				env.error("Reputationer "+name+" has no normalizer", null);
+		
 		differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
-//System.out.println(differential);
-		differential.blend(state,params.conservatism,
+		differential.blend(state, params.conservatism,
 				(int)Math.round(params.decayedReputation * 100), //for new reputation to decay
 				(int)Math.round(params.defaultReputation * 100));//for old reputation to stay
 		differential.normalize(false,params.implicitDownrating);//TODO: if we really need fullnorm on downrating?
-//System.out.println(differential);
-//if (params.implicitDownrating)
-//	System.out.println("----------");
+		
+		if (params.rankUnrated)//if required, add unrated newcomers with default value moving to decayed
+			for (Iterator it = raters.keys().iterator(); it.hasNext();){
+				Object rater = it.next();
+				Number rated = differential.value(rater);
+				if (rated == null){//if rater is not rated itself, assume default moving to decayed
+					double novelty = 1 - params.conservatism;
+					differential.put(rater,new Double(raters.value(rater).doubleValue() * params.conservatism + params.decayedReputation * 100 * novelty));
+				}
+			}
+		
 		states.add(nextdate, type, null, new Counter(differential));
 		//states.add(nextdate, type, null, new Summator(differential));
 		//TODO: save
@@ -450,14 +486,61 @@ public class Reputationer {
 	//TODO: return weight and time
 	protected Object[][] get_ratings(String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links){
 		//TODO: sorting results for stability!?
-		Graph result = cacher.getSubgraph(ids, date, period, range, threshold, limit, links);
-		Object[][] o = result.toArray();
+		Graph result = params.complexRatings ? cacher.getSubgraphRaw(ids, date, period, range, threshold, limit, links)
+				: cacher.getSubgraph(ids, date, period, range, threshold, limit, links);
+		Object[][] o = (Object[][]) result.toList(params.complexRatings).toArray(new Object[][]{});
 		//TODO: sort
 		Arrays.sort(o,new ArrayPositionComparator(0,2));//asc id order!?
 		result.clear();//save memory
 		return o;
 	}
 
+	//public double calcRating(Number value, Number weight){
+	public double[] calcRating(Number value, Number weight){
+		//Note that we assume it is EITHER explicit rating with financial weight OR implicit financial rating!
+		if (weight != null){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
+			if (params.implicitDownrating && params.defaultRating > 0){
+				if (value == null)
+					value = new BigDecimal(0);
+				else {//scale rating values to range -100 to +100
+					double d = params.defaultRating * 100;
+					double v = value.doubleValue();
+					v = v < d ? (v - d) / d : (v - d) / (100 - d);
+					value = new BigDecimal(v * 100);
+				}
+			}else{
+				if (value == null)
+					value = new BigDecimal(params.defaultRating * 100);
+			}
+			if (!params.weightingRatings){
+				weight = null;
+			} else {
+				//if Precision parameter is set to value other than 1.0, the financial values of the implicit or explicit ratings are re-scaled with Qij = Round(Qij  / Precision).
+				if (params.ratingPrecision != null)
+					weight = new BigDecimal(weight.doubleValue()).divide(params.ratingPrecision);
+				//if LogRatings option is set to True, financial values of the implicit or explicit ratings are scaled to logarithmic scale as Qij = If(Qij  < 0, - log10(1 - Qij ), log10(1 + Qij )), where negative value may be corresponding to the case of transaction withdrawal or cancellation.
+				if (params.logarithmicRatings){
+					double d = weight.doubleValue();
+					weight = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
+				}
+			}
+		}else{//no weight => so it is payment in any range (or - rating without weight)
+			//if Precision parameter is set to value other than 1.0, the financial values of the implicit or explicit ratings are re-scaled with Qij = Round(Qij  / Precision).
+			if (params.ratingPrecision != null)
+				value = new BigDecimal(value.doubleValue()).divide(params.ratingPrecision);
+			//if LogRatings option is set to True, financial values of the implicit or explicit ratings are scaled to logarithmic scale as Qij = If(Qij  < 0, - log10(1 - Qij ), log10(1 + Qij )), where negative value may be corresponding to the case of transaction withdrawal or cancellation.
+			if (params.logarithmicRatings){
+				double d = value.doubleValue();
+				value = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
+			}
+			weight = null;
+		}
+		//return weight == null ? value.doubleValue() : value.doubleValue() * weight.doubleValue();
+		return weight == null ? new double[]{value.doubleValue()}
+				: new double[]{value.doubleValue() * weight.doubleValue(),weight.doubleValue()};
+	}
+	
+	
 	/**
 	Rate (for implicit and explicit rates or stakes from any external sources)
 		Input (array):
@@ -494,59 +577,7 @@ public class Reputationer {
 			String from = (String)r[0];
 			String type = (String)r[1];
 			String to = (String)r[2];
-			Number value = (Number)r[3];
-			Number weight = (Number)r[4];
-			//Note that we assume it is EITHER explicit rating with financial weight OR implicit financial rating!
-			if (weight != null){//has weight => so it is rating in range 0.0-1.0 with weighting in any range
-				if (params.implicitDownrating && params.defaultRating > 0){
-					if (value == null)
-						value = new BigDecimal(0);
-					else {//scale rating values to range -100 to +100
-						double d = params.defaultRating * 100;
-						double v = value.doubleValue();
-						v = v < d ? (v - d) / d : (v - d) / (100 - d);
-						value = new BigDecimal(v * 100);
-					}
-				}else{
-					if (value == null)
-						value = new BigDecimal(params.defaultRating * 100);
-				}
-				if (!params.weightingRatings){
-					weight = null;
-				} else {
-					//if Precision parameter is set to value other than 1.0, the financial values of the implicit or explicit ratings are re-scaled with Qij = Round(Qij  / Precision).
-					if (params.ratingPrecision != null)
-						weight = new BigDecimal(weight.doubleValue()).divide(params.ratingPrecision);
-					//if LogRatings option is set to True, financial values of the implicit or explicit ratings are scaled to logarithmic scale as Qij = If(Qij  < 0, - log10(1 - Qij ), log10(1 + Qij )), where negative value may be corresponding to the case of transaction withdrawal or cancellation.
-					if (params.logarithmicRatings){
-						double d = weight.doubleValue();
-						weight = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
-					}
-				}
-			}else{//no weight => so it is payment in any range (or - rating without weight)
-				//if Precision parameter is set to value other than 1.0, the financial values of the implicit or explicit ratings are re-scaled with Qij = Round(Qij  / Precision).
-				if (params.ratingPrecision != null)
-					value = new BigDecimal(value.doubleValue()).divide(params.ratingPrecision);
-				//if LogRatings option is set to True, financial values of the implicit or explicit ratings are scaled to logarithmic scale as Qij = If(Qij  < 0, - log10(1 - Qij ), log10(1 + Qij )), where negative value may be corresponding to the case of transaction withdrawal or cancellation.
-				if (params.logarithmicRatings){
-					double d = value.doubleValue();
-					value = new BigDecimal(d > 0 ? Math.log10(1 + d) : - Math.log10(1 - d));
-				}
-				weight = null;
-			}
-			//In current Aigents implementation of the Liquid Rank algorithm https://arxiv.org/pdf/1806.07342.pdf
-			//weighted ratings are stored "blended" so the rating values are multiplied by financial weights and rounded to
-			//integers and stored in that way.
-			//This has to be fixed, because "ideal reputation system" should be able to do aggregation of ratings so the 
-			//rating value and financial weight should be stored separately for each of the original ratings.
-			//Also, the blended rating is saved as integer value so it rounded up before storing.
-			if (weight != null)
-				value = new Integer((int)Math.round(value.doubleValue() * weight.doubleValue()));
-			else
-				value = new Integer((int)Math.round(value.doubleValue()));
 			Date date = Time.date((Date)r[5]);
-			//TODO: store in FULL version of storage
-			//... separate store of rating and weight as big decimal or double ... 
 			//store in light version of storage
 			if (latest_date == null || !latest_date.equals(date)){
 				//TODO: ensure to save the graph!?
@@ -554,8 +585,27 @@ public class Reputationer {
 				latest_graph = cacher.getGraph(date);
 				latest_date = date;
 			}
-			latest_graph.addValue(from, to, type+"-s", value.intValue());//eg. rate-s
-			latest_graph.addValue(to, from, type+"-d", value.intValue());//eg. rate-d
+			Number value = (Number)r[3];
+			Number weight = (Number)r[4];
+			if (params.complexRatings){
+				//TODO: store in FULL version of storage
+				//... separate store of rating and weight as big decimal or double ... 
+				ComplexNumber[] cn = new ComplexNumber[]{
+						weight != null ? new ComplexNumber(value.doubleValue(),weight.doubleValue()) : new ComplexNumber(value.doubleValue())
+						};
+				latest_graph.addValue(from, to, type+"-s", cn);//eg. rate-s
+				latest_graph.addValue(to, from, type+"-d", cn);//eg. rate-d
+			}else{
+				//In current Aigents implementation of the Liquid Rank algorithm https://arxiv.org/pdf/1806.07342.pdf
+				//weighted ratings are stored "blended" so the rating values are multiplied by financial weights and rounded to
+				//integers and stored in that way.
+				//This has to be fixed, because "ideal reputation system" should be able to do aggregation of ratings so the 
+				//rating value and financial weight should be stored separately for each of the original ratings.
+				//Also, the blended rating is saved as integer value so it rounded up before storing.
+				int ratingValue = (int)Math.round(calcRating(value,weight)[0]);//TODO:double!?
+				latest_graph.addValue(from, to, type+"-s", ratingValue);//eg. rate-s
+				latest_graph.addValue(to, from, type+"-d", ratingValue);//eg. rate-d
+			}
 		}
 		ratings_modified = true;
 		return 0;
@@ -908,6 +958,10 @@ public class Reputationer {
 			r.params.logarithmicRatings = Str.arg(args, "logratings", r.params.logarithmicRatings ? "true": "false").toLowerCase().equals("true");
 		if (Str.has(args,"weighting", null))
 			r.params.weightingRatings = Str.arg(args, "weighting", r.params.weightingRatings ? "true": "false").toLowerCase().equals("true");
+		if (Str.has(args,"unrated", null))
+			r.params.rankUnrated = Str.arg(args, "unrated", r.params.rankUnrated ? "true": "false").toLowerCase().equals("true");
+		if (Str.has(args,"denomination", null))
+			r.params.denomination = Str.arg(args, "denomination", r.params.denomination ? "true": "false").toLowerCase().equals("true");
 		if (Str.has(args,"liquid", null))
 			r.params.liquidRatings = Str.arg(args, "liquid", r.params.liquidRatings ? "true": "false").toLowerCase().equals("true");
 		if (Str.has(args,"downrating", null))
