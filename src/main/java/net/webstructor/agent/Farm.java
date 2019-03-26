@@ -45,6 +45,7 @@ import net.webstructor.comm.CmdLiner;
 import net.webstructor.comm.Telegrammer;
 import net.webstructor.comm.eth.Ethereum;
 import net.webstructor.comm.fb.FB;
+import net.webstructor.comm.fb.Messenger;
 import net.webstructor.comm.goog.GApi;
 import net.webstructor.comm.steemit.Steemit;
 import net.webstructor.comm.vk.VK;
@@ -116,8 +117,10 @@ public class Farm extends Body {
 		if (console)
 			new CmdLiner(this).start();
 		if (!AL.empty(self().getString(telegram_token)))
-			//System.out.println(self().getString(telegram_token));
-			new Telegrammer(this).start();
+			new Telegrammer(this).start();//this is polling, so need to start it
+		if (!AL.empty(self().getString(facebook_token)))
+			new Messenger(this);//this is hook-based, so no need to to start it
+		//TODO: Slacker
 		if (social) {
 			//TODO: this in other place, changeable online?
 			String fb_id = self().getString(facebook_id);

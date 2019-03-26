@@ -33,20 +33,27 @@ import javax.json.JsonReader;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
+import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
 import net.webstructor.util.Str;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.HTTPHandler;
+import net.webstructor.comm.HTTPListener;
 import net.webstructor.comm.HTTPeer;
+import net.webstructor.core.Thing;
+import net.webstructor.core.Updater;
 
 //https://medium.com/@nadeem.manzoor0/facebook-messenger-platform-web-hook-setup-in-php-893ead06746b#.clhcea94c
 //https://developers.facebook.com/docs/messenger-platform/send-api-reference#request
 //https://developers.facebook.com/docs/messenger-platform/reference/send-api/
-public class Messenger extends net.webstructor.comm.Communicator implements HTTPHandler {
+public class Messenger extends net.webstructor.comm.Communicator implements HTTPHandler, Updater {
 	public static final String name = "facebook"; 
+	HTTPListener cacheHolder;
 
-	public Messenger(Body body) {
-		super(body);
+	public Messenger(Body env) {
+		super(env);
+		env.register(name, this);
+		body.debug("Messenger registered.");
 	}
 
 	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler
@@ -55,7 +62,19 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
 	}
 	
 	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException {
-		if (url.startsWith("/facebook") && !AL.empty(request)){
+		if (!url.startsWith("/facebook"))
+			return false;
+		if (url.startsWith("/facebook/report_")){
+			String key = Str.parseBetween(url, "/facebook/report_", ".html",true);
+			String data = parent.parent().retrieve(key);
+			if (data == null)
+				parent.respond("","410 Gone","text/plain");
+			else
+				parent.respond(data,"200 Ok","text/html");
+			return true;
+		}
+		cacheHolder = parent.parent();
+		if (!AL.empty(request)){
 			//verify URL
 			/*if (isset($_GET['hub_verify_token'])) { 
 			    if ($_GET['hub_verify_token'] === $verify_token) {
@@ -165,6 +184,12 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
             fclose($handle);
             do_send($sender,"https://aigents.com/tmp/" . $filename);
             */
+			//put message in session-based storage
+			String uuid  = cacheHolder.store(message);
+			//return url to base_url/al/facebook/report.html
+//TODO:Body.http_base without "/"
+			String http_base = "https://aigents.com/al";
+			output(psid,http_base+"/facebook/report_"+uuid+".html");
 		}else{
         	/*
             $reply = str_replace(array("\r\n", "\n", "\r"), ' ', $reply);//replace CR/LF-s with spaces in PHP!?
@@ -236,5 +261,32 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
 		} catch (Exception e){
 			body.error("Facebook error",e);
 		}
+	}
+
+	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler
+	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
+		String facebook_id = peer.getString(Body.facebook_id);
+		String psid = null;
+		if (!AL.empty(facebook_id)){//
+			String login_token = peer.getString(Peer.login_token);
+			//body.debug("Facebook updating id "+facebook_id+" session "+login_token+" text "+content);
+			if (!AL.empty(login_token)){
+				String[] ids = Parser.split(login_token,":");
+				if (ids != null && name.equals(ids[0]) && ids.length == 3)//facebook:psid:psuid
+					psid = ids[1];
+			}
+		}
+		if (!AL.empty(psid)){
+			StringBuilder sb = new StringBuilder();
+			if (!AL.empty(subject))
+				sb.append(subject).append('\n');
+			sb.append(content);
+			if (!AL.empty(signature))
+				sb.append('\n').append(signature);
+			body.debug("Facebook update id "+facebook_id+" psid "+psid+" text "+content);
+			output(psid, sb.toString());
+			return true;
+		}
+		return false;
 	}
 }

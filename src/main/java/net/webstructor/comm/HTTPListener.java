@@ -26,6 +26,7 @@ package net.webstructor.comm;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import net.webstructor.agent.Body; 
@@ -46,6 +47,8 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 	protected String http_origin = "null";//needed for AJAX CORS, null for local, * for Safari, specific for Chrome/Firefox
 	protected int threads = 2;//2;//0 - synchronous single-threaded, > 0 - asynchronous multi-threaded;
 	protected boolean http_secure = false;
+	
+	private HashMap cache = new HashMap();//store cached data
 	
 	private HTTPHandler[] handlers; //TODO have all child Communicators registered as handlers/filters/plugins
 	
@@ -131,5 +134,21 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 					return true;
 		return false;
 	}
-		
+
+	public String store(String value){
+		synchronized (cache){
+			String key = getCookie();
+			cache.put(key, value);
+			return key;
+		}
+	}
+	
+	public String retrieve(String key){
+		synchronized (cache){
+			String value = (String)cache.get(key);
+			if (value != null)
+				cache.remove(key);
+			return value;
+		}
+	}
 }//end class

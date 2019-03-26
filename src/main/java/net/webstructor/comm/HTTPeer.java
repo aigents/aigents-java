@@ -60,6 +60,10 @@ public class HTTPeer extends Communicator
 		this.parent = parent; 
 	}
 	
+	public HTTPListener parent(){
+		return parent;
+	}
+	
 	byte[] buildHeader(int contentLength,String content_type) throws IOException {
 		StringBuilder header = new StringBuilder(256);
 		header.append("HTTP/1.0 200 OK\r\n")
@@ -251,10 +255,14 @@ public class HTTPeer extends Communicator
 	}
 	
 	public void respond(String response) throws IOException {
+		respond(response,"200 Ok","text/plain");
+	}
+	
+	public void respond(String response, String code, String type) throws IOException {
     	OutputStream os = socket.getOutputStream();
     	BufferedOutputStream bos = new BufferedOutputStream(os);
     	byte[] bytes = response.getBytes("UTF-8");
-    	String hdrStr = "HTTP/1.0 200 Ok\nContent-Type: text/plain\nContent-Length: "+bytes.length+"\n\n";
+    	String hdrStr = "HTTP/1.0 "+code+"\nContent-Type: "+type+"\nContent-Length: "+bytes.length+"\n\n";
     	bos.write(hdrStr.getBytes("UTF-8"));
     	bos.write(bytes);
 	    bos.flush();

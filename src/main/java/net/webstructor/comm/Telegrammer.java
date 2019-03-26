@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -82,7 +82,8 @@ public class Telegrammer extends Communicator implements Updater {
 	public Telegrammer(Body env) {
 		super(env);
 		self = body.self();
-		env.register("telegram", this);
+		env.register(name, this);
+		body.debug("Telegrammer registered.");
 	}
 	
 	public String key(String chat_id,String from_id){
@@ -249,6 +250,7 @@ public class Telegrammer extends Communicator implements Updater {
 		peer.setString(Body.telegram_id, ids(session.getKey())[2]);
 	}
 	
+	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler
 	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
 		String from_id = peer.getString(Body.telegram_id);
 		if (AL.empty(from_id)){//backup path - get from id from the session
