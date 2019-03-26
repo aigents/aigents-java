@@ -57,7 +57,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.5.5";
+	public final static String VERSION = "1.5.7";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -104,6 +104,10 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String facebook_id = "facebook id";
 	public static final String facebook_key = "facebook key";
 	public static final String facebook_token = "facebook token";
+	public static final String facebook_challenge = "facebook challenge";
+	public static final String slack_id = "slack id";
+	public static final String slack_key = "slack key";
+	public static final String slack_token = "slack token";
 	public static final String google_id = "google id";//client id or user id
 	public static final String google_key = "google key";//client secret
 	public static final String google_token = "google token";//access_token or temporary code
@@ -133,7 +137,8 @@ public abstract class Body extends Anything implements Environment, Updater
 		mail_store_protocol, 
 		mail_pop3s_host, mail_pop3s_port, mail_pop3_starttls_enable,
 		google_id, google_key, //google_token,
-		facebook_id, facebook_key, facebook_token,
+		facebook_id, facebook_key, facebook_token, facebook_challenge,
+		slack_id, slack_key, slack_token,
 		vkontakte_id, vkontakte_key, vkontakte_token,
 		telegram_token, telegram_offset,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,

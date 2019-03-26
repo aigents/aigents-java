@@ -418,9 +418,15 @@ function test_search() {
 	logout();
 }
 
+
+function test_apis() {
+}
+
+
 test_init();
 test_search();
 test_chat();
+test_apis();
 test_summary();
 
 ?>

@@ -250,24 +250,45 @@ public class HTTPeer extends Communicator
 		}
 	}
 	
+	public void respond(String response) throws IOException {
+    	OutputStream os = socket.getOutputStream();
+    	BufferedOutputStream bos = new BufferedOutputStream(os);
+    	byte[] bytes = response.getBytes("UTF-8");
+    	String hdrStr = "HTTP/1.0 200 Ok\nContent-Type: text/plain\nContent-Length: "+bytes.length+"\n\n";
+    	bos.write(hdrStr.getBytes("UTF-8"));
+    	bos.write(bytes);
+	    bos.flush();
+	    os.flush();
+	}
+	
 	private void process() {
 		String request = null;
+		String url_header_request[] = {null,null,null};
 		try {
 			in = new BufferedInputStream(socket.getInputStream());
 			out = new BufferedOutputStream(socket.getOutputStream());
-			String url_header_request[] = {null,null,null};
 			input(url_header_request); // read HTTP request
+			
+//body.reply("H1:"+url_header_request[0]+":"+url_header_request[1]+":"+url_header_request[2]);
+			
+		    //TODO: if found filter/handler for url_header_request, pass that to the one
+		    if (parent.handleHTTP(this,url_header_request[0],url_header_request[1],url_header_request[2]))
+		    	return;
+
+//body.reply("H2:"+url_header_request[0]+":"+url_header_request[1]+":"+url_header_request[2]);
+		    
 			request = url_header_request[2];
-			if (request == null) {
+			if (request == null) {//if no data for Aigets core handling
 				output(null,null);//return 404,TODO:better idea?
 				return;
 			}
+			
 			body.reply(cookieString+":"+request);
 			if (cookieString == null) { // generate cookie for new sessions
 				cookieString = parent.getCookie();
 			}
-
-		    //TODO: hack properly using filters
+			
+		    //TODO: hack properly using filters and handleHTTP
 		    //TODO: fix header
 		    if (request.startsWith("u=") && AL.isURL(request.substring(2))){
 		    	request = request.substring(2);
@@ -282,11 +303,6 @@ public class HTTPeer extends Communicator
 			    os.flush();
 			    //TODO:keep-alive???
 			    socket.close();
-		    	return;
-		    }
-		    
-		    //TODO: if found filter/handler for url_header_request, pass that to the one
-		    if (parent.slacker.handleHTTP(this,url_header_request[0],url_header_request[1],url_header_request[2])){
 		    	return;
 		    }
 		    

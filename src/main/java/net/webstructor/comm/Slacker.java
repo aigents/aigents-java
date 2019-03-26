@@ -23,11 +23,8 @@
  */
 package net.webstructor.comm;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringReader;
-import java.net.URLEncoder;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -38,7 +35,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.peer.Session;
 
-public class Slacker extends Communicator {
+public class Slacker extends Communicator implements HTTPHandler {
 
 	public Slacker(Body body) {
 		super(body);
@@ -50,7 +47,7 @@ public class Slacker extends Communicator {
 	 * @throws IOException
 	 */
 	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException {
-		if (url.contains("slack")){
+		if (url.startsWith("/slack")){
 			if (!AL.empty(request)){
 		    	String response = "";
 		    	
@@ -105,16 +102,7 @@ public class Slacker extends Communicator {
 					response = challenge;
 				
 				//TODO: actual response?
-		    	OutputStream os = parent.socket.getOutputStream();
-		    	BufferedOutputStream bos = new BufferedOutputStream(os);
-		    	
-		    	byte[] bytes = response.getBytes("UTF-8");
-	        	String hdrStr = "HTTP/1.0 200 Ok\nContent-Type: text/plain\nContent-Length: "+bytes.length+"\n\n";
-	        	bos.write(hdrStr.getBytes("UTF-8"));
-		    	bos.write(bytes);
-			    bos.flush();
-			    os.flush();
-				
+				parent.respond(response);
 				return true;
 			}
 		}

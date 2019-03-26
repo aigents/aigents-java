@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,8 @@ public class Schema {
 	public static String[] roots = {self, peer};
 	public static String[] foundation = {self, peer, AL.time, AL.number, AL.money, AL.word, AL.daytime};
 	public static String[] keys = {AL.name,AL.email,Peer.surname,Peer.birth_date,Body.facebook_id,Body.google_id,Body.vkontakte_id,Body.facebook_id,Body.telegram_id}; // key attributed for merging
-	public static String[] case_sensitive = {Body.email_password,Body.facebook_token,Body.google_key,Body.google_token,Body.vkontakte_key,Body.telegram_token};
-	public static String[] unique = {AL.email,Body.facebook_id,Body.google_id,Body.vkontakte_id,Body.telegram_id};
+	public static String[] case_sensitive = {Body.email_password,Body.facebook_token,Body.facebook_challenge,Body.slack_token,Body.slack_key,Body.google_key,Body.google_token,Body.vkontakte_key,Body.telegram_token};
+	public static String[] unique = {AL.email,Body.facebook_id,Body.slack_id,Body.google_id,Body.vkontakte_id,Body.telegram_id};
 	public static String[] thinkable = {Peer.social_relevance,Peer.relevance/*,"importance","similarity","authority","closeness","adherence"*/};
 			
 	private Storager storager;

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ import net.webstructor.data.SocialFeeder;
 
 class Feeder extends SocialFeeder {
 
-	static String api_url = "https://graph.facebook.com/v3.0/";
+	public static String api_url = "https://graph.facebook.com/v3.0/";
 	static final int MAX_CALLS_PER_HOUR = 200;
 	
 	HttpFileReader reader = new HttpFileReader();

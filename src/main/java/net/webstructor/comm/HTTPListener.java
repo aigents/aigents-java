@@ -30,6 +30,7 @@ import java.util.LinkedList;
 
 import net.webstructor.agent.Body; 
 import net.webstructor.al.AL;
+import net.webstructor.comm.fb.Messenger;
 import net.webstructor.core.Thing;
 
 import java.util.UUID;
@@ -37,7 +38,7 @@ import java.util.UUID;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 
-public class HTTPListener extends TCPListener {
+public class HTTPListener extends TCPListener implements HTTPHandler {
 	protected LinkedList queue= new LinkedList();//Socket	
 	protected String cookie_name = "aigent";//No dots!:http://harrybailey.com/2009/04/dots-arent-allowed-in-php-cookie-names/
 	protected String cookie_domain = "aigents.org";//http://en.wikipedia.org/wiki/HTTP_cookie
@@ -46,7 +47,7 @@ public class HTTPListener extends TCPListener {
 	protected int threads = 2;//2;//0 - synchronous single-threaded, > 0 - asynchronous multi-threaded;
 	protected boolean http_secure = false;
 	
-	Slacker slacker; //TODO have all child Communicators registered as handlers/filters/plugins
+	private HTTPHandler[] handlers; //TODO have all child Communicators registered as handlers/filters/plugins
 	
 	public HTTPListener(Body body) {
 		super(body);
@@ -59,7 +60,8 @@ public class HTTPListener extends TCPListener {
 		http_origin = self.getString(Body.http_origin,http_origin);
 		http_secure = "true".equalsIgnoreCase(self.getString(Body.http_secure,"false"));
 		
-		slacker = new Slacker(body);
+		//TODO: construct it at body constructor level!?
+		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body)};
 	}
 	
 	protected synchronized String getCookie() {
@@ -120,5 +122,14 @@ public class HTTPListener extends TCPListener {
 			body.output("Could not start HTTP server (" + e.toString() + ").");
 		}
 	} // end run
-	
+
+	//@Override
+	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException {
+		if (handlers != null)
+			for (int i = 0; i < handlers.length; i++)
+				if (handlers[i].handleHTTP(parent, url, header, request))
+					return true;
+		return false;
+	}
+		
 }//end class
