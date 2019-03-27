@@ -89,7 +89,7 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
 			//Expect:
 			//curl -X GET http:/localtest.com:1180/facebook?hub_verify_token=1&hub_challenge=2
 			//Actually get:
-			//hub.mode=subscribe&hub.challenge=979555980&hub.verify_token=fb_aigents_bot
+			//hub.mode=subscribe&hub.challenge=<challenge>&hub.verify_token=<token>
 			//Hint:
 			//https://stackoverflow.com/questions/20099130/dots-in-urls-replaced-by-underscore
 			String get_data = request.replaceAll("\\.", "_");

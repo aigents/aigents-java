@@ -71,7 +71,9 @@ class ReputationParameters {
 	BigDecimal ratingPrecision = null; //use to round/up or round down financaial values or weights as value = round(value/precision)
 	boolean implicitDownrating = false; //boolean option with True value to translate original explicit rating values in range 0.5-0.0 to negative values in range 0.0 to -1.0 and original values in range 1.0-0.5 to interval 1.0-0.0, respectively
 	boolean temporalAggregation = false; //boolean option with True value to force aggregation of all explicit ratings between each unique combination of two agents with computing weighted average of ratings across the observation period
-	boolean rankUnrated = false; //boolean option to store defaul ratings so inactive agents may get reputaion growth or decay (based on default and decayed settings) over time  
+	boolean rankUnrated = false; //boolean option to store defaul ratings so inactive agents may get reputaion growth or decay (based on default and decayed settings) over time 
+	double ratings = 1.0; //impact of the explicit and implicit ratings on differential reputation
+	double spendings = 0.0; //impact of the spendings ("proof-of-burn") on differential reputation
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
 			T&P — Time and period of reputation recalculation/update;
@@ -341,6 +343,7 @@ public class Reputationer {
 		Summator differential = new Summator(); 
 		Summator normalizer = new Summator(); 
 		Summator raters = new Summator();
+		Summator spenders = new Summator();
 
 		//compute incremental reputation over time period
 		for (Date day = Time.date(prevdate, +1); day.compareTo(nextdate) <= 0; day = Time.date(day, +1)){
@@ -370,6 +373,8 @@ public class Reputationer {
 				if (value instanceof Number){
 					double ratingValue = ((Number)value).doubleValue();
 					differential.count(ratee, raterValue * ratingValue, 0);
+					if (params.spendings > 0)
+						spenders.count(rater, ratingValue, 0);//count spendings by raters (it may be financial value or rating itself in this case)
 				}else if (value instanceof ComplexNumber[]){
 					ComplexNumber[] c = (ComplexNumber[])value;
 					for (int j = 0; j < c.length; j++){
@@ -377,6 +382,8 @@ public class Reputationer {
 						differential.count(ratee, raterValue * Math.round(r[0]), 0);//TODO: no round!?
 						if (params.denomination && r.length > 1)
 							normalizer.count(ratee, r[1], 0);
+						if (params.spendings > 0)
+							spenders.count(rater, r[1], 0);//count spendings by raters
 					}
 				}
 			}
@@ -387,6 +394,11 @@ public class Reputationer {
 				env.error("Reputationer "+name+" has no normalizer", null);
 		
 		differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
+		if (params.spendings > 0){//blend ratings with spendigns if needed 
+			spenders.normalize(params.logarithmicRanks,params.normalizedRanks);
+			differential.blend(spenders, params.spendings / (params.ratings + params.spendings), 0, 0);
+		}
+
 		differential.blend(state, params.conservatism,
 				(int)Math.round(params.decayedReputation * 100), //for new reputation to decay
 				(int)Math.round(params.defaultReputation * 100));//for old reputation to stay
@@ -694,14 +706,14 @@ public class Reputationer {
 			return true;
 		}
 		if (Str.has(args,"set","parameters")){
-			set_parameters(r,args);
+			set_parameters(r,args,false);
 			return true;
 		}
 		if (Str.has(args,"update","ranks")){
 			//compute time range as date given date==until==since+period (default period = 1)
 			Date until = Time.day( Str.arg( args, Str.has(args,"date",null) ? "date" : "until" ,"today") );
 			Date since = Time.day( Str.arg( args, "since", Time.day(until, false) ) );
-			set_parameters(r,args);
+			set_parameters(r,args,false);
 			int period = (int)((r.params.periodMillis + Period.DAY - 1)/ Period.DAY);//need at least one day
 			int computed = 0;
 			env.debug("Updating "+r.name+" since "+Time.day(since,false)+" to "+Time.day(until,false)+" period "+period);
@@ -821,7 +833,7 @@ public class Reputationer {
 		}
 		else
 		if (Str.has(args,"add","ratings")){
-			set_parameters(r,args);
+			set_parameters(r,args,true);
 			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,null,"today"});  
 			if (AL.empty(ratings))
 				return false;
@@ -832,7 +844,7 @@ public class Reputationer {
 		if (Str.has(args,"load","ratings")){
 			//TODO: two options - "file" and "folder"
 			String path = Str.arg(args,"file",null);
-			set_parameters(r,args);
+			set_parameters(r,args,true);
 			if (!AL.empty(path)){
 				DataLogger dl = new DataLogger(env, r.name);
 				boolean loaded = dl.load(path, new DataLogger.StringConsumer() {					
@@ -940,7 +952,7 @@ public class Reputationer {
 		return false;
 	}
 	
-	public static void set_parameters(final Reputationer r, final String[] args){
+	private static void set_parameters(final Reputationer r, final String[] args, boolean ratings){
 		//TODO: boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
 		//TODO: double defaultRating = 0.25; // default rating value for “overall rating” and “per-dimension” ratings;
 		//TODO: long periodMillis = Period.DAY; // period of reputation recalculation/update;
@@ -948,6 +960,10 @@ public class Reputationer {
 			r.params.defaultReputation = Double.parseDouble(Str.arg(args, "default", String.valueOf(r.params.defaultReputation)));
 		if (Str.has(args, "decayed", null))
 			r.params.decayedReputation = Double.parseDouble(Str.arg(args, "decayed", String.valueOf(r.params.decayedReputation)));
+		if (!ratings && Str.has(args, "ratings", null))//so there is no ambiguity on word "ratings"
+			r.params.ratings = Double.parseDouble(Str.arg(args, "ratings", String.valueOf(r.params.ratings)));
+		if (Str.has(args, "spendings", null))
+			r.params.spendings = Double.parseDouble(Str.arg(args, "spendings", String.valueOf(r.params.spendings)));
 		if (Str.has(args, "conservatism", null))
 			r.params.conservatism = Double.parseDouble(Str.arg(args, "conservatism", String.valueOf(r.params.conservatism)));
 		if (Str.has(args, "precision", null))
