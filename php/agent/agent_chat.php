@@ -117,7 +117,7 @@ function test_chat() {
 	say("There patterns help, support; responses 'See examples at https://aigents.com/test/aigents_turing_test.html'.");
 	get("Ok.");
 	say("What patterns help?");
-	get("There patterns help, support, responses See examples at https://aigents.com/test/aigents_turing_test.html.");
+	get("There patterns help, support, responses 'See examples at https://aigents.com/test/aigents_turing_test.html'.");
 	// 2nd, check the patterns
 	say("Whatsup");
 	get("Greeting!",array("Hi!","Hello!","Whatsup?"));

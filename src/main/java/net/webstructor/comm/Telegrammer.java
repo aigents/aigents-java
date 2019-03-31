@@ -42,7 +42,6 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Iter;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Period;
-import net.webstructor.al.Writer;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
 import net.webstructor.core.Updater;
@@ -112,11 +111,11 @@ public class Telegrammer extends Communicator implements Updater {
 //TODO: move to Grouper parent abstract class for this or Slack and/or move to Conversation scope 
 // - adding session attributes?
 // - adding dedicated unauthorized chat sessions?
-	protected void updateGroup(String group_id, String group_name, String peer_id, boolean is_in, boolean is_bot, String text){
+	protected void updateGroup(String group_id, String group_name, String peer_id, String peer_name, boolean is_in, boolean is_bot, String text){
 		try {
 			//1) get group by id (eg. "telegram_id")
 			String name_id = name+" id";
-			String full_group_name = Writer.capitalize(name) + ":" + group_name;
+			String full_group_name = name + ":" + group_name;
 			Collection g = body.storager.getByName(name_id, group_id);
 			Thing group;
 			if (!AL.empty(g)){
@@ -151,7 +150,6 @@ body.debug("Telegram name_id "+name_id+" group_name "+group_name+" group "+group
 			Collection m = group.getThings(AL.members);
 			if (!AL.empty(m)) for (Iterator mit = m.iterator(); mit.hasNext();){
 				Thing p = (Thing)mit.next();
-//TODO: exclude current user
 				//6) get all user topics, do for each
 				Collection k = p.getThings(AL.knows);
 				Collection t = p.getThings(AL.trusts);
@@ -166,6 +164,7 @@ body.debug("Telegram name_id "+name_id+" group_name "+group_name+" group "+group
 				if (!AL.empty(t)) for (Iterator tit = t.iterator(); tit.hasNext();)
 					Siter.match(body.storager, parse, null, (Thing)tit.next(), today, full_group_name, null, thingPaths, null, null);
 				//8) send update if topic is matched
+//TODO: exclude sender in the news update
 				Siter.update(body,null,today,thingPaths,true,group);//forced
 			}
 		} catch (Exception e) {
@@ -281,7 +280,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				
 				if (!from_id.equals(chat_id)){
 					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false; 
-					updateGroup(chat_id, chat_title, from_id, true, is_bot, text);
+					updateGroup(chat_id, chat_title, from_id, from_username, true, is_bot, text);
 //TODO: be able to do unauthorized group conversations and enable chat message handling!
 					continue;
 				} 

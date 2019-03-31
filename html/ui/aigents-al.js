@@ -198,7 +198,8 @@ var AL = {
 		var url = AL.isURL(string);  
 		for (var i = 0; i < string.length;) {
 			var ch = string.charAt(i++);
-			if (url && ch != ch.toLowerCase())
+			//if (url && ch != ch.toLowerCase())
+			if (ch != ch.toLowerCase())
 				return true;
 			if (AL.punctuation.indexOf(ch) != -1) // if punctiation in url or before the end or spaces
 				//if (url || i == string.length || AL.spaces.indexOf(string.charAt(i)) != -1)

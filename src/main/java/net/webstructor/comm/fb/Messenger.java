@@ -281,8 +281,8 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
 			if (!AL.empty(subject))
 				sb.append(subject).append('\n');
 			sb.append(content);
-			if (!AL.empty(signature))
-				sb.append('\n').append(signature);
+			//if (!AL.empty(signature))
+			//	sb.append('\n').append(signature);
 			body.debug("Facebook update id "+facebook_id+" psid "+psid+" text "+content);
 			output(psid, sb.toString());
 			return true;

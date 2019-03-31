@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -82,5 +82,15 @@ public abstract class Set extends Term implements Comparable {
 		//if (!AL.empty(set))
 			sb.append(this instanceof Seq ? ']' : this instanceof Any ? '}' : ')');
 		return sb.toString();
+	}
+	public void toLower(){
+		for (int i = 0 ; i < set.length; i++){
+			Object o = set[i];
+			if (o instanceof String)
+				set[i] = ((String)o).toLowerCase();
+			else
+			if (o instanceof Set)
+				((Set)o).toLower();
+		}
 	}
 }

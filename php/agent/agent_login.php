@@ -471,9 +471,9 @@ function test_login_old() {
 	test_i("What your email, name, surname?");
 	test_o("My name John, email john@doe.org, surname Doe.");
 	test_i("What your secret question, secret answer?");
-	test_o("My secret question birth place, secret answer London.");
+	test_o("My secret question birth place, secret answer 'London'.");
 	test_i("What your birth place?");
-	test_o("My birth place London.");
+	test_o("My birth place 'London'.");
 	test_i("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	say("What your trusts?");
 	get("My trusts john.");
@@ -517,7 +517,7 @@ function test_login_old() {
 	test_i("What your email, name, surname?");
 	test_o("My name John, email john@doe.org, surname Doe.");
 	test_i("What your birth place?");
-	test_o("My birth place London.");
+	test_o("My birth place 'London'.");
 	test_i("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	
 	//check if both John-s are present
@@ -566,7 +566,7 @@ function test_login_old() {
 	test_i("What your email, name, surname?");
 	test_o("My name John, email john@doe.org, surname Doe.");
 	test_i("What your birth place?");
-	test_o("My birth place London.");
+	test_o("My birth place 'London'.");
 	test_i("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	test_o("What name john email, surname?");
 	test_i("John email doe@john.org, surname dare; email john@doe.org, surname doe.");
@@ -637,9 +637,9 @@ function test_login_areas() {
 	get("What your email, name, surname?");
 	say("My name John, email john@doe.org, surname Doe.");
 	get("What your secret question, secret answer?");
-	say("My secret question birth place, secret answer London.");
+	say("My secret question birth place, secret answer 'London'.");
 	get("What your birth place?");
-	say("My birth place London.");
+	say("My birth place 'London'.");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	say("What your things?");
 	get();
@@ -668,9 +668,9 @@ function test_login_areas() {
 	get("What your email, name, surname?");
 	say("My name Doe, email doe@john.org, surname John.");
 	get("What your secret question, secret answer?");
-	say("My secret question birth place, secret answer London.");
+	say("My secret question birth place, secret answer 'London'.");
 	get("What your birth place?");
-	say("My birth place London.");
+	say("My birth place 'London'.");
 	get("Ok. Hello Doe John!\nMy Aigents ".$version.$copyright);
 	//my areas (stock market)
 	say("my areas stock market.");
@@ -747,9 +747,9 @@ function test_login_areas() {
 	//register
 	say("My name Ali, email ali@baba.xxx, surname Baba.");
 	get("What your secret question, secret answer?");
-	say("My secret question birth place, secret answer London.");
+	say("My secret question birth place, secret answer 'London'.");
 	get("What your birth place?");
-	say("My birth place London.");
+	say("My birth place 'London'.");
 	get("Ok. Hello Ali Baba!\nMy Aigents ".$version.$copyright);
 	//get data for academgorodok (now in profile)
 	say("What new true, sources http://navigato.ru or http://sovok.info sources, text, times, trust?");
@@ -772,9 +772,9 @@ function test_login_areas() {
 	//register
 	say("My name Baba, email baba@ali.xxx, surname Ali.");
 	get("What your secret question, secret answer?");
-	say("My secret question birth place, secret answer London.");
+	say("My secret question birth place, secret answer 'London'.");
 	get("What your birth place?");
-	say("My birth place London.");
+	say("My birth place 'London'.");
 	get("Ok. Hello Baba Ali!\nMy Aigents ".$version.$copyright);
 	say("what my areas?");
 	get("Your areas stock market.");
@@ -796,9 +796,9 @@ function test_login_areas() {
 	say("my areas 'abvgd'.");
 	say("My name Yo, email yo@yo.xxx, surname Yo.");
 	get("What your secret question, secret answer?");
-	say("My secret question birth place, secret answer London.");
+	say("My secret question birth place, secret answer 'London'.");
 	get("What your birth place?");
-	say("My birth place London.");
+	say("My birth place 'London'.");
 	get("Ok. Hello Yo Yo!\nMy Aigents ".$version.$copyright);
 	say("What my areas?");
 	get("Your areas abvgd.");
@@ -818,7 +818,7 @@ function test_login_areas() {
 	//cleanup and logout
 	say("My email doe@john.org.");
 	get("What your birth place?");
-	say("My birth place London.");
+	say("My birth place 'London'.");
 	get("Ok. Hello Doe John!\nMy Aigents ".$version.$copyright);
 	say_thing("goog",false);
 	say_thing("msft",false);
@@ -829,7 +829,7 @@ function test_login_areas() {
 	
 	say("My email john@doe.org.");
 	get("What your birth place?");
-	say("My birth place London.");
+	say("My birth place 'London'.");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	say("You save test3.txt!");
 	get("Ok.");

@@ -183,12 +183,13 @@ public class Writer extends AL {
 			return true; 
 		if (string.charAt(0) == '#')//may be ID such as #123
 			return true;
-		boolean url = AL.isURL(string);  
+		//boolean url = AL.isURL(string);  
 		for (int i = 0; i < string.length(); i++) {
 			char ch = string.charAt(i);
-			//TODO: understand impact on total quoting, say disability to do case-insentivie searches and comparisons  
 			//http://stackoverflow.com/questions/7996919/should-url-be-case-sensitive
-			if (url && Character.isUpperCase(ch))
+			//if (url && Character.isUpperCase(ch))
+			//TODO: understand impact on total quoting, say disability to do case-insentivie searches and comparisons  
+			if (Character.isUpperCase(ch))
 				return true;
 			if (AL.punctuation.indexOf(ch) != -1) // if punctiation before the end or spaces
 				//if (i == string.length() || AL.spaces.indexOf(string.charAt(i)) != -1)
@@ -255,7 +256,7 @@ public class Writer extends AL {
 		else	
 		if (obj instanceof String) 
 			//TODO:fix quotable hack!
-			toString(out,(String)obj,context instanceof String && Schema.quotable((String)context));
+			toString(out,(String)obj,needsQuoting((String)obj) || (context instanceof String && Schema.quotable((String)context)));
 		else 
 		if (obj instanceof Property) 
 			out.append('$').append(((Property)obj).getName());

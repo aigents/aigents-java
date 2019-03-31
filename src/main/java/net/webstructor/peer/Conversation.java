@@ -271,7 +271,7 @@ class Conversation extends Mode {
 			}
 			return false;			
 		} else
-		if (trusted(session) && (session.mood == AL.direction || session.mood == AL.declaration)
+		if (session.trusted() && (session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,new String[] {"count","counting"}))) {
 			StringBuilder sb = new StringBuilder();
 			try {
@@ -324,7 +324,7 @@ class Conversation extends Mode {
 			&& session.read(Reader.pattern(AL.you,Self.saving))) {
 			session.output("Not.");
 			Thing saver = new Thing();
-			if (!trusted(session))
+			if (!session.trusted())
 				;//TODO: "No right" handling
 			else
 			if (session.read(new Seq(new Object[]{
@@ -593,7 +593,7 @@ class Conversation extends Mode {
 	boolean tryReputationer(Storager storager,Session session) {
 		boolean ok = false;
 		Thing arg = new Thing();
-		if (!trusted(session))//for superusers only, so far...
+		if (!session.trusted())//for superusers only, so far...
 			return false;
 		if (!session.read(new Seq(new Object[]{"reputation","network",new Property(arg,"word")})) && 
 			!session.read(new Seq(new Object[]{new Property(arg,"word"),"reputation"})))

@@ -71,17 +71,6 @@ public abstract class Mode {
 		return false;
 	}
 
-	//TODO: remove this!
-	protected boolean trusted(Session session) {
-		/*
-		Collection trusts = (Collection)session.getBody().self().get(AL.trusts);
-		if (!AL.empty(trusts) && trusts.contains(session.getStoredPeer()))
-			return true;
-		return false;
-		*/
-		return session.trusted();
-	}
-
 	//TODO: do this via generic functionality such as temporary proxy peer?
 	boolean setProperties(Session session) {
 		Thing temp = new Thing();

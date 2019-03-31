@@ -52,9 +52,9 @@ http://www.tesis.lebedev.ru/sun_flares.html
 	test_o("Sun flare patterns 'Вспышка балла \$class \$starttime \$maxtime \$endtime'.");
 	test_i("Ok.");
 	test_o("What sun flare patterns?");
-	test_i("Sun flare patterns Вспышка балла \$class \$starttime \$maxtime \$endtime.");
+	test_i("Sun flare patterns 'Вспышка балла \$class \$starttime \$maxtime \$endtime'.");
 	test_o("You reading 'sun flare' in 'Сегодня на Солнце произошла 1 вспышка класса С и выше Вспышка балла C2.1	2077	05:27:00	05:36:00'!");
-	test_i("My reading sun flare in Сегодня на Солнце произошла 1 вспышка класса С и выше Вспышка балла C2.1	2077	05:27:00	05:36:00.");
+	test_i("My reading sun flare in 'Сегодня на Солнце произошла 1 вспышка класса С и выше Вспышка балла C2.1	2077	05:27:00	05:36:00'.");
 	test_o("What is sun flare class, endtime, maxtime, times, starttime?");
 	test_i("There class c2.1, endtime 05:36:00, maxtime 05:27:00, starttime 2077, times today.");
 	//TODO peer has format. my format json.
@@ -101,7 +101,7 @@ http://www.hallolondon.co.uk/free_ads/for_sale/
 	test_o("Price is money.");
 	test_i("Ok.");
 	test_o("You reading 'iphone sale' in 'APPLE IPHONE 5S LTE 64GB UNLOCKED - in Hammersmith £350 blah NEW IPHONE 5S 16GB IN IN COUNTY DURHAM - in County Durham £200'!"); 
-	test_i("My reading iphone sale in APPLE IPHONE 5S LTE 64GB UNLOCKED - in Hammersmith £350 blah NEW IPHONE 5S 16GB IN IN COUNTY DURHAM - in County Durham £200.");
+	test_i("My reading iphone sale in 'APPLE IPHONE 5S LTE 64GB UNLOCKED - in Hammersmith £350 blah NEW IPHONE 5S 16GB IN IN COUNTY DURHAM - in County Durham £200'.");
 	test_o("What is iphone sale description, place, price?");
 	test_i("There description 5s 16gb in in county durham, place county durham, price £200; description 5s lte 64gb unlocked, place hammersmith, price £350.");
 	test_o("No there is iphone sale.");

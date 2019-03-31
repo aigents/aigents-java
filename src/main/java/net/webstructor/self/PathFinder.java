@@ -99,8 +99,8 @@ public class PathFinder {
 					pathSet = pathSet.merge(set instanceof Any ? (Any)set : new Any(new Object[]{set}));
 				}
 				//TODO:keep path sets in better way?
-//System.out.println(Writer.toString(new StringBuilder(),pathSet,true));
-				goal.set(AL.path,Writer.toString(new StringBuilder(),pathSet,true).toString().toLowerCase());
+				pathSet.toLower();
+				goal.set(AL.path,Writer.toString(new StringBuilder(),pathSet,true).toString());
 			}
 			return true;
 		}
