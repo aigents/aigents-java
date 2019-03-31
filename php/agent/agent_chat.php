@@ -419,14 +419,45 @@ function test_search() {
 }
 
 
-function test_apis() {
+function test_groups() {
+	login();
+	
+	//say("there is group, network telegram, name 'Aigents', id -1001115260768.");
+	//get("Ok.");
+	//say("there is group, network slack, name 'Aigents Test', id 12345.");
+	//get("Ok.");
+	//say("what is group?");
+	//get("There id -1001115260768, is group, network telegram, name Aigents; id 12345, is group, network slack, name Aigents Test.");
+	//say("there is group, network telegram, name 'Some Test', id 12345, members name anton, email koloin.");
+
+	//say("there is group, network telegram, id 12345, name 'Some Test', members bob, rob.");
+	//say("[is group, network telegram, id 12345, name 'Some Test', members (name bob, surname bobbey).");
+	//get();
+	//say("what is group?");
+	//get();
+	
+	say("There text 4 today, times today, new true, trust false, sources http://weather.yahoo.com.");
+	get("Ok.");
+	test_o("What times today?");
+	get();
+	say("new true new false.");
+	get("Ok.");
+	say("No there times today.");
+	get("Ok.");
+	
+	say("No there is group.");
+	get("Ok.");
+	say("You forget!");
+	get("Ok.");
+	
+	logout();
 }
 
 
 test_init();
 test_search();
 test_chat();
-test_apis();
+test_groups();
 test_summary();
 
 ?>

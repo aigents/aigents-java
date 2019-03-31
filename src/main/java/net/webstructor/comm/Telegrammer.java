@@ -26,6 +26,9 @@ package net.webstructor.comm;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Date;
 
 import javax.json.Json;
@@ -35,12 +38,18 @@ import javax.json.JsonReader;
 
 import net.webstructor.agent.Body; 
 import net.webstructor.al.AL;
+import net.webstructor.al.Time;
+import net.webstructor.al.Iter;
+import net.webstructor.al.Parser;
 import net.webstructor.al.Period;
+import net.webstructor.al.Writer;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
 import net.webstructor.core.Updater;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
+import net.webstructor.self.Siter;
+import net.webstructor.util.MapMap;
 
 /*
 TODO:
@@ -73,7 +82,7 @@ public class Telegrammer extends Communicator implements Updater {
 	
 	public static final long PERIOD_MIN = 1*Period.SECOND; 
 	public static final long PERIOD_MAX = 16*Period.SECOND; 
-	public static final String name = "telegram"; 
+	public static final String name = "telegram"; //TODO: move to superclass
 	
 	protected Thing self;
 	protected int timeout = 0;
@@ -100,15 +109,79 @@ public class Telegrammer extends Communicator implements Updater {
 		return ids != null && ids.length == 3 ? ids: null;
 	}
 	
-	public void output(Session session, String message) throws IOException {
-		String chat_id = session.getPeer().getString(Body.telegram_id);
-		if (AL.empty(chat_id)){
-			String[] ids = ids(session.getKey());
-			if (ids != null){
-				//TODO: support group conversations
-				chat_id = ids[2];//from_id
+//TODO: move to Grouper parent abstract class for this or Slack and/or move to Conversation scope 
+// - adding session attributes?
+// - adding dedicated unauthorized chat sessions?
+	protected void updateGroup(String group_id, String group_name, String peer_id, boolean is_in, boolean is_bot, String text){
+		try {
+			//1) get group by id (eg. "telegram_id")
+			String name_id = name+" id";
+			String full_group_name = Writer.capitalize(name) + ":" + group_name;
+			Collection g = body.storager.getByName(name_id, group_id);
+			Thing group;
+			if (!AL.empty(g)){
+				group = (Thing)g.iterator().next();
+				group.setString(AL.name, full_group_name);
+			}else{
+				//2) if missed, create group with name
+				group = new Thing(full_group_name);
+				group.setString(name_id,group_id);
+				group.storeNew(body.storager);
 			}
+body.debug("Telegram name_id "+name_id+" group_name "+group_name+" group "+group.toString());//TODO: remove debug
+			//3) if (!is_bot), add/remove peer to/from group
+			if (!is_bot){//TODO: hadle bots as well!?
+				//4) get peer by id (eg. "telegram_id")
+				Collection p = body.storager.getByName(name_id, peer_id);
+				Thing peer;
+				if (!AL.empty(p)){
+					peer = (Thing)p.iterator().next();
+					if (is_in){
+						group.addThing(AL.members, peer);
+						peer.addThing(AL.groups, group);
+					}else{ 
+						group.delThing(AL.members, peer);
+						peer.delThing(AL.groups, group);
+					}
+				}else{
+					;//TODO: add new peers dynamically
+				}
+			}
+			//5) get all group users, do for each:
+			Collection m = group.getThings(AL.members);
+			if (!AL.empty(m)) for (Iterator mit = m.iterator(); mit.hasNext();){
+				Thing p = (Thing)mit.next();
+//TODO: exclude current user
+				//6) get all user topics, do for each
+				Collection k = p.getThings(AL.knows);
+				Collection t = p.getThings(AL.trusts);
+				if (!AL.empty(k) && !AL.empty(t)){//keep trusted topics only
+					t = new HashSet(t);
+					t.retainAll(k);
+				}
+				//7) match text against topic
+				MapMap thingPaths = new MapMap();//collector
+				Date today = Time.today(0);
+				Iter parse = new Iter(Parser.parse(text));
+				if (!AL.empty(t)) for (Iterator tit = t.iterator(); tit.hasNext();)
+					Siter.match(body.storager, parse, null, (Thing)tit.next(), today, full_group_name, null, thingPaths, null, null);
+				//8) send update if topic is matched
+				Siter.update(body,null,today,thingPaths,true,group);//forced
+			}
+		} catch (Exception e) {
+			body.error("Group "+name+" error", e);
 		}
+	}
+	
+	public void output(Session session, String message) throws IOException {
+		String chat_id = null;
+		String[] ids = ids(session.getKey());
+		if (ids != null)
+			//TODO: support group conversations
+			chat_id = ids[1];//chat_id
+			//chat_id = ids[2];//from_id
+		if (AL.empty(chat_id))
+			chat_id = session.getPeer().getString(Body.telegram_id);
 		if (!AL.empty(chat_id))
 			output(chat_id, message);
 	}
@@ -162,20 +235,31 @@ public class Telegrammer extends Communicator implements Updater {
 					continue;//TODO: what?
 				if (offset < update_id)
 					offset = update_id;
+				
+				//TODO: track new members in the group 
+				//https://stackoverflow.com/questions/34567920/in-python-telegram-bot-how-to-get-all-participants-of-the-group
+				//https://core.telegram.org/bots/api#message
+				//new_chat_members, left_chat_member
+				
 				JsonObject m = HTTP.getJsonObject(o,"message");
 				if (m == null)
 					continue;
-				//"message_id":11,
-	            //"from":{  },
-	            //"chat":{  },
-	            //"date":1544370858,
-	            //"text":"111"
+body.debug("Telegram message "+m.toString());//TODO: remove debug
+				
+				//{"message_id":151,
+				//"from":{"id":302910826,"is_bot":false,"first_name":"Anton","last_name":"Kolonin","username":"akolonin","language_code":"ru"},
+				//"chat":{"id":-1001115260760,"title":"Aigents","type":"supergroup"},
+				//"date":1553863575,"text":"test5"}	
 				JsonObject from = HTTP.getJsonObject(m, "from");
 				JsonObject chat = HTTP.getJsonObject(m, "chat");
 				long unix = m.getInt("date");
 				String text = HTTP.getJsonString(m, "text", null);
+				String chat_title = chat.containsKey("title")? chat.getString("title") : null;
 				if (from == null || chat == null || unix == 0 || AL.empty(text))
 					continue;
+				
+				//TODO: handle group in/out events even if AL.empty(text)
+				
 				Date date = new Date( unix * 1000 );
 				String from_id = String.valueOf(HTTP.getJsonLong(from, "id", 0L));
 				boolean from_bot = HTTP.getJsonBoolean(from, "is_bot", false);
@@ -193,7 +277,15 @@ public class Telegrammer extends Communicator implements Updater {
 				//TODO: autoregister:
 				//telegram id = from_id
 				//name, surname, username@telegram.org
-				body.debug("date "+date+" from_username "+from_username+" text "+text);
+				body.debug("Telegram date "+date+" from_username "+from_username+" text "+text);
+				
+				if (!from_id.equals(chat_id)){
+					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false; 
+					updateGroup(chat_id, chat_title, from_id, true, is_bot, text);
+//TODO: be able to do unauthorized group conversations and enable chat message handling!
+					continue;
+				} 
+				
 				//TODO: use for session id either
 				//from_id - for private authenticated sessions
 				//chat_id - for public anonymous sessions
@@ -266,8 +358,8 @@ public class Telegrammer extends Communicator implements Updater {
 			if (!AL.empty(subject))
 				sb.append(subject).append('\n');
 			sb.append(content);
-			if (!AL.empty(signature))
-				sb.append('\n').append(signature);
+			//if (!AL.empty(signature))
+			//	sb.append('\n').append(signature);
 			output(from_id, sb.toString());
 			return true;
 		}

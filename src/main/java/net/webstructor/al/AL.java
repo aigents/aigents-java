@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,8 @@ import net.webstructor.util.Array;
 public class AL {
 	public static final int declaration = 0, direction = 1, confirmation = 2, interrogation = 3;
 
+	//TODO: move out to Lexicon/Schema
+	
 	//values
 	public final static String _true 	= "true";
 	public final static String _false 	= "false";
@@ -64,14 +66,18 @@ public class AL {
 	public final static String sources 	= "sources";
 	public final static String patterns = "patterns";
 	public final static String responses = "responses";
+	public final static String member 	= "member";
+	public final static String members 	= "members";
+	public final static String group 	= "group";
+	public final static String groups 	= "groups";
+	public final static String network 	= "network";
+	public final static String networks = "networks";
+	public final static String topic 	= "topic";
+	public final static String topics	= "topics";
 	public final static String image 	= "image";
 	public final static String path 	= "path";
 	public final static String text 	= "text"; // TODO: move this out to name?
 	public final static String version  = "version";
-
-	public final static String[] foundation = new String[]{
-		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,knows,sites,areas,sources,patterns,responses,text
-	};
 
 	//things
 	public final static String number 	= "number";//integer or floating point
@@ -84,6 +90,11 @@ public class AL {
 	public final static String word 	= "word";//single token
 	public final static String email 	= "email";//email address
 	
+	public final static String[] foundation = new String[]{
+		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,knows,sites,areas,sources,patterns,responses,text
+		,members,groups
+	};
+
 	//synsets
 	public final static String[] what 	= new String[] {"what"};
 	public final static String[] iff  	= new String[] {"if"};

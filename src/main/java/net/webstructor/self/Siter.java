@@ -293,6 +293,14 @@ public class Siter {
 	}
 	
 	private int update(){
+		int hits = update(body,rootPath,time,thingPaths,forced,null);
+		thingPaths.clear();//help gc
+		thingTexts.clear();
+		cacher.clear();
+		return hits;
+	}
+	
+	public static int update(Body body,String rootPath,Date time,MapMap thingPaths,boolean forced,Thing context){
 		Object[] things = thingPaths.getKeyObjects();
 		if (AL.empty(things))
 			return 0;
@@ -319,16 +327,16 @@ public class Siter {
 						//TODO:make sure if GLOBAL novelty is required, indeed... 
 						//if ((existing = existing(thing,instance,path,false,null) != null)//old version
 						//if ((existing = existing(thing,instance,path,false,nl_text) != null)//new path-full identity
-						if (existing(thing,instance,null,false,text) != null)//new path-less identity
+						if (existing(body,thing,instance,null,false,text) != null)//new path-less identity
 							continue;
 						if (!forced && body.archiver.exists(thingName,text))//check LTM
 							continue;
 					
 						hits++;
-						instance.store(storager);
+						instance.store(body.storager);
 						if (!AL.empty(path))
 							try {
-								storager.add(instance, AL.sources, path);
+								body.storager.add(instance, AL.sources, path);
 							} catch (Exception e) {
 								body.error(e.toString(), e);
 							}
@@ -339,7 +347,7 @@ public class Siter {
 				//TODO: real path here!!??
 				//update(storager,thing,instances,path);
 			}
-			update(storager,thing,collector,rootPath);
+			update(body,body.storager,thing,collector,rootPath,context);
 		}		
 		//memorize everything known and novel in STM AND LTM snapshots
 //TODO: optimization to avoid doing extra stuff below!!!		
@@ -360,16 +368,13 @@ public class Siter {
 						Thing existing;
 //TODO: use "forcer" consistently						
 						//if ((existing = existing(thing,instance,null,false,text)) != null)//new path-less identity
-						if (!forced && (existing = existing(thing,instance,null,false,text)) != null)//new path-less identity
+						if (!forced && (existing = existing(body,thing,instance,null,false,text)) != null)//new path-less identity
 							existing.set(AL.times,now);//update temporal snapshot in-memory
 						body.archiver.update(thingName,text,now);//update temporal snapshot in LTM
 					}
 				}
 			}
 		}
-		thingPaths.clear();//help gc
-		thingTexts.clear();
-		cacher.clear();
 		return hits;
 	}
 	
@@ -467,8 +472,8 @@ public class Siter {
 	}
 	
 	//match all Patterns of one Thing for one Site and send updates to subscribed Peers
-	//private int match(Storager storager,String text,Thing thing,Date time,String path) {
-	private int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path) {
+	//TODO: Siter extends Matcher (MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker)
+	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker) {
 		//TODO: re-use iter building it one step above
 		//ArrayList positions = new ArrayList();
 		//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
@@ -478,17 +483,21 @@ public class Siter {
 		//next, if none, create the pattern for the thing name manually
 		if (AL.empty(patterns))
 			//auto-pattern from thing name split apart
-			matches += match(storager,thing.getName(),iter,thing,time,path,positions);
+			matches += match(storager,thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker);
 		if (!AL.empty(patterns)) {
 			for (Iterator it = patterns.iterator(); it.hasNext();){				
-				matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions); 
+				matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker); 
 			}
 		}
 		return matches;
 	}
 	
+	private int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path) {
+		return match(storager, iter, positions, thing, time, path, thingTexts, thingPaths, imager, linker);
+	}
+	
 	//TODO: move out?
-	boolean has(Thing thing, String property, String name) {
+	static boolean has(Storager storager, Thing thing, String property, String name) {
 		Collection named = storager.getNamed(name);
 		Object props = thing.get(property);
 		if (props instanceof Collection && ((Collection)props).containsAll(named))
@@ -497,7 +506,7 @@ public class Siter {
 	}
 	
 	//TODO: move out to time-specific framework!?
-	Collection latest(Thing is, String path) {
+	static Collection latest(Storager storager, Thing is, String path) {
 		HashSet found = new HashSet();
 		long latest = 0;
 		Collection instances = storager.get(AL.is,is);
@@ -506,7 +515,7 @@ public class Siter {
 			for (Iterator it = new ArrayList(instances).iterator(); it.hasNext();) {
 				Thing instance = (Thing)it.next();
 //String debug_text = Writer.toPrefixedString(null, null, instance);				
-				if (path != null && !has(instance,AL.sources,path))
+				if (path != null && !has(storager,instance,AL.sources,path))
 					continue;
 				Date date = Time.day(instance.get(AL.times));
 				long time = date == null ? 0 : date.getTime();
@@ -521,8 +530,8 @@ public class Siter {
 		return found;
 	}
 
-	Thing existing(Thing thing, Thing instance, String path, boolean debug, String text) {
-		Collection coll = latest(thing,path);
+	static Thing existing(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
+		Collection coll = latest(body.storager,thing,path);
 		if (debug) {
 			body.debug("thing   :"+Writer.toString(thing));
 			body.debug("instance:"+Writer.toString(instance));
@@ -542,7 +551,7 @@ public class Siter {
 						return latest;
 					}
 				} else
-				if (storager.match(latest, instance)) {
+				if (body.storager.match(latest, instance)) {
 					if (debug)
 						body.debug("novel   :false");
 					return latest;
@@ -580,9 +589,9 @@ public class Siter {
 		}
 		return Reader.read(iter, patseq, summary);
 	}
-	
+
 	//match one Pattern for one Thing for one Site
-	int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions) {
+	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker) {
 		//Date now = Time.date(time);
 		int matches = 0;
 		//TODO:optimization so pattern with properties is not rebuilt every time?
@@ -601,7 +610,7 @@ public class Siter {
 			
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
-			if (thingTexts.getObject(thing, nl_text, false) != null)//already adding this
+			if (thingTexts != null && thingTexts.getObject(thing, nl_text, false) != null)//already adding this
 				continue;
 
 			/*
@@ -635,8 +644,10 @@ public class Siter {
 				int text_pos = textPos.intValue() - range;//compute position of text as its middle
 				link = linker.getAvailableInRange(path,new Integer(text_pos),range);
 			}
-			thingTexts.putObject(thing, nl_text, instance);
-			thingPaths.putObjects(thing, !AL.empty(link)? link : path == null ? "" : path, instance);
+			if (thingTexts != null)
+				thingTexts.putObject(thing, nl_text, instance);
+			if (thingPaths != null)
+				thingPaths.putObjects(thing, !AL.empty(link)? link : path == null ? "" : path, instance);
 			
 			matches++;
 		}
@@ -650,7 +661,7 @@ public class Siter {
 	 * @param news
 	 * @return
 	 */
-	String[] digest(Thing thing, String path, Collection news){
+	static String[] digest(Thing thing, String path, Collection news, boolean verbose){
 		if (AL.empty(news))//no news - no digest
 			return null;
 		//StringBuilder subject = new StringBuilder();
@@ -671,7 +682,7 @@ public class Siter {
 			Collection sources = t.getThings(AL.sources);
 			if (!AL.empty(sources)){
 				String source = ((Thing)sources.iterator().next()).getName();
-				if (!AL.empty(source) && !path.equals(source)){
+				if (!AL.empty(source) && !source.equals(path)){
 					if (currentPath == null || !currentPath.equals(source))
 						content.append(source).append('\n');
 					currentPath = source;
@@ -679,10 +690,12 @@ public class Siter {
 			}
 				
 			content.append('\"').append(nl_text).append('\"').append('\n');
-			String[] names = Array.sub(t.getNamesAvailable(), unneededNames);
-			if (!AL.empty(names)){
-				Writer.toString(content, t, null, names, true);//as a form
-				content.append('\n');
+			if (verbose){
+				String[] names = Array.sub(t.getNamesAvailable(), unneededNames);
+				if (!AL.empty(names)){
+					Writer.toString(content, t, null, names, true);//as a form
+					content.append('\n');
+				}
 			}
 		}
 		return new String[]{thing.getName(),content.toString()};
@@ -691,42 +704,49 @@ public class Siter {
 	//TODO: if forcer is given, don't update others
 	//- send updates (push notifications)
 	//-- Selfer: for a news for thing, send email for all its users (not logged in?) 
-	void update(Storager storager, Thing thing,Collection news,String path) {	
+	static void update(Body body, Storager storager, Thing thing,Collection news,String path,Thing group) {	
 		Object[] knows = {AL.knows,thing};
 		Object[] sites = {AL.sites,path};
 		Object[] knows_trusts = {AL.trusts,thing};
 		Object[] sites_trusts = {AL.trusts,path};
-		All query = new All(new Object[]{new Seq(knows),new Seq(sites),new Seq(knows_trusts),new Seq(sites_trusts)});
+		All query = group != null ? new All(new Object[]{new Seq(knows),new Seq(knows_trusts),new Seq(new Object[]{AL.groups,group})})
+				: new All(new Object[]{new Seq(knows),new Seq(sites),new Seq(knows_trusts),new Seq(sites_trusts)});
 		try {
 			Collection peers = storager.get(query,(Thing)null);//forcer?
-			String[] digest = digest(thing,path,news);
-			if (!AL.empty(digest) && !AL.empty(peers))
-			for (Iterator it = peers.iterator(); it.hasNext();) {
-				Thing peer = (Thing)it.next();
-				update(storager,peer,thing,news,digest[0],digest[1],body.signature());
-				
-				//TODO: make this more efficient
-				//get list of peers trusted by the peer:
-				//1) get all peers that are marked to share to by this peer
-				Collection allSharesTos = (Collection)peer.get(AL.shares);
-				if (!AL.empty(allSharesTos)) {
-					//TODO: test if it works
-					Set trustingPeers = storager.get(AL.trusts,peer);
-					if (!AL.empty(trustingPeers)){
-						trustingPeers = new HashSet(trustingPeers);
-						//2) restrict all peers with those who have the shares
-						trustingPeers.retainAll(allSharesTos);
-						for (Iterator tit = trustingPeers.iterator(); tit.hasNext();)
-							update(storager,(Thing)tit.next(),thing,news,digest[0],digest[1],"\n"+peer.getTitle(Peer.title_email)+" at "+body.site());
-					}
-				}
-			}
+			if (!AL.empty(peers))
+				update(body,storager,thing,news,path,peers,group == null);//verbose digests only for sites!?
 		} catch (Exception e) {
 			body.error("Spidering update failed ",e);
 		}
 	}
+
+	public static void update(Body body, Storager storager, Thing thing,Collection news,String path,Collection peers,boolean verbose) throws IOException {
+		String[] digest = digest(thing,path,news,verbose);
+		if (AL.empty(digest))
+			return;
+		for (Iterator it = peers.iterator(); it.hasNext();) {
+			Thing peer = (Thing)it.next();
+			update(body,storager,peer,thing,news,digest[0],digest[1],body.signature());
+			
+			//TODO: make this more efficient
+			//get list of peers trusted by the peer:
+			//1) get all peers that are marked to share to by this peer
+			Collection allSharesTos = (Collection)peer.get(AL.shares);
+			if (!AL.empty(allSharesTos)) {
+				//TODO: test if it works
+				Set trustingPeers = storager.get(AL.trusts,peer);
+				if (!AL.empty(trustingPeers)){
+					trustingPeers = new HashSet(trustingPeers);
+					//2) restrict all peers with those who have the shares
+					trustingPeers.retainAll(allSharesTos);
+					for (Iterator tit = trustingPeers.iterator(); tit.hasNext();)
+						update(body,storager,(Thing)tit.next(),thing,news,digest[0],digest[1],"\n"+peer.getTitle(Peer.title_email)+" at "+body.site());
+				}
+			}
+		}
+	}
 	
-	void update(Storager storager, Thing peer, Thing thing, Collection news, String subject, String content, String signature) throws IOException {
+	static void update(Body body, Storager storager, Thing peer, Thing thing, Collection news, String subject, String content, String signature) throws IOException {
 		for (Iterator it = news.iterator(); it.hasNext();) {
 			Thing t = (Thing)it.next();
 			t.set(AL._new, AL._true, peer);

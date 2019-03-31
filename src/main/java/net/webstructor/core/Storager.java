@@ -45,6 +45,7 @@ import net.webstructor.util.MapMap;
 public class Storager {
 
 	public static final String things_count = "things count";
+	//TODO: move to Schema
 	private final static String[] multiples = new String[]{
 		AL.is, 
 		AL.has, 
@@ -59,6 +60,8 @@ public class Storager {
 		AL.things,
 		AL.patterns,
 		AL.responses,
+		AL.members,
+		AL.groups,
 		AL.sources
 	}; 
 	
