@@ -194,7 +194,8 @@ function graph_news(news_data){
 		var nodes = {};
 		for (var i = 0; i < news_data.length; i++){
 			var item = news_data[i];
-			var site = item[2] ? (new URL(item[2])).hostname : 'unknown';
+			var source = item[2];
+			var site = source ? (AL.isURL(source) ? new URL(source).hostname : source) : 'unknown';
 			var image = item[6];
 			var name = item[3];
 			var time = item[4];
@@ -227,7 +228,8 @@ function graph_topics(news_data){
 		var nodes = {};
 		for (var i = 0; i < news_data.length; i++){
 			var item = news_data[i];
-			var site = item[2] ? (new URL(item[2])).hostname : 'unknown';
+			var source = item[2];
+			var site = source ? (AL.isURL(source) ? new URL(source).hostname : source) : 'unknown';
 			var name = item[3];
 			var time = item[4];
 			var topic = item[7];
@@ -262,7 +264,8 @@ function graph_words(news_data){
 		var nodes = {};
 		for (var i = 0; i < news_data.length; i++){
 			var item = news_data[i];
-			var site = item[2] ? (new URL(item[2])).hostname : 'unknown';
+			var source = item[2];
+			var site = source ? (AL.isURL(source) ? new URL(source).hostname : source) : 'unknown';
 			var name = item[3];
 			var time = item[4];
 			var topic = item[7];

@@ -74,6 +74,7 @@ class ReputationParameters {
 	boolean rankUnrated = false; //boolean option to store defaul ratings so inactive agents may get reputaion growth or decay (based on default and decayed settings) over time 
 	double ratings = 1.0; //impact of the explicit and implicit ratings on differential reputation
 	double spendings = 0.0; //impact of the spendings ("proof-of-burn") on differential reputation
+	boolean verbose = true; //if need full debugging log
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
 			T&P — Time and period of reputation recalculation/update;
@@ -379,6 +380,7 @@ public class Reputationer {
 					ComplexNumber[] c = (ComplexNumber[])value;
 					for (int j = 0; j < c.length; j++){
 						double[] r = calcRating(c[j].a,c[j].b);
+						if (params.verbose) env.debug("reputation debug rating: "+rater+" "+ratee+" "+c[j].a+" "+c[j].b+" "+r[0]);
 						differential.count(ratee, raterValue * Math.round(r[0]), 0);//TODO: no round!?
 						if (params.denomination && r.length > 1)
 							normalizer.count(ratee, r[1], 0);
@@ -388,22 +390,31 @@ public class Reputationer {
 				}
 			}
 		}
+		if (params.verbose) env.debug("reputation debug differential:"+differential);
+		if (params.verbose) env.debug("reputation debug denominator:"+normalizer);
 		
 		if (params.denomination && !normalizer.isEmpty())
 			if (!differential.divide(normalizer))
 				env.error("Reputationer "+name+" has no normalizer", null);
+		if (params.verbose) env.debug("reputation debug denominated:"+differential);
 		
 		differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
+		if (params.verbose) env.debug("reputation debug normalized:"+differential);
+
 		if (params.spendings > 0){//blend ratings with spendigns if needed 
 			spenders.normalize(params.logarithmicRanks,params.normalizedRanks);
 			differential.blend(spenders, params.spendings / (params.ratings + params.spendings), 0, 0);
 		}
+		if (params.verbose) env.debug("reputation debug blended spenders:"+differential);
 
 		differential.blend(state, params.conservatism,
 				(int)Math.round(params.decayedReputation * 100), //for new reputation to decay
 				(int)Math.round(params.defaultReputation * 100));//for old reputation to stay
+		if (params.verbose) env.debug("reputation debug blended old state:"+differential);
+
 		differential.normalize(false,params.implicitDownrating);//TODO: if we really need fullnorm on downrating?
-		
+		if (params.verbose) env.debug("reputation debug normalized new state:"+differential);
+
 		if (params.rankUnrated)//if required, add unrated newcomers with default value moving to decayed
 			for (Iterator it = raters.keys().iterator(); it.hasNext();){
 				Object rater = it.next();
@@ -413,6 +424,7 @@ public class Reputationer {
 					differential.put(rater,new Double(raters.value(rater).doubleValue() * params.conservatism + params.decayedReputation * 100 * novelty));
 				}
 			}
+		if (params.verbose) env.debug("reputation debug added unrated:"+differential);
 		
 		states.add(nextdate, type, null, new Counter(differential));
 		//states.add(nextdate, type, null, new Summator(differential));
@@ -516,7 +528,7 @@ public class Reputationer {
 					value = new BigDecimal(0);
 				else {//scale rating values to range -100 to +100
 					double d = params.defaultRating * 100;
-					double v = value.doubleValue();
+					double v = value.doubleValue() * 100;
 					v = v < d ? (v - d) / d : (v - d) / (100 - d);
 					value = new BigDecimal(v * 100);
 				}

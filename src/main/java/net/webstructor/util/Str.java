@@ -108,7 +108,8 @@ public class Str {
 						value = defaults[j];
 					else
 						break;
-				}
+				} else
+					next = Math.max(next,k + 2);//move to the next item
 				if (value != null) {
 					o[j] = value;
 					if (types != null && types.length == names.length){
@@ -121,10 +122,9 @@ public class Str {
 						if (types[j] == Date.class)
 							o[j] = Time.day(value);
 					} 
-					next = Math.max(next,k + 2);
 				}
 			}
-			if (j == names.length){//completed
+			if (next > 0 && j == names.length){//completed
 				res.add(o);
 				i = next;
 			}else
