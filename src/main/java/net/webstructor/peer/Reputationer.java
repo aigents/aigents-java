@@ -382,6 +382,7 @@ public class Reputationer {
 						double[] r = calcRating(c[j].a,c[j].b);
 						if (params.verbose) env.debug("reputation debug rating: "+rater+" "+ratee+" "+c[j].a+" "+c[j].b+" "+r[0]);
 						differential.count(ratee, raterValue * Math.round(r[0]), 0);//TODO: no round!?
+//						differential.count(ratee, Math.round(raterValue * r[0]), 0);//TODO: no round!?
 						if (params.denomination && r.length > 1)
 							normalizer.count(ratee, r[1], 0);
 						if (params.spendings > 0)
@@ -402,7 +403,9 @@ public class Reputationer {
 		if (params.verbose) env.debug("reputation debug normalized:"+differential);
 
 		if (params.spendings > 0){//blend ratings with spendigns if needed 
+			if (params.verbose) env.debug("reputation debug unnormalized spenders:"+spenders);
 			spenders.normalize(params.logarithmicRanks,params.normalizedRanks);
+			if (params.verbose) env.debug("reputation debug normalized spenders:"+spenders);
 			differential.blend(spenders, params.spendings / (params.ratings + params.spendings), 0, 0);
 		}
 		if (params.verbose) env.debug("reputation debug blended spenders:"+differential);
