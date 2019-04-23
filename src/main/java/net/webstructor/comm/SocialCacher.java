@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,6 @@ public abstract class SocialCacher extends Socializer {
 
 	//TODO: make private for better locking/guarding
 	protected GraphCacher cacher;
-	//private GraphCacher cacher;
 	private ReentrantLock busy = new ReentrantLock();
 	
 	public SocialCacher(Body body,String name,String url)
@@ -53,14 +52,19 @@ public abstract class SocialCacher extends Socializer {
 		super(body);
 		cacher = new GraphCacher(name,body);
 		this.name = name;
-		this.url = body != null ? body.self().getString(name+" url",url) : url;
-		this.period = body != null ? new Period(body.self().getString(name+" period","4"),Period.DAY).getDays() : 4;
+		this.url = url;
+		this.period = super.getPeriod();
+		if (body != null){
+			this.url = body.self().getString(name+" url",this.url);
+			this.period = new Period(body.self().getString(name+" period",String.valueOf(this.period)),Period.DAY).getDays();
+		}
 	}
 
 	public String getUrl(){
 		return url;
 	}
 	
+	//TODO:@Override
 	public int getPeriod(){
 		return period;
 	}

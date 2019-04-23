@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,6 @@ import javax.json.JsonReader;
 import javax.json.JsonValue;
 
 import net.webstructor.al.AL;
-import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.core.Environment;
@@ -213,7 +212,7 @@ Test contracts:
 								String from = t.getString("from");
 								String to = t.getString("to");
 								BigInteger value = new BigInteger(t.getString("value").substring(2),16);
-								int logvalue = 1 + value.doubleValue() == 0 ? 0 : (int)Math.round(Math.log10(value.doubleValue()));//should be non-zero
+								int logvalue = 1 + value.doubleValue() == 0 ? 0 : (int)Math.round(Math.log10(value.doubleValue()));//should be non-negative, but can be zero
 								String strvalue = value.doubleValue() == 0 ? null : new BigDecimal(value).divide(new BigDecimal(1000000000000000000L)).toString();
 										
 if (from.equals(test_id) || to.equals(test_id))
@@ -262,8 +261,9 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 		
 	public void getFeed(String token, Date since, Date until, StringBuilder detail) throws IOException {
 
-		if (Period.daysdiff(since, until) > api.getPeriod())//limit to given number of days
-			since = Time.date(until,-api.getPeriod());
+		//TODO: remove hack
+		//if (Period.daysdiff(since, until) > api.getPeriod())//limit to given number of days
+		//	since = Time.date(until,-api.getPeriod());
 		
 		body.debug("Ethereum crawling graph for "+user_id);
 		
@@ -298,12 +298,14 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 				if (payout != null)
 					for (Iterator it = payout.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
-						countMyLikes(key,key,payout.value(key).intValue());
+						int v = payout.value(key).intValue();//TODO: this properly, expected payments can not be zero
+						countMyLikes(key,key,v > 0 ? v : 1);
 					}
 				if (callout != null)
 					for (Iterator it = callout.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
-						countMyLikes(key,key,callout.value(key).intValue());
+						int v = callout.value(key).intValue();//TODO: this properly, expected values of smart contract calls are always zero
+						countMyLikes(key,key,v > 0 ? v : 1);
 					}
 			}
 		}

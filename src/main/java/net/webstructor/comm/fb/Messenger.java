@@ -67,6 +67,7 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
 		if (url.startsWith("/facebook/report_")){
 			String key = Str.parseBetween(url, "/facebook/report_", ".html",true);
 			String data = parent.parent().retrieve(key);
+			body.debug("Facebook report retrieved "+key+" "+(data == null ? "false" : "true"));
 			if (data == null)
 				parent.respond("","410 Gone","text/plain");
 			else
@@ -190,6 +191,7 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
 //TODO:Body.http_base without "/"
 			String http_base = "https://aigents.com/al";
 			output(psid,http_base+"/facebook/report_"+uuid+".html");
+			body.debug("Facebook report stored "+uuid);
 		}else{
         	/*
             $reply = str_replace(array("\r\n", "\n", "\r"), ' ', $reply);//replace CR/LF-s with spaces in PHP!?

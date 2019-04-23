@@ -50,17 +50,13 @@ public class Ethereum extends SocialCacher {
 	
 	public Ethereum(Body body, String name, String url, String key) {
 		super(body,name,url);
-		//cacher = new GraphCacher(name,body);
 		logger = new DataLogger(body,Writer.capitalize(name)+" crawling");
-		//this.name = name;
-		//this.url = body != null ? body.self().getString(name+" url",url) : url;
 		this.key = body != null ? body.self().getString(name+" key",key) : key;
-		this.period = body != null ? new Period(body.self().getString(name+" period","4"),Period.DAY).getDays() : 4;
+		//this.period = body != null ? new Period(body.self().getString(name+" period","4"),Period.DAY).getDays() : 4;
 	}
 
 	public String getUrl(){
-		return AL.empty(url) || AL.empty(key) ? null : 
-			url.endsWith("/") ? url+key : url+"/"+key;
+		return AL.empty(url) || AL.empty(key) ? null : url.endsWith("/") ? url+key : url+"/"+key;
 	}
 	
 	//TODO:@Override

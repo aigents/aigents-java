@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -71,14 +71,19 @@ public abstract class Socializer extends HTTP {
 	//public String reportingPath(String user_id,String format,int period_days){
 	public String reportingPath(String user_id,int period_days,String format){
 		format = ("json").equalsIgnoreCase(format) ? "json" : "html";
-		return period_days > 0 ? "reports/report_"+provider()+"_"+user_id+"_"+String.valueOf(period_days)+"."+format
-				: "report_"+provider()+"_"+user_id+"."+format;
+		return "reports/report_"+provider()+"_"+user_id+
+				(period_days > 0 ? "_"+String.valueOf(period_days) : "")+"."+format;
 	}
 	
-	static private final int reportingPeriod = 3;//month
-	static private final int reportingPeriods[] = {1,7,31,92,365,10000};//day,week,month,quarter,year
+	static private final int reportingPeriod = 1;//week
+	static private final int reportingPeriods[] = {1,7,31,92,365,1461,5844};//day,week,month,quarter,year,4 years,16 years
 	private HashSet cachedRequests = new HashSet(); 
 
+	//virtual
+	public int getPeriod(){
+		return 5844;//16 years
+	}
+	
 	//Can the data be freely browseable: true for Steemit and Golos; false for Facebook, Google+ and VKontakte  
 	public boolean opendata() {
 		return false;
@@ -181,15 +186,19 @@ public abstract class Socializer extends HTTP {
 			feeder.setDays(daysPeriod);
 			return feeder;
 		}
-		//dynamically find non-empty period
+		//dynamically find non-empty period or report on empty longest period
+		SocialFeeder feeder = null;
 		for (int i = reportingPeriod; i < reportingPeriods.length; i++){
-			SocialFeeder feeder = getCachedFeeders(id, token, key, Time.today(-reportingPeriods[i]), Time.today(+1), areas, fresh, feeds);
-			if (feeder != null && (!feeder.empty() || feeder.errorMessage != null)){
+			feeder = getCachedFeeders(id, token, key, Time.today(-reportingPeriods[i]), Time.today(+1), areas, fresh, feeds);
+			if (feeder != null){
 				feeder.setDays(reportingPeriods[i]);
-				return feeder;
+				if  (!feeder.empty() || feeder.errorMessage != null)
+					return feeder;
 			}
+			if (reportingPeriods[i] >= getPeriod())
+				break;
 		}
-		return null;
+		return feeder;
 	}
 	
 	
@@ -260,6 +269,8 @@ public abstract class Socializer extends HTTP {
 			String cached = getCachedReport(user_id, reportingPeriods[i], format, fresh);
 			if (cached != null)
 				return cached;
+			if (reportingPeriods[i] >= getPeriod())
+				break;
 		}
 		return null;
 	}

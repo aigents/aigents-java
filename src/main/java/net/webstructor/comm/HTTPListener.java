@@ -26,6 +26,7 @@ package net.webstructor.comm;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -48,7 +49,8 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 	protected int threads = 2;//2;//0 - synchronous single-threaded, > 0 - asynchronous multi-threaded;
 	protected boolean http_secure = false;
 	
-	private HashMap cache = new HashMap();//store cached data
+	private HashMap cacheData = new HashMap();//store cached data
+	private HashMap cacheTime = new HashMap();//store cached timestamps
 	
 	private HTTPHandler[] handlers; //TODO have all child Communicators registered as handlers/filters/plugins
 	
@@ -135,20 +137,31 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 		return false;
 	}
 
+	//TODO: move to CacheHolder
 	public String store(String value){
-		synchronized (cache){
-			String key = getCookie();
-			cache.put(key, value);
+		synchronized (cacheData){
+			String key = getCookie();//assign random key
+			cacheData.put(key, value);
+			cacheTime.put(key, new Date());
 			return key;
 		}
 	}
-	
 	public String retrieve(String key){
-		synchronized (cache){
-			String value = (String)cache.get(key);
-			if (value != null)
-				cache.remove(key);
+		synchronized (cacheData){
+			String value = (String)cacheData.get(key);
+			if (value != null){
+				Date now = new Date();
+				Date old = (Date)cacheTime.get(key);
+				//TODO: make expiration configurable, now need repeateble cache reads so that Facebook can validate all links sent in chat
+				if (old == null)//no expiration is set
+					cacheData.remove(key);
+				else if ((now.getTime() - old.getTime()) > 60000){//expire link in 1 minute
+					cacheData.remove(key);
+					value = null;
+				}
+			}
 			return value;
 		}
 	}
+	
 }//end class
