@@ -25,6 +25,7 @@ package net.webstructor.comm;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URLEncoder;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -33,12 +34,27 @@ import javax.json.JsonReader;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
+import net.webstructor.core.Thing;
+import net.webstructor.core.Updater;
+import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
+import net.webstructor.util.Str;
 
-public class Slacker extends Communicator implements HTTPHandler {
+//https://api.slack.com/docs/oauth
+//https://api.slack.com/methods/oauth.access
+//https://api.slack.com/tutorials/app-creation-and-oauth
+//https://api.slack.com/bot-users
+//https://api.slack.com/docs/slack-button#add_the_slack_button
+//https://api.slack.com/tutorials/your-first-slash-command
 
+public class Slacker extends Communicator implements HTTPHandler, Updater {
+
+	protected int timeout = 0;
+	
 	public Slacker(Body body) {
-		super(body);
+		super(body,"slack");
+		body.register(name, this);
+		body.debug("Slack registered.");
 	}
 	
 	/**
@@ -49,13 +65,12 @@ public class Slacker extends Communicator implements HTTPHandler {
 	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException {
 		if (url.startsWith("/slack")){
 			if (!AL.empty(request)){
-		    	String response = "";
-		    	
+				body.debug("Slack input "+request);
 				String code = null;
 				String state = null;
-				String token = null;
 				String challenge = null;
 				String type = null;
+				String subtype = null;
 				String user = null;
 				String channel = null;
 				String text = null;
@@ -76,6 +91,7 @@ public class Slacker extends Communicator implements HTTPHandler {
 					if (json.containsKey("event")){
 						JsonObject event = json.getJsonObject("event");
 				        type = HTTP.getJsonString(event, "type");
+				        subtype = HTTP.getJsonString(event, "subtype");
 				        text = HTTP.getJsonString(event, "text");
 				        user = HTTP.getJsonString(event, "user");
 				        channel = HTTP.getJsonString(event, "channel");
@@ -83,36 +99,208 @@ public class Slacker extends Communicator implements HTTPHandler {
 						
 					} //else {//verification
 					//https://api.slack.com/events-api#events_api_request_urls
-					token = HTTP.getJsonString(json, "token");
+					//token = HTTP.getJsonString(json, "token");
 					challenge = HTTP.getJsonString(json, "challenge");
 					type = HTTP.getJsonString(json, "type");
 					//}
 				}
 
-				//TODO: remove
-				String debug = "code="+code+" state="+state+" type="+type+" user="+user+" channel="+channel+" channel_type="+channel_type;
-				System.out.println(debug);
-				body.debug(debug);
+				String debug = "type="+type+" challenge="+challenge+" code="+code+" state="+state+" user="+user+" channel="+channel+" channel_type="+channel_type+" text="+text;
+				body.debug("Slack debug "+debug);
 				
-				
-				//TODO: https://api.slack.com/bot-users
-				
-				//verification
-				if (!AL.empty(challenge) && "url_verification".equals(type))
-					response = challenge;
-				
-				//TODO: actual response?
-				parent.respond(response);
-				return true;
+				if (!AL.empty(challenge) && "url_verification".equals(type)){//url verification
+					parent.respond(challenge);
+					return true;
+				}else
+				if (!AL.empty(code) && !AL.empty(state)){//user authentication
+					//https://api.slack.com/docs/slack-button
+					//https://api.slack.com/tutorials/app-creation-and-oauth
+					//https://api.slack.com/methods/oauth.access
+					//https://api.slack.com/docs/oauth
+					String api = "https://slack.com/api/oauth.access";
+					String client_id = body.self().getString(Body.slack_id);
+					String client_secret = body.self().getString(Body.slack_key);
+					String par = "code="+code+"&client_id="+client_id+"&client_secret="+client_secret;
+					//String res = HTTP.simple(api, par, "POST", 0, "application/x-www-form-urlencoded");
+					body.debug("Slack input "+request);
+					body.debug("Slack auth request "+par);
+					String res = HTTP.simple(api, par, "POST", timeout);
+					body.debug("Slack auth response "+res);
+					JsonReader jsonReader = Json.createReader(new StringReader(res));
+					JsonObject json = jsonReader.readObject();
+					if (json.getBoolean("ok")){
+//TODO: identify user on basis of the code!?
+						String token = HTTP.getJsonString(json, "access_token");
+						//body.self().setString(Body.slack_token, token);
+					}
+					parent.respond("");
+					return true;
+				}else
+				if (AL.empty(type) || AL.empty(user) || AL.empty(text)){//ignore what we dont' understand
+					parent.respond("");
+					return true;
+				} else
+				if ("im".equals(channel_type)
+						&& AL.empty(subtype)) //discard subtype==file_share, because it may have not a bot user for bot uploads!?
+				{//private channel messages
+//TODO: translate "commands" at conversational level
+					if ("news".equalsIgnoreCase(text))
+						text = "What new true sources, text, times, trust?";
+					else
+					if ("knows".equalsIgnoreCase(text) || "topics".equalsIgnoreCase(text))
+						text = "What my knows name, trust?";
+					else
+					if ("sites".equalsIgnoreCase(text))
+						text = "What my sites name, trust?";
+					else
+						text = decodeEmail(text);
+					parent.respond("");
+	            	net.webstructor.peer.Session session = body.sessioner.getSession(this,key(channel,user));
+	            	body.conversationer.handle(this, session, text);
+					return true;
+				}else
+
+//TODO: how to treat channel with multiple users - as "channel_type":"channel" or "channel_type":"im"
+					
+				if ("channel".equals(channel_type)){//TODO: if message to public channel
+					parent.respond("");//respond first, to avoid resend
+					/*					
+					{"token":"B2HhH1IfMxCC0kpNMVQuO66d","team_id":"TGFKD8BA9","api_app_id":"AGM13M2TA",
+					"event":{"client_msg_id":"6e1817e6-4ddf-4c85-8342-dc173e04dd37","type":"message",
+					"text":"hifromsnet1","user":"UGM4HG541","ts":"1556455265.001000","channel":"CGGNK2VGE",
+					"event_ts":"1556455265.001000","channel_type":"channel"},"type":"event_callback",
+					"event_id":"EvJ8L7D04Q","event_time":1556455265,"authed_users":["UHVLZJD3M"]}
+					*/
+					//TODO:1) get channel name
+					//https://api.slack.com/methods/channels.info
+					
+					
+					return true;
+				}else{//ignore everything else
+					parent.respond("");
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 	
+	String decodeEmail(String text){
+		for (;;){
+			int email_pos = text.indexOf("<mailto:");
+			if (email_pos == -1)
+				break;
+		    int email_mid = text.indexOf("|",email_pos);
+		    int email_end = text.indexOf(">",email_pos);
+		    if (email_mid > email_pos && email_end > email_mid){
+		    	int pos = email_pos+8;
+		    	String email = text.substring(pos,email_mid);
+			    text = text.substring(0,email_pos) + email + text.substring(email_end+1);
+			    body.debug("Slack email:"+email+":"+text);
+		    }
+		}
+		return text;
+	}
+	
+	
 	public void output(Session session, String message) throws IOException {
-		// TODO Auto-generated method stub
-		
+		String[] ids = ids(session.getKey());
+		if (!AL.empty(ids)){
+			//TODO: support group conversations
+			output(ids[1], body.self().getString(Body.slack_token), message);
+		}
 	}
 
+	public void output(String channel, String token, String message) throws IOException {
+		try {
+			if (!message.startsWith("<html>")) {
+				String url = "https://slack.com/api/chat.postMessage";
+//TODO limit slack messages or send them as files!!!
+				//if (message.length() > 4096)
+				//	message = message.substring(0,4093) + "...";
+				//send text message
+				String content = URLEncoder.encode(message,"UTF-8");
+				String par = "token="+token+"&channel="+channel+"&text="+content;
+				body.debug("Slack chat request "+par);
+				String res = HTTP.simple(url, par, "POST", timeout);
+				body.debug("Slack chat response "+res);
+//TODO: slack reports
+			} else {
+				//https://api.slack.com/methods/files.upload
+				String url = "https://slack.com/api/files.upload";
+				String title = Str.parseBetween(message, "<title>", "</title>");
+				if (AL.empty(title))
+					title = "Report";
+				
+				String boundary = "--bndry--";
+				String par = "\r\n"
+					+"--"+boundary+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"token\"\r\n\r\n"+token+"\r\n"
+					+"--"+boundary+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"channels\"\r\n\r\n"+channel+"\r\n"
+					+"--"+boundary+"\r\n"
+		  			//+"Content-Disposition: form-data; name=\"title\"\r\n\r\n"+title+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"initial_comment\"\r\n\r\n"+title+"\r\n"
+					+"--"+boundary+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"filetype\"\r\n\r\nhtml\r\n"
+					+"--"+boundary+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"filename\"\r\n\r\nreport.html\r\n"
+					+"--"+boundary+"\r\n"
+		  			+"Content-Disposition: form-data; name=\"content\"\r\n"
+		            +"Content-Type: text/html; charset=utf-8\r\n"
+		            //+"Content-Length: "+message.length()+"\r\n"
+		            +"\r\n"
+		            +message+"\r\n"
+					+"--"+boundary+"--\r\n";
+				
+				body.debug("Slack report request channel "+par);
+				String response = HTTP.simple(url,par,"POST",timeout,"multipart/form-data; boundary="+boundary);
+				
+				/*
+				title= URLEncoder.encode(title,"UTF-8");
+				String content = URLEncoder.encode(message,"UTF-8");
+				//String par = "token="+token+"&channels="+channel+"&title="+title+"&filetype=HTML&filename=report.html&content="+content;
+				String par = "token="+token+"&channels="+channel+"&filetype=html&filename=report.html&content="+content;
+				body.debug("Slack chat request "+par);
+				String response = HTTP.simple(url, par, "POST", timeout);
+				*/
+				
+				body.debug("Slack report response "+response);
+				JsonReader jr = Json.createReader(new StringReader(response));
+				JsonObject result = jr.readObject();
+				if (!HTTP.getJsonBoolean(result, "ok", false))
+					throw new Exception("Slack error files.upload: "+result.toString());
+			}
+		} catch (Exception e){
+			body.error("Slack error",e);
+		}
+	}
+
+	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
+		String self_lack_token = body.self().getString(Body.slack_token);
+//TODO: peer.getString(slack_token);!!!???
+		String psid = null;
+		if (!AL.empty(self_lack_token)){
+			String login_token = peer.getString(Peer.login_token);
+			if (!AL.empty(login_token)){
+				String[] ids = Parser.split(login_token,":");
+				if (ids != null && name.equals(ids[0]) && ids.length == 3)//facebook:psid:psuid
+					psid = ids[1];
+			}
+		}
+		body.debug("Slack updating psid "+psid+" text "+content);
+		if (!AL.empty(psid)){
+			StringBuilder sb = new StringBuilder();
+			if (!AL.empty(subject))
+				sb.append(subject).append('\n');
+			sb.append(content);
+			//if (!AL.empty(signature))
+			//	sb.append('\n').append(signature);
+			body.debug("Slack update psid "+psid+" text "+content);
+			output(psid, self_lack_token, sb.toString());
+			return true;
+		}
+		return false;
+	}
 }
 

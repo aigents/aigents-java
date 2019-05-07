@@ -116,6 +116,10 @@ public abstract class HTTP {
 	}
 	
 	public static String simple(String url,String urlParameters,String method,int timeout,String cType) throws IOException {
+		return simple(url,urlParameters,method,timeout,cType,null);
+	}
+	
+	public static String simple(String url,String urlParameters,String method,int timeout,String cType,String[][] props) throws IOException {
 		URL obj = new URL(url);
 		//HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -132,6 +136,10 @@ public abstract class HTTP {
 			//con.setRequestProperty("Content-Length", String.valueOf(urlParameters.length()));
 			con.setRequestProperty("Content-Type", cType);
 		}
+		
+		if (props != null) for (int p = 0; p < props.length; p++)
+			if (props[p] != null && props[p].length == 2)
+				con.setRequestProperty(props[p][0], props[p][1]);
 
 		// Send post request
 		con.setUseCaches(false);
@@ -259,29 +267,6 @@ public abstract class HTTP {
 		//System.out.println(response.toString());
 		return response.toString(); 
 	}
- 	/*
-    public static String parseBetween(String source, String pre, String post) {
-    	return parseBetween(source, pre, post, true);
-    }
-    
-    public static String parseBetween(String source, String pre, String post, boolean aMustPost) {
-    	if (source != null) {
-    		int beg = source.indexOf(pre);
-    		if (beg != -1){
-    			beg += pre.length();
-    			if (post == null)
-    				return source.substring(beg);
-    			int end = source.indexOf(post, beg);
-    			if (end != -1) {
-    				return source.substring(beg,end);
-    			}
-    			if (!aMustPost)
-    				return source.substring(beg);
-    		}
-    	}
-    	return null;
-    }
-*/
 
     //http://projects.fivethirtyeight.com/facebook-primary/
     public static String getJsonString(JsonObject data, String name, String def) {

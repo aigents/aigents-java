@@ -47,13 +47,12 @@ import net.webstructor.core.Updater;
 //https://developers.facebook.com/docs/messenger-platform/send-api-reference#request
 //https://developers.facebook.com/docs/messenger-platform/reference/send-api/
 public class Messenger extends net.webstructor.comm.Communicator implements HTTPHandler, Updater {
-	public static final String name = "facebook"; 
 	HTTPListener cacheHolder;
 
 	public Messenger(Body env) {
-		super(env);
+		super(env,"facebook");
 		env.register(name, this);
-		body.debug("Messenger registered.");
+		body.debug("Facebook Messenger registered.");
 	}
 
 	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler

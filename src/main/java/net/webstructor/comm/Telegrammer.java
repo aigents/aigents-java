@@ -81,31 +81,16 @@ public class Telegrammer extends Communicator implements Updater {
 	
 	public static final long PERIOD_MIN = 1*Period.SECOND; 
 	public static final long PERIOD_MAX = 16*Period.SECOND; 
-	public static final String name = "telegram"; //TODO: move to superclass
 	
 	protected Thing self;
 	protected int timeout = 0;
 	protected String base_url = "https://api.telegram.org/bot";
 	
 	public Telegrammer(Body env) {
-		super(env);
+		super(env,"telegram");
 		self = body.self();
 		env.register(name, this);
-		body.debug("Telegrammer registered.");
-	}
-	
-	public String key(String chat_id,String from_id){
-		return (new StringBuilder(name).append(':').append(chat_id).append(':').append(from_id)).toString();
-	}
-	
-//TODO: make private
-	/**
-	 * @param key of form name:chat_id:from_id
-	 * @return array of name, chat_id, from_id 
-	 */
-	public String[] ids(String key){
-		String[] ids = key.split(":");
-		return ids != null && ids.length == 3 ? ids: null;
+		body.debug("Telegram registered.");
 	}
 	
 //TODO: move to Grouper parent abstract class for this or Slack and/or move to Conversation scope 

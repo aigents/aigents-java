@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,14 +32,33 @@ import net.webstructor.peer.Session;
 public abstract class Communicator extends Thread
 {
 	protected Body body;
+	protected String name;
+	
 	private boolean bAlive;
 	
-	public Communicator(Body body)
-	{
+	public Communicator(Body body,String name){
 		this.body = body;
+		this.name = name;
 		bAlive = true;
 	}
 
+	public Communicator(Body body){
+		this(body,null);
+	}
+	
+	protected String key(String chat_id,String from_id){
+		return (new StringBuilder(name == null ? "" : name).append(':').append(chat_id).append(':').append(from_id)).toString();
+	}
+	
+	/**
+	 * @param key of form name:chat_id:from_id
+	 * @return array of name, chat_id, from_id 
+	 */
+	protected String[] ids(String key){
+		String[] ids = key.split(":");
+		return ids != null && ids.length == 3 ? ids: null;
+	}
+	
 	public abstract void output(Session session, String message) throws IOException;
 
 	public void terminate() {
