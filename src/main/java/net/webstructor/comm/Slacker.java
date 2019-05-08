@@ -26,6 +26,7 @@ package net.webstructor.comm;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -34,8 +35,8 @@ import javax.json.JsonReader;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
+import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
-import net.webstructor.core.Updater;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
 import net.webstructor.util.Str;
@@ -47,14 +48,48 @@ import net.webstructor.util.Str;
 //https://api.slack.com/docs/slack-button#add_the_slack_button
 //https://api.slack.com/tutorials/your-first-slash-command
 
-public class Slacker extends Communicator implements HTTPHandler, Updater {
+public class Slacker extends Mediator implements HTTPHandler {
 
-	protected int timeout = 0;
+	private HashMap groups = new HashMap();
 	
 	public Slacker(Body body) {
 		super(body,"slack");
-		body.register(name, this);
-		body.debug("Slack registered.");
+	}
+	
+	//TODO: move to Mediator but make sure about 'facebook_id' clash?
+	public void login(Session session, Anything peer) {
+		peer.setString(Body.slack_id, ids(session.getKey())[2]);
+	}
+	
+	//https://api.slack.com/methods/channels.info
+	private String groupName(String id){
+		String n = null;
+		synchronized(groups){
+			n = (String)groups.get(id);
+		}
+		if (AL.empty(n)){
+			try {
+				String url = "https://slack.com/api/channels.info";
+				String token = body.self().getString(Body.slack_token);
+				String par = "token="+token+"&channel="+id;
+				body.debug("Slack channel request "+par);
+				String res = HTTP.simple(url, par, "POST", timeout);
+				body.debug("Slack channel response "+res);
+				JsonReader jsonReader = Json.createReader(new StringReader(res));
+				JsonObject json = jsonReader.readObject();
+				if (json.containsKey("channel")){
+					JsonObject channel = json.getJsonObject("channel");
+			        n = HTTP.getJsonString(channel, "name");
+					synchronized(groups){
+						groups.put(id,n);
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				body.error("Slack channel error",e);
+			}
+		}
+		return n;
 	}
 	
 	/**
@@ -130,7 +165,8 @@ public class Slacker extends Communicator implements HTTPHandler, Updater {
 					JsonObject json = jsonReader.readObject();
 					if (json.getBoolean("ok")){
 //TODO: identify user on basis of the code!?
-						String token = HTTP.getJsonString(json, "access_token");
+						;
+						//String token = HTTP.getJsonString(json, "access_token");
 						//body.self().setString(Body.slack_token, token);
 					}
 					parent.respond("");
@@ -164,16 +200,21 @@ public class Slacker extends Communicator implements HTTPHandler, Updater {
 					
 				if ("channel".equals(channel_type)){//TODO: if message to public channel
 					parent.respond("");//respond first, to avoid resend
+					
 					/*					
-					{"token":"B2HhH1IfMxCC0kpNMVQuO66d","team_id":"TGFKD8BA9","api_app_id":"AGM13M2TA",
-					"event":{"client_msg_id":"6e1817e6-4ddf-4c85-8342-dc173e04dd37","type":"message",
-					"text":"hifromsnet1","user":"UGM4HG541","ts":"1556455265.001000","channel":"CGGNK2VGE",
+					{"token":"XXXXXXXXXXXX","team_id":"YYYY","api_app_id":"ZZZZ",
+					"event":{"client_msg_id":"AAAAAAAAAAAA","type":"message",
+					"text":"hifromsnet1","user":"BBBBBB","ts":"1556455265.001000","channel":"CGGNK2VGE",
 					"event_ts":"1556455265.001000","channel_type":"channel"},"type":"event_callback",
-					"event_id":"EvJ8L7D04Q","event_time":1556455265,"authed_users":["UHVLZJD3M"]}
+					"event_id":"DDDDDDD","event_time":1556455265,"authed_users":["ZZZZZZ"]}
 					*/
 					//TODO:1) get channel name
-					//https://api.slack.com/methods/channels.info
+					String channel_name = groupName(channel);
+					//TODO:2) check if user is bot
+					boolean is_bot = false;//TODO check if is bot
+					updateGroup(channel, channel_name, user, user/*name*/, true, is_bot, text);
 					
+//TODO: be able to do unauthorized group conversations and enable chat message handling!
 					
 					return true;
 				}else{//ignore everything else
@@ -272,7 +313,7 @@ public class Slacker extends Communicator implements HTTPHandler, Updater {
 					throw new Exception("Slack error files.upload: "+result.toString());
 			}
 		} catch (Exception e){
-			body.error("Slack error",e);
+			body.error("Slack chat error",e);
 		}
 	}
 

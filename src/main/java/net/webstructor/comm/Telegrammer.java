@@ -26,9 +26,6 @@ package net.webstructor.comm;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Date;
 
 import javax.json.Json;
@@ -38,17 +35,11 @@ import javax.json.JsonReader;
 
 import net.webstructor.agent.Body; 
 import net.webstructor.al.AL;
-import net.webstructor.al.Time;
-import net.webstructor.al.Iter;
-import net.webstructor.al.Parser;
 import net.webstructor.al.Period;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
-import net.webstructor.core.Updater;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
-import net.webstructor.self.Siter;
-import net.webstructor.util.MapMap;
 
 /*
 TODO:
@@ -77,22 +68,20 @@ TODO:
 	https://core.telegram.org/bots/api#sending-files
 	https://philsturgeon.uk/api/2016/01/04/http-rest-api-file-uploads/
  */
-public class Telegrammer extends Communicator implements Updater {
+public class Telegrammer extends Mediator {
 	
 	public static final long PERIOD_MIN = 1*Period.SECOND; 
 	public static final long PERIOD_MAX = 16*Period.SECOND; 
 	
 	protected Thing self;
-	protected int timeout = 0;
 	protected String base_url = "https://api.telegram.org/bot";
 	
 	public Telegrammer(Body env) {
 		super(env,"telegram");
 		self = body.self();
-		env.register(name, this);
-		body.debug("Telegram registered.");
 	}
 	
+	/* TODO remove 20190507
 //TODO: move to Grouper parent abstract class for this or Slack and/or move to Conversation scope 
 // - adding session attributes?
 // - adding dedicated unauthorized chat sessions?
@@ -114,7 +103,7 @@ public class Telegrammer extends Communicator implements Updater {
 			}
 body.debug("Telegram name_id "+name_id+" group_name "+group_name+" group "+group.toString());//TODO: remove debug
 			//3) if (!is_bot), add/remove peer to/from group
-			if (!is_bot){//TODO: hadle bots as well!?
+			if (!is_bot){//TODO: handle bots as well!?
 				//4) get peer by id (eg. "telegram_id")
 				Collection p = body.storager.getByName(name_id, peer_id);
 				Thing peer;
@@ -156,6 +145,7 @@ body.debug("Telegram name_id "+name_id+" group_name "+group_name+" group "+group
 			body.error("Group "+name+" error", e);
 		}
 	}
+	*/
 	
 	public void output(Session session, String message) throws IOException {
 		String chat_id = null;
@@ -220,7 +210,7 @@ body.debug("Telegram name_id "+name_id+" group_name "+group_name+" group "+group
 				if (offset < update_id)
 					offset = update_id;
 				
-				//TODO: track new members in the group 
+//TODO: track new members in the group 
 				//https://stackoverflow.com/questions/34567920/in-python-telegram-bot-how-to-get-all-participants-of-the-group
 				//https://core.telegram.org/bots/api#message
 				//new_chat_members, left_chat_member
@@ -258,7 +248,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				//String chat_type = HTTP.getJsonString(chat, "type", "private");//TODO:private by default!?
 				if (AL.empty(from_username) || AL.empty(from_id) || from_bot)
 					continue;
-				//TODO: autoregister:
+//TODO: autoregister:
 				//telegram id = from_id
 				//name, surname, username@telegram.org
 				body.debug("Telegram date "+date+" from_username "+from_username+" text "+text);
@@ -322,6 +312,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 		}
 	}
 
+	//TODO: move to Mediator but make sure about 'facebook_id' clash?
 	public void login(Session session, Anything peer) {
 		peer.setString(Body.telegram_id, ids(session.getKey())[2]);
 	}

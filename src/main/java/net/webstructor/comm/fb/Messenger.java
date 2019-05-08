@@ -40,19 +40,17 @@ import net.webstructor.comm.HTTP;
 import net.webstructor.comm.HTTPHandler;
 import net.webstructor.comm.HTTPListener;
 import net.webstructor.comm.HTTPeer;
+import net.webstructor.comm.Mediator;
 import net.webstructor.core.Thing;
-import net.webstructor.core.Updater;
 
 //https://medium.com/@nadeem.manzoor0/facebook-messenger-platform-web-hook-setup-in-php-893ead06746b#.clhcea94c
 //https://developers.facebook.com/docs/messenger-platform/send-api-reference#request
 //https://developers.facebook.com/docs/messenger-platform/reference/send-api/
-public class Messenger extends net.webstructor.comm.Communicator implements HTTPHandler, Updater {
+public class Messenger extends Mediator implements HTTPHandler {
 	HTTPListener cacheHolder;
 
 	public Messenger(Body env) {
 		super(env,"facebook");
-		env.register(name, this);
-		body.debug("Facebook Messenger registered.");
 	}
 
 	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler
@@ -219,7 +217,6 @@ public class Messenger extends net.webstructor.comm.Communicator implements HTTP
 	}*/
 	private void output(String psid, String message) throws IOException {
 		String url = Feeder.api_url+"me/messages?access_token="+body.self().getString(Body.facebook_token);
-		int timeout = 0;
 		try {
 			String data;
 			if (!message.startsWith("<html>")) {
