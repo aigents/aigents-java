@@ -147,11 +147,14 @@ public class Slacker extends Mediator implements HTTPHandler {
 					parent.respond(challenge);
 					return true;
 				}else
-				if (!AL.empty(code) && !AL.empty(state)){//user authentication
+				//if (!AL.empty(code) && !AL.empty(state)){//user authentication
+				if (!AL.empty(code)){//user authentication
 					//https://api.slack.com/docs/slack-button
 					//https://api.slack.com/tutorials/app-creation-and-oauth
 					//https://api.slack.com/methods/oauth.access
 					//https://api.slack.com/docs/oauth
+//TODO:check "state", according to
+					//https://api.slack.com/slack-apps#direct_install
 					String api = "https://slack.com/api/oauth.access";
 					String client_id = body.self().getString(Body.slack_id);
 					String client_secret = body.self().getString(Body.slack_key);
@@ -169,7 +172,7 @@ public class Slacker extends Mediator implements HTTPHandler {
 						//String token = HTTP.getJsonString(json, "access_token");
 						//body.self().setString(Body.slack_token, token);
 					}
-					parent.respond("");
+					parent.respond("<html><body>Return to<a href=\""+body.site()+"\">"+body.site()+"</a></body></html>","301 Moved Permanently\nLocation: "+body.site(),"text/plain");
 					return true;
 				}else
 				if (AL.empty(type) || AL.empty(user) || AL.empty(text)){//ignore what we dont' understand
