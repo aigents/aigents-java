@@ -313,6 +313,11 @@ public class Thing extends Anything { // implements ORObject
 		return obj != null ? obj : storager != null ? storager.get(name) : null;
 	}
 	
+	public final boolean getBoolean(String name) {
+		String str = getString(name);
+		return AL._true.equals(str);
+	}
+	
 	public final String getString(String name) {
 		Object o = get(name);
 		if (o == null)

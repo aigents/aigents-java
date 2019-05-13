@@ -57,7 +57,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.6.6";
+	public final static String VERSION = "1.6.7";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -416,17 +416,23 @@ public abstract class Body extends Anything implements Environment, Updater
 		return updater;
 	}
 	
-	public boolean update(Thing thing, String subject, String content, String signature) throws IOException{
+	public boolean notifyable(Thing peer) {
+		return true;//send bradcasting notifications by default
+	}	
+	
+	public boolean update(Thing peer, String subject, String content, String signature) throws IOException{
 		boolean updated = false;
 		for (Iterator it = updaters.values().iterator(); it.hasNext();){
 			Updater u = (Updater)it.next();
+			if (!u.notifyable(peer))
+				continue;
 			try {
 				if (AL.empty(signature))
 					signature = signature();
-				if (u.update(thing, subject, content, signature))
+				if (u.update(peer, subject, content, signature))
 					updated = true; 
 			} catch (Exception e) {
-				error("Update error for "+thing.getName()+" via "+u.getClass().getSimpleName(),e);
+				error("Update error for "+peer.getName()+" via "+u.getClass().getSimpleName(),e);
 			}
 		}
 		return updated;

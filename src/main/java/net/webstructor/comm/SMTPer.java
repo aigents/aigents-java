@@ -10,7 +10,7 @@ import net.webstructor.peer.Session;
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,5 +46,10 @@ public class SMTPer extends Communicator implements Updater {
 
 	public void output(Session session, String message) throws IOException {
 		//TODO
+	}
+
+	public boolean notifyable(Thing peer) {
+		//TODO
+		return false;
 	}
 }

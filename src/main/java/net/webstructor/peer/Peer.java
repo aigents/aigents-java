@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,9 @@ public class Peer extends Agent {
 		trusts_limit = "trusts limit",
 		last_check = "last check",
 		email_notification = "email notification",
+		slack_notification = "slack notification",
+		facebook_notification = "facebook notification",
+		telegram_notification = "telegram notification",
 		registration_time = "registration time",
 		activity_time = "activity time",
 		login_time = "login time",
@@ -85,6 +88,9 @@ public class Peer extends Agent {
 		secret_question,
 		secret_answer,
 		email_notification,
+		slack_notification,
+		facebook_notification,
+		telegram_notification,
 		language,
 		login_count,login_token,login_time,registration_time,activity_time,
 		Body.facebook_id, Body.facebook_token,

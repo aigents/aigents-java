@@ -27,4 +27,5 @@ import java.io.IOException;
 
 public interface Updater {
 	public boolean update(Thing peer, String subject, String content, String signature)  throws IOException;
+	public boolean notifyable(Thing peer);
 }

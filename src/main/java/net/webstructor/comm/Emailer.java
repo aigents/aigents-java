@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -442,11 +442,14 @@ public class Emailer extends Communicator implements Updater {
 		return true;
 	}	
 
+	public boolean notifyable(Thing peer) {
+		return peer.getBoolean(Peer.email_notification);
+	}	
+	
 	public boolean update(Thing peer, String subject, String content, String signature) throws IOException{
 		String email = peer.getString(AL.email);
 		if (!AL.empty(email) && !Body.testEmail(email) && Emailer.valid(email)) {
-			String notify = peer.getString(Peer.email_notification);
-			if (AL._true.equals(notify)){
+			if (notifyable(peer)){
 				if (AL.empty(subject))
 					subject = content.length() < 50 ? content : content.substring(0,50) + "...";
 				Emailer.getEmailer().email(peer, subject, content+"\n"+signature);
@@ -472,6 +475,6 @@ public class Emailer extends Communicator implements Updater {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}	
-	
+	}
+
 }//class

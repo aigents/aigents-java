@@ -129,4 +129,7 @@ body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" group_name "+gr
 		}
 	}
 	
+	public boolean notifyable(Thing peer) {
+		return peer.getBoolean(name+" notification");
+	}	
 }
