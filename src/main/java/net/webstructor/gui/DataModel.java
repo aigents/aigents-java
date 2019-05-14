@@ -96,7 +96,7 @@ abstract class DataModel extends AbstractTableModel {
     	this.table = table;
         table.setToolTipText("Double-click to edit thing or site, hold and release to open site.");
     	//table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    	if (type().equals(AL.knows) || type().equals(AL.sites)) {
+    	if (type().equals(AL.topics) || type().equals(AL.sites)) {
     		scrollPane.setDropTarget(new DropTarget() {
 				private static final long serialVersionUID = -329285062683640476L;
 				public synchronized void drop(DropTargetDropEvent evt) {
@@ -153,7 +153,7 @@ abstract class DataModel extends AbstractTableModel {
 				Writer.toString(sb,names[i]);        				
 			}
 			sb.append(AL.period);
-//TODO: remove thing itself, not knows link only or do GC on given thing otherwise
+//TODO: remove thing itself, not topics link only or do GC on given thing otherwise
 			return sb.toString();
 		}
 		return null;

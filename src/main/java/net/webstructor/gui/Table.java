@@ -49,7 +49,7 @@ import java.util.HashMap;
 
 class DataModelThings extends DataModel {
 	private static final long serialVersionUID = 1745843879510745984L;
-	String type() {return AL.knows;}	
+	String type() {return AL.topics;}	
 }
 
 class DataModelSites extends DataModel {
@@ -61,7 +61,7 @@ class DataModelNews extends DataModel {
 	private static final long serialVersionUID = -2323943132579856140L;
 	private String[] columnNames = {"Trust","Times","Sources","Text"};
 	
-	String type() {return "news";}
+	String type() {return AL.news;}
 
 	String addRequest(String str) {
 		return null;	    
@@ -120,7 +120,7 @@ class DataModelNews extends DataModel {
 				sb.append(" new false, trust false");
 				sb.append(AL.period);
 			}
-//TODO: remove thing itself, not knows link only or do GC on given thing otherwise
+//TODO: remove thing itself, not topics link only or do GC on given thing otherwise
 			return sb.toString();
 		}
 		return null;
@@ -442,7 +442,7 @@ public class Table extends JPanel {
             public void mouseEntered(MouseEvent e) {
             	TableModel model = table.getModel();
             	String type = ((DataModel)model).type();
-            	if (model instanceof DataModel && type.equals("sites") || type.equals("news"))
+            	if (model instanceof DataModel && type.equals(AL.sites) || type.equals(AL.news))
     	    		table.setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
             

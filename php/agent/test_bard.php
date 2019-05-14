@@ -40,7 +40,7 @@ function test_bard() {
 	say("My a a.");
 	get("Ok. Hello A A!\nMy Aigents ".$version.$copyright);
 	
-	say("My knows catheters.");
+	say("My topics catheters.");
 	get("Ok.");
 	say("Catheters has type, brand, ways, size, quantity, order_number, part_number, fr, length, diameter, tip.");
 	get("Ok.");
@@ -101,7 +101,7 @@ function test_bard() {
 	//http://www.bbraunusa.com/products.html?id=00020743040000000399 : catheters
 	//http://www.bbraunusa.com/products.html?id=00020743040000000422 : catheter
 	//http://www.bbraunusa.com/products.html?id=00020743040000000422&prid=PRID00001011	
-	say("My knows introcan catheters.");
+	say("My topics introcan catheters.");
 	get("Ok.");
 	say("Introcan catheters has brand, ga, diameter, details, product_code.");
 	get("Ok.");
@@ -135,7 +135,7 @@ function test_bard() {
 	//R/O Marker, on the Flexima Biliary drainage
 	//Flexima Material
 	
-	say("My knows boston catheters.");
+	say("My topics boston catheters.");
 	get("Ok.");
 	say("Boston catheters has type, coating, inner-diameter.");
 	get("Ok.");
@@ -182,7 +182,7 @@ function test_bard() {
 	/*
 	say("You reading site http://www.bostonscientific.com!");
 	get("Not.");
-	say("My knows products.");
+	say("My topics products.");
 	get("Ok.");
 	say("Catheters patterns catheter, catheters, 'catheters:'.");//patterns has been defined above
 	get("Ok.");
@@ -260,7 +260,7 @@ function test_bard() {
 	//https://www.cookmedical.com/products/di_cxi_webds/
 	say("You reading site https://www.cookmedical.com/!");
 	get("Not.");
-	say("My knows products.");
+	say("My topics products.");
 	get("Ok.");
 	say("You reading site https://www.cookmedical.com/!");
 	get("My reading site https://www.cookmedical.com/.");
@@ -268,9 +268,9 @@ function test_bard() {
 	get("There not.");
 	say("What is catheters?");
 	get("There not.");
-	say("My knows urology.");
+	say("My topics urology.");
 	get("Ok.");
-	say("My knows product list.");
+	say("My topics product list.");
 	get("Ok.");
 	/*
 	//This works fine but too long!

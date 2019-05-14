@@ -1005,7 +1005,7 @@ var things_data = [];
 
 function things_refresh() {
 	selected_thing_index = null;
-	requestBase("#things_list","What my knows name, trust, relevance?",true);
+	requestBase("#things_list","What my topics name, trust, relevance?",true);
 	$('#things_input').val('');
 }
 
@@ -1014,7 +1014,7 @@ function add_thing() {
 	if (text && text.length > 0) {
 		$('#things_input').val('');
 		text = AL.toString(text,null);
-		requestBase('#things_list',"My knows "+text+', trusts '+text+'.',false,things_refresh);
+		requestBase('#things_list',"My topics "+text+', trusts '+text+'.',false,things_refresh);
 	}
 }
 
@@ -1040,7 +1040,7 @@ function edit_trust(title,list,verb,item,callback) {
 }
 
 function edit_thing(item) {
-	edit_trust('Thing','#things_list','knows',item);
+	edit_trust('Thing','#things_list','topics',item);
 }
 
 //http://stackoverflow.com/questions/3744289/jquery-how-to-select-an-option-by-its-text
@@ -1061,8 +1061,8 @@ function del_thing() {
 			q += 'no ' + thing;
 			ignores += thing;
 		});
-		//q = 'My knows ' + q + '.';
-		q = 'My knows ' + q + ', ignores ' + ignores + '.';
+		//q = 'My topics ' + q + '.';
+		q = 'My topics ' + q + ', ignores ' + ignores + '.';
 		selected_things = [];
 		requestBase('#things_list',q);
 		selected_thing_index = null;//suppress edit on next click
@@ -2386,7 +2386,7 @@ var APPNAME = 'Aigents';
 var COPYRIGHT = 'Copyright ©';
 var requestors = [];
 var requestorTypes = {
-	'#things_list': 'knows',
+	'#things_list': 'topics',
 	'#sites_list' : 'sites',
 	'#dialog' : ''};
 var requestorUpdaters = {

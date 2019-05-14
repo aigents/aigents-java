@@ -43,7 +43,7 @@ function test_agent_learn() {
 	get("Ok.");
 	
 	//setup thing
-	say("My knows person.");
+	say("My topics person.");
 	get("Ok.");
 	say("Person has firstname, lastname.");
 	get("Ok.");
@@ -251,7 +251,7 @@ function test_agent_learn() {
 	get("Ok.");
 */
 	
-	say("My knows no person.");
+	say("My topics no person.");
 	get("Ok.");
 	say("No there is person.");
 	get("Ok.");
@@ -305,7 +305,7 @@ function test_agent_agglomerate() {
 
 	file_put_contents($basePath."html/sitea/test.html","<html><body>there is . john doe founder joined</body></html>");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder elected</body></html>");
-	say("my knows '\$firstname \$lastname {CEO CTO Founder Director}'.");
+	say("my topics '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	get("Ok.");
 	say("my trusts '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	get("Ok.");
@@ -484,7 +484,7 @@ function test_agent_agglomerate() {
 	get("Ok.");
 	say("no there times today.");
 	get("Ok.");
-	say("my knows no '\$firstname \$lastname {CEO CTO Founder Director}'.");
+	say("my topics no '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	get("Ok.");
 	say("my trusts no '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	get("Ok.");
@@ -533,7 +533,7 @@ function test_agent_parse() {
 	say("My q a.");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 
-	say("my knows '\$firstname \$lastname {CEO CTO Founder Director}'.");
+	say("my topics '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("my trusts '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("My sites http://localtest.com/siteb/test.html.");
 	say("My trusts http://localtest.com/siteb/test.html.");
@@ -604,7 +604,7 @@ function test_agent_parse() {
 	say("no there is http/sitea/test.html."); 
 	say("no there is http/siteb/test.html."); 
 	say("no there times today.");
-	say("my knows no '\$firstname \$lastname {CEO CTO Founder Director}'.");
+	say("my topics no '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("my trusts no '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("My trusts no http://localtest.com/sitea/test.html, no http://localtest.com/siteb/test.html.");
 	say("My sites no http://localtest.com/sitea/test.html, no http://localtest.com/siteb/test.html.");

@@ -25,8 +25,8 @@
 
 include_once("pest.php");
 
-$version = "1.6.7";
-$copyright = " Copyright © 2019 Anton Kolonin, Aigents.";
+$version = "1.6.8";
+$copyright = " Copyright © 2019 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
 
@@ -196,7 +196,7 @@ function printtimers() {
 
 function say_thing($t, $no = true) {
 	$no = $no === false ? "no " : "";
-	say("My knows ".$no."'".$t."'.");
+	say("My topics ".$no."'".$t."'.");
 	say("My trusts ".$no."'".$t."'.");
 	if ($no){
 		say("Is '".$t."' trust false, new false.");

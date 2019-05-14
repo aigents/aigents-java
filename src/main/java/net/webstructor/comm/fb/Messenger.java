@@ -120,8 +120,8 @@ public class Messenger extends Mediator implements HTTPHandler {
 			          if (strcasecmp($message,'news') == 0)
 			            $message = 'What new true sources, text, times, trust?';
 			          else
-			          if (strcasecmp($message,'knows') == 0 || strcasecmp($message,'topics') == 0)
-			            $message = 'What my knows name, trust?';
+			          if (strcasecmp($message,'topics') == 0 || strcasecmp($message,'topics') == 0)
+			            $message = 'What my topics name, trust?';
 			          else
 			          if (strcasecmp($message,'sites') == 0)
 			            $message = 'What my sites name, trust?';

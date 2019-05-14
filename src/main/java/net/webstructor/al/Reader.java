@@ -672,7 +672,7 @@ if (!AL.empty(thing_names)){
 						break;
 					
 					//try to build query chain
-					if (!AL.empty(scope) && scope.get(scope.size()-1) instanceof Thing) // so it is like "Whet my knows name, trust?"
+					if (!AL.empty(scope) && scope.get(scope.size()-1) instanceof Thing) // so it is like "Whet my topics name, trust?"
 						if (storager.isThing(name)) // so it is a reference to a thing
 							if (Array.contains(properties, value)) {
 								parser.set(value_position);	//rollback to handle value as chained stuff			

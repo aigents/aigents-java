@@ -183,13 +183,13 @@ public class Slacker extends Mediator implements HTTPHandler {
 						&& AL.empty(subtype)) //discard subtype==file_share, because it may have not a bot user for bot uploads!?
 				{//private channel messages
 //TODO: translate "commands" at conversational level
-					if ("news".equalsIgnoreCase(text))
+					if (AL.news.equalsIgnoreCase(text))
 						text = "What new true sources, text, times, trust?";
 					else
-					if ("knows".equalsIgnoreCase(text) || "topics".equalsIgnoreCase(text))
-						text = "What my knows name, trust?";
+					if (AL.topics.equalsIgnoreCase(text))
+						text = "What my topics name, trust?";
 					else
-					if ("sites".equalsIgnoreCase(text))
+					if (AL.sites.equalsIgnoreCase(text))
 						text = "What my sites name, trust?";
 					else
 						text = decodeEmail(text);

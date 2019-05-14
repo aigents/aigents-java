@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ public class Profiler {
 	String id;
 	String token;
 	String key;//used for refresh_token for Google+
-	int maxKnows;// = Body.MAX_TRUSTED_LINKS;
+	int maxtopics;// = Body.MAX_TRUSTED_LINKS;
 	int maxSites;// = Body.MAX_TRUSTED_LINKS;
 	
 	private String[][] feederPeerNames = null;
@@ -65,7 +65,7 @@ public class Profiler {
 		token = peer.getString(token_name);
 		key = peer.getString(key_name);
 		bodyStoragerNames = body.storager.getNames();
-		maxKnows = StringUtil.toIntOrDefault(peer.getString(Peer.trusts_limit),10,Body.PEER_TRUSTS_LIMIT);
+		maxtopics = StringUtil.toIntOrDefault(peer.getString(Peer.trusts_limit),10,Body.PEER_TRUSTS_LIMIT);
 		maxSites = StringUtil.toIntOrDefault(peer.getString(Peer.trusts_limit),10,Body.PEER_TRUSTS_LIMIT);
 	}
 
@@ -155,7 +155,7 @@ public class Profiler {
 	
 	public void profile() throws IOException {		
 		int peerSites = getTrustedCount(peer,AL.sites);
-		int peerKnows = getTrustedCount(peer,AL.knows);
+		int peertopics = getTrustedCount(peer,AL.topics);
 		
 		//TODO: real intervals
 		//--- do faceboook profiling since last facebook sync time
@@ -177,7 +177,7 @@ public class Profiler {
 						String text = (String)data[j][1];
 						Integer mylikes = (Integer)data[j][2];
 						if (mylikes.intValue() > 0 && !skipWord(text)){
-							peerKnows = updateLinks(AL.knows,text, true, peerKnows, maxKnows);
+							peertopics = updateLinks(AL.topics,text, true, peertopics, maxtopics);
 						}
 					}
 					break;
@@ -193,7 +193,7 @@ public class Profiler {
 					for (Iterator it = cats.iterator(); it.hasNext();){
 						String text = cleanPattern((OrderedStringSet)it.next());
 						if (!AL.empty(text)){
-							peerKnows = updateLinks(AL.knows, text, true, peerKnows, maxKnows);
+							peertopics = updateLinks(AL.topics, text, true, peerKnows, maxKnows);
 						}
 					}
 				}*/
@@ -202,7 +202,7 @@ public class Profiler {
 					 for (int i = 0; i < bestCats.length; i++){
 						String text = cleanPattern((OrderedStringSet)bestCats[i][0]);
 						if (!AL.empty(text))
-							peerKnows = updateLinks(AL.knows, text, true, peerKnows, maxKnows);
+							peertopics = updateLinks(AL.topics, text, true, peertopics, maxtopics);
 					 }
 				}
 			}

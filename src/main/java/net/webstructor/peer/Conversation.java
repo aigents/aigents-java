@@ -282,12 +282,12 @@ class Conversation extends Mode {
 						Thing peer = (Thing)it.next();
 						Collection news = peer.getThings(AL.news); 
 						Collection trusts = peer.getThings(AL.trusts); 
-						Collection knows = peer.getThings(AL.knows); 
+						Collection topics = peer.getThings(AL.topics); 
 						Collection sites = peer.getThings(AL.sites);
 						Collection ignores = peer.getThings(AL.ignores);
-						Collection trustedKnows = AL.empty(knows) || AL.empty(trusts) ? null : new ArrayList(knows);
-						if (!AL.empty(trustedKnows))
-							trustedKnows.retainAll(trusts);
+						Collection trustedtopics = AL.empty(topics) || AL.empty(trusts) ? null : new ArrayList(topics);
+						if (!AL.empty(trustedtopics))
+							trustedtopics.retainAll(trusts);
 						Collection trustedSites = AL.empty(sites) || AL.empty(trusts) ? null : new ArrayList(sites);
 						if (!AL.empty(trustedSites))
 							trustedSites.retainAll(trusts);
@@ -298,9 +298,9 @@ class Conversation extends Mode {
 							name = peer.getTitle(Peer.title);
 						sb.append(AL.empty(news)? "0" : ""+news.size()).append(' ')
 							.append(AL.empty(trusts)? "0" : ""+trusts.size()).append(' ')
-							.append(AL.empty(knows)? "0" : ""+knows.size()).append(' ')
+							.append(AL.empty(topics)? "0" : ""+topics.size()).append(' ')
 							.append(AL.empty(sites)? "0" : ""+sites.size()).append(' ')
-							.append(AL.empty(trustedKnows)? "0" : ""+trustedKnows.size()).append(' ')
+							.append(AL.empty(trustedtopics)? "0" : ""+trustedtopics.size()).append(' ')
 							.append(AL.empty(trustedSites)? "0" : ""+trustedSites.size()).append(' ')
 							.append(AL.empty(ignores)? "0" : ""+ignores.size()).append(' ')
 							.append(name).append(' ')
@@ -366,8 +366,8 @@ class Conversation extends Mode {
 			&& session.read(Reader.pattern(AL.you,Self.reading))) {
 			session.output("Not.");
 			//TODO: understand context of 'knows': test_o("You reading 'sun flare' ... - must be test_o("You reading sun flare ...
-			Collection knows = (Collection) session.getStoredPeer().get(AL.knows);
-			if (!AL.empty(knows)) {
+			Collection topics = (Collection) session.getStoredPeer().get(AL.topics);
+			if (!AL.empty(topics)) {
 				Thing reader = new Thing();
 				if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,Self.reading),new Property(reader,"thingname"),
@@ -435,9 +435,9 @@ class Conversation extends Mode {
 						data.set("category_features", m.getCategoryFatures());
 						session.output(Writer.toJSON(data));
 					} else
-						session.output("You knows "+Writer.toString(m.getCategoryNames())+"."
-							+TextMiner.toString(m.getCategoryDocuments(),"sites",",",";\n")+"\n"
-							+TextMiner.toString(m.getCategoryFatures(),"patterns",",",";\n"));
+						session.output("You topics "+Writer.toString(m.getCategoryNames())+"."
+							+TextMiner.toString(m.getCategoryDocuments(),AL.sites,",",";\n")+"\n"
+							+TextMiner.toString(m.getCategoryFatures(),AL.patterns,",",";\n"));
 				}
 			}
 			return false;			

@@ -99,7 +99,7 @@ public class Peer extends Agent {
 		Body.google_id, Body.google_token,
 		Body.steemit_id, Body.golos_id, Body.ethereum_id,
 		AL.sites,
-		AL.knows,
+		AL.topics,
 		AL.trusts,
 		AL.ignores,
 		AL.areas,
@@ -122,42 +122,42 @@ public class Peer extends Agent {
 	public static final String[] title_email = new String[] {AL.name, Peer.surname, AL.email};
 	
 	private static final String[] default_script = {
-			"My knows 'новосибирск $number °c'.",
+			"My topics 'новосибирск $number °c'.",
 			"My trusts 'новосибирск $number °c'.",
 			"My sites https://www.gismeteo.ru/city/daily/4690/.",
 			"My trusts https://www.gismeteo.ru/city/daily/4690/.",
-			"My knows 'москва $number °c'.",
+			"My topics 'москва $number °c'.",
 			"My sites https://www.gismeteo.ru/city/daily/4368/.",
 
-			"My knows 'вспышка балла $word'.",
+			"My topics 'вспышка балла $word'.",
 			"My trusts 'вспышка балла $word'.",
-			"My knows 'сегодня на солнце $number {вспышка вспышек}'.",
+			"My topics 'сегодня на солнце $number {вспышка вспышек}'.",
 			"My trusts 'сегодня на солнце $number {вспышка вспышек}'.",
 			"My sites http://www.tesis.lebedev.ru/sun_flares.html.",
 			"My trusts http://www.tesis.lebedev.ru/sun_flares.html.",
 		
-			"My knows '{mission release} $info'.",
+			"My topics '{mission release} $info'.",
 			"My trusts '{mission release} $info'.",
 			"My sites http://aigents.com/en/.",
 			"My sites http://aigents.com/en/contacts.html.",
 			"My trusts http://aigents.com/en/.",
 			"My trusts http://aigents.com/en/contacts.html.",
 
-			"My knows '{google apple} $info', '$buyer {buys bought acquires acquired} $subject'.",
+			"My topics '{google apple} $info', '$buyer {buys bought acquires acquired} $subject'.",
 			"My trusts '{google apple} $info', '$buyer {buys bought acquires acquired} $subject'.",
 			"My sites http://wired.com.",
 			"My sites http://reuters.com.",
 			//"My trusts http://wired.com.",
 			//"My trusts http://reuters.com.",
 		
-			"My knows 'доллар руб. $number руб. $number'.",
+			"My topics 'доллар руб. $number руб. $number'.",
 			"My trusts 'доллар руб. $number руб. $number'.",
-			"My knows 'евро руб. $number руб. $number'.",
+			"My topics 'евро руб. $number руб. $number'.",
 			"My trusts 'евро руб. $number руб. $number'.",
 			"My sites http://cbr.ru.",
 			"My trusts http://cbr.ru.",
 		
-			"My knows '关注的城市 $info'.",
+			"My topics '关注的城市 $info'.",
 			"My trusts '关注的城市 $info'.",
 			"My sites http://m.tianqi.com/beijing.",
 			"My sites http://beijing.tianqi.com."
@@ -170,9 +170,9 @@ public class Peer extends Agent {
     
 	static void populateContent(Session session,boolean testPeer) throws Exception {
 		Thing thisPeer = session.getStoredPeer();
-		Collection knows = (Collection) thisPeer.get(AL.knows);
+		Collection topics = (Collection) thisPeer.get(AL.topics);
 		Collection sites = (Collection) thisPeer.get(AL.sites);
-		if (AL.empty(knows) && AL.empty(sites)) {//if it knows nothing AND sites nothing so presumably first time here 
+		if (AL.empty(topics) && AL.empty(sites)) {//if it knows nothing AND sites nothing so presumably first time here 
 			//TODO: all defaults, including email notification false 
 			//thisPeer.setString(Peer.check_cycle,"3 hours");//TODO: if set here, breaks unit tests
 			thisPeer.setString(Peer.news_limit,"10");
@@ -185,7 +185,7 @@ public class Peer extends Agent {
 				Thing areaPeer = session.getAreaPeer();
 				if (areaPeer != null){
 					session.sessioner.body.debug("Populating content from "+areaPeer.getName());
-					areaPeer.copyTo(thisPeer,new String[]{AL.knows,AL.sites,AL.news},null,true);
+					areaPeer.copyTo(thisPeer,new String[]{AL.topics,AL.sites,AL.news},null,true);
 				}else {
 					//otherwise populate with default data
 					for (int i = 0; i < default_script.length; i++) {

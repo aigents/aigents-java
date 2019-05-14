@@ -60,7 +60,7 @@ public class AL {
 	public final static String _new 	= "new";
 	public final static String news 	= "news";
 	public final static String things 	= "things";
-	public final static String knows 	= "knows";
+	//public final static String knows 	= "knows";
 	public final static String sites 	= "sites";
 	public final static String areas 	= "areas";
 	public final static String sources 	= "sources";
@@ -91,7 +91,7 @@ public class AL {
 	public final static String email 	= "email";//email address
 	
 	public final static String[] foundation = new String[]{
-		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,knows,sites,areas,sources,patterns,responses,text
+		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,topics,sites,areas,sources,patterns,responses,text
 		,members,groups
 	};
 

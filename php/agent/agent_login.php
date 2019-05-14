@@ -524,7 +524,7 @@ function test_login_old() {
 	test_o("What name john email, surname?");
 	test_i("John email doe@john.org, surname dare; email john@doe.org, surname doe.");
 	test_o("What your things?");
-	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, john, knows, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, things, things count, time, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, things, things count, time, topics, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
 	say("What times today?");//debug
 	get("There not.");
 	test_o("What your things count?");
@@ -585,9 +585,9 @@ function test_login_old() {
 	say("What my check cycle, attention period, last check?");
 	get();
 	*/
-	//TODO: dealing with trusts of sites and knows
+	//TODO: dealing with trusts of sites and topics
 	/**/
-	say("My knows x, y.");
+	say("My topics x, y.");
 	get("Ok.");
 	say("My sites www.x, www.y.");
 	get("Ok.");
@@ -595,22 +595,22 @@ function test_login_old() {
 	get("Ok.");
 	say("What my trusts?");
 	get("Your trusts aigents, www.x, x.");
-	say("What my knows?");
-	get("Your knows x, y.");
-	say("What my knows name?");
-	get("Your knows name x; name y.");
+	say("What my topics?");
+	get("Your topics x, y.");
+	say("What my topics name?");
+	get("Your topics name x; name y.");
 	//TODO:
-	//say("What my knows (name, trust)?");//=>Int:[john [knows trust]]?
+	//say("What my topics (name, trust)?");//=>Int:[john [topics trust]]?
 	//get();
-	say("What my knows name, trust?");//=>Int:[john [knows trust]]?
-	get("Your knows name x, trust true; name y, trust false.");
+	say("What my topics name, trust?");//=>Int:[john [topics trust]]?
+	get("Your topics name x, trust true; name y, trust false.");
 	say("My trusts no x, no www.x.");
 	get("Ok.");
 	say("What name x trust?");
 	get("X trust false.");
 	say("Your reading."); 
 	get("Ok. My reading.");
-	say("My knows no x, no y.");
+	say("My topics no x, no y.");
 	get("Ok.");
 	say("My sites no www.x, no www.y.");
 	get("Ok.");
@@ -684,7 +684,7 @@ function test_login_areas() {
 	//my sites
 	say_site("http://www.wired.com",true);
 	say_site("http://www.nytimes.com",true);
-	//my knows
+	//my topics
 	say_thing("goog",true);
 	say_thing("msft",true);
 	//my news
@@ -701,8 +701,8 @@ function test_login_areas() {
 	get("There sources http://navigato.ru, text good roads, times today, trust false; sources http://sovok.info, text great forests, times today, trust false.");
 	say("What my sites name, trust?");
 	get("Your sites name http://navigato.ru, trust true; name http://sovok.info, trust true.");
-	say("What my knows name, trust?");
-	get("Your knows name forests, trust true; name roads, trust true.");
+	say("What my topics name, trust?");
+	get("Your topics name forests, trust true; name roads, trust true.");
 	//change area
 	say("my areas stock market.");
 	get("Ok.");
@@ -710,8 +710,8 @@ function test_login_areas() {
 	get("There sources http://www.nytimes.com, text microsoft rocks, times today, trust false; sources http://www.wired.com, text google goes up, times today, trust false.");
 	say("What my sites name, trust?");
 	get("Your sites name http://www.nytimes.com, trust false; name http://www.wired.com, trust true.");
-	say("What my knows name, trust?");
-	get("Your knows name goog, trust true; name msft, trust false.");
+	say("What my topics name, trust?");
+	get("Your topics name goog, trust true; name msft, trust false.");
 	//reset area
 	say("my areas ''.");
 	get("Ok.");
@@ -720,8 +720,8 @@ function test_login_areas() {
 	get("There sources http://navigato.ru, text good roads, times today, trust false; sources http://sovok.info, text great forests, times today, trust false.");
 	say("What my sites name, trust?");
 	get("Your sites name http://navigato.ru, trust true; name http://sovok.info, trust true.");
-	say("What my knows name, trust?");
-	get("Your knows name forests, trust true; name roads, trust true.");
+	say("What my topics name, trust?");
+	get("Your topics name forests, trust true; name roads, trust true.");
 	//set wrong area
 	say("my areas 'eprst'.");
 	get("Ok.");
@@ -730,8 +730,8 @@ function test_login_areas() {
 	get("There sources http://navigato.ru, text good roads, times today, trust false; sources http://sovok.info, text great forests, times today, trust false.");
 	say("What my sites name, trust?");
 	get("Your sites name http://navigato.ru, trust true; name http://sovok.info, trust true.");
-	say("What my knows name, trust?");
-	get("Your knows name forests, trust true; name roads, trust true.");
+	say("What my topics name, trust?");
+	get("Your topics name forests, trust true; name roads, trust true.");
 	//change area
 	say("my areas stock market.");
 	get("Ok.");
@@ -756,8 +756,8 @@ function test_login_areas() {
 	get("There sources http://navigato.ru, text good roads, times today, trust false; sources http://sovok.info, text great forests, times today, trust false.");
 	say("What my sites name, trust?");
 	get("Your sites name http://navigato.ru, trust true; name http://sovok.info, trust true.");
-	say("What my knows name, trust?");
-	get("Your knows name forests, trust true; name roads, trust true.");
+	say("What my topics name, trust?");
+	get("Your topics name forests, trust true; name roads, trust true.");
 	say("what my areas?");
 	get("Your areas academgorodok.");
 	say("What my areas name, share?");
@@ -785,8 +785,8 @@ function test_login_areas() {
 	get("There sources http://www.nytimes.com, text microsoft rocks, times today, trust false; sources http://www.wired.com, text google goes up, times today, trust false.");
 	say("What my sites name, trust?");
 	get("Your sites name http://www.nytimes.com, trust false; name http://www.wired.com, trust true.");
-	say("What my knows name, trust?");
-	get("Your knows name goog, trust true; name msft, trust false.");
+	say("What my topics name, trust?");
+	get("Your topics name goog, trust true; name msft, trust false.");
 	say("New true new false.");
 	get("Ok.");
 	say("My logout.");
@@ -808,8 +808,8 @@ function test_login_areas() {
 	get("There sources http://navigato.ru, text good roads, times today, trust false; sources http://sovok.info, text great forests, times today, trust false.");
 	say("What my sites name, trust?");
 	get("Your sites name http://navigato.ru, trust true; name http://sovok.info, trust true.");
-	say("What my knows name, trust?");
-	get("Your knows name forests, trust true; name roads, trust true.");
+	say("What my topics name, trust?");
+	get("Your topics name forests, trust true; name roads, trust true.");
 	say("New true new false.");
 	get("Ok.");
 	say("My logout.");

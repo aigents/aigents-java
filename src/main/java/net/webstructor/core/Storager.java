@@ -49,7 +49,7 @@ public class Storager {
 	private final static String[] multiples = new String[]{
 		AL.is, 
 		AL.has, 
-		AL.knows,
+		AL.topics,
 		AL.sites,
 		AL.areas,
 		AL.trusts,

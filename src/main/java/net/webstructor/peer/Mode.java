@@ -64,8 +64,8 @@ public abstract class Mode {
 				"What my sites name, trust, relevance?",
 				"What my areas?",
 				"What my sites name, trust?",
-				"What my knows name, trust, relevance?",
-				"What my knows name, trust?"}; 
+				"What my topics name, trust, relevance?",
+				"What my topics name, trust?"}; 
 		if (session.mood == AL.interrogation && Array.containsIgnoreCase(allowed_questions, session.input()))
 			return true;
 		return false;

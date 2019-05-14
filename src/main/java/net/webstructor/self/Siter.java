@@ -222,9 +222,9 @@ public class Siter {
 					int news_limit = StringUtil.toIntOrDefault(peer.getString(Peer.news_limit),10,3);
 					this.newsLimit = Math.max(this.newsLimit, news_limit);
 					Date activityTime = (Date)peer.get(Peer.activity_time);
-					Collection knows = peer.getThings(AL.knows);
-					if (activityTime != null && activityTime.compareTo(since) >= 0 && !AL.empty(knows)){
-						Collection peerThings = new HashSet(knows);
+					Collection topics = peer.getThings(AL.topics);
+					if (activityTime != null && activityTime.compareTo(since) >= 0 && !AL.empty(topics)){
+						Collection peerThings = new HashSet(topics);
 						if (!forced){
 							Collection peerTrusts = peer.getThings(AL.trusts);
 							if (AL.empty(peerTrusts))
@@ -705,12 +705,12 @@ public class Siter {
 	//- send updates (push notifications)
 	//-- Selfer: for a news for thing, send email for all its users (not logged in?) 
 	static void update(Body body, Storager storager, Thing thing,Collection news,String path,Thing group) {	
-		Object[] knows = {AL.knows,thing};
+		Object[] topics = {AL.topics,thing};
 		Object[] sites = {AL.sites,path};
-		Object[] knows_trusts = {AL.trusts,thing};
+		Object[] topics_trusts = {AL.trusts,thing};
 		Object[] sites_trusts = {AL.trusts,path};
-		All query = group != null ? new All(new Object[]{new Seq(knows),new Seq(knows_trusts),new Seq(new Object[]{AL.groups,group})})
-				: new All(new Object[]{new Seq(knows),new Seq(sites),new Seq(knows_trusts),new Seq(sites_trusts)});
+		All query = group != null ? new All(new Object[]{new Seq(topics),new Seq(topics_trusts),new Seq(new Object[]{AL.groups,group})})
+				: new All(new Object[]{new Seq(topics),new Seq(sites),new Seq(topics_trusts),new Seq(sites_trusts)});
 		try {
 			Collection peers = storager.get(query,(Thing)null);//forcer?
 			if (!AL.empty(peers))

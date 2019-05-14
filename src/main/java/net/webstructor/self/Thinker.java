@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -141,13 +141,13 @@ class PeerNewsRelevancer extends Reasoner {
 		}
 		//if no words from liked texts, get words from trusted things
 		if (AL.empty(words) && !AL.empty(trusts)){
-			Collection knows = peer.getThings(AL.knows);
-			if (!AL.empty(knows)){
-				knows = new HashSet(knows);
-				knows.retainAll(trusts);
+			Collection topics = peer.getThings(AL.topics);
+			if (!AL.empty(topics)){
+				topics = new HashSet(topics);
+				topics.retainAll(trusts);
 			}
-			if (!AL.empty(knows)){
-				for (Iterator kit = knows.iterator(); kit.hasNext();){
+			if (!AL.empty(topics)){
+				for (Iterator kit = topics.iterator(); kit.hasNext();){
 					Thing know = (Thing)kit.next();
 					String text = know.getString(AL.name);
 					//TODO: get child patterns
@@ -267,17 +267,17 @@ class PeerNewsRelevancer extends Reasoner {
 		relevances.count(item,value.doubleValue());
 	}
 	
-	Counter getKnowsRelevances(Counter words){
+	Counter getTopicsRelevances(Counter words){
 		//for each of the peers
 		Counter relevances = new Counter();
-		Collection knows = context.getThings(AL.knows);
-		if (!AL.empty(knows))
-		for (Iterator it = knows.iterator(); it.hasNext();){
+		Collection topics = context.getThings(AL.topics);
+		if (!AL.empty(topics))
+		for (Iterator it = topics.iterator(); it.hasNext();){
 			Thing item = (Thing)it.next();
 			String text = item.getString(AL.name);
 			if (!AL.empty(text))
 				countRelevances(item, text, words, relevances, false);
-			//TODO: add patterns of knows
+			//TODO: add patterns of topics
 		}
 		relevances.normalize();
 		return relevances;
@@ -308,11 +308,11 @@ class PeerNewsRelevancer extends Reasoner {
 		//Counter relevances = getNewsRelevances(words);
 		Counter relevances = getThingSpecificNewsRelevances(words,false);
 		Counter peersRelevances = getPeerRelevances(words);
-		Counter knowsRelevances = getKnowsRelevances(words);
+		Counter topicsRelevances = getTopicsRelevances(words);
 		Counter sitesRelevances = getSitesRelevances(words);
 		
 		relevances.mergeMax(peersRelevances);
-		relevances.mergeMax(knowsRelevances);
+		relevances.mergeMax(topicsRelevances);
 		relevances.mergeMax(sitesRelevances);
 		
 		return relevances;

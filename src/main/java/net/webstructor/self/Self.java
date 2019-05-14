@@ -88,7 +88,7 @@ public class Self {
 	private static void trashPeerLinks(Body body, Thing peer) {
 		body.thinker.think(peer);
 		Collection trusts = peer.getThings(AL.trusts);
-		trashPeerLinks(body,peer,AL.knows,trusts);
+		trashPeerLinks(body,peer,AL.topics,trusts);
 		trashPeerLinks(body,peer,AL.sites,trusts);
 	}
 	
@@ -116,26 +116,26 @@ public class Self {
 			}
 		}
 		
-		//2) remove junk 'knows' and 'ignores'
+		//2) remove junk 'topics' and 'ignores'
 		HashSet peerLinks = new HashSet();
-		Collection knows = peer.getThings(AL.knows);
+		Collection topics = peer.getThings(AL.topics);
 		Collection ignores = peer.getThings(AL.ignores);
-		if (!AL.empty(knows))
-			peerLinks.addAll(knows);
+		if (!AL.empty(topics))
+			peerLinks.addAll(topics);
 		if (!AL.empty(ignores))
 			peerLinks.addAll(ignores);
 		for (Iterator tit = peerLinks.iterator(); tit.hasNext();){
 			Thing t = (Thing)tit.next();
 			String name = t.getName();
 			if (body.languages.scrub(name) || Array.contains(body.storager.getNames(),name)){
-				peer.delThing(AL.knows, t);
+				peer.delThing(AL.topics, t);
 				peer.delThing(AL.trusts, t);
 				peer.delThing(AL.ignores, t);
 			}
 		}
 		
 		//TODO: enable or disable auto clearing
-		//clearTrusts(body, peer, AL.knows);
+		//clearTrusts(body, peer, AL.topics);
 		//clearTrusts(body, peer, AL.sites);
 		trashPeerLinks(body, peer);
 	}

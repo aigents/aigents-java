@@ -124,9 +124,29 @@ public class Selfer extends Thread {
 					}
 				}
 			} catch (Exception e) {
-				body.error("Upgrading "+current_version+" to 1.2.13", e);
+				body.error("Upgrade error "+current_version+" to 1.2.13", e);
 			}
 		}
+		if (normalisedVersion(current_version).compareTo(normalisedVersion("1.6.8")) < 0){
+			try {//rename all knows to topics
+				Collection things = body.storager.getThings();
+				for (Iterator it = things.iterator(); it.hasNext();) {
+					Thing t = (Thing)it.next();
+					String knows = "knows";
+					for (;;){//loop with self-modification of iterator
+						Collection ks = t.getThings(knows);
+						if (AL.empty(ks))
+							break;
+						Thing k = (Thing)ks.iterator().next();
+						t.delThing(knows, k);
+						t.addThing(AL.topics, k);
+					}
+				}
+			} catch (Exception e) {
+				body.error("Upgrade error "+current_version+" to 1.6.8", e);
+			}
+		}
+		body.debug("Upgrade completed to "+Body.VERSION);
 		body.self().setString(AL.version,Body.VERSION);
 	}
 	

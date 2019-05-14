@@ -47,7 +47,7 @@ http://www.tesis.lebedev.ru/sun_flares.html
 	sun flare patterns 'Вспышка балла $class $starttime $maxtime $endtime'.
 	starttime, maxtime, enditime is time.
 	*/
-	test_o("My knows sun flare.");
+	test_o("My topics sun flare.");
 	test_i("Ok.");
 	test_o("Sun flare patterns 'Вспышка балла \$class \$starttime \$maxtime \$endtime'.");
 	test_i("Ok.");
@@ -77,7 +77,7 @@ http://www.tesis.lebedev.ru/sun_flares.html
 	get("Ok.");
 	test_o("No there is sun flare.");
 	test_i("Ok.");
-	test_o("My knows no sun flare.");
+	test_o("My topics no sun flare.");
 	test_i("Ok.");
 	test_o("No name sun flare.");
 	test_i("Ok.");
@@ -94,7 +94,7 @@ http://www.hallolondon.co.uk/free_ads/for_sale/
 	iphone sale patterns 'iphone $description - in $place \$price'.
 	description, place is text.
 	*/
-	test_o("My knows iphone sale.");
+	test_o("My topics iphone sale.");
 	test_i("Ok.");
 	test_o("Iphone sale has price, patterns 'iphone \$description - in \$place \$price'.");
 	test_i("Ok.");
@@ -106,7 +106,7 @@ http://www.hallolondon.co.uk/free_ads/for_sale/
 	test_i("There description 5s 16gb in in county durham, place county durham, price £200; description 5s lte 64gb unlocked, place hammersmith, price £350.");
 	test_o("No there is iphone sale.");
 	test_i("Ok.");
-	test_o("My knows no iphone sale.");
+	test_o("My topics no iphone sale.");
 	test_i("Ok.");
 	test_o("No name iphone sale.");
 	test_i("Ok.");
@@ -126,7 +126,7 @@ http://www.broward.org/Legislative/
 	public hearing patterns '$description public hearing $dayandtime'.
 	description, $dayandtime is text. 
 	*/
-	test_o("My knows public hearing.");
+	test_o("My topics public hearing.");
 	test_i("Ok.");
 	test_o("Public hearing patterns '\$description public hearing \$dayandtime .'.");
 	test_i("Ok.");
@@ -147,7 +147,7 @@ http://www.broward.org/Legislative/
 	get("There text 'environment & growth management public hearing local bill public hearing tuesday , december 17 , 2013 , 4 – 7 p.m .'; text 'public hearing on gaming - cancelled monday , february 24 , 2014 , 2:30 p.m – 5:30 p.m .'.");
 	test_o("No there is public hearing.");
 	test_i("Ok.");
-	test_o("My knows no public hearing.");
+	test_o("My topics no public hearing.");
 	test_i("Ok.");
 	test_o("No name public hearing.");
 	test_i("Ok.");
@@ -165,7 +165,7 @@ http://www.squarefoot.com.hk/
 	kowloon area real estate patterns 'Kowloon Gross Area $grossarea saleable area $saleablearea {price: rent:} $price $priceunit'.
 	$grossarea $saleablearea is number.
 	*/
-	test_o("My knows real estate.");
+	test_o("My topics real estate.");
 	test_i("Ok.");
 	//test_o("Real estate patterns 'Kowloon Gross Area \$grossarea saleable area \$saleablearea {price: rent:} \$price \$priceunit'.");
 	test_o("Real estate patterns 'Kowloon Gross Area (sq.ft.) \$grossarea saleable area (sq.ft.) \$saleablearea {price: rent:} \$price \$priceunit'.");
@@ -187,7 +187,7 @@ http://www.squarefoot.com.hk/
 	test_i("There grossarea 853, is real estate, price $11, priceunit m, saleablearea 685, text 'kowloon gross area ( sq.ft . ) 853 saleable area ( sq.ft . ) 685 price: $11 m', times today.");
 	test_o("No there is real estate.");
 	test_i("Ok.");
-	test_o("My knows no real estate.");
+	test_o("My topics no real estate.");
 	test_i("Ok.");
 	test_o("No name real estate.");
 	test_i("Ok.");
@@ -202,7 +202,7 @@ http://www.wired.com/
 	Google Needs Your Help Building Apps for Its All-Seeing Tablet
 	Explore Every 2014 World Cup Stadium With Google Street View
 	*/
-	test_o("My knows 'google news'.");
+	test_o("My topics 'google news'.");
 	test_i("Ok.");
 	test_o("Google news patterns '\$offer with Google \$product', 'Google \$offer'.");
 	test_i("Ok.");
@@ -220,7 +220,7 @@ http://www.wired.com/
 	test_i("There offer explore every 2014 world cup stadium; offer needs your help building apps for its all-seeing tablet; offer street view.");
 	test_o("No there is 'google news'.");
 	test_i("Ok.");
-	test_o("My knows no 'google news'.");
+	test_o("My topics no 'google news'.");
 	test_i("Ok.");
 	test_o("No name 'google news'.");
 	test_i("Ok.");
@@ -233,7 +233,7 @@ http://www.heraldsun.com.au/
 	[Other Sports] [Pearson pulls out of Diamond League]
 	[Sport] [ Croatia chased Spira but he stayed true ] 
 	*/
-	test_o("My knows sports.");
+	test_o("My topics sports.");
 	test_i("Ok.");
 	test_o("Sports patterns '{sport sports} \$topic'.");
 	test_i("Ok.");	
@@ -243,7 +243,7 @@ http://www.heraldsun.com.au/
 	test_i("There topic croatia chased spira but he stayed true; topic pearson pulls out of diamond league.");
 	test_o("No there is sports.");
 	test_i("Ok.");
-	test_o("My knows no sports.");
+	test_o("My topics no sports.");
 	test_i("Ok.");
 	test_o("No name sports.");
 	test_i("Ok.");
@@ -259,7 +259,7 @@ http://indianexpress.com/elections/
 	RULE: [Narendra Modi $does $what] $does is verb
 	*/	
 	//TODO
-	test_o("My knows Narendra Modi.");
+	test_o("My topics Narendra Modi.");
 	test_i("Ok.");
 	test_o("Narendra Modi patterns 'Narendra Modi {[{quit, quits, leave, leaves} \$leave], [{deal, deals, did, does, do, has, had} \$action], [{retain, retains, save, saves} \$keep], [{say, says, tell, tells, told, said} \$talk]}'.");
 	test_i("Ok.");
@@ -280,7 +280,7 @@ http://indianexpress.com/elections/
 	//test_i("There talk chinese pm.");	
 	test_o("No there is Narendra Modi.");
 	test_i("Ok.");
-	test_o("My knows no Narendra Modi.");
+	test_o("My topics no Narendra Modi.");
 	test_i("Ok.");
 	test_o("No name Narendra Modi.");
 	test_i("Ok.");

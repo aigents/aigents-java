@@ -108,7 +108,7 @@ body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" group_name "+gr
 			if (!AL.empty(m)) for (Iterator mit = m.iterator(); mit.hasNext();){
 				Thing p = (Thing)mit.next();
 				//6) get all user topics, do for each
-				Collection k = p.getThings(AL.knows);
+				Collection k = p.getThings(AL.topics);
 				Collection t = p.getThings(AL.trusts);
 				if (!AL.empty(k) && !AL.empty(t)){//keep trusted topics only
 					t = new HashSet(t);

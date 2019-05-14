@@ -47,6 +47,12 @@ function test_chat() {
 	//TODO: on greeting (hi, hello, привет), use default prompt before asking question
 	//TODO: on any unrecogized input, try default prompt before asking question back
 	//TODO: have smart greeting - using pattern->response mechanics
+	//TODO: add context as a pattern
+	//TODO: let response be a patern fillable from context
+	//TODO: help pased on the pattern->response
+	//TODO: load help data from external file
+	//TODO: bind pattern->response to users to prevent forgetting
+	//TODO: have chat unauthorized
 	//TODO: translation
 	
 	//TODO: free ontology operations

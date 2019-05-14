@@ -74,7 +74,7 @@ function test_agent_web() {
 	// Gismeteo - works!
 	if ($test_all) 
 	{
-		say("My knows temperature.");
+		say("My topics temperature.");
 		say("My trusts temperature.");
 		say("Temperature patterns 'Новосибирск \$value °C', has value.");
 		say("Value is number.");
@@ -83,13 +83,13 @@ function test_agent_web() {
 		get();	 
 		say("What is temperature?");
 		get();	 
-		say("My knows no temperature.");
+		say("My topics no temperature.");
 		say("My trusts no temperature.");
 		say("No there times today.");
 		say("No name temperature.");
 		say("No name value.");
 		//
-		say("My knows 'Новосибирск \$number °C'.");
+		say("My topics 'Новосибирск \$number °C'.");
 		say("My trusts 'Новосибирск \$number °C'.");
 		say("No there is 'Новосибирск \$number °C'.");
 		//say("You reading in http://www.gismeteo.ru/city/daily/4690/!");//Novosibirsk
@@ -99,7 +99,7 @@ function test_agent_web() {
 		get();
 		say("What is 'Новосибирск \$number °C'?");
 		get();
-		say("My knows no 'Новосибирск \$number °C'.");
+		say("My topics no 'Новосибирск \$number °C'.");
 		say("My trusts no 'Новосибирск \$number °C'.");
 		say("No there times today.");
 		say("No name 'Новосибирск \$number °C'.");
@@ -108,26 +108,26 @@ function test_agent_web() {
 	// Sun flares - works!
 	if ($test_all) 
 	{
-		say("My knows flare.");
+		say("My topics flare.");
 		say("My trusts flare.");
 		say("flare patterns 'Вспышка балла \$word'.");
 		say("No there is flare.");
 		say("You reading in http://www.tesis.lebedev.ru/sun_flares.html!");
 		say("What is flare word?");
 		get();
-		say("My knows no flare.");
+		say("My topics no flare.");
 		say("My trusts no flare.");
 		say("No there times today.");
 		say("No name flare.");
 		//say("No name word.");
 		//
-		say("My knows 'Вспышка балла \$word'.");
+		say("My topics 'Вспышка балла \$word'.");
 		say("My trusts 'Вспышка балла \$word'.");
 		say("No there is 'Вспышка балла \$word'.");
 		say("You reading in http://www.tesis.lebedev.ru/sun_flares.html!");
 		say("What is 'Вспышка балла \$word' text?");
 		get();
-		say("My knows no 'Вспышка балла \$word'.");
+		say("My topics no 'Вспышка балла \$word'.");
 		say("My trusts no 'Вспышка балла \$word'.");
 		say("No there times today.");
 		say("No name 'Вспышка балла \$word'.");
@@ -191,7 +191,7 @@ function test_agent_web() {
 		//$patt = "geomagnetic storms were observed for the past 3 hours";
 		$patt = "geomagnetic storms were observed for the past \$word hours";
 		say_thing($patt);
-		say("My knows '".$patt."'.");
+		say("My topics '".$patt."'.");
 		say("My trusts '".$patt."'.");
 		say("No there is '".$patt."'.");
 		say("You reading '".$patt."' in http://tesis.lebedev.ru/en/magnetic_storms.html!");
@@ -256,7 +256,7 @@ function test_agent_web() {
 	// Aigents news - works!
 	if ($test_all) 
 	{
-		say("My knows '{mission release} \$text'.");
+		say("My topics '{mission release} \$text'.");
 		say("My trusts '{mission release} \$text'.");
 		say_site("http://aigents.com/en");
 		say("You read!");
@@ -270,7 +270,7 @@ function test_agent_web() {
 		get();
 		say("What new true text, trust?");
 		get();
-		say("My knows no '{mission release} \$text'.");
+		say("My topics no '{mission release} \$text'.");
 		say("My trusts no '{mission release} \$text'.");
 		say("Times today new false.");
 		say("No there times today.");
@@ -281,7 +281,7 @@ function test_agent_web() {
 
 	// Business news - works!
 	if ($test_all) {
-		say("My knows 'google \$text', 'apple \$text', '\$buyer {buyes bought acquires acquired} \$subject'.");
+		say("My topics 'google \$text', 'apple \$text', '\$buyer {buyes bought acquires acquired} \$subject'.");
 		say("My trusts 'google \$text', 'apple \$text', '\$buyer {buyes bought acquires acquired} \$subject'.");
 		say("You reading in http://wired.com!");
 		say("What is 'google \$text' text?");
@@ -290,7 +290,7 @@ function test_agent_web() {
 		get();
 		say("What is '\$buyer {buyes bought acquires acquired} \$subject' text?");
 		get();
-		say("My knows no 'google \$text', no 'apple \$text', no '\$buyer {buyes bought acquires acquired} \$subject'.");
+		say("My topics no 'google \$text', no 'apple \$text', no '\$buyer {buyes bought acquires acquired} \$subject'.");
 		say("My trusts no 'google \$text', no 'apple \$text', no '\$buyer {buyes bought acquires acquired} \$subject'.");
 		say("No there times today.");
 		say("No name 'google \$text'.");
@@ -299,7 +299,7 @@ function test_agent_web() {
 	// 	Доллар США $ руб. 56,4271 руб. ↑57,7279	
 	if ($test_all) 
 	{
-		say("My knows usdrub.");
+		say("My topics usdrub.");
 		say("My trusts usdrub.");
 		//works:
 		//say("usdrub patterns 'Доллар США руб. \$price руб. \$price', has price.");
@@ -312,7 +312,7 @@ function test_agent_web() {
 		say("You reading in http://cbr.ru!");
 		say("What is usdrub?");
 		get();
-		say("My knows no usdrub.");
+		say("My topics no usdrub.");
 		say("My trusts no usdrub.");
 		say("No there times today.");
 		say("No name usdrub.");
@@ -324,7 +324,7 @@ function test_agent_web() {
 	// Weather in Beiging 
 	if ($test_all) 
 	{
-		say("My knows '关注的城市 \$info'.");
+		say("My topics '关注的城市 \$info'.");
 		say("My trusts '关注的城市 \$info'.");
 		say("No there is '关注的城市 \$info'.");
 		say("You reading in http://m.tianqi.com/beijing/!");
@@ -335,7 +335,7 @@ function test_agent_web() {
 		say("You reading in http://beijing.tianqi.com!");
 		say("What is '关注的城市 \$info'?");
 		get();
-		say("My knows no '关注的城市 \$info'.");
+		say("My topics no '关注的城市 \$info'.");
 		say("My trusts no '关注的城市 \$info'.");
 		say("No there times today.");
 		say("No name '关注的城市 \$info'.");
@@ -352,19 +352,19 @@ function test_agent_web() {
 	if (false) {
 		say_site("http://beta.speedtest.net/it/result/5684599470?preferredLocale=it");
 		say_thing("test \$word");
-		say("what my knows?");
+		say("what my topics?");
 		get();
 		say("what my trusts?");
 		get();
 		say("You reading!");
-		say("what my knows?");
+		say("what my topics?");
 		get();
 		sleep(10);
-		say("what my knows?");
+		say("what my topics?");
 		get();
 		say("What is 'http://beta.speedtest.net/it/result/5684599470?preferredLocale=it' text?");
 		get();
-		say("what my knows?");
+		say("what my topics?");
 		get();
 		say_thing("test \$word",false);
 brk();
@@ -569,7 +569,7 @@ brk();
 	
 	//test regular expressions
 	{
-		say("My knows relationship.");
+		say("My topics relationship.");
 		say("relationship patterns '{/john(|ny)$/ /jim(|my)$/} {/marr(y|ied|ies)$/ /engage(|d|s)$/ /divorse(|d|s)$/} {/jan(e|net)$/ /jud(y|ith)$/}'.");
 		say("No there is relationship.");
 		say("You read relationship in 'jimmy is engaged to jane'");
@@ -592,10 +592,10 @@ brk();
 		say("What is relationship text?");
 		get("There text сегодня михаил женится марии жженовой.");
 		say("No there is relationship.");
-		say("My knows no relationship.");
+		say("My topics no relationship.");
 		say("No name relationship.");
 
-		say("My knows marriage.");
+		say("My topics marriage.");
 		say("Marriage has fiance, fiancee.");
 		//TODO: redo the following with 'patterns' property?
 		say("Fiance is '{/john(|ny)$/ /jim(|my)$/}'.");
@@ -608,7 +608,7 @@ brk();
 		get("There fiance john, fiancee judy.");
 		
 		say("No there is marriage.");
-		say("My knows no marriage.");
+		say("My topics no marriage.");
 		say("No name marriage.");
 		say("No name fiance.");
 		say("No name fiancee.");
@@ -618,7 +618,7 @@ brk();
 		/*
 		Test for local news in Novosibirsk district
 		- now junk is coming and is not rendered
-		Your knows name '$buyer {buy buys bought acquires acquire acquired} $subject', trust true;
+		Your topics name '$buyer {buy buys bought acquires acquire acquired} $subject', trust true;
 		name '{[$prefix {[василий борматов] [в . борматов]}] [{[василий борматов] [в . борматов]}] $suffix}]', trust true;
 		name '{[$prefix {[владимир городецкий] [в . городецкий]}] [{[владимир городецкий] [в . городецкий]}] $suffix]}', trust true.
 		http://ngs.ru/

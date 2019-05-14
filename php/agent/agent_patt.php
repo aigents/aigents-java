@@ -38,79 +38,79 @@ function test_agent_patterns() {
 
 
 	//test two-side variables
-	say("My knows '\$x dolphins \$y'.");
+	say("My topics '\$x dolphins \$y'.");
 	get("Ok.");
-	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone topics that dolphins are cool. They are just great.</body></html>");
 	say("You reading '\$x dolphins \$y' in http://localtest.com/test.html!");
 	get("My reading \$x dolphins \$y in http://localtest.com/test.html.");
 	say("What is '\$x dolphins \$y' text?");
-	get("There text everyone knows that dolphins are cool.");
+	get("There text everyone topics that dolphins are cool.");
 	say("No there is '\$x dolphins \$y'.");
-	say("My knows no '\$x dolphins \$y'.");
+	say("My topics no '\$x dolphins \$y'.");
 	say("No name '\$x dolphins \$y'.");
 	
 	/*
 	//TODO:
 	brk();
 	//news de-duplication
-	say("My knows '\$x dolphins \$y'.");
-	say("My knows 'to dolphins'.");
+	say("My topics '\$x dolphins \$y'.");
+	say("My topics 'to dolphins'.");
 	get("Ok.");
 	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Link 1 <a href=\"test1.html\">to dolphins</a>. Link 2 <a href=\"test2.html\">to dolphins</a>. They are just great.</body></html>");
-	file_put_contents($basePath."html/test1.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
-	file_put_contents($basePath."html/test2.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test1.html","<html><body>Here is the story. Everyone topics that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test2.html","<html><body>Here is the story. Everyone topics that dolphins are cool. They are just great.</body></html>");
 	say("You reading '\$x dolphins \$y' in http://localtest.com/test.html!");
 	get("My reading \$x dolphins \$y in http://localtest.com/test.html.");
 	say("What is '\$x dolphins \$y' text?");
 	get();
-	//get("There text everyone knows that dolphins are cool.");
+	//get("There text everyone topics that dolphins are cool.");
 	say("No there is '\$x dolphins \$y'.");
-	say("My knows no '\$x dolphins \$y'.");
+	say("My topics no '\$x dolphins \$y'.");
 	say("No there is 'to dolphins'.");
-	say("My knows no 'to dolphins'.");
+	say("My topics no 'to dolphins'.");
 	say("No name 'to dolphins'.");
 	brk();
 	*/
 	
 	//test basic auto-patterns 
-	say("My knows dolphins.");
+	say("My topics dolphins.");
 	get("Ok.");
 	
 	say("Path?");//sanity check
 	get("Path not.");
 
 	say("No there is dolphins.");
-	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone knows that dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone topics that dolphins are cool. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
-	get("There text everyone knows that dolphins are cool.");	
+	get("There text everyone topics that dolphins are cool.");	
 
 	say("No there is dolphins.");
-	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone knows dolphins as animals. Dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is the story. Everyone topics dolphins as animals. Dolphins are cool. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
-	get("There text dolphins are cool; text everyone knows dolphins as animals.");
+	get("There text dolphins are cool; text everyone topics dolphins as animals.");
 	
 	say("No there is dolphins.");
-	file_put_contents($basePath."html/test.html","<html><body>Here is what. Everyone knows dolphins.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Here is what. Everyone topics dolphins.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
-	get("There text everyone knows dolphins.");
+	get("There text everyone topics dolphins.");
 	
 	say("No there is dolphins.");
-	file_put_contents($basePath."html/test.html","<html><body>Everyone knows dolphins. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Everyone topics dolphins. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
-	get("There text everyone knows dolphins.");
+	get("There text everyone topics dolphins.");
 	
 	say("No there is dolphins.");
-	file_put_contents($basePath."html/test.html","<html><body>Everyone knows dolphins. Dolphins are cool. They are just great.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Everyone topics dolphins. Dolphins are cool. They are just great.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text dolphins are cool.");
 	
 	say("No there is dolphins.");
-	file_put_contents($basePath."html/test.html","<html><body>Everyone knows dolphins. Dolphins are cool. People and dolphins should be friends.</body></html>");
+	file_put_contents($basePath."html/test.html","<html><body>Everyone topics dolphins. Dolphins are cool. People and dolphins should be friends.</body></html>");
 	say("You reading dolphins in http://localtest.com/test.html!");
 	say("What is dolphins text?");
 	get("There text people and dolphins should be friends.");
@@ -118,7 +118,7 @@ function test_agent_patterns() {
 	//cleanup
 	say("No there is http://localtest.com/test.html.");
 	say("No there is dolphins.");
-	say("My knows no dolphins.");
+	say("My topics no dolphins.");
 	say("No name dolphins.");
 
 	//test complex auto-patterns
