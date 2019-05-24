@@ -25,6 +25,9 @@
 
 include_once("test_api.php");
 
+function test_chat_init() {
+}
+
 function test_chat_cleanup() {
 	say("Your trusts no john.");
 	get("Ok.");
@@ -35,41 +38,108 @@ function test_chat_cleanup() {
 	get("Ok.");
 }
 
+function test_help() {
+	login();
+	
+	//define help content
+	say("There trust true, patterns help, support; responses 'Type \"help login\", \"help logout\", \"help search\", \"help topics\", \"help sites\", \"help news\", \"help notification\".'.");
+	get("Ok.");
+	//TODO:why this is not parsed for patterns properly!!??
+	//say("There trust true, patterns 'help topics'; responses 'Type \"my topics?\" to list topics, TODO ...'.");
+	/*
+SAY:There trust true, patterns 'help topics'; responses 'Type "my topics?" to list topics, TODO ...'.
+GET:Ok.
+SAY:What trust true patterns?
+GET:There not; patterns 'responses Type "my topics?" to list topics, TODO ...', help topics; patterns help, support.
+	 */
+	//say("There trust true, patterns 'help topics', responses 'Type \"my topics?\" to list topics, TODO ...'.");
+	/*
+SAY:There trust true, patterns 'help topics', responses 'Type "my topics?" to list topics, TODO ...'.
+GET:Ok.
+SAY:What trust true patterns?
+GET:There not; patterns 'responses Type "my topics?" to list topics, TODO ...', help topics; patterns help, support.
+	 */
+	say("There trust true, patterns 'help login', 'login help'; responses 'You should be logged in to get fully personalized experience. Type \"my login\" to get prompted for your email, name and surname, which can be entered as \"my email john@doe.org, name john, surname doe\". By entering this information your effectively agree with our privacy policy and license agreement https://aigents.com/en/license.html and authorize our application to keep your data. In order to verify your authorization, you will be prompted to enter secret answer and secret question, which you can provide answering something like \"My secret question \'color of my desk plus number of rooms in my house\', secret answer \'pink+6\'\".'.");
+	say("There trust true, patterns 'help logout', 'logout help'; responses 'You can log out to secure your data. Type \"my logout\" to get logged out of authorized conversation with our application.'.");
+	say("There trust true, patterns 'help topics', 'topics'; responses '\"Topics\" control list of your topics of interest, with some of them trusted so they are monitored for news. Type \"my topics?\" to list topics, \"my topics \'internet agent\'\" to add \'internet agent\' to topics, \"my topics no \'internet agent\'\" to remove \'internet agent\' from topics, \"\'internet agent\' trust true\" to make the topic trusted for montitoring, \"\'internet agent\' trust false\" to remove trust for topic so it is not montitored. For more details, see https://medium.com/@aigents/aigents-news-monitoring-tips-and-tricks-ab8d2ede2fa5 .'.");
+	say("There trust true, patterns 'help sites', 'sites'; responses '\"Sites\" control list of your sites of interest, with some of them trusted so they are monitored for news. Type \"my sites?\" to list sites, \"my sites https://aigents.com/\" to add https://aigents.com/ to sites, \"my sites no https://aigents.com/\" to remove https://aigents.com/ from sites, \"https://aigents.com/ trust true\" to make the site trusted for montitoring, \"https://aigents.com/ trust false\" to remove trust for site so it is not montitored.'.");
+	say("There trust true, patterns 'help news', 'news'; responses '\"News\" control your news feed. Type \"my news text?\" to list texts of the news items, \"my news text, sources?\" to list texts along with source URLs.'.");
+	say("There trust true, patterns 'help search', 'search help'; responses '\"Search\" makes search historical web search for you. Type \"search aigents\" to search news about aigents, \"search \'internet agent\'\" to search news about \'internet agent\', \"search aigents, time 2019-05-12\" to search till specified date, \"search \'internet agent\', time 2019-05-12, period 10\" to search till specific date for peroid of specified number of days.'.");
+//TODO: fix as not being parsed!
+	//say("There trust true, patterns 'help search', 'search'; responses '\"Search\" makes search historical web search for you. Type \"search aigents\" to search news about aigents, \"search \'internet agent\'\" to search news about \'internet agent\', \"search aigents, time 2019-05-12\" to search till specified date, \"search \'internet agent\', time 2019-05-12, period 10\" to search till specific date for peroid of specified number of days.'.");
+	say("patterns 'search help' patterns 'search'");//TODO: fix hack!?
+	say("There trust true, patterns 'help notification', 'notification help'; responses 'Control your notification over email and popular messengers. Type \"my email notification?\", \"my telegram notification?\", \"my facebook notification?\" or \"my slack notification?\" to know your notification status, \"my telegram notification true\" - to turn telegram notifications on, \"my email notification false\" - to turn email notifications off.'.");
+	say("There trust true, patterns hi, hello, greeting; responses 'hi!', 'hello!', 'greeting!'.");
+	
+	
+	say("what patterns search?");
+	get();
+	say("what patterns 'help search'?");
+	get();
+	
+	
+	//test help contents
+	say("help me");
+	get("Type \"help login\", \"help logout\", \"help search\", \"help topics\", \"help sites\", \"help news\", \"help notification\".");
+	say("help login!");
+	get("You should be logged in",null,true);
+	say("help logout");
+	get("You can log out",null,true);
+	say("help topics!");
+	get("\"Topics\" control list of your topics of interest",null,true);
+	say("help me with sites");
+	get("\"Sites\" control list of your sites of interest",null,true);
+	say("help news!");
+	get("\"News\" control your news feed.",null,true);
+	say("help with search");
+	get("\"Search\" makes search historical web search for you.",null,true);
+	say("help me with notification!");
+	get("Control your notification over email and popular messengers.",null,true);
+
+	//test future command shortcuts as help content stubs
+	say("topics");
+	get("\"Topics\" control list of your topics of interest",null,true);
+	say("sites");
+	get("\"Sites\" control list of your sites of interest",null,true);
+	say("news");
+	get("\"News\" control your news feed.",null,true);
+	say("search");
+	get("\"Search\" makes search historical web search for you.",null,true);
+	
+	//make sure we can retain trusted intents and forget untrusted ones 
+	say("You forget!");
+	get("Ok.");
+	say("What patterns help?").
+	get("There patterns help, support, responses 'Type \"help login\", \"help logout\", \"help search\", \"help topics\", \"help sites\", \"help news\", \"help notification\".'.");
+	say("help!");
+	get("Type \"help login\", \"help logout\", \"help search\", \"help topics\", \"help sites\", \"help news\", \"help notification\".");
+	say("Trust true trust false.");
+	get("Ok.");
+	say("You forget!");
+	get("Ok.");
+	say("What patterns help?").
+	get("There not.");
+	say("help!");
+	get("No thing.");
+	logout();
+}
+
 function test_chat() {
 	global $version;
 	global $copyright;
 	
-	//TODO: free text interactions on news
-	//any news?
-	//what's new?
-	//help!
-	
+	//TODO: free text interactions on news - "any news?" "what's new", "whatsup"?
 	//TODO: on greeting (hi, hello, привет), use default prompt before asking question
 	//TODO: on any unrecogized input, try default prompt before asking question back
 	//TODO: have smart greeting - using pattern->response mechanics
 	//TODO: add context as a pattern
 	//TODO: let response be a patern fillable from context
-	//TODO: help pased on the pattern->response
 	//TODO: load help data from external file
-	//TODO: bind pattern->response to users to prevent forgetting
-	//TODO: have chat unauthorized
-	//TODO: translation
-	
+	//TODO: chat translation
 	//TODO: free ontology operations
 	//TODO: free text question answering using graphs
-	//TODO: what else?
-	
-	//TODO: commands
-	/*
-				help
-				news
-				sites
-				topics
-				search ...
-				hi hello привет здорово
-				bye logout пока [до свидания]
-	*/
 	//TODO: trainable pattern-based conversations
+	
 	say("Login.");
 	get("What your email, name, surname?");
 	say("john@doe.org");
@@ -461,9 +531,11 @@ function test_groups() {
 
 
 test_init();
+test_help();
+/**
 test_search();
 test_chat();
 test_groups();
 test_summary();
-
+**/
 ?>

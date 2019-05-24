@@ -228,6 +228,9 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		
 		if (noSecretQuestion(session))
 			return answer(session);
+		
+		if (Responser.response(session))
+			return false;//TODO: append login flow?
 
 		if (session.peer == null) {
 			session.peer = new Thing();//create dummy peer

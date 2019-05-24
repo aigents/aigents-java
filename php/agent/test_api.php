@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "1.6.8";
+$version = "1.6.9";
 $copyright = " Copyright © 2019 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -115,12 +115,16 @@ function test_o($out) {
 	println("SAY:".$out);
 }
 
-function test_i($in = null, $alts = null) {
+function test_i($in = null, $alts = null, $partial = false) {
 	global $last_message;
 	global $failed;
-	if ($in != null)
+	$t = $last_message;
+	if ($in != null){
 		$in = trim($in);
-	if ($in != null && !($in === $last_message || ($alts !=null && in_array($last_message, $alts)))) {
+		if ($partial)
+			$t = substr($t,0,strlen($in));
+	}
+	if ($in != null && !($in === $t || ($alts !=null && in_array($t, $alts)))) {
 		println("GET:\n".$last_message."\nERROR - MUST BE:\n".$in);
 		$failed = $failed + 1;
 		exit();		
@@ -153,8 +157,8 @@ function say($in) {
 	test_o($in);
 }
 
-function get($in = null, $alts = null) {
-	test_i($in,$alts);
+function get($in = null, $alts = null, $partial = false) {
+	test_i($in,$alts,$partial);
 }
 
 function brk() {

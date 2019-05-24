@@ -23,9 +23,11 @@
  */
 package net.webstructor.peer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 
 import net.webstructor.al.AL;
@@ -72,15 +74,23 @@ class Responser {
 			}
 		}
 		//3
-		HashSet all_responses = new HashSet();
+		//HashSet all_responses = new HashSet();
+		ArrayList all_responses = new ArrayList();
+		int matchlen = 0;
 		Iter iter = new Iter(Parser.parse(session.input()));//build with original text positions preserved for image matching
 		if (!AL.empty(all_patterns)) for (Iterator it = all_patterns.iterator(); it.hasNext();){
 			iter.pos(0);//reset 
 			Thing instance = new Thing();
 			Thing patthing = ((Thing)it.next());
 			Seq patseq = Reader.pattern(storager,instance,patthing.getName());
-			boolean read = Reader.read(iter, patseq, null);
+			StringBuilder sbtmp = new StringBuilder();
+			boolean read = Reader.read(iter, patseq, sbtmp);
 			if (read){
+				session.sessioner.body.debug(session.toString()+" X "+patthing.getName()+" = "+sbtmp.toString());
+			}
+			if (read && sbtmp.length() > matchlen){//if found better match
+				matchlen = sbtmp.length();
+				all_responses.clear();
 				java.util.Set reactions = storager.get(AL.patterns, patthing);
 				if (!AL.empty(reactions)) for (Iterator rit = reactions.iterator(); rit.hasNext();){
 					Thing ra = (Thing)rit.next();
@@ -92,8 +102,11 @@ class Responser {
 				}
 			}
 		}
-		for (Iterator it = all_responses.iterator(); it.hasNext();){
-			Thing r = (Thing)it.next();
+		//for (Iterator it = all_responses.iterator(); it.hasNext();){
+		//	Thing r = (Thing)it.next();
+		if (all_responses.size() > 0){
+			int i = new Random().nextInt(all_responses.size());
+			Thing r = (Thing)all_responses.get(i);
 			String s = r.getName();
 			if (!AL.empty(s)){
 				s = Writer.capitalize(s);
