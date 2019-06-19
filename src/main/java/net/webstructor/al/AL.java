@@ -60,7 +60,7 @@ public class AL {
 	public final static String _new 	= "new";
 	public final static String news 	= "news";
 	public final static String things 	= "things";
-	//public final static String knows 	= "knows";
+	//public final static String sessions = "sessions";
 	public final static String sites 	= "sites";
 	public final static String areas 	= "areas";
 	public final static String sources 	= "sources";

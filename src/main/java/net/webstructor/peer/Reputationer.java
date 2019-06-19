@@ -74,6 +74,7 @@ class ReputationParameters {
 	boolean rankUnrated = false; //boolean option to store defaul ratings so inactive agents may get reputaion growth or decay (based on default and decayed settings) over time 
 	double ratings = 1.0; //impact of the explicit and implicit ratings on differential reputation
 	double spendings = 0.0; //impact of the spendings ("proof-of-burn") on differential reputation
+	double predictiveness = 0.0; //to which extent account rank is based on consensus between social consensus and ratings provided by the account
 	boolean verbose = true; //if need full debugging log
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
@@ -96,6 +97,8 @@ class ReputationParameters {
 class ReputationTypes {
 	public static final String all_domains = "domains";//all domains/categories
 	public static final String all_aspects = "aspects";//all aspects/dimensions
+	public static final String preferences = "preferences";//who prefers who to what extent
+	public static final String predictiveness = "predictiveness";//level of one's predictiveness
 }
 
 interface Stater {
@@ -103,7 +106,8 @@ interface Stater {
 	void save();
 	void clear();
 	boolean hasState(Object date, String[] domains);//TODO: domains/dimensions!?
-	Map getLinkers(Object date);//TODO: domains/dimensions!?
+	Map getLinkers(Object date);
+	Map getLinkers(Object date, String[] domains);//TODO: domains/dimensions!?
 	//TODO: put
 	void add(Object date, Object account, Object domain, Object dimension, int intvalue);
 	void add(Object date, Object domain, Object dimension, Linker byaccount);
@@ -131,7 +135,10 @@ class GraphStater implements Stater {
 		return !AL.empty(graph.getLinkers(date, false));
 	}
 	public Map getLinkers(Object date){
-		//TODO: by domains
+		return getLinkers(date, null);
+	}
+	public Map getLinkers(Object date, String[] domains){
+		//TODO: domains/dimensions!?
 		return graph.getLinkers(date, false);
 	}
 	public void add(Object date, Object account, Object domain, Object dimension, int intvalue){
@@ -214,6 +221,8 @@ public class Reputationer {
 	private Date latest_date = null;
 	private boolean ratings_modified = false;
 	private boolean ranks_modified = false;
+
+	private static final String[] special_relationships = new String[]{ReputationTypes.preferences};
 	
 	private static HashMap reputationers = new HashMap();
 	public static Reputationer get(String network){
@@ -340,18 +349,23 @@ public class Reputationer {
 		//create default state, non-present entries will be populated with defaults 
 		Map prevstate = states.getLinkers(prevdate);
 		Linker state = prevstate == null ? new Counter() : (Linker)prevstate.get(type);
+		//TODO: fix ugly hack for using domains in place of dimensions
+		Map predstate = states.getLinkers(prevdate,new String[]{"predictiveness"});
+		Linker predictiveness = predstate == null ? new Counter() : (Linker)predstate.get(ReputationTypes.predictiveness);
 		
 		Summator differential = new Summator(); 
 		Summator normalizer = new Summator(); 
 		Summator raters = new Summator();
 		Summator spenders = new Summator();
 
+		Graph new_preferences = new Graph();
+
 		//compute incremental reputation over time period
 		for (Date day = Time.date(prevdate, +1); day.compareTo(nextdate) <= 0; day = Time.date(day, +1)){
 			Graph daily = cacher.getGraph(day);
 			//TODO: Iterator interface and graph iterator func with Doer callback interface Doer { public int do(Object[] context); }
 			//TODO: skip reverse ratings 
-			List ratings = daily.toList(false);//don't expand
+			List ratings = daily.toList(false,special_relationships,false);//don't expand
 			if (AL.empty(ratings))
 				continue;
 			for (int i = 0; i < ratings.size(); i++){
@@ -371,15 +385,28 @@ public class Reputationer {
 					raters.put(rater, raterNumber);
 				
 				double raterValue = !params.liquidRatings ? 1.0 : raterNumber.doubleValue();
+				
+				if (params.predictiveness > 0 && predictiveness != null){
+					//TODO: aling with possibly missed raterNumber above!?
+					//TODO: rather blend it as specified in the spec (as it is done for spendings!?)
+					Number raterPredictiveness = predictiveness.value(rater);
+					if (raterPredictiveness != null)
+						raterValue = raterValue * (1 - params.predictiveness) + raterPredictiveness.doubleValue() * params.predictiveness;
+				}
+				
 				if (value instanceof Number){
 					double ratingValue = ((Number)value).doubleValue();
 					differential.count(ratee, raterValue * ratingValue, 0);
 					if (params.spendings > 0)
 						spenders.count(rater, ratingValue, 0);//count spendings by raters (it may be financial value or rating itself in this case)
+					//if (params.predictiveness > 0) //TODO
 				}else if (value instanceof ComplexNumber[]){
+					double sum = 0, den = 0;
 					ComplexNumber[] c = (ComplexNumber[])value;
 					for (int j = 0; j < c.length; j++){
 						double[] r = calcRating(c[j].a,c[j].b);
+						sum += r[0];
+						den += r.length > 1 ? r[1] : 1;
 						if (params.verbose) env.debug("reputation debug rating: "+rater+" "+ratee+" "+c[j].a+" "+c[j].b+" "+r[0]);
 						differential.count(ratee, raterValue * Math.round(r[0]), 0);//TODO: no round!?
 //						differential.count(ratee, Math.round(raterValue * r[0]), 0);//TODO: no round!?
@@ -388,6 +415,8 @@ public class Reputationer {
 						if (params.spendings > 0)
 							spenders.count(rater, r[1], 0);//count spendings by raters
 					}
+					if (params.predictiveness > 0 && den > 0)
+						new_preferences.addValue(rater, ratee, ReputationTypes.preferences, sum/den);
 				}
 			}
 		}
@@ -428,6 +457,30 @@ public class Reputationer {
 				}
 			}
 		if (params.verbose) env.debug("reputation debug added unrated:"+differential);
+		
+		if (params.predictiveness > 0){
+			//1 blend current preferences and old preferences into new preferences
+			Graph old_graph = cacher.getGraph(prevdate);
+			Graph old_preferences = old_graph.getSubgraph(0,new String[]{ReputationTypes.preferences},true);
+			new_preferences.blend(old_preferences,params.conservatism); //with no defaults
+			//2 store new preferences
+			Graph new_graph = cacher.getGraph(nextdate);
+			new_graph.addSubgraph(new_preferences);
+			//3 compute predictiveness based on new preferences and social consensus
+			Set predictors = new_graph.getSources();
+			Summator predictivenesses = new Summator();
+			for (Iterator it = predictors.iterator(); it.hasNext();){
+				String rater = (String)it.next();
+				Linker predictor = new_preferences.getLinker(rater, ReputationTypes.preferences, false);
+				if (predictor != null){
+					double value = 1 - Summator.distance1(predictor,differential,1,100);
+					predictivenesses.count(rater, new Double(value));
+				}
+			}
+			//4 store predictiveness for future use
+//TODO: make sure there is no clash with internal implmentations of Staters!!!
+			states.add(nextdate, ReputationTypes.predictiveness, null, new Counter(predictivenesses));
+		}
 		
 		states.add(nextdate, type, null, new Counter(differential));
 		//states.add(nextdate, type, null, new Summator(differential));
@@ -515,7 +568,7 @@ public class Reputationer {
 		//TODO: sorting results for stability!?
 		Graph result = params.complexRatings ? cacher.getSubgraphRaw(ids, date, period, range, threshold, limit, links)
 				: cacher.getSubgraph(ids, date, period, range, threshold, limit, links);
-		Object[][] o = (Object[][]) result.toList(params.complexRatings).toArray(new Object[][]{});
+		Object[][] o = (Object[][]) result.toList(params.complexRatings,special_relationships,false).toArray(new Object[][]{});
 		//TODO: sort
 		Arrays.sort(o,new ArrayPositionComparator(0,2));//asc id order!?
 		result.clear();//save memory
@@ -979,6 +1032,8 @@ public class Reputationer {
 			r.params.ratings = Double.parseDouble(Str.arg(args, "ratings", String.valueOf(r.params.ratings)));
 		if (Str.has(args, "spendings", null))
 			r.params.spendings = Double.parseDouble(Str.arg(args, "spendings", String.valueOf(r.params.spendings)));
+		if (Str.has(args, "predictiveness", null))
+			r.params.predictiveness = Double.parseDouble(Str.arg(args, "predictiveness", String.valueOf(r.params.predictiveness)));
 		if (Str.has(args, "conservatism", null))
 			r.params.conservatism = Double.parseDouble(Str.arg(args, "conservatism", String.valueOf(r.params.conservatism)));
 		if (Str.has(args, "precision", null))

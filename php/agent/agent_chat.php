@@ -532,10 +532,9 @@ function test_groups() {
 
 test_init();
 test_help();
-/**/
 test_search();
 test_chat();
 test_groups();
 test_summary();
-/**/
+
 ?>

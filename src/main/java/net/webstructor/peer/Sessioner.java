@@ -24,8 +24,10 @@
 package net.webstructor.peer;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import net.webstructor.agent.Body;
+import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
 import net.webstructor.comm.Communicator;
 import net.webstructor.core.Thing;
@@ -49,12 +51,29 @@ public class Sessioner {
 	public Session getSavedSession(Communicator communicator, String type, String key) {
 		//get peer with session key from storage,
 		try {
+			Collection sessions = body.storager.getByName(Peer.login_token,key);
+			//New version - peer'S session:
+			if (!AL.empty(sessions)) for (Iterator it = sessions.iterator(); it.hasNext();) {
+				Thing sess = (Thing)(it.next());
+				Collection is = sess.getThings(AL.is);
+				if (!AL.empty(is) && is.size() == 1){
+					Thing peer = (Thing)(is.iterator().next());
+					if (!Schema.peer.equals(peer.getName())){//if not a root peer class but peer instance
+//TODO: remove login tokens from peers when ported update functions across messengers!
+						//peer.set(Peer.login_token, null);//remove login tokens from peers forever
+						return new Session(this,communicator,type,key,peer);
+					}
+				}
+			}
+			//Old version - peer IS session (fallback):
 			Collection peers = body.storager.getByName(Peer.login_token,key);
 			if (!AL.empty(peers) && peers.size() == 1) {
 				//if found, create Session pre-initialized with the peer
 				return new Session(this,communicator,type,key,(Thing)(peers.iterator().next()));
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			body.error("No saved session ", e);
+		}
 		return null;
 	}
 

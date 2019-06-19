@@ -422,7 +422,7 @@ public class Query
 			int count = 0;
 			for (int i = 0; i < args.length; i++)
 				if (Array.contains(Schema.keys, args[i]) || Array.contains(Schema.thinkable, args[i])|| Schema.reverse(args[i]) != null)
-					count++;
+					count++;//TODO: just return false otherwise!?
 			return count == args.length;
 		}
 		return false;
@@ -438,7 +438,8 @@ public class Query
 		//TODO: if peer == self return true as system call!?
 		if (peer == null)//TODO:why and what?
 			return false;
-		if (thing.equals(peer))//enable change peer self
+		//if (thing.equals(peer))//enable change peer self
+		if (thing.equals(peer) || thing.hasThing(AL.is, peer))//enable change peer self and its descendants
 			return true;
 		//TODO:cleanup?
 		//boolean root = self.get(AL.trust,peer).equals(AL._true) && peer.get(AL.trust,self).equals(AL._true);		
@@ -450,6 +451,18 @@ public class Query
 		if (!readable || (write && !writeable(args))){
 			if (Peer.registered(thing))//if registered peer, ban any access
 				return false;
+			
+//TODO validator interface to check registered peers only!!!???
+			/*
+			Collection iss = thing.getThings(AL.is);
+			//for 
+		
+		
+			*/
+//TODO: prevent reading "descending" properties of other registered peers!!!
+			//if (thing.is(Schema.roots))//if registered peer, ban any access
+			//	return false;
+			
 			//TODO: make more restricted on basis of peer trusting (that makes "friending" impossible)?
 			//if (!thing.get(AL.trust,peer).equals(AL._true))
 				//return false;

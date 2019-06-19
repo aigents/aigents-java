@@ -31,14 +31,32 @@ import net.webstructor.util.Array;
 
 public class Schema {
 	
-	public static final String self = "self";
-	public static final String peer = "peer";
-	public static String[] roots = {self, peer};
-	public static String[] foundation = {self, peer, AL.time, AL.number, AL.money, AL.word, AL.daytime};
-	public static String[] keys = {AL.name,AL.email,Peer.surname,Peer.birth_date,Body.facebook_id,Body.google_id,Body.vkontakte_id,Body.facebook_id,Body.telegram_id}; // key attributed for merging
-	public static String[] case_sensitive = {Body.email_password,Body.facebook_token,Body.facebook_challenge,Body.slack_token,Body.slack_key,Body.google_key,Body.google_token,Body.vkontakte_key,Body.telegram_token};
-	public static String[] unique = {AL.email,Body.facebook_id,Body.slack_id,Body.google_id,Body.vkontakte_id,Body.telegram_id};
-	public static String[] thinkable = {Peer.social_relevance,Peer.relevance/*,"importance","similarity","authority","closeness","adherence"*/};
+	public final static String self = "self";
+	public final static String peer = "peer";
+	public final static String[] roots = {self, peer};
+	public final static String[] foundation = {self, peer, AL.time, AL.number, AL.money, AL.word, AL.daytime};
+	public final static String[] keys = {AL.name,AL.email,Peer.surname,Peer.birth_date,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.slack_id}; // key attributed for merging
+	public final static String[] case_sensitive = {Body.email_password,Body.facebook_token,Body.facebook_challenge,Body.slack_token,Body.slack_key,Body.google_key,Body.google_token,Body.vkontakte_key,Body.telegram_token};
+	public final static String[] unique = {AL.email,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.slack_id};
+	public final static String[] thinkable = {Peer.social_relevance,Peer.relevance/*,"importance","similarity","authority","closeness","adherence"*/};
+	public final static String[] multiples = new String[]{
+		AL.is, 
+		AL.has, 
+		AL.topics,
+		AL.sites,
+		AL.areas,
+		AL.trusts,
+		AL.ignores,
+		AL.shares,
+		AL.friends,
+		AL.news,
+		AL.things,
+		AL.patterns,
+		AL.responses,
+		AL.members,
+		AL.groups,
+		AL.sources
+	}; 
 			
 	private Storager storager;
 

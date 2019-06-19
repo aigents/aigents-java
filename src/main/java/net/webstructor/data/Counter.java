@@ -114,6 +114,9 @@ public class Counter extends HashMap implements Linker {
 		Number counter = (Number)get(key);
 		this.put(key, new Double(weight + (counter == null ? 0 : counter.doubleValue() )));
 	}
+	public void change(Object key,Number value){
+		this.put(key, value);
+	}
 	public void count(Object key){
 		count(key,1);
 	}

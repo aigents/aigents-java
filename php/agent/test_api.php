@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "1.6.9";
+$version = "1.7.0";
 $copyright = " Copyright © 2019 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -33,6 +33,25 @@ $baseURL = "http://localhost:1180/?";
 $basePath = "./";
 
 $cookie;
+
+function get_cookie(){
+	global $cookie;
+	//println("getting cookie=".$cookie);
+	return $cookie;
+}
+
+function set_cookie($new = null){
+	global $cookie;
+	if ($new == null){
+		$cookie = null;
+		//unset($cookie);
+		//println("unset cookie=".$cookie);
+	}else{
+		$cookie = $new;
+		//println("set cookie=".$cookie);
+	}
+	//println("setting cookie=".$cookie);
+}
 
 function url_test_curl( $url ) {
 	$ch = curl_init();
@@ -234,12 +253,12 @@ function login($name = "john", $email = "john@doe.org", $surname = "doe", $quest
 	say("My secret question ".$question.", secret answer ".$answer.".");
 	get("What your ".$question."?");
 	say("My ".$question." ".$answer.".");
-	get("Ok. Hello John Doe!\nMy Aigents " . $version . $copyright);
+	get("Ok. Hello ".ucwords($name)." ".ucwords($surname)."!\nMy Aigents " . $version . $copyright);
 }
 
-function logout($name = "john"){
+function logout($name = "john",$strict = true){
 	say("Your trusts no " . $name . ".");
-	get("Ok.");
+	get($strict ? "Ok." : null);
 	say("No name " . $name . ".");
 	get("Ok.");
 	say("No there times today.");

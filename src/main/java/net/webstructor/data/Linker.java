@@ -31,6 +31,10 @@ public interface Linker {
 	
 	public void count(Object key);
 
+	public void count(Object key, double value);
+	
+	public void change(Object key, Number value);
+	
 	public java.util.Set keys();
 
 	public int size();

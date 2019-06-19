@@ -371,7 +371,7 @@ function test_agent_patterns() {
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 95.");
+	get("My things count 96.");
 	
 	say("Your trusts no john.");
 	get("Ok.");

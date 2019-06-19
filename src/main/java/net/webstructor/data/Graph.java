@@ -74,6 +74,9 @@ public class Graph implements Serializable {
 		}
 		return (HashMap)o;
 	}
+	public Set getSources(){
+		return binders.keySet();
+	}
 	public Linker getLinker(Object context, Object target,boolean add) {// a,p => a->p->(x,y,...)
 		HashMap linkers = getLinkers(context,add);
 		if (linkers == null)
@@ -91,10 +94,14 @@ public class Graph implements Serializable {
 		Linker linker = (Linker) getLinker(context,property,false);
 		return linker == null ? null : linker.value(target);
 	}
-//TODO: consider migrate to double!?
 	public void addValue(Object context, Object target, Object property, int amount) {// a,p,x => a->p->x
 		Linker linker = (Linker) getLinker(context,property,true);
 		linker.count(target,amount);
+		modified = true;
+	}
+	public void addValue(Object context, Object target, Object property, double number) {// a,p,x => a->p->x
+		Linker linker = (Linker) getLinker(context,property,true);
+		linker.count(target,number);
 		modified = true;
 	}
 	public void addValue(Object context, Object target, Object property, ComplexNumber[] cn) {// a,p,x => a->p->x
@@ -200,22 +207,59 @@ public class Graph implements Serializable {
 	}
 
 	public Graph getSubgraph(int threshold){
+		return getSubgraph(threshold,null,false);
+	}
+	
+	public Graph getSubgraph(int threshold, String[] filter,boolean include){
 		Graph g = new Graph();
+		addSubgraphTo(g,threshold,filter,include);
+		return g;
+	}
+
+	public void addSubgraph(Graph other){
+		other.addSubgraphTo(this, 0, null, false);
+	}
+	
+	public void addSubgraphTo(Graph other,int threshold, String[] filter,boolean include){
+		Set set = toSet(filter);
 		for (Iterator it = binders.keySet().iterator(); it.hasNext();){
 			String source = (String)it.next();
 			HashMap linkers = (HashMap)binders.get(source);
 			for (Iterator lit = linkers.keySet().iterator(); lit.hasNext();){
 				String property = (String)lit.next();
+				if (set!= null)
+					if ((include && !set.contains(property)) || (!include && set.contains(property)))
+						continue;
 				Linker linker = (Linker)linkers.get(property);
 				for (Iterator tit = linker.keys().iterator(); tit.hasNext();){
 					Object target = tit.next();
 					int value = linker.value(target).intValue();
 					if (value >= threshold)
-						g.addValue(source, target, property, value);
+						other.addValue(source, target, property, value);
 				}
 			}
 		}
-		return g;
+	}
+
+	public void blend(Graph other, double otherFactor){
+		//iterate other, if no other value, leave this value unblended
+		for (Iterator it = other.binders.keySet().iterator(); it.hasNext();){
+			String source = (String)it.next();
+			HashMap linkers = (HashMap)other.binders.get(source);
+			for (Iterator lit = linkers.keySet().iterator(); lit.hasNext();){
+				String property = (String)lit.next();
+				Linker linker = (Linker)linkers.get(property);
+				for (Iterator tit = linker.keys().iterator(); tit.hasNext();){
+					Object target = tit.next();
+					Number otherNumber = linker.value(target);
+					Number thisNumber = this.getValue(source, target, property);
+					//if no this value, accept other value unblended, blend otherwise
+					double value = thisNumber == null ? otherNumber.doubleValue()
+							: otherNumber.doubleValue() * otherFactor + thisNumber.doubleValue() * (1 - otherFactor);
+					addValue(source, target, property, new Double(value));
+				}
+			}
+		}
 	}
 	
 	Summator getNodeImportances(Set seeds, String[] links, boolean directed, boolean weighted, int iterations){
@@ -391,7 +435,18 @@ public class Graph implements Serializable {
 		return sb.toString();
 	}
 	
-	public ArrayList toList(boolean expand){
+	//TODO: to Array
+	public static Set toSet(String[] strings){
+		if (AL.empty(strings))
+			return null;
+		HashSet set = new HashSet(strings.length);
+		for (int i = 0; i < strings.length;i++)
+			set.add(strings[i]);
+		return set;
+	}
+	
+	public ArrayList toList(boolean expand,String[] filter,boolean include){
+		Set set = toSet(filter);
 		ArrayList list = new ArrayList(); 
 		Set contexts = binders.keySet(); 
 		for (Iterator c = contexts.iterator(); c.hasNext();){
@@ -401,6 +456,9 @@ public class Graph implements Serializable {
 				Set properties = linkers.keySet();
 				for (Iterator t = properties.iterator(); t.hasNext();){
 					Object property = t.next();
+					if (set!= null)
+						if ((include && !set.contains(property)) || (!include && set.contains(property)))
+							continue;
 					Linker linker = getLinker(context, property, false);
 					if (linker != null){
 						Set links = linker.keys();

@@ -41,6 +41,7 @@ public class Session  {
 
 	Sessioner sessioner;
 	Thing peer = null;
+	Thing session = null;//specific session context of the peer - peer's sub-personality
 	Communicator communicator;
 	Mode mode = null;
 	String key;
@@ -72,6 +73,7 @@ public class Session  {
 		this(sessioner,communicator,type,key);
 		this.peer = new Thing(peer,null);
 		this.authenticated = true;
+		persist();
 	}
 	
 	public boolean authenticated(){
@@ -155,10 +157,14 @@ public class Session  {
 		return AL.empty(peers)? null : (Thing)peers.iterator().next();
 	}
 	
+	protected Thing getStoredSession() {
+		if (session == null)
+			return null;
+		Collection sessions = getStorager().get(session);
+		return AL.empty(sessions)? null : (Thing)sessions.iterator().next();
+	}
+	
 	public Thing getSelfPeer() {
-		//TODO cleaup 20190224
-		//Collection peers = (Collection)sessioner.body.self().get(AL.trusts);
-		//return AL.empty(peers) ? null : (Thing)peers.iterator().next();
 		return sessioner.body.getSelfPeer();
 	}
 
@@ -256,6 +262,36 @@ public class Session  {
 		return cnt;
 	}
 	
+	protected void persist() {
+		/**/
+		Thing peer = getStoredPeer();
+		session = getStoredSession();
+		if (session == null){
+			//prevent multiplication, check by key
+			All query = new All(new Object[]{new Seq(new Object[]{AL.is,peer}),new Seq(new Object[]{Peer.login_token,key})});
+			try {
+				Collection sessions = getStorager().get(query,(Thing)null);
+				if (!AL.empty(sessions))
+					session = (Thing)sessions.iterator().next(); 
+			} catch (Exception e) {
+				sessioner.body.error("Session persist failed ",e);
+			}
+		}
+		if (session == null) {//not found
+			session = new Thing();
+			session.store(sessioner.body.storager);
+			session.addThing(AL.is, peer);
+		} else {
+			session.delThings(AL.is);
+			session.addThing(AL.is, peer);
+		}
+		//TODO: rebind session peer, if needed!?
+		//peer.addThing(AL.sessions, session);//TODO: point to sessions if we can resolve peer deleting issue 
+		//TODO: login_time and expired sessions, but make sure that analytics is not broken then
+		session.set(Peer.login_token, key);
+		/**/
+	}
+	
 	protected String welcome() {
 		//update user login time, login count
 		Thing peer = getStoredPeer();
@@ -264,9 +300,11 @@ public class Session  {
 		peer.setString(Peer.login_count,String.valueOf(++login_count));
 		
 		//TODO: consider what to do if user logs in with multiple keys from different browsers
+//TODO: remove login tokens from peers when ported update functions across messengers!
 		peer.setString(Peer.login_token, this.key);
+		persist();
 		
-		communicator.login(this, peer);//set session conext to peer if needed
+		communicator.login(this, peer);//set session context to peer if needed
 
 		sessioner.body.updateStatus(peer);//spawn status update process here asynchronously
 		authenticated = true;

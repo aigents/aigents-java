@@ -62,6 +62,14 @@ public class Summator extends HashMap implements Linker {
 		put(key, new Double(value + (counter == null ? def : counter.doubleValue() )));
 	}
 
+	public void count(Object key, double value){
+		count(key, value, 0);
+	}
+
+	public void change(Object key,Number value){
+		this.put(key, value);
+	}
+	
 	public void count(Object key,ComplexNumber[] cn){
 		Object counter = get(key);
 		if (counter == null)
@@ -131,6 +139,22 @@ public class Summator extends HashMap implements Linker {
 			double newval = fullnorm ? (((Double)val).doubleValue() - min) / (max - min) : ((Double)val).doubleValue() / max; 
 			put(key, new Double(newval * 100));
 		}
+	}
+	
+	/* Distance between vectors assuming both vectors are in [0..1] resulting in [0..1] or -1 if undefined */
+	public static double distance1(Linker a, Linker b, double ascale, double bscale){
+		double sum2 = 0, count = 0; 
+		//TODO:
+		for (Iterator it = a.keys().iterator(); it.hasNext();){
+			Object key = it.next();
+			Number bvalue = b.value(key);
+			if (bvalue != null){
+				double v = bvalue.doubleValue()/bscale - a.value(key).doubleValue()/ascale;
+				sum2 += v*v;
+				count += 1;
+			}
+		}
+		return count == 0 ? -1 : Math.sqrt(sum2/count);
 	}
 	
 	double stddev(Summator other){
@@ -347,4 +371,5 @@ public class Summator extends HashMap implements Linker {
 			});
 		}
 	}
+
 }

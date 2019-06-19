@@ -172,7 +172,7 @@ public class Self {
 		body.storager.del(olds,true);
 			
 		//2) for each of the peers, remove more than 999 oldest untrusted news
-		Collection peers;
+		Collection peers = null;
 		try {
 			peers = (Collection)body.storager.getByName(AL.is,Schema.peer);
 			if (!AL.empty(peers))
@@ -185,7 +185,7 @@ public class Self {
 			
 		//3) finally, do plain garbage collection
 		Collection news = body.storager.get(AL.times,days,true);
-		body.storager.clear(exceptions, AL.empty(news) ? null : new HashSet(news) );
+		body.storager.clear(exceptions, peers, AL.empty(news) ? null : new HashSet(news) );
 		
 		//4) if memory is low, do Java GC
 		if (body.checkMemory() > 90)

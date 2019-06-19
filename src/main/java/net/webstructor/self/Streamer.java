@@ -135,7 +135,8 @@ public class Streamer {
 		try {
 		if (reader == null)
 			return false;
-		storager.clear(Schema.roots,null);
+		//TODO: pass peers to clear so the sessions are preserved?
+		storager.clear(Schema.roots,null,null);
 		String[] names = storager.getNames();
 		Array.sortByLength(names,false);
 		boolean clearnames = true;

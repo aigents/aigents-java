@@ -116,18 +116,26 @@ public class LexStructor extends Mainer
 			} catch (Exception e) { ; } // simply break on error
 			if (line.length() == 0)
 				continue;
+			
+			if ("\" well , of all wonderful things ! \" commented Mrs . Stapp .".equals(line))
+				println("yo");
+			
 			//TODO: parse with/without LW and period
 			//String tokens[] = StringUtil.toTokens(line, " \t", false);
 			//int length = tokens.length;
-			Seq tokens = Parser.parse(line);
+			//Seq tokens = Parser.parse(line);//quoting=true by default
+			//Seq tokens = Parser.parse(line,null,false,true,false,true,null);//quoting=false
+			Seq tokens = new Seq(Parser.split(line," "));
 			int length = tokens.size();
-			//if (length > 0){//TODO: what to do in such case?
-			if (length > 1){
+			if (length > 0){//TODO: what to do in case of 1
+			//if (length > 1){
 				if (bWalls){//TODO:add LEFT-WALL
 					;
 				} else {
-					if (((String)tokens.get(length - 1)).equals("."))
-						length--;
+					;
+					//TODO: cleanup this unless we explicitly want to suppress periods
+					//if (((String)tokens.get(length - 1)).equals("."))
+					//	length--;
 				}
 				boolean skip = false;
 				for (int i = 0; i < length; i++){
@@ -560,7 +568,7 @@ public class LexStructor extends Mainer
 						sw.write(" ");
 					sw.write(words.get(w).toString());
 				}
-				sw.write(" .");//TODO: fix hack
+				//sw.write(" .");//TODO: fix hack
             	sw.newLine();
 				for (int l = 0; l < links.size(); l++){
 					int[] link = (int[])links.get(l);
@@ -598,7 +606,43 @@ public class LexStructor extends Mainer
 		save(outPath,v,store,null);
 	}
 	
-	public static void processSentences(MemoryStore store, BufferedReader breader, String dataPath, String outPath){
+	public static void processSentencesDir(MemoryStore store, String dataPath, File dir, String outPath, String ullPath){
+		Vector all = new Vector();
+		
+		println("Reading input dir "+dataPath);
+		String[] children = dir.list();
+		int[] sizes = new int[children.length];
+		for (int i=0; i<children.length; i++) {
+			File file = new File(dir,children[i]);
+			BufferedReader breader = Mainer.getReader(file.getAbsolutePath());
+			Vector v = readSentencesToWordVector(breader,store,false);//walls=true|false(plain),
+			sizes[i] = v.size();
+			all.addAll(v);
+			println("Read input file "+children[i]+" "+v.size());
+		}
+		  
+		println("Processing input");
+		learnNgramsFromVector(all,store,2,2,true,true,false);//all=true|false(left)
+		  
+		//save rebuilt sequence
+		println("Saving output");
+		File outDir = new File(outPath);
+		File ullDir = new File(ullPath);
+		outDir.mkdir();
+		ullDir.mkdir();
+		int start = 0;
+		Vector v;
+		for (int i=0; i<children.length; i++) {
+			v = new Vector();
+			for (int j = 0; j < sizes[i]; j++)
+				v.add(all.get(start+j));
+			start += sizes[i];
+			save((new File(outDir,children[i])).getAbsolutePath()+".out",v,store," ");
+			saveULL((new File(ullDir,children[i])).getAbsolutePath()+".ull",v,store);
+		}
+	}
+	
+	public static void processSentencesFile(MemoryStore store, BufferedReader breader, String dataPath, String outPath){
 		Vector v = readSentencesToWordVector(breader,store,false);//walls=true|false(plain),
 		println("Processing input "+dataPath);
 		  
@@ -627,26 +671,35 @@ public class LexStructor extends Mainer
 	  
 		if (args[0] != null)
 			setCurrentDirectory(args[0]);
-		
+
 		String dataPath = new File(args[1]).getAbsolutePath();	
 		String basePath = new File(args[2]).getAbsolutePath();							
-		String outPath = dataPath.substring(0,dataPath.indexOf('.'))+".out"; 
 
-		BufferedReader breader = Mainer.getReader(dataPath);
-		if (breader == null)
-		{
-			println("Illegal input file "+dataPath);
-			return;
-		}
+		File dir = new File(dataPath);
+		BufferedReader breader = null;
+		String outPath = null;
+		
 		//println("Reading file "+dataPath);
 		//MemoryStore store = new MemoryStore(basePath);
 		MemoryStore store = new MemoryStore(null);
 		
+		if (!dir.isDirectory()) {
+			breader = Mainer.getReader(dataPath);
+			if (breader == null){
+				println("Illegal input file "+dataPath);
+				return;
+			}
+			outPath = dataPath.substring(0,dataPath.indexOf('.'))+".out"; 
+		}
+
 		if (args.length < 4 || args[3].equals("words"))
 			processWords(store, breader, dataPath, outPath);
 		else
-		if (args[3].equals("sentences"))
-			processSentences(store, breader, dataPath, outPath);
+		if (args[3].equals("sentences") && !dir.isDirectory())
+			processSentencesFile(store, breader, dataPath, outPath);
+		else
+		if (args[3].equals("sentences") && dir.isDirectory())
+			processSentencesDir(store, dataPath, dir, dataPath+"_out", dataPath+"_ull");
 			
 		try {
 			//println("Saving database "+basePath);

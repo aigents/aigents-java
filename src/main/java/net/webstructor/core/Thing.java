@@ -170,11 +170,15 @@ public class Thing extends Anything { // implements ORObject
 		return true;
 	}
 **/
-	//to be called by storager to cleanup
-	public boolean del() {
+
+	private void delete(){
+		//cascade delete
+		Collection extensions = null;
+		try { extensions = storager.getByName(AL.is, this);} catch (Exception e) {}//getThings(AL.is);
+		if (!AL.empty(extensions)) for (Iterator it = extensions.iterator();it.hasNext();)
+			((Thing)it.next()).delete();
 		if (storager != null)
-			if (!storager.del(this))
-				return false;
+			storager.delete(this);
 		if (properties != null) {
 			String[] names = this.getNamesAvailable();
 			for (int i=0; i<names.length; i++) {
@@ -184,7 +188,45 @@ public class Thing extends Anything { // implements ORObject
 			}
 			properties.clear();
 		}
+	}
+
+	//TODO: build "deletion plan" first and delete accordingly to the plan next 
+	private boolean deleteable(Thing except) {
+		//cascade delete check
+		Collection extensions = null;
+		try { extensions = storager.getByName(AL.is, this);} catch (Exception e) {}//getThings(AL.is);
+		if (!AL.empty(extensions)) for (Iterator it = extensions.iterator();it.hasNext();){
+			Thing t = (Thing)it.next();
+			if (!t.deleteable(this))//let them point back to this
+				return false;
+		}
+		if (storager != null && !storager.deleteable(this,extensions))
+			return false;
 		return true;
+	}
+	
+	//to be called by storager to cleanup
+	public boolean del() {
+		if (deleteable(null)){//cascade
+			delete();//cascade
+			return true;
+		}
+		return false;
+		/*if (storager != null){
+			if (!storager.deleteable(this,null))
+				return false;
+			storager.delete(this);
+		}
+		if (properties != null) {
+			String[] names = this.getNamesAvailable();
+			for (int i=0; i<names.length; i++) {
+				Object obj = get(names[i]);
+				if (obj instanceof HashSet)
+					((HashSet)obj).clear();
+			}
+			properties.clear();
+		}
+		return true;*/
 	}
 	
 	public Anything addThing(String name, Thing value) {
@@ -204,6 +246,31 @@ public class Thing extends Anything { // implements ORObject
 		return this; 
 	}
 
+	public boolean is(String[] exceptions) {
+		if (AL.empty(exceptions))
+			return false;
+		if (Array.contains(exceptions,getName()))
+			return true;
+		Collection is = (Collection)get(AL.is);
+		if (is !=  null)
+			for (Iterator it = is.iterator(); it.hasNext();)	
+				if (Array.contains(exceptions, ((Thing)it.next()).getName()))
+					return true;
+		return false;
+	}
+	
+	public boolean hasAny(String name, Collection things) {
+		if (AL.empty(things))
+			return false;
+		if (!AL.empty(things) && properties != null) {
+			HashSet set = (HashSet)properties.get(name);
+			if (set != null) for (Iterator it = things.iterator(); it.hasNext();)
+				if (set.contains(it.next()))
+					return true;
+		}
+		return false;
+	}
+	
 	public boolean hasThing(String name, Thing value) {
 		if (properties != null) {
 			HashSet set = (HashSet)properties.get(name);

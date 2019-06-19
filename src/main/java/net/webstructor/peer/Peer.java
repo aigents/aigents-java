@@ -223,6 +223,8 @@ public class Peer extends Agent {
 
 	public static boolean registered(Thing peer) {
 		return (!AL.empty(peer.getString(Peer.secret_question)) && !AL.empty(peer.getString(Peer.secret_answer)))
+				|| !AL.empty(peer.getString(Body.telegram_id))
+				|| !AL.empty(peer.getString(Body.slack_id))
 				|| !AL.empty(peer.getString(Body.google_id))
 				|| !AL.empty(peer.getString(Body.facebook_id))
 				|| !AL.empty(peer.getString(Body.vkontakte_id));

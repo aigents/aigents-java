@@ -227,8 +227,12 @@ public class MapMap {
 		}
 	}
 
-	/**/
-	public int getKey2Count(Object target) {
+	public int getKey2Count(Object target,Object except) {
+		Set excset = null;
+		if (except instanceof Collection){
+			excset = except instanceof Set ? (Set)except : new HashSet((Collection)except);
+			except = null; 
+		}
 		int count = 0;
 		synchronized (maps) {
 			Iterator it = maps.values().iterator();
@@ -241,38 +245,17 @@ public class MapMap {
 					if (target == null || target == obj) {
 						HashSet set = (HashSet)map.get(obj);
 						count += set.size();
+						if (except != null && set.contains(except))
+							count--;
+						if (excset != null) for (Iterator exit = set.iterator(); exit.hasNext();)
+							if (excset.contains(exit.next()))
+								count--;
 					}
 				}
 			}
 		} //synchronized (maps)
 		return count;
 	}
-	/*
-	public int getKey2Count(Object target) {//TODO: purge debug!!!
-		int count = 0;
-		Iterator it = maps.keySet().iterator();
-		while (it.hasNext()) {
-			String name = (String)it.next();
-			HashMap map = (HashMap)maps.get(name);
-			Iterator i = map.keySet().iterator();
-			while (i.hasNext()) {
-				Object obj = i.next();
-				//TODO:equals
-				if (target == null || target == obj) {
-					HashSet set = (HashSet)map.get(obj);
-					count += set.size();
-if (set.size() > 0)
-System.out.println("Link:"
-		+net.webstructor.al.Writer.toString(((net.webstructor.core.Thing)set.iterator().next()))					
-		+" "+name+" "
-		+net.webstructor.al.Writer.toString(((net.webstructor.core.Thing)obj)));					
-				}
-			}
-		}
-		System.out.println("Count:"+count);		
-		return count;
-	}
-	*/
 	
 	public Map getKey2Counts(Class cls) {
 		HashMap counts = new HashMap();

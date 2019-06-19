@@ -45,25 +45,6 @@ import net.webstructor.util.MapMap;
 public class Storager {
 
 	public static final String things_count = "things count";
-	//TODO: move to Schema
-	private final static String[] multiples = new String[]{
-		AL.is, 
-		AL.has, 
-		AL.topics,
-		AL.sites,
-		AL.areas,
-		AL.trusts,
-		AL.ignores,
-		AL.shares,
-		AL.friends,
-		AL.news,
-		AL.things,
-		AL.patterns,
-		AL.responses,
-		AL.members,
-		AL.groups,
-		AL.sources
-	}; 
 	
 	private Environment env;
 	private MapMap mapmap = new MapMap();
@@ -449,9 +430,13 @@ public class Storager {
 		return count;
 	}
 	
-	protected boolean del(Thing thing) {
-		if (mapmap.getKey2Count(thing) > 0)
+	protected boolean deleteable(Thing thing,Object exceptObjectOrCollection) {
+		if (mapmap.getKey2Count(thing,exceptObjectOrCollection) > 0)
 			return false;
+		return true;
+	}
+	
+	protected void delete(Thing thing) {
 		String[] names = thing.getNamesAvailable();
 		for (int i=0;i<names.length;i++) {
 			String name = (String)names[i];
@@ -465,7 +450,6 @@ public class Storager {
 				}
 			}
 		}
-		return true;
 	}
 	
 	//put thing as is
@@ -518,17 +502,6 @@ public class Storager {
 		return all_set;
 	}
 	
-	private boolean is(Thing thing, String[] exceptions) {
-		if (Array.contains(exceptions,thing.getName()))
-				return true;
-		Collection is = (Collection)thing.get(AL.is);
-		if (is !=  null)
-			for (Iterator it = is.iterator(); it.hasNext();)	
-				if (Array.contains(exceptions, ((Thing)it.next()).getName()))
-					return true;
-		return false;
-	}
-	
 	/**
 	 * Removes unlinked things except listed classes and instances. 
 	 * @param exceptions - classes
@@ -536,7 +509,7 @@ public class Storager {
 	 * @return
 	 */
 	//TODO: take this out of Storager implementation!?
-	public int clear(String[] exceptions, java.util.Set instances) {
+	public int clear(String[] exceptionnames, Collection exceptionthings, java.util.Set instances) {
 		HashSet deletees = new HashSet();
 		int all = 0;
 		for (;;) {
@@ -550,7 +523,8 @@ public class Storager {
 					continue;
 				Integer count = (Integer)counts.get(thing);
 				if (count == null || count.intValue() == 0) {
-					if (AL.empty(exceptions) || !is(thing,exceptions)) {
+					//if (!thing.is(exceptionnames)) {
+					if (!thing.is(exceptionnames) && !thing.hasAny(AL.is,exceptionthings)) {
 						env.debug("Clearing ("+thing+"): "+thing.hashCode() );
 						if (deletees.contains(thing)){
 							//TODO:handle this as fatal?
@@ -597,13 +571,8 @@ public class Storager {
 	}
 	
 	//TODO:ontology/metadata
-	//private boolean isMultiple(String name) {
-	//	return isThing(name);		
-	//}
-	
-	//TODO:ontology/metadata
 	public boolean isThing(String name) {
-		return Array.contains(multiples, name)? true: false;		
+		return Array.contains(Schema.multiples, name)? true: false;		
 	}
 
 	//TODO:ontology/metadata
