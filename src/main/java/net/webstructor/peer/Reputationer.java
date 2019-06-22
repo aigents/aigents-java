@@ -478,7 +478,7 @@ public class Reputationer {
 				}
 			}
 			//4 store predictiveness for future use
-//TODO: make sure there is no clash with internal implmentations of Staters!!!
+//TODO: make sure there is no clash with internal implementations of Staters!!!
 			states.add(nextdate, ReputationTypes.predictiveness, null, new Counter(predictivenesses));
 		}
 		

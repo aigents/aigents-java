@@ -907,12 +907,16 @@ function test_login_sessions() {
 	say("what my name?");
 	get("Your name doe.");
 	say("what name john surname?");
-	get();//TODO:disable???!!!
+	get("John surname doe.");
+	say("what name john?");
+	get("No right.");
 	say("what is doe is?");
 	get("There is doe.");
-	say("what is john is?");
-	get();//get("There is john.");//TODO: disable!!!
-
+	say("what is john?");
+	get("No right.");
+	say("what john surname?");
+	get("John surname doe.");
+	
 	$doe_cookie = get_cookie();//save session
 	set_cookie($john_cookie);//restore session
 	say("what my name?");
@@ -920,10 +924,27 @@ function test_login_sessions() {
 	say("what is john is?");
 	get("There is john.");
 	say("what is doe is?");
-	get("There is doe.");
+	get("No right.");
+	say("what name doe?");
+	get("No right.");
+	say("what name doe email?");
+	get("Doe email doe@john.org.");
+	say("what email doe@john.org?");
+	get("No right.");
+	say("Your things count?");
+	get("My things count 98.");//count with 2 sessions
 	
-	set_cookie($doe_cookie);//restore session
-	logout("doe",false);//cleanup doe, no strict
+	set_cookie($doe_cookie);//restore doe's session
+	say("my logout");
+
+	set_cookie($john_cookie);//restore john's session
+	say("Your things count?");
+	get("My things count 97.");//count with 1 sessions
+	say("No name doe.");
+	get("Ok.");	
+	say("Your things count?");
+	get("My things count 96.");//count with 1 sessions and with no doe
+	
 	set_cookie($john_cookie);//restore session
 	logout();//cleanup john
 }

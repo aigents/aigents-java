@@ -428,6 +428,31 @@ public class Query
 		return false;
 	}
 	
+	/**
+	 * Recursively check if belongs to registered class
+	 * @param thing - candidate
+	 * @param stack - check for recursion
+	 * @return
+	 */
+	boolean registered(Thing thing,java.util.Set stack){//TODO make generic with validator interface
+		if (Peer.registered(thing))
+			return true;
+		if (stack == null)
+			stack = new HashSet();
+		else if (stack.contains(thing))//prevent loop
+			return false;
+		boolean registered = false;
+		stack.add(thing);
+		Collection iss = thing.getThings(AL.is);
+		if (!AL.empty(iss)) for (Iterator it = iss.iterator(); it.hasNext();)
+			if (Peer.registered((Thing)it.next())){
+				registered = true;
+				break;
+			}
+		stack.remove(thing);
+		return registered;
+	}
+	
 	//newer version, bans access only to 
 	// - self body, unless trusted 
 	// - peers with authorization setup, unless trusted
@@ -449,19 +474,9 @@ public class Query
 			return root;
 		//if writing to true non-reversible attributes
 		if (!readable || (write && !writeable(args))){
-			if (Peer.registered(thing))//if registered peer, ban any access
+			//if (Peer.registered(thing))//if registered peer, ban any access
+			if (registered(thing,null))//if registered peer or descandant, ban any access
 				return false;
-			
-//TODO validator interface to check registered peers only!!!???
-			/*
-			Collection iss = thing.getThings(AL.is);
-			//for 
-		
-		
-			*/
-//TODO: prevent reading "descending" properties of other registered peers!!!
-			//if (thing.is(Schema.roots))//if registered peer, ban any access
-			//	return false;
 			
 			//TODO: make more restricted on basis of peer trusting (that makes "friending" impossible)?
 			//if (!thing.get(AL.trust,peer).equals(AL._true))

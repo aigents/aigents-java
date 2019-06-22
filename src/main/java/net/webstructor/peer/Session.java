@@ -81,7 +81,10 @@ public class Session  {
 	}
 	
 	public void logout(){
+		if (this.session != null)
+			this.session.del();
 		this.peer = null;
+		this.session = null;
 		this.authenticated = false;
 	}
 	
