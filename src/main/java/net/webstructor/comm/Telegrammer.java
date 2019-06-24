@@ -255,6 +255,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
 		String from_id = peer.getString(Body.telegram_id);
 		if (AL.empty(from_id)){//backup path - get from id from the session
+			//TODO: use peer session here using getTokenSegment and getPeerSession
 			String login_token = peer.getString(Peer.login_token);
 			if (!AL.empty(login_token)){
 				String[] ids = login_token == null ? null : ids(login_token);

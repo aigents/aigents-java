@@ -322,16 +322,18 @@ public class Slacker extends Mediator implements HTTPHandler {
 
 	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
 		String self_lack_token = body.self().getString(Body.slack_token);
-//TODO: peer.getString(slack_token);!!!???
 		String psid = null;
 		if (!AL.empty(self_lack_token)){
-			String login_token = peer.getString(Peer.login_token);
+			/*String login_token = peer.getString(Peer.login_token);
 			if (!AL.empty(login_token)){
 				String[] ids = Parser.split(login_token,":");
 				if (ids != null && name.equals(ids[0]) && ids.length == 3)//facebook:psid:psuid
 					psid = ids[1];
-			}
+			}*/
+			psid = getTokenSegment(peer.getString(Peer.login_token),1);
 		}
+		if (psid == null)
+			psid = getPeerSession(peer);
 		body.debug("Slack updating psid "+psid+" text "+content);
 		if (!AL.empty(psid)){
 			StringBuilder sb = new StringBuilder();

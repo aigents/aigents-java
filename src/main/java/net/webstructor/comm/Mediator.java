@@ -32,10 +32,12 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Iter;
 import net.webstructor.al.Parser;
+import net.webstructor.al.Seq;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.core.Thing;
 import net.webstructor.core.Updater;
+import net.webstructor.peer.Peer;
 import net.webstructor.self.Siter;
 import net.webstructor.util.MapMap;
 
@@ -61,6 +63,29 @@ public abstract class Mediator extends Communicator implements Updater {
 	protected String[] ids(String key){
 		String[] ids = key.split(":");
 		return ids != null && ids.length == 3 ? ids: null;
+	}
+
+	protected String getTokenSegment(String login_token, int n){
+		if (!AL.empty(login_token)){
+			String[] ids = Parser.split(login_token,":");
+			if (ids != null && name.equals(ids[0]) && ids.length == 3)//facebook:psid:psuid
+				return ids[n];
+		}
+		return null;
+	}
+
+	protected String getPeerSession(Thing peer){
+		try {
+			Collection sessions = body.storager.get(new Seq(new Object[]{AL.is,peer}),(Thing)null);
+			if (!AL.empty(sessions)) for (Iterator it = sessions.iterator(); it.hasNext();){
+				String psid = getTokenSegment(((Thing)it.next()).getString(Peer.login_token),1);
+				if (psid!=null)
+					return psid;
+			}
+		} catch (Exception e) {
+			body.error(Writer.capitalize(name)+" error update peer "+peer.getTitle(Peer.title),e);
+		}
+		return null;
 	}
 	
 //TODO: move to Grouper under Conversation scope for Slack and WeChat unification 

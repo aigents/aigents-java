@@ -265,7 +265,8 @@ public class Messenger extends Mediator implements HTTPHandler {
 	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
 		String facebook_id = peer.getString(Body.facebook_id);
 		String psid = null;
-		if (!AL.empty(facebook_id)){//
+		if (!AL.empty(facebook_id)){//TODO: don't use that because that is Facebook network id, not Facebook Messendger id
+			/*
 			String login_token = peer.getString(Peer.login_token);
 			//body.debug("Facebook updating id "+facebook_id+" session "+login_token+" text "+content);
 			if (!AL.empty(login_token)){
@@ -273,7 +274,11 @@ public class Messenger extends Mediator implements HTTPHandler {
 				if (ids != null && name.equals(ids[0]) && ids.length == 3)//facebook:psid:psuid
 					psid = ids[1];
 			}
+			*/
+			psid = getTokenSegment(peer.getString(Peer.login_token),1);
 		}
+		if (psid == null)
+			psid = getPeerSession(peer);
 		if (!AL.empty(psid)){
 			StringBuilder sb = new StringBuilder();
 			if (!AL.empty(subject))
