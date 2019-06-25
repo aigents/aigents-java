@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,7 @@ class ReputationParameters {
 	boolean rankUnrated = false; //boolean option to store defaul ratings so inactive agents may get reputaion growth or decay (based on default and decayed settings) over time 
 	double ratings = 1.0; //impact of the explicit and implicit ratings on differential reputation
 	double spendings = 0.0; //impact of the spendings ("proof-of-burn") on differential reputation
+	double parents = 0.0; //to which extent reputation of the "child" (product) is affected by the reputation of the "parent" (vendor)
 	double predictiveness = 0.0; //to which extent account rank is based on consensus between social consensus and ratings provided by the account
 	boolean verbose = true; //if need full debugging log
 	/*
@@ -206,6 +208,39 @@ class GraphCacherStater implements Stater {
 	}
 }
 
+
+//TODO: synchronize and externalize, validate overlaps in children and loops!?
+class TreeGraph {
+	private HashMap parents = new HashMap();
+	private HashMap children = new HashMap();
+	public void add(Object parent, Object child){
+		parents.put(child, parent);
+		HashSet c = (HashSet)children.get(parent);
+		if (c == null)
+			children.put(parent, c = new HashSet());
+		c.add(child);
+	}
+	public void del(String parent){
+		HashSet c = (HashSet)children.get(parent);
+		if (AL.empty(c))
+			return;
+		for (Iterator it = c.iterator(); it.hasNext();)
+			parents.remove(it.next());
+		children.remove(parent);
+	}
+	public Object parent(Object child){
+		return parents.get(child);
+	}
+	public Set children(){//TODO:eliminate, replace copy with iterator!?
+		HashSet all = new HashSet();
+		for (Iterator it = children.values().iterator(); it.hasNext();){
+			Set set = (Set)it.next();
+			all.addAll(set);
+		}
+		return all;
+	}
+}
+
 //TODO: synchroizaion
 public class Reputationer {
 	protected Environment env;
@@ -215,6 +250,9 @@ public class Reputationer {
 	protected GraphCacher cacher = null;
 	protected String name;
 	protected ReputationParameters params = new ReputationParameters();
+	
+	//temporary structure to keep statics social hierarchies like vendor-1:M->product
+	private TreeGraph hierarchy = new TreeGraph();//TODO: make persistent
 	
 	//transient flags and iterators
 	private Graph latest_graph = null;
@@ -285,6 +323,13 @@ public class Reputationer {
 	public void save(){
 		save_ranks();
 		save_ratings();
+	}
+
+	public int set_parents(String parent, Object[][] children){
+		hierarchy.del(parent);
+		for (int i = 0; i < children.length; i++)
+			hierarchy.add(parent, children[i][0]);
+		return 0;
 	}
 	
 	/**
@@ -357,6 +402,8 @@ public class Reputationer {
 		Summator normalizer = new Summator(); 
 		Summator raters = new Summator();
 		Summator spenders = new Summator();
+		Summator parents_differential = new Summator();
+		Summator parents_normalizer = new Summator();
 
 		Graph new_preferences = new Graph();
 
@@ -412,11 +459,18 @@ public class Reputationer {
 //						differential.count(ratee, Math.round(raterValue * r[0]), 0);//TODO: no round!?
 						if (params.denomination && r.length > 1)
 							normalizer.count(ratee, r[1], 0);
-						if (params.spendings > 0)
+						if (params.spendings > 0 && r.length > 1)
 							spenders.count(rater, r[1], 0);//count spendings by raters
 					}
 					if (params.predictiveness > 0 && den > 0)
 						new_preferences.addValue(rater, ratee, ReputationTypes.preferences, sum/den);
+					if (params.parents > 0){//compute average differential ratings per parent category/vendor
+						Object parent = hierarchy.parent(ratee);
+						if (parent != null){
+							parents_differential.count(parent, raterValue * sum ); 
+							parents_normalizer.count(parent, raterValue * den); 
+						}
+					}
 				}
 			}
 		}
@@ -430,7 +484,7 @@ public class Reputationer {
 		
 		differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
 		if (params.verbose) env.debug("reputation debug normalized:"+differential);
-
+		
 		if (params.spendings > 0){//blend ratings with spendigns if needed 
 			if (params.verbose) env.debug("reputation debug unnormalized spenders:"+spenders);
 			spenders.normalize(params.logarithmicRanks,params.normalizedRanks);
@@ -438,7 +492,36 @@ public class Reputationer {
 			differential.blend(spenders, params.spendings / (params.ratings + params.spendings), 0, 0);
 		}
 		if (params.verbose) env.debug("reputation debug blended spenders:"+differential);
-
+		
+		if (params.parents > 0){//added parents to differential
+			//While the reputation state is computed for an observation period, 
+			//each of the ratees is looked up for a parent, and if the parent is found 
+			//(so that means the ratee is not a supplier/vendor but just a product), 
+			//the reputation rank for the new reputation state is blended 
+			//(using the “parents” parameter for blending) with the parent reputation rank known 
+			//for the previous reputation state.
+			Summator inheritance = new Summator();
+			Set children = hierarchy.children();
+			for (Iterator it = children.iterator(); it.hasNext();){//TODO: iterate over parents, not children!
+				Object ratee = it.next();
+				Object parent = hierarchy.parent(ratee);
+				if (parent != null){
+					Number parentRank = state.value(parent);
+					if (parentRank != null)
+						inheritance.count(ratee, parentRank.doubleValue());
+				}
+			}
+			differential.blend(inheritance, params.parents / (params.parents + params.ratings + params.spendings), 0, 0);
+			//At the end of processing of every observation period, update the reputation rank 
+			//of each of the “parent” suppliers/vendors as weighted (if configured so) average of 
+			//all reputation ranks across their “child” products, having volume of the sales per 
+			//observation period used as a weight (if weighting=true),
+			//without applying extra normalization or scaling.
+			parents_differential.divide(parents_normalizer);
+			parents_differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
+			differential.putAll(parents_differential);
+		}
+		
 		differential.blend(state, params.conservatism,
 				(int)Math.round(params.decayedReputation * 100), //for new reputation to decay
 				(int)Math.round(params.defaultReputation * 100));//for old reputation to stay
@@ -800,6 +883,17 @@ public class Reputationer {
 			return true;
 		}
 		else
+		if (Str.has(args,"set","parent")){
+			String parent = Str.arg(args,"parent",null);
+			Object[][] children = Str.get(args,new String[]{"child"},null);
+			if (AL.empty(parent) || AL.empty(children))
+				return false;
+			int res = r.set_parents(parent,children);
+			if (res == 0)
+				r.save_ranks();
+			return true;
+		}
+		else
 		if (Str.has(args,"set","ranks")){
 			Object[][] ranks = Str.get(args,new String[]{"id","rank"},new Class[]{null,Integer.class});
 			if (AL.empty(ranks))
@@ -1032,6 +1126,8 @@ public class Reputationer {
 			r.params.ratings = Double.parseDouble(Str.arg(args, "ratings", String.valueOf(r.params.ratings)));
 		if (Str.has(args, "spendings", null))
 			r.params.spendings = Double.parseDouble(Str.arg(args, "spendings", String.valueOf(r.params.spendings)));
+		if (Str.has(args, "parents", null))
+			r.params.parents = Double.parseDouble(Str.arg(args, "parents", String.valueOf(r.params.parents)));
 		if (Str.has(args, "predictiveness", null))
 			r.params.predictiveness = Double.parseDouble(Str.arg(args, "predictiveness", String.valueOf(r.params.predictiveness)));
 		if (Str.has(args, "conservatism", null))
