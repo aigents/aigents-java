@@ -354,6 +354,22 @@ public class Summator extends HashMap implements Linker {
 		return this;
 	}
 
+	public Summator blend(Linker other, double otherfactor){//with no defaults
+		double thisfactor = 1 - otherfactor;
+		for (Iterator it = other.keys().iterator(); it.hasNext();){
+			Object key = it.next();
+			Number thisNumber =  value(key);
+			if (thisNumber == null)
+				put(key,other.value(key));
+			else {
+				double thisvalue = thisNumber.doubleValue();
+				double othervalue = other.value(key).doubleValue();
+				thisvalue = (thisvalue * thisfactor + othervalue * otherfactor);
+			}
+		}
+		return this;
+	}
+
 	public void load(Environment env, String path){
 		if (!AL.empty(path)){
 			DataLogger dl = new DataLogger(env, "Summator");

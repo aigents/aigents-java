@@ -77,6 +77,7 @@ class ReputationParameters {
 	double spendings = 0.0; //impact of the spendings ("proof-of-burn") on differential reputation
 	double parents = 0.0; //to which extent reputation of the "child" (product) is affected by the reputation of the "parent" (vendor)
 	double predictiveness = 0.0; //to which extent account rank is based on consensus between social consensus and ratings provided by the account
+	boolean pessimism = false; //whether to weigth ratings based on pessimism of the prior ratings
 	boolean verbose = true; //if need full debugging log
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
@@ -101,6 +102,7 @@ class ReputationTypes {
 	public static final String all_aspects = "aspects";//all aspects/dimensions
 	public static final String preferences = "preferences";//who prefers who to what extent
 	public static final String predictiveness = "predictiveness";//level of one's predictiveness
+	public static final String optimism = "optimism";//level of one's optimism (average ratings)
 }
 
 interface Stater {
@@ -397,6 +399,8 @@ public class Reputationer {
 		//TODO: fix ugly hack for using domains in place of dimensions
 		Map predstate = states.getLinkers(prevdate,new String[]{"predictiveness"});
 		Linker predictiveness = predstate == null ? new Counter() : (Linker)predstate.get(ReputationTypes.predictiveness);
+		Map optstate = states.getLinkers(prevdate,new String[]{"optimism"});
+		Linker optimisms = optstate == null ? new Counter() : (Linker)optstate.get(ReputationTypes.optimism);
 		
 		Summator differential = new Summator(); 
 		Summator normalizer = new Summator(); 
@@ -404,6 +408,8 @@ public class Reputationer {
 		Summator spenders = new Summator();
 		Summator parents_differential = new Summator();
 		Summator parents_normalizer = new Summator();
+		Summator rater_differential = new Summator();
+		Summator rater_normalizer = new Summator();
 
 		Graph new_preferences = new Graph();
 
@@ -440,6 +446,13 @@ public class Reputationer {
 					if (raterPredictiveness != null)
 						raterValue = raterValue * (1 - params.predictiveness) + raterPredictiveness.doubleValue() * params.predictiveness;
 				}
+				if (params.pessimism){
+					//When the reputation rank is computed for the period by WLR algorithm, the rating value is multiplied by "pessimism"=1-"average rating" 
+					//at the same point where it is multiplied by “rater rank” and it is being normalized as usual after that. 
+					Number raterOptimism = optimisms.value(rater);
+					if (raterOptimism != null)
+						raterValue *= (1 - raterOptimism.doubleValue());
+				}
 				
 				if (value instanceof Number){
 					double ratingValue = ((Number)value).doubleValue();
@@ -470,6 +483,13 @@ public class Reputationer {
 							parents_differential.count(parent, raterValue * sum ); 
 							parents_normalizer.count(parent, raterValue * den); 
 						}
+					}
+					if (params.pessimism){
+						//Each time when “reputation rank” is computed for any participant for an observation period, 
+						//the other sort of rank called “bias rank” is computed as average rating made by rater during the same period. 
+						//TODO: weighted!?
+						rater_differential.count(rater, sum ); 
+						rater_normalizer.count(rater, den); 
 					}
 				}
 			}
@@ -511,6 +531,7 @@ public class Reputationer {
 						inheritance.count(ratee, parentRank.doubleValue());
 				}
 			}
+//TODO: fix blending - do it after normalization!?
 			differential.blend(inheritance, params.parents / (params.parents + params.ratings + params.spendings), 0, 0);
 			//At the end of processing of every observation period, update the reputation rank 
 			//of each of the “parent” suppliers/vendors as weighted (if configured so) average of 
@@ -563,6 +584,15 @@ public class Reputationer {
 			//4 store predictiveness for future use
 //TODO: make sure there is no clash with internal implementations of Staters!!!
 			states.add(nextdate, ReputationTypes.predictiveness, null, new Counter(predictivenesses));
+		}
+		
+		if (params.pessimism){
+			//If there is a “bias rank” of a rater is known in the previous period, for the new period it is 
+			//as new_bias_rank = (conservatism * previous_bias_rank + (1 - conservatism) * average_rating_by_period ) 
+			//if there is a previous_bias_rank present else (average_rating_by_period)
+			rater_differential.divide(rater_normalizer);
+			rater_differential.blend(optimisms, params.conservatism);
+			states.add(nextdate, ReputationTypes.optimism, null, new Counter(rater_differential));
 		}
 		
 		states.add(nextdate, type, null, new Counter(differential));
@@ -1138,6 +1168,8 @@ public class Reputationer {
 			r.params.normalizedRanks = Str.arg(args, "fullnorm", r.params.normalizedRanks ? "true": "false").toLowerCase().equals("true");
 		if (Str.has(args,"logratings", null))
 			r.params.logarithmicRatings = Str.arg(args, "logratings", r.params.logarithmicRatings ? "true": "false").toLowerCase().equals("true");
+		if (Str.has(args,"pessimism", null))
+			r.params.pessimism = Str.arg(args, "pessimism", r.params.pessimism ? "true": "false").toLowerCase().equals("true");
 		if (Str.has(args,"weighting", null))
 			r.params.weightingRatings = Str.arg(args, "weighting", r.params.weightingRatings ? "true": "false").toLowerCase().equals("true");
 		if (Str.has(args,"unrated", null))
