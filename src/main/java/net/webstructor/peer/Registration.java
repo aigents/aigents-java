@@ -119,8 +119,10 @@ class Registration extends Mode {
 			Seq seq = new Seq(new Object[]{new Any(1,AL.i_my),new Any(new Object[]{new Seq(new Object[]{"secret","question",pq}),new Seq(new Object[]{"secret", "answer"  ,pa})})});
 			if (!Reader.read(session.input(), seq))//well-formed AL for q and a
 				if (session.expected() != null){
-					Seq p = Reader.pattern(session.peer, session.expected());
-						Reader.read(session.input(),p,",");//free-text
+					//free-text like "passport number, 123456 querty"
+					if (!Reader.read(session.input(), Reader.pattern(session.peer, session.expected(),",")))
+						//free-text like "password,123456querty"
+						Reader.read(session.input(),Reader.pattern(session.peer, session.expected()),",");
 				}
 			check(session);
 			if (q == null){

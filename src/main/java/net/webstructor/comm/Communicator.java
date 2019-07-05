@@ -50,6 +50,11 @@ public abstract class Communicator extends Thread
 		return bAlive;
 	}	
 	
+	/** If the communicator is inpersonating the entire application. */
+	public boolean app() {
+		return false;
+	}	
+	
 	public void login(Session session, Anything peer) {
 		//pass by default
 	}

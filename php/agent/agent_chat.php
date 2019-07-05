@@ -383,6 +383,17 @@ function test_chat() {
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	test_chat_cleanup();
 
+	//freetext registration with two-word secrets and delimiter  
+	say("My login.");
+	get("What your email, name, surname?");
+	say("john@doe.org john doe");
+	get("What your secret question, secret answer?");
+	say("passport number, 123456 querty");
+	get("What your passport number?");
+	say("123456 querty");
+	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+	test_chat_cleanup();
+
 }
 
 function test_search() {

@@ -27,12 +27,16 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Collections;
 import java.util.Vector;//deprecate
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import net.webstructor.main.Mainer; 
 import net.webstructor.al.Parser;
 import net.webstructor.al.Seq;
+import net.webstructor.util.Array;
+import net.webstructor.util.Str;
 import net.webstructor.gram.core.MemoryStore; 
 import net.webstructor.gram.core.Item; 
 import net.webstructor.gram.core.Ngram; 
@@ -100,8 +104,10 @@ public class LexStructor extends Mainer
 		return v;
 	}
 
-	public static Vector readSentencesToWordVector(BufferedReader br,MemoryStore st,boolean bWalls)
+	public static Vector readSentencesToWordVector(BufferedReader br,MemoryStore st,Vector sources,boolean bWalls,String skip1chars)
 	{
+		if (skip1chars != null)//TODO: consider array of tokens? 
+			skip1chars = skip1chars.toLowerCase();
 		int count = 0;
 		Vector v = new Vector();
 		for (;;)
@@ -117,16 +123,18 @@ public class LexStructor extends Mainer
 			if (line.length() == 0)
 				continue;
 			
-			if ("\" well , of all wonderful things ! \" commented Mrs . Stapp .".equals(line))
-				println("yo");
-			
 			//TODO: parse with/without LW and period
 			//String tokens[] = StringUtil.toTokens(line, " \t", false);
 			//int length = tokens.length;
 			//Seq tokens = Parser.parse(line);//quoting=true by default
 			//Seq tokens = Parser.parse(line,null,false,true,false,true,null);//quoting=false
-			Seq tokens = new Seq(Parser.split(line," "));
+			Seq tokens = new Seq(Parser.split(line," ",skip1chars));
 			int length = tokens.size();
+			if (length == 0){//TODO: what to do in case of 1
+				v.add(new StringItem(0,evidence,new Ngram(new int[]{})));
+				if (sources != null)
+					sources.add(line);
+			}else
 			if (length > 0){//TODO: what to do in case of 1
 			//if (length > 1){
 				if (bWalls){//TODO:add LEFT-WALL
@@ -159,6 +167,8 @@ public class LexStructor extends Mainer
 					ids[i] = st.encounterNgram(new Ngram(ngram),(float)evidence);
 				}
 				v.add(new StringItem(0,evidence,new Ngram(ids)));
+				if (sources != null)
+					sources.add(line);
 			}
 			count++;
 			if (count%1000 == 0)
@@ -266,16 +276,19 @@ public class LexStructor extends Mainer
 		return ngrams;
 	}
 	
-	public static void vectorNgramsEncounter(Vector input,MemoryStore m,int min,int max)
+	public static void vectorNgramsEncounter(Vector input,MemoryStore m,int min,int max,int current_arity,int input_arities[])
 	{
 		// create hypothetical links/bi-grams
 		for (int i=0;i<input.size();i++)
 		{
 			Object o = input.elementAt(i);
 			StringItem it = (StringItem)o;
+			if (current_arity > 0 && input_arities[i] != current_arity)
+				continue;
 			ArrayList ngrams = createHypotheticalNgrams(it.getIds(),true,min,max);
-			for (int n=0;n<ngrams.size();n++)
+			for (int n=0;n<ngrams.size();n++){
 				m.encounterNgram((Ngram)(ngrams.get(n)),it.getEvidence());
+			}
 		}
 	}
 		
@@ -333,20 +346,48 @@ public class LexStructor extends Mainer
 	}
 
 	//called from main
-	public static void learnNgramsFromVector(Vector input,MemoryStore ltm,int min,int max,boolean all,boolean denominate,boolean addmissed)
+	public static void learnNgramsFromVector(Vector input,MemoryStore ltm,int min,int max,boolean all,boolean denominate,boolean addmissed,boolean incremental){
+		if (!incremental)
+			learnNgramsFromVector(input,ltm,min,max,all,denominate,addmissed,0,null);
+		else {
+			int arities[] = new int[input.size()];
+			int max_arity = 0;
+			for (int i = 0; i < arities.length; i++){
+				int arity = ((StringItem)input.elementAt(i)).getArity();
+				arities[i] = arity;
+				if (max_arity < arity)
+					max_arity = arity;
+			}
+			for (int arity = 2;arity <= max_arity;arity++){
+				println("Arity: "+arity);
+				learnNgramsFromVector(input,ltm,min,max,all,denominate,addmissed,arity,arities);
+				int processed = 0;
+				for (int i = 0; i < arities.length; i++)
+					if (arities[i] == arity)
+						processed++;
+				println("Arity "+arity+" count:"+processed);
+				//ltm.save("tmp"+arity+".adb",true);
+			}
+		}
+	}
+	
+	//TODO: fix hack!?
+	public static void learnNgramsFromVector(Vector input,MemoryStore ltm,int min,int max,boolean all,boolean denominate,boolean addmissed,int current_arity,int input_arities[])
 	{
 		for (int iteration = 1;;iteration++)
 		{
 			println("Iteration: "+iteration);
 			MemoryStore stm = new MemoryStore(null);
 			// create hypothetical n-grams in STM
-			vectorNgramsEncounter(input,stm,min,max);
+			vectorNgramsEncounter(input,stm,min,max,current_arity,input_arities);
 
 			// for each word, find most apparent n-gram in STM, 
 			// replace it and store it LTM
 			int translatedCount = 0;
 			for (int i=0;i<input.size();i++){
 				StringItem thisItem = (StringItem)input.elementAt(i);
+				//if (current_arity > 0 && input_arities[i] != current_arity)
+				//	continue;
 				float topValue = -1;
 				Item topItem = null;
 				int relationship[] = thisItem.getIds();
@@ -360,6 +401,8 @@ public class LexStructor extends Mainer
 					{
 						Ngram ngram = (Ngram)ngrams.get(n);
 						Item it = stm.getItem(ngram);
+						if (it == null)
+							continue;
 						
 						float value = ((float)it.getEvidence()) * it.getArity();
 						if (denominate && ngram.m_ints != null && ngram.m_ints.length > 0){
@@ -553,7 +596,7 @@ public class LexStructor extends Mainer
 	 * @param output
 	 * @param store
 	 */
-	public static void saveULL(String path,Vector output,MemoryStore store){
+	public static void saveULL(String path,Vector output,Vector sources,MemoryStore store){
     	try {
 	        BufferedWriter sw = new BufferedWriter(new FileWriter(path));
 			for (int i=0;i<output.size();i++)
@@ -561,15 +604,25 @@ public class LexStructor extends Mainer
 				Item item = (Item)output.elementAt(i);
 				ArrayList words = new ArrayList();
 				ArrayList links = new ArrayList();
-				getParseWords(store,item,words,links);
-				//write all words
+				//get DTree (Dependency Tree or Dependency Grammar - DG) from CTree (Constituent Tree or Phrase Structure Grammar - PSG) 
+				if (item.getArity() > 0)
+					getParseWords(store,item,words,links);//use Right Hand Side (RHS) words in a tree to link
+				if (sources != null) // write source
+					sw.write((String)sources.get(i));
+				else //write all words
 				for (int w = 0; w < words.size(); w++){
 					if (w != 0)
 						sw.write(" ");
 					sw.write(words.get(w).toString());
 				}
-				//sw.write(" .");//TODO: fix hack
             	sw.newLine();
+				Collections.sort(links, new Comparator(){
+					@Override
+					public int compare(Object o1, Object o2) {
+						int[] l1 = (int[])o1;
+						int[] l2 = (int[])o2;
+						return l1[0] < l2[0] ? -1 : l1[0] > l2[0] ? 1 : l1[1] < l2[1] ? -1 : l1[1] > l2[1] ? 1 : 0;
+					}});
 				for (int l = 0; l < links.size(); l++){
 					int[] link = (int[])links.get(l);
 					String w0 = (String)words.get(link[0]);
@@ -594,7 +647,7 @@ public class LexStructor extends Mainer
 		//learnBigramsFromVector(v,store);
 		
 		//new code
-		learnNgramsFromVector(v,store,2,100,true,false,false);//all=true|false(left)
+		learnNgramsFromVector(v,store,2,100,true,false,false,false);//all=true|false(left)
 		//very new code
 		//learnBestBigramsFromVector(v,store,2,2,true);//all=true|false(left)
 		
@@ -606,8 +659,9 @@ public class LexStructor extends Mainer
 		save(outPath,v,store,null);
 	}
 	
-	public static void processSentencesDir(MemoryStore store, String dataPath, File dir, String outPath, String ullPath){
+	public static void processSentencesDir(MemoryStore store, String dataPath, File dir, String outPath, String ullPath, boolean incremental, String skip){
 		Vector all = new Vector();
+		Vector sources = new Vector();
 		
 		println("Reading input dir "+dataPath);
 		String[] children = dir.list();
@@ -615,14 +669,14 @@ public class LexStructor extends Mainer
 		for (int i=0; i<children.length; i++) {
 			File file = new File(dir,children[i]);
 			BufferedReader breader = Mainer.getReader(file.getAbsolutePath());
-			Vector v = readSentencesToWordVector(breader,store,false);//walls=true|false(plain),
+			Vector v = readSentencesToWordVector(breader,store,sources,false,skip);//walls=true|false(plain),
 			sizes[i] = v.size();
 			all.addAll(v);
 			println("Read input file "+children[i]+" "+v.size());
 		}
 		  
 		println("Processing input");
-		learnNgramsFromVector(all,store,2,2,true,true,false);//all=true|false(left)
+		learnNgramsFromVector(all,store,2,2,true,true,false,incremental);//all=true|false(left)
 		  
 		//save rebuilt sequence
 		println("Saving output");
@@ -631,23 +685,28 @@ public class LexStructor extends Mainer
 		outDir.mkdir();
 		ullDir.mkdir();
 		int start = 0;
-		Vector v;
+		Vector v, s;
 		for (int i=0; i<children.length; i++) {
 			v = new Vector();
-			for (int j = 0; j < sizes[i]; j++)
+			s = sources != null ? new Vector(v) : null;
+			for (int j = 0; j < sizes[i]; j++){
 				v.add(all.get(start+j));
+				if (sources != null)
+					s.add(sources.get(start+j));
+			}
 			start += sizes[i];
 			save((new File(outDir,children[i])).getAbsolutePath()+".out",v,store," ");
-			saveULL((new File(ullDir,children[i])).getAbsolutePath()+".ull",v,store);
+			saveULL((new File(ullDir,children[i])).getAbsolutePath()+".ull",v,s,store);
 		}
 	}
 	
-	public static void processSentencesFile(MemoryStore store, BufferedReader breader, String dataPath, String outPath){
-		Vector v = readSentencesToWordVector(breader,store,false);//walls=true|false(plain),
+	public static void processSentencesFile(MemoryStore store, BufferedReader breader, String dataPath, String outPath, boolean incremental, String skip){
+		Vector sources = new Vector();
+		Vector v = readSentencesToWordVector(breader,store,sources,false,skip);//walls=true|false(plain),
 		println("Processing input "+dataPath);
 		  
 		//new code
-		learnNgramsFromVector(v,store,2,2,true,true,false);//all=true|false(left)
+		learnNgramsFromVector(v,store,2,2,true,true,false,incremental);//all=true|false(left)
 		//learnNgramsFromVector(v,store,2,2,true,true);//all=true|false(left)
 		//learnNgramsFromVector(v,store,2,100,true);//all=true|false(left)
 		  
@@ -656,7 +715,7 @@ public class LexStructor extends Mainer
 		save(outPath,v,store," ");
 		
 		//TODO: store parses as ULL
-		saveULL(dataPath.substring(0,dataPath.lastIndexOf('.'))+".ull",v,store);
+		saveULL(dataPath.substring(0,dataPath.lastIndexOf('.'))+".ull",v,sources,store);
 	}
 	
 	public static void main(String args[])
@@ -692,14 +751,17 @@ public class LexStructor extends Mainer
 			outPath = dataPath.substring(0,dataPath.indexOf('.'))+".out"; 
 		}
 
+		boolean incremental = Array.contains(args, "incremental");
+		String skip = Str.arg(args, "skip", null);
+		
 		if (args.length < 4 || args[3].equals("words"))
 			processWords(store, breader, dataPath, outPath);
 		else
 		if (args[3].equals("sentences") && !dir.isDirectory())
-			processSentencesFile(store, breader, dataPath, outPath);
+			processSentencesFile(store, breader, dataPath, outPath, incremental, skip);
 		else
 		if (args[3].equals("sentences") && dir.isDirectory())
-			processSentencesDir(store, dataPath, dir, dataPath+"_out", dataPath+"_ull");
+			processSentencesDir(store, dataPath, dir, dataPath+"_out", dataPath+"_ull", incremental, skip);
 			
 		try {
 			//println("Saving database "+basePath);

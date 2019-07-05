@@ -316,9 +316,15 @@ public class Reader extends AL {
 	 * Build pattern of expected slots of named variables in order
 	 */
 	public static Seq pattern(Anything owner, String[] terms) {
-		Object vars[] = new Object[terms.length];
-		for (int i=0; i<terms.length; i++)
-			vars[i] = new Property(owner,terms[i]);
+		return pattern(owner, terms, null);
+	}
+	public static Seq pattern(Anything owner, String[] terms, String delimiter) {
+		Object vars[] = new Object[terms.length + (!AL.empty(delimiter) && terms.length > 0 ? terms.length - 1 : 0)];
+		for (int i=0,j=0; i<terms.length; i++){
+			if (!AL.empty(delimiter) && i > 0)
+				vars[j++] = delimiter;
+			vars[j++] = new Property(owner,terms[i]);
+		}
 		return new Seq(vars);		
 	}
 	

@@ -85,12 +85,20 @@ public class Parser {
 		return true;
 	}
 
-	public static String[] split(String subject, String delimiters) {
+	public static String[] split(String subject, String delimiters, String skip1chars) {
 		StringTokenizer tok = new StringTokenizer(subject, delimiters);
 		ArrayList list = new ArrayList(subject.length());
-		while(tok.hasMoreTokens())
-			list.add(tok.nextToken());
+		while(tok.hasMoreTokens()){
+			String token = tok.nextToken();
+			if (!AL.empty(skip1chars) && skip1chars.contains(token))
+				continue;
+			list.add(token);
+		}
 		return (String[])list.toArray(new String[]{});
+	}
+	
+	public static String[] split(String subject, String delimiters) {
+		return split(subject, delimiters, null);
 	}
 	
 	//TODO: make it flexible to support N > 2 and maxDistance > 1
