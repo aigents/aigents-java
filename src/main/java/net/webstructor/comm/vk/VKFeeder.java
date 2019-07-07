@@ -53,7 +53,7 @@ class VKFeeder extends SocialFeeder {
 
 	boolean vkdebug;
 	//TODO: see https://vk.com/dev/versions
-	public static final String vkversion = "4.0";//"5.21";//5.44?
+	public static final String vkversion = "5.44";
 	
 	public VKFeeder(Environment body, HTTP api, String user_id, LangPack langPack, Date since, Date until) {
 		super(body,user_id,langPack,false,since,until);
@@ -120,10 +120,10 @@ if (vkdebug) body.debug("Spidering peer vkontakte url:"+url);
 if (vkdebug) body.debug("Spidering peer vkontakte out:"+out);		
 		JsonReader jr = Json.createReader(new StringReader(out));
 		JsonObject jobj = jr.readObject();
-		JsonArray comments = jobj.getJsonArray("response");
+		JsonArray comments = jobj.getJsonArray("items");
 		ArrayList collected = new ArrayList();
 		if (comments != null)
-		for (int i = 1; i < comments.size(); i++){//first is length
+		for (int i = 0; i < comments.size(); i++){
 			JsonObject comment = comments.getJsonObject(i);
 			String from_id = String.valueOf(comment.getInt("from_id"));
 			String text = comment.getString("text");
@@ -184,7 +184,7 @@ if (vkdebug) body.debug("Spidering peer vkontakte out:"+out);
 		int user_likes = 0;
 		for (int i = 0; i < users.size(); i++){
 			JsonObject user = users.getJsonObject(i);
-			String uid = String.valueOf(user.getInt("uid"));
+			String uid = String.valueOf(user.getInt("id"));
 			String name = HTTP.getJsonString(user,"first_name",uid);
 			String surname = HTTP.getJsonString(user,"last_name",uid);
 			if (uid.equals(user_id))
@@ -225,7 +225,7 @@ if (vkdebug) body.debug("Spidering peer vkontakte likes "+user_id+" other user l
 			sleep();
 if (vkdebug) body.debug("Spidering peer vkontakte url:"+url);		
 			out = HTTP.simpleGet(url);
-if (vkdebug) body.debug("Spidering peer vkontakte out:" + (out != null && out.length() > 100 ? out.substring(0,100) : out));	
+if (vkdebug) body.debug("Spidering peer vkontakte out:" + (out != null && out.length() > 200 ? out.substring(0,200) : out));	
 							
 			JsonReader jr = Json.createReader(new StringReader(out));
 			JsonObject jauth = jr.readObject();
@@ -246,19 +246,19 @@ if (vkdebug) body.debug("Spidering peer vkontakte noerror1");
 
 if (vkdebug) body.debug("Spidering peer vkontakte noerror2");		
 			
-			if (response == null || !response.containsKey("wall"))//was "wall"
+			if (response == null || !response.containsKey("items"))
 				break;
-			JsonArray items = response.getJsonArray("wall");//was "wall"
+			JsonArray items = response.getJsonArray("items");
 			if (items == null || items.size() <= 1)//because first item contains count in API v 3.0
 				break;
 
-if (vkdebug) body.debug("Spidering peer vkontakte has items");		
+if (vkdebug) body.debug("Spidering peer vkontakte has items "+items.size());		
 			
 			//build map of groups for referencing 
 			JsonArray groups = response.getJsonArray("groups");
 			for (int i = 0; i < groups.size(); i++){
 				JsonObject group = groups.getJsonObject(i);
-				String id = String.valueOf(group.getInt("gid"));
+				String id = String.valueOf(group.getInt("id"));
 				String name = HTTP.getJsonString(group,"name",id);
 				groupNames.put(id,name);
 if (vkdebug) body.debug("Spidering peer vkontakte group "+id+" "+name);		
@@ -270,7 +270,7 @@ if (vkdebug) body.debug("Spidering peer vkontakte has groups");
 			JsonArray users = response.getJsonArray("profiles");
 			for (int i = 0; i < users.size(); i++){
 				JsonObject user = users.getJsonObject(i);
-				String id = String.valueOf(user.getInt("uid"));
+				String id = String.valueOf(user.getInt("id"));
 				String name = HTTP.getJsonString(user,"first_name",id);
 				String surname = HTTP.getJsonString(user,"last_name",id);
 				String image = HTTP.getJsonString(user,"photo",null);
@@ -285,14 +285,14 @@ if (vkdebug) body.debug("Spidering peer vkontakte user "+id+" "+name+" "+surname
 
 if (vkdebug) body.debug("Spidering peer vkontakte items "+user_id+" items:"+(items.size()-1));
 			
-			for (int i = 1; i < items.size(); i++){//NOTE: skip 0 as it contains N of elements in API v 3.0
+			for (int i = 0; i < items.size(); i++){
 				JsonObject item = items.getJsonObject(i);
 				StringBuilder content = new StringBuilder();
 				long timestamp = item.getInt("date");
 				Date date = new Date( timestamp * 1000 );
 				
-if (vkdebug) body.debug("Spidering peer vkontakte since "+user_id+" since:"+since+" post:"+date);
 if (vkdebug) body.debug("Spidering peer vkontakte item "+item);
+if (vkdebug) body.debug("Spidering peer vkontakte since "+user_id+" since:"+since+" post:"+date);
 		
 				if (date.compareTo(since) < 0){
 					days_over = true;
@@ -300,6 +300,8 @@ if (vkdebug) body.debug("Spidering peer vkontakte item "+item);
 				}								
 				int from_id = item.getInt("from_id");
 				String from = String.valueOf(from_id);
+if (vkdebug) body.debug("Spidering peer vkontakte from_id "+from_id);
+
 				//TODO: skip group news for now, handle them later
 				if (from_id < 0)
 					continue;
@@ -307,11 +309,10 @@ if (vkdebug) body.debug("Spidering peer vkontakte item "+item);
 				//TODO: skip others for now, deal with them later somehow
 				//if (!user_id.equals(from))
 				//	continue;
-if (vkdebug) body.debug("Spidering peer vkontakte item_text "+item);
 				
-				String text = HTTP.getJsonString(item,"text",null);
-				if (!AL.empty(text))
-					content.append(text);
+				OrderedStringSet links = new OrderedStringSet();
+				processContent(item,content,links);
+				links.sort();
 
 				JsonObject comments = item.getJsonObject("comments");
 				int comments_count = comments == null ? 0 : comments.getInt("count");
@@ -324,20 +325,6 @@ if (vkdebug) body.debug("Spidering peer vkontakte item_text "+item);
 				int reposts_count = reposts == null ? 0 : reposts.getInt("count");
 				int user_reposted = reposts == null ? 0 : reposts.getInt("user_reposted");*/
 				
-				//https://vk.com/dev/attachments_w
-				OrderedStringSet links = new OrderedStringSet();
-				JsonObject attachment = item.containsKey("attachment") ? item.getJsonObject("attachment") : null;
-				JsonArray attachments = item.containsKey("attachments") ? item.getJsonArray("attachments") : null;
-				if (attachment != null)
-					processAttachment(attachment,content,links);
-				if (attachments != null){
-					for (int j = 0; j < attachments.size(); j++){
-						attachment = attachments.getJsonObject(j);
-						processAttachment(attachment,content,links);
-					}
-				}
-				links.sort();
-
 				//extract likers for reports
 				HashMap likers = new HashMap();
 				int id = item.getInt("id");
@@ -347,7 +334,7 @@ if (vkdebug) body.debug("Spidering peer vkontakte item_text "+item);
 				Object[][] commenters = comments_count == 0 ? null : processComments(token,id);
 				
 				//TODO: resharers?
-				text = processItem(date,from,content.toString(),links,commenters,likes_count-user_likes,user_likes==1?true:false);
+				String text = processItem(date,from,content.toString(),links,commenters,likes_count-user_likes,user_likes==1?true:false);
 
 				//dump to html buffer for report details section
 				reportDetail(detail,getUserName(from),null,null,text,date,commenters,links,likers,
@@ -369,6 +356,35 @@ body.debug("Spidering peer vkontakte "+user_id+" peer:"+Writer.toString(it.next(
 	  }
 	}
 
+	//https://vk.com/dev/attachments_w
+	void processContent(JsonObject item,StringBuilder content,OrderedStringSet links){
+if (vkdebug) body.debug("Spidering peer vkontakte item content "+item);
+		String text = HTTP.getJsonString(item,"text",null);
+		JsonArray reposts = item.containsKey("copy_history") ? item.getJsonArray("copy_history") : null;
+		if (!AL.empty(text)){
+if (vkdebug) body.debug("Spidering peer vkontakte item text "+text);
+			content.append(text);
+		}
+		if (reposts != null){
+if (vkdebug) body.debug("Spidering peer vkontakte item reposts "+reposts);
+			for (int j = 0; j < reposts.size(); j++)
+				processContent(reposts.getJsonObject(j),content,links);
+		}
+		JsonObject attachment = item.containsKey("attachment") ? item.getJsonObject("attachment") : null;
+		JsonArray attachments = item.containsKey("attachments") ? item.getJsonArray("attachments") : null;
+		if (attachment != null){
+if (vkdebug) body.debug("Spidering peer vkontakte item attachment "+attachment);
+			processAttachment(attachment,content,links);
+		}
+		if (attachments != null){
+if (vkdebug) body.debug("Spidering peer vkontakte item attachments "+attachments);
+			for (int j = 0; j < attachments.size(); j++){
+				attachment = attachments.getJsonObject(j);
+				processAttachment(attachment,content,links);
+			}
+		}
+	}
+	
 	void processAttachment(JsonObject attachment,StringBuilder content,OrderedStringSet links){
 		String type = HTTP.getJsonString(attachment,"type","");
 		if (type.equals("link") || type.equals("video") || type.equals("photo")){
