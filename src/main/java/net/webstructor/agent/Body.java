@@ -37,6 +37,7 @@ import net.webstructor.comm.Socializer;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.goog.GApi;
 import net.webstructor.comm.vk.VK;
+import net.webstructor.core.Actioner;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Archiver;
 import net.webstructor.core.Environment;
@@ -57,7 +58,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.7.7";
+	public final static String VERSION = "1.7.9";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -168,6 +169,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public Socializer ethereum = null;
 	public GraphCacher sitecacher = null;
 	public CacherHolder grapher = new CacherHolder();
+	protected HashMap actioners = new HashMap();
 	
 	//TODO:configuration on-line
 	protected boolean console;
@@ -202,8 +204,30 @@ public abstract class Body extends Anything implements Environment, Updater
 			logger = new Logger("aigents-log");
 	}
 
+	@Override
 	public void register(String path, Cacher cacher) {
 		grapher.put(path, cacher);
+	}
+	
+	@Override
+	public void register(String action, Actioner actioner) {
+		synchronized (actioners){
+			actioners.put(action, actioner);
+		}
+	}
+	
+	@Override
+	public Actioner getActioner(String action){
+		synchronized (actioners){
+			return (Actioner) actioners.get(action);
+		}
+	}
+	
+	@Override
+	public String[] getActions(){
+		synchronized (actioners){
+			return (String[])actioners.keySet().toArray(new String[]{});
+		}
 	}
 	
 	public void start() {

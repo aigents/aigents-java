@@ -1,5 +1,5 @@
 /*
-Copyright 2018-2019 Anton Kolonin, Aigents Group
+Copyright 2018-2019 Anton Kolonin, Aigents®
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -453,6 +453,19 @@ function parseBetween(input, from, to){
 
 function encode_urls(text){
 	return text.replace(/(?:(https?\:\/\/[^\s]+))/g,'<a href="$1" target="_blank">$1</a>');
+}
+
+function extract_url(text){
+	var url = text.match(/(?:(https?\:\/\/[^\s]+))/);
+	return url && url[1]? url[1] : null;
+}
+
+function current_date_str(){
+	var today = new Date();
+	var dd = String(today.getDate()).padStart(2, '0');
+	var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+	var yyyy = today.getFullYear();
+	return(yyyy+'-'+mm+'-'+dd);
 }
 
 function parse(input, delimeters) {

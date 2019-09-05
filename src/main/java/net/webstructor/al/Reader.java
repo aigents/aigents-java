@@ -459,6 +459,7 @@ public class Reader extends AL {
 			mood = direction;
 		else 
 			mood = declaration;
+		//TODO check last symbol for exclamation or question mark
 		return mood;
 	}
 	
@@ -507,8 +508,6 @@ public class Reader extends AL {
 	}
 	
 	public Statement parseStatement(Storager storager, Session session, Parser parser, Thing peer) throws Exception {
-		//Storager storager = session != null ? session.getStorager() : body.storager;
-		//Parser parser = new Parser(input);
 		int mood = parseMood(parser);
 		
 		//TODO: try to parse true SAL (structured AL query)
@@ -533,8 +532,6 @@ public class Reader extends AL {
 				pos = newpos;
 				
 				if (terms.size() == 0) {
-					/**/
-					//on Android, this fails for "is peer, id 91 trust false" - parser.parseAny(there,true) returns null but condition is passed
 					if (session != null && parser.parseAny(i_my,true) != null) //<peer>
 						terms.add(peer);
 					else
@@ -544,38 +541,6 @@ public class Reader extends AL {
 					if (parser.parseAny(there,true) != null) //<anonymous>
 						terms.add(new Thing());
 					else
-					/**/
-					/**
-					//on Android, this fails for "is peer, id 91 trust false" - parser.parseAny(there,true) returns null but condition is passed
-					String term1, term2, term3;
-					if (session != null && (term1 = parser.parseAny(i_my,true)) != null) //<peer>
-						terms.add(session.getStoredPeer());
-					else
-					if ((term2 = parser.parseAny(you,true)) != null) //<self>
-						terms.add(body.self());
-					else
-					if ((term3 = parser.parseAny(there,true)) != null) //<anonymous>
-						terms.add(new Thing());
-					else
-					/**/
-					/*
-					//on Android, this works for "is peer, id 91 trust false" but fails further
-					String term1, term2, term3;
-					boolean done = false;
-					if (session != null && (term1 = parser.parseAny(i_my,true)) != null) {//<peer>
-						terms.add(session.getStoredPeer());
-						done = true;
-					}
-					if (!done && (term2 = parser.parseAny(you,true)) != null) { //<self>
-						terms.add(body.self());
-						done = true;
-					}
-					if (!done && (term3 = parser.parseAny(there,true)) != null) { //<anonymous>
-						terms.add(new Thing());
-						done = true;
-					}
-					if (!done)
-					*/
 					{//<qualifier>
 						//using dummy thing for scope (turned too restrictive for some cases)
 						//Object step = parseExpression(parser,new Thing(),storager);
@@ -594,14 +559,18 @@ public class Reader extends AL {
 				} else 
 				if (head != null && (head instanceof Thing || head instanceof Set 
 						|| (head instanceof String[] && ((String[])head).length ==1 ))) { //if chained attribute
+					//TODO:optimize all that computationally expensive stuff in getNamesPossible and concat!
 					//TODO:can't we figure out the scope more precisely based on query head contents?
 					String[] scope = head instanceof Thing ? ((Thing)head).getNamesPossible() : properties;
-//TODO:how to avoid this in cleaner way!!!???
+					scope = Str.concat(scope, session.getBody().getActions());
+//TODO:may need to make sure there is no nulls or empty strings in thing_names but do it in the other place!!!???
 if (!AL.empty(thing_names)){
 	ArrayList f = new ArrayList();
 	for (int i = 0 ; i < thing_names.length; i++)
 		if (!AL.empty(thing_names[i]))
 			f.add(thing_names[i]);
+		else
+			body.error("Reader has no thing name", null);
 	thing_names = (String[])f.toArray(new String[]{});
 }
 					Object step = parseExpression(terms,parser,scope,thing_names,storager);					

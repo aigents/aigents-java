@@ -443,9 +443,69 @@ function test_extractor() {
 	get("Ok.");
 }
 
+function test_authoring() {//content authoring and sharing
+	global $version;
+	global $copyright;
+	login();//john doe
+	//Making sure that redundant news are not appearing
+	say("there is 'test page', sources http://localtest.com/test/, times today, new true.");
+	get("Ok.");
+	say("what is test page");
+	get("There is test page, sources http://localtest.com/test/, times today.");
+	say("what is test page new, times");
+	get("There new true, times today.");
+	say("there is 'test page', sources http://localtest.com/test/, times today, new true.");
+	get("No thing.");//nothing is updated //TODO: say somethig more reasonable
+	say("what is test page");
+	get("There is test page, sources http://localtest.com/test/, times today.");
+	say("is test page new false");
+	get("Ok.");
+	say("no there is 'test page'");
+	get("Ok.");
+	say("what is test page");
+	get("There not.");
+	//Content authoring and sharing
+	$john_cookie = get_cookie();//save john session
+	set_cookie(null);//reset session
+	login("doe","doe@john.org","john","q","a");
+	say("email john@doe.org trust true");//trust to john
+	get("Ok.");
+	say("what new true");
+	get("There not.");
+	say("what is test page");
+	get("There not.");
+	$doe_cookie = get_cookie();//save doe session
+	set_cookie($john_cookie);//back to john
+	say("email doe@john.org share true");//share to doe
+	get("Ok.");
+	// author content
+	say("there is 'test page', sources http://localtest.com/test/, times today, new true update.");
+	get("Ok.");
+	say("what new true");
+	get("There is test page, sources http://localtest.com/test/, times today.");
+	say("email doe@john.org share false");//stop sharing to doe
+	get("Ok.");
+	set_cookie($doe_cookie);//back to doe
+	//check if new content has appeared
+	say("what is test page");
+	get("There is test page, sources http://localtest.com/test/, times today.");
+	say("what new true");
+	get("There is test page, sources http://localtest.com/test/, times today.");
+	//clean content
+	logout("doe",false);//relaxed cleanup
+	set_cookie($john_cookie);//back to john
+	//clean content
+	say("is test page new false");
+	get("Ok.");
+	say("no there is test page");
+	get("Ok.");
+	logout();//john doe
+}
+
 test_init();
 test_sites();
 test_extractor();
+test_authoring();
 test_summary();
 
 ?>

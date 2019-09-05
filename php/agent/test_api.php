@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "1.7.7";
+$version = "1.7.9";
 $copyright = " Copyright © 2019 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -262,9 +262,9 @@ function logout($name = "john",$strict = true){
 	say("No name " . $name . ".");
 	get("Ok.");
 	say("No there times today.");
-	get("Ok.");
+	get($strict ? "Ok." : null);
 	say("What times today?");
-	get("There not.");
+	get($strict ? "There not." : null);
 	say("My logout.");
 	get("Ok.");
 }

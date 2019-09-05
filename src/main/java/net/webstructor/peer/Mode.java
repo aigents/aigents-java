@@ -126,7 +126,7 @@ public abstract class Mode {
 	
 	String answer(Session session, Thing peer, Seq query, Query.Filter filter) throws Throwable {
 		//execute query: [thing,thing,thing,...,set]
-		Collection clones = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker)
+		Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker)
 			.getThings(query,peer);
 		if (AL.empty(clones))
 			return null;
@@ -193,7 +193,7 @@ public abstract class Mode {
 						try {
 							query = session.reader.parseStatement(session,"What new true, times today is, sources, text?",peer);
 							//execute query: [thing,thing,thing,...,set]
-							Collection clones = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(query,peer); 
+							Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(query,peer); 
 							//format news feed
 							session.output(createRSS(clones,area,session.sessioner.body.site()));
 						} catch (Exception e) {

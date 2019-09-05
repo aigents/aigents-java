@@ -46,6 +46,8 @@ import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.cat.StringUtil;
 import net.webstructor.comm.HTTP;
+import net.webstructor.core.Actioner;
+import net.webstructor.core.Environment;
 import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
@@ -53,6 +55,7 @@ import net.webstructor.data.Graph;
 import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
+import net.webstructor.util.Str;
 
 //TODO: move out
 class Imager {
@@ -727,23 +730,32 @@ public class Siter {
 		for (Iterator it = peers.iterator(); it.hasNext();) {
 			Thing peer = (Thing)it.next();
 			update(body,storager,peer,thing,news,digest[0],digest[1],body.signature());
-			
-			//TODO: make this more efficient
-			//get list of peers trusted by the peer:
-			//1) get all peers that are marked to share to by this peer
-			Collection allSharesTos = (Collection)peer.get(AL.shares);
-			if (!AL.empty(allSharesTos)) {
-				//TODO: test if it works
-				Set trustingPeers = storager.get(AL.trusts,peer);
-				if (!AL.empty(trustingPeers)){
-					trustingPeers = new HashSet(trustingPeers);
-					//2) restrict all peers with those who have the shares
-					trustingPeers.retainAll(allSharesTos);
-					for (Iterator tit = trustingPeers.iterator(); tit.hasNext();)
-						update(body,storager,(Thing)tit.next(),thing,news,digest[0],digest[1],"\n"+peer.getTitle(Peer.title_email)+" at "+body.site());
-				}
+			Collection allSharesTos = getSharesTos(storager,peer);
+			if (!AL.empty(allSharesTos)) for (Iterator tit = allSharesTos.iterator(); tit.hasNext();)
+				update(body,storager,(Thing)tit.next(),thing,news,digest[0],digest[1],signature(body,peer));
+		}
+	}
+	
+	public static String signature(Body body,Thing peer){
+		return peer.getTitle(Peer.title_email)+" at "+body.site();
+	}
+	
+	static Collection getSharesTos(Storager storager, Thing peer){
+		//TODO: make this more efficient
+		//get list of peers trusted by the peer:
+		//1) get all peers that are marked to share to by this peer
+		Collection allSharesTos = (Collection)peer.get(AL.shares);
+		if (!AL.empty(allSharesTos)) {
+			//TODO: test if it works
+			Set trustingPeers = storager.get(AL.trusts,peer);
+			if (!AL.empty(trustingPeers)){
+				trustingPeers = new HashSet(trustingPeers);
+				//2) restrict all peers with those who have the shares
+				trustingPeers.retainAll(allSharesTos);
+				return trustingPeers;
 			}
 		}
+		return null;
 	}
 	
 	static void update(Body body, Storager storager, Thing peer, Thing thing, Collection news, String subject, String content, String signature) throws IOException {
@@ -754,6 +766,34 @@ public class Siter {
 		body.update(peer, subject, content, signature);
 	}
 
+	//update all trusting peers being shared
+	public static Actioner getUpdater(){
+		return new Actioner(){
+			@Override
+			public boolean act(Environment env, Storager storager, Thing context, Thing target) {
+				Body body = (Body)env;
+				String signature = signature(body,context);
+				Collection is = target.getThings(AL.is);
+				Collection sources = target.getThings(AL.sources);
+				String subject = AL.empty(is) ? null : ((Thing)is.iterator().next()).getString(AL.name);
+				String url = AL.empty(sources) ? null : ((Thing)sources.iterator().next()).getString(AL.name);
+				String text = target.getString(AL.text);
+				String content = Str.join(new String[]{url,text}, "\n");
+				Collection allSharesTos = getSharesTos(storager,context);
+				if (!AL.empty(allSharesTos)) for (Iterator pit = allSharesTos.iterator(); pit.hasNext();){
+					Thing peer = (Thing)pit.next();
+					target.set(AL._new, AL._true, peer);
+					try {
+						body.update(peer, subject, content, signature);
+					} catch (IOException e) {
+						body.error("Siter updating "+subject+" "+text+" "+signature,e);
+					}
+				}
+				return true;
+			}
+		};
+	}
+	
 	//get count of news not trusted by the 1st peer trusted by self
 	public static int pendingNewsCount(Body body) {
 		int untrusted = 0;

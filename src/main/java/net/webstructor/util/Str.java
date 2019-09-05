@@ -25,6 +25,7 @@
 package net.webstructor.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import net.webstructor.al.Time;
@@ -137,6 +138,8 @@ public class Str {
 		StringBuilder sb = new StringBuilder();
 		if (args != null)
 			for (int i = 0; i < args.length; i++){
+				if (args[i] == null || args[i].length() == 0)
+					continue;
 				if (sb.length() > 0 && glue != null)
 					sb.append(glue);
 				sb.append(args[i]);
@@ -174,4 +177,9 @@ public class Str {
 		return null;
 	}
 	    
+	public static String[] concat(String[] first, String[] second){
+		String[] result = Arrays.copyOf(first, first.length + second.length);
+		System.arraycopy(second, 0, result, first.length, second.length);
+		return result;
+	}
 }

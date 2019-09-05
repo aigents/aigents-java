@@ -56,6 +56,7 @@ import net.webstructor.peer.Conversationer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Selfer;
+import net.webstructor.self.Siter;
 import net.webstructor.util.Array;
 
 //This is simple command-line runner 
@@ -154,6 +155,7 @@ public class Farm extends Body {
 				ethereum = new Ethereum(this, "ethereum", eth_url, eth_key);
 		}
 		sitecacher = new GraphCacher("www", this);
+		this.register("update", Siter.getUpdater());
 	}
 
 	public boolean act(String name, Anything argument) {

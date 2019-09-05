@@ -191,7 +191,7 @@ public class Peer extends Agent {
 					for (int i = 0; i < default_script.length; i++) {
 						Statement query = session.reader.parseStatement(session,default_script[i],thisPeer);
 						session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
-						new Query(session.getStorager()).setThings(query,thisPeer);
+						new Query(session.sessioner.body,session.getStorager()).setThings(query,thisPeer);
 					}
 				}
 				//TODO: sources http://aigents.com, new true, text 'Welcome...', times today

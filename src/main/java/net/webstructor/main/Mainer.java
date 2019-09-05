@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import net.webstructor.core.Actioner;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Cacher;
 
@@ -127,7 +128,23 @@ public class Mainer implements Environment {
 		return new File(path);
 	}
 
+	@Override
 	public void register(String path, Cacher cacher) {
 		//TODO pass or save on exit?
+	}
+
+	@Override
+	public void register(String action, Actioner actioner) {
+		//TODO pass or save on exit?
+	}
+
+	@Override
+	public Actioner getActioner(String action) {
+		return null;//TODO ?
+	}
+
+	@Override
+	public String[] getActions() {
+		return null;//TODO ?
 	}
 }

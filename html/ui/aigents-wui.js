@@ -1,5 +1,5 @@
 /*
-Copyright 2018-2019 Anton Kolonin, Aigents Group
+Copyright 2018-2019 Anton Kolonin, Aigents®
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -261,10 +261,11 @@ $(function() {
         }
       }
     });
-    $( "#add_news" ).button({text: false,icons: {primary: "ui-icon-add"},disabled: true}).click(function() {/*TODO*/});
+    $( "#add_news" ).button({text: false,icons: {primary: "ui-icon-add"}}).click(add_news);
     $( "#del_news" ).button({text: false, icons: {primary: "ui-icon-del"}}).click(function() {del_news();});  
     $( "#open_news" ).button({text: false,icons: {primary: "ui-icon-open"}}).click(function() {open_news();});
     $( "#news_props" ).button({text: false,icons: {primary: "ui-icon-props"}}).click(function() {your_properties();});
+    $( "#news_input" ).on( "keydown", function(event) { if (event.which == 13) add_news(); });
     $( "#news_input" ).on("input", function() {news_init('#news_list',news_data,this.value); });
       
     $( "#peers_list" ).selectable({
@@ -1342,11 +1343,11 @@ function news_init(list,data,filter) {
 		//var social_relevance = i * 10; if (social_relevance > 100) social_relevance = 100;//hack
 		var social_relevance = data[i][1];
 		var sources = data[i][2];
-		var text = encode_urls(data[i][3]);
+		var text = data[i][3]; if (!AL.empty(text)) text = encode_urls(text);
 		var times = data[i][4];
 		var trust = data[i][5];
 		var image = data[i][6];
-		if (filter && !(sources.indexOf(filter) != -1 || text.indexOf(filter) != -1 || (times && times.indexOf(filter) != -1)))
+		if (filter && !((sources && sources.indexOf(filter) != -1) || (text && text.indexOf(filter) != -1) || (times && times.indexOf(filter) != -1)))
 			continue;
 		check = $('<input class="news_check" type="checkbox" '+(trust ? 'checked' : '')+'/>');
 		check.change(function(eventObject) {
@@ -1423,6 +1424,20 @@ function news_init(list,data,filter) {
     	var opened = window.open($(this).attr('href'));
     	return false;
     });
+}
+
+function add_news() {
+	var text = $('#news_input').val();
+	if (!AL.empty(text)) {
+		$('#news_input').val('');
+		text = AL.toString(text,null);
+		var url = extract_url(text);
+		if (AL.empty(url))
+			url = site_url;
+		var date = current_date_str();
+		var cmd = "There text "+text+', new true, trust true, sources '+url+', times '+date+' update.';
+		requestBase('#news_list',cmd,false,function(){news_refresh()});
+	}
 }
 
 function edit_news(item,index) {

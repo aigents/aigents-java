@@ -504,8 +504,9 @@ class Conversation extends Mode {
 				for (Iterator it = message.iterator(); it.hasNext();) {
 					Statement query = (Statement)it.next();
 					session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
-					Query q = new Query(storager,session.sessioner.body.self());
+					Query q = new Query(session.sessioner.body,storager,session.sessioner.body.self());
 					int updated = q.setThings(query,storedPeer);
+					//int updated = q.setThings(query,storedPeer,true);//smart things creation, but "NL" chat is not working
 					if (updated > 0){
 						out.append(out.length() > 0 ? " " : "").append("Ok.");
 						//TODO: do this peer saving and restoring more clever and not every time?

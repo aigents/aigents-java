@@ -129,7 +129,7 @@ class Searcher extends Intenter {
 					//if not found, extend for all texts and search in them with siter matcher
 					q = new Seq(new Object[]{new Seq(new Object[]{"times",time}),new String[]{"text","is"}});
 					//query for all texts
-					Collection texts = new Query(session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(q,peer);
+					Collection texts = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(q,peer);
 					if (!AL.empty(texts)){
 						ArrayList res = new ArrayList();
 						//StringBuilder summary = new StringBuilder();

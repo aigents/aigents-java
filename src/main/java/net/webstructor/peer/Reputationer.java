@@ -443,8 +443,12 @@ public class Reputationer {
 					//TODO: aling with possibly missed raterNumber above!?
 					//TODO: rather blend it as specified in the spec (as it is done for spendings!?)
 					Number raterPredictiveness = predictiveness.value(rater);
-					if (raterPredictiveness != null)
+					if (raterPredictiveness != null){
+						if (params.verbose) env.debug("reputation debug raterValue before blending with predictiveness:"+raterValue+", rater "+rater+" ratee "+ratee);
 						raterValue = raterValue * (1 - params.predictiveness) + raterPredictiveness.doubleValue() * params.predictiveness;
+						//raterValue *= raterPredictiveness.doubleValue();
+						if (params.verbose) env.debug("reputation debug raterValue after blending with predictiveness:"+raterValue);
+					}
 				}
 				if (params.pessimism){
 					//When the reputation rank is computed for the period by WLR algorithm, the rating value is multiplied by "pessimism"=1-"average rating" 
@@ -532,15 +536,20 @@ public class Reputationer {
 				}
 			}
 //TODO: fix blending - do it after normalization!?
+			if (params.verbose) env.debug("reputation debug differential before blending (parents):"+differential);
 			differential.blend(inheritance, params.parents / (params.parents + params.ratings + params.spendings), 0, 0);
+			if (params.verbose) env.debug("reputation debug differential after blending (parents):"+differential);
 			//At the end of processing of every observation period, update the reputation rank 
 			//of each of the “parent” suppliers/vendors as weighted (if configured so) average of 
 			//all reputation ranks across their “child” products, having volume of the sales per 
 			//observation period used as a weight (if weighting=true),
 			//without applying extra normalization or scaling.
 			parents_differential.divide(parents_normalizer);
+			if (params.verbose) env.debug("reputation debug parents differential:"+parents_differential);
 			parents_differential.normalize(params.logarithmicRanks,params.normalizedRanks);//differential ratings in range 0-100%
+			if (params.verbose) env.debug("reputation debug parents differential normalized:"+parents_differential);
 			differential.putAll(parents_differential);
+			if (params.verbose) env.debug("reputation debug differential after adding parents into it:"+differential);
 		}
 		
 		differential.blend(state, params.conservatism,
@@ -566,7 +575,9 @@ public class Reputationer {
 			//1 blend current preferences and old preferences into new preferences
 			Graph old_graph = cacher.getGraph(prevdate);
 			Graph old_preferences = old_graph.getSubgraph(0,new String[]{ReputationTypes.preferences},true);
+			if (params.verbose) env.debug("predictiveness blending old_preferences:"+old_preferences);
 			new_preferences.blend(old_preferences,params.conservatism); //with no defaults
+			if (params.verbose) env.debug("predictiveness blending new_preferences:"+new_preferences);
 			//2 store new preferences
 			Graph new_graph = cacher.getGraph(nextdate);
 			new_graph.addSubgraph(new_preferences);
@@ -578,7 +589,9 @@ public class Reputationer {
 				Linker predictor = new_preferences.getLinker(rater, ReputationTypes.preferences, false);
 				if (predictor != null){
 					double value = 1 - Summator.distance1(predictor,differential,1,100);
+					if (params.verbose) env.debug("predictiveness rater "+rater+" value "+value+" predictor:"+predictor);
 					predictivenesses.count(rater, new Double(value));
+					if (params.verbose) env.debug("predictiveness state:"+predictivenesses);
 				}
 			}
 			//4 store predictiveness for future use

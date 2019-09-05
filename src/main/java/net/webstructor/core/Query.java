@@ -47,22 +47,24 @@ public class Query
 		boolean passed(Thing thing);
 	}
 	
+	private Environment env;
 	private Storager storager;
 	private Thinker thinker;
 	private Thing self;
 
-	public Query(Storager storager,Thing self,Thinker thinker) {
+	public Query(Environment env,Storager storager,Thing self,Thinker thinker) {
+		this.env = env;
 		this.storager = storager;
 		this.thinker = thinker;
 		this.self = self;
 	}
 	
-	public Query(Storager storager) {
-		this(storager,null,null);
+	public Query(Environment env,Storager storager) {
+		this(env,storager,null,null);
 	}
 
-	public Query(Storager storager,Thing self) {
-		this(storager,self,null);
+	public Query(Environment env,Storager storager,Thing self) {
+		this(env,storager,self,null);
 	}
 
 	private Collection getAccessible(Collection all,Thing viewer) throws Exception {
@@ -251,6 +253,10 @@ public class Query
 	}
 	
 	public int setThings(Seq query, Thing setter) throws Exception {
+		return setThings(query, setter, false);
+	}
+	
+	public int setThings(Seq query, Thing setter, boolean smart) throws Exception {
 		int updated = 0;
 		Object current = null;
 		for (int i=0; i<query.size(); i++) {
@@ -266,6 +272,7 @@ public class Query
 					Collection coll = storager.get(thing);
 
 					//TODO:Fix the following hack getting rid of "there"-s!
+					//if the first element is new thing being created with the second element
 					if (AL.empty(coll) && query.get(i+1) instanceof Set) {
 						Set q = (Set)query.get(i+1);
 						coll = storager.get(q,setter);
@@ -292,6 +299,8 @@ public class Query
 				Collection coll = storager.get((Set)chain,setter);
 				if (AL.empty(coll)) {
 					//TODO: create!? thing.store(storager);
+					if (smart && query.size() == 1)//"lazy" creation of thing on missed query
+						return setThings(new Seq(new Object[]{new Thing(),chain}),setter,false);
 					throw new Mistake(Mistake.no_thing);
 				}
 				else
@@ -329,10 +338,35 @@ public class Query
 				else
 					throw new Mistake(Mistake.no_thing);
 			}
+			else
+			if (chain instanceof String[]) { // list of methods to invoke
+				if (current == null)
+					throw new Mistake(Mistake.no_thing);//TODO:apply restrictive condition to current
+				String[] actions = (String[])chain;
+				if (current instanceof Thing)
+					updated += act(actions,setter,(Thing)current);
+				else 
+				if (current instanceof Collection) {
+					for (Iterator it = ((Collection)current).iterator(); it.hasNext();)
+						updated += act(actions,setter,(Thing)it.next());
+				}
+				else
+					throw new Mistake(Mistake.no_thing);
+			}
 		}
 		return updated;
 	}
 
+	private int act( String actions[], Thing context, Thing target){
+		int updated = 0;
+		for (int a = 0; a < actions.length; a++){
+			Actioner act = env.getActioner(actions[a]);
+			if (act != null)
+				updated += act.act(env, storager, context, target) ? 1 : 0;
+		}
+		return updated;
+	}
+	
 	//set Thing property, strictly assuming isThing=>isMultiple
 	public int setThing(Thing thing,String name,Object val,boolean is,Thing setter) throws Exception {
 		int updated = 0;

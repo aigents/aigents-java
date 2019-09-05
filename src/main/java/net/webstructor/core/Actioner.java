@@ -23,17 +23,11 @@
  */
 package net.webstructor.core;
 
-import java.io.File;
-
-import net.webstructor.data.Cacher;
-
-public interface Environment {
-	public void debug(String str);
-	public void error(String str,Throwable e);
-	public int checkMemory();//in range 0-100 percents
-	public File getFile(String path);
-	public void register(String path, Cacher cacher);
-	public void register(String action, Actioner actioner);//TODO: add class/name, add option to unregister
-	public Actioner getActioner(String action);//TODO: actually act as an Actioner?
-	public String[] getActions();//TODO: set instead of String[]
+/**
+ * Abstract doer of an Action 
+ * @author akolonin
+ *
+ */
+public abstract class Actioner {
+	public abstract boolean act(Environment env, Storager storager, Thing context, Thing actor);
 }

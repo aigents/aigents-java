@@ -119,7 +119,7 @@ class Cacher {
 						new All(new Object[]{new Seq(new String[]{AL.is,path})}),
 						new String[]{AL.text,AL.times}});
 				//if not found or found with newer text
-				Collection sites = new Query(storager,self).getThings(query,self);
+				Collection sites = new Query(body,storager,self).getThings(query,self);
 				Thing site = AL.empty(sites) ? null : (Thing)sites.iterator().next();
 				String oldtext = site == null ? null : site.getString(AL.text);
 				if (AL.empty(oldtext))
