@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -115,11 +115,19 @@ public abstract class Time extends Date	{
 			d = today(+1);
 		}
 		else
+		/*
 		try {
 			//TODO: this throws dumb exception: simpledateformat, so put this ahead separately?
 			d = day_format().parse(text);
 		} catch (ParseException e) {
 			d = today(0);
+		}
+		*/
+		{
+			//TODO: this throws dumb exception: simpledateformat, so put this ahead separately?
+			d = date(text);
+			if (d == null)
+				d = today(0);
 		}
 		return d;
 	}
@@ -128,6 +136,17 @@ public abstract class Time extends Date	{
 		return time24.matcher(text).matches() || time12.matcher(text).matches();
 	}
 
+	public static Date date(String text) {
+		try {
+			return today.equalsIgnoreCase(text) ? today(0) :
+				yesterday.equalsIgnoreCase(text) ? today(-1) :
+				tomorrow.equalsIgnoreCase(text) ? today(+1) :
+				day_format().parse(text);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+	
 	/*
 	public static boolean isDaytime(String text) {
 		return false;

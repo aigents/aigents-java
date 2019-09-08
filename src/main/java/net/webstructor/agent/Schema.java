@@ -23,6 +23,8 @@
  */
 package net.webstructor.agent;
 
+import java.util.Date;
+
 import net.webstructor.al.AL;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
@@ -36,6 +38,7 @@ public class Schema {
 	public final static String[] roots = {self, peer};
 	public final static String[] foundation = {self, peer, AL.time, AL.number, AL.money, AL.word, AL.daytime};
 	public final static String[] keys = {AL.name,AL.email,Peer.surname,Peer.birth_date,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.slack_id}; // key attributed for merging
+	public final static String[] hidden = {Peer.birth_date,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.slack_id}; // key attributed for merging
 	public final static String[] case_sensitive = {Body.email_password,Body.facebook_token,Body.facebook_challenge,Body.slack_token,Body.slack_key,Body.google_key,Body.google_token,Body.vkontakte_key,Body.telegram_token};
 	public final static String[] unique = {AL.email,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.slack_id};
 	public final static String[] thinkable = {Peer.social_relevance,Peer.relevance/*,"importance","similarity","authority","closeness","adherence"*/};
@@ -104,6 +107,11 @@ public class Schema {
 		if (name.equals(AL._new))
 			return AL.news;
 		return null;
+	}
+	
+	//TODO: make more smart and widely used
+	public static Class cls(String name) {
+		return AL.times.equals(name) ? Date.class : String.class;
 	}
 	
 	public static boolean unique(String name) {

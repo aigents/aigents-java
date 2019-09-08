@@ -51,6 +51,7 @@ public class Query
 	private Storager storager;
 	private Thinker thinker;
 	private Thing self;
+	private boolean root;//TODO:initialize in constructor
 
 	public Query(Environment env,Storager storager,Thing self,Thinker thinker) {
 		this.env = env;
@@ -85,12 +86,21 @@ public class Query
 	
 	private Thing clone(Thing source, String[] args,Thing viewer){
 		Thing clone = source.clone(args,viewer);
+		//obfuscate hidden attributes
+		if (!root && !(source.equals(viewer) || source.hasThing(AL.is, viewer)) && Peer.registered(source)) {
+			for (String hidden : Schema.hidden) {
+				if (!AL.empty(clone.getString(hidden)))
+					clone.setString(hidden, "****************");//TODO configure properly
+			}
+		}
 		if (thinker != null)
 			thinker.think(source, clone, args, viewer);
 		return clone;
 	}
 	
 	private Object getCurrent(Seq query, int i, Object current, String[] args,Thing viewer) throws Exception {
+		Collection trusts = (Collection)self.get(AL.trusts);
+		root = !AL.empty(trusts) && trusts.contains(viewer);//optimization,TODO: reuse in accessible-s
 		if (current instanceof Thing) {
 			if (!accessible((Thing)current,viewer,args,false))
 				throw new Mistake(Mistake.no_right);
@@ -108,6 +118,7 @@ public class Query
 			}
 		} else
 		if (current instanceof Collection) {
+			
 			//extract values from each of the currents 	
 			HashSet set = new HashSet(((Collection)current).size());
 			Iterator it = ((Collection)current).iterator();

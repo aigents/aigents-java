@@ -34,6 +34,7 @@ import java.util.Set;
 
 import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
+import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.util.Array;
 
@@ -421,6 +422,13 @@ public class Thing extends Anything { // implements ORObject
 	}
 	
 	public final Anything set(String name,Object value,Thing setter) {
+		//TODO: make type conversion more consistent!?
+		Class cls = Schema.cls(name);
+		if (value != null && cls != value.getClass() && cls == Date.class && value instanceof String){
+			Date date = Time.date((String)value);
+			if (date != null)
+				value = date;
+		}
 		String reverse = Schema.reverse(name);
 		if (reverse != null) {
 			if (storager != null && setter != null && setter.storager != null) {

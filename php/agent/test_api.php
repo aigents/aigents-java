@@ -2,7 +2,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2014-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2014-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "1.7.9";
+$version = "1.8.0";
 $copyright = " Copyright © 2019 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";

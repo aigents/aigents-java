@@ -979,6 +979,7 @@ var peer_self_properties = ['email','name','surname',
                        //'facebook login',//'vkontakte login',
                        'check cycle', 'items limit', 'trusts limit', 'news limit', 'email notification', 'steemit id', 'golos id', 'ethereum id'];
 var peer_peer_properties = ['name','surname','email','facebook id','google id','vkontakte id'];
+var peer_peer_keys = ['name','surname','email']
 
 function fields(names) {
 	f = '';
@@ -1016,6 +1017,15 @@ function add_thing() {
 		$('#things_input').val('');
 		text = AL.toString(text,null);
 		requestBase('#things_list',"My topics "+text+', trusts '+text+'.',false,things_refresh);
+	}else{
+		dialog_open(_('Topic'),null,['name'],null,[''],false, function(){
+			var text = $( '#'+name_to_id( 'name' ) ).val();
+			if (!AL.empty(text)){
+				text = AL.toString(text,null);
+				requestBase('#things_list','My topics '+text+', trusts '+text+'.',false,things_refresh);
+			}
+			return true;
+		});
 	}
 }
 
@@ -1041,7 +1051,7 @@ function edit_trust(title,list,verb,item,callback) {
 }
 
 function edit_thing(item) {
-	edit_trust('Thing','#things_list','topics',item);
+	edit_trust('Topic','#things_list','topics',item);
 }
 
 //http://stackoverflow.com/questions/3744289/jquery-how-to-select-an-option-by-its-text
@@ -1091,11 +1101,20 @@ function sites_refresh() {
 }
 
 function add_site() {
-	text = $('#sites_input').val();
+	var text = $('#sites_input').val();
 	if (text && text.length > 0) {
 		$('#sites_input').val('');
 		text = AL.toString(text,null);
 		requestBase('#sites_list','My sites '+text+', trusts '+text+'.',false,sites_refresh);
+	}else{
+		dialog_open(_('Site'),null,['name'],null,[''],false, function(){
+			var text = $( '#'+name_to_id( 'name' ) ).val();
+			if (!AL.empty(text)){
+				text = AL.toString(text,null);
+				requestBase('#sites_list','My sites '+text+', trusts '+text+'.',false,sites_refresh);
+			}
+			return true;
+		});
 	}
 }
 
@@ -1330,6 +1349,14 @@ function news_check_many(list,indexes,checked){
 	news_sort(list);
 }
 
+function contains_insensitive(str,patlower){
+	if (!patlower)
+		return true;
+	if (!str)
+		return false;
+	return str.toLowerCase().indexOf(patlower) != -1;
+}
+
 function news_init(list,data,filter) {
 	for (i = 0; i < data.length; i ++){
 		data[i][0] = AL.toNumber(data[i][0]);
@@ -1340,14 +1367,13 @@ function news_init(list,data,filter) {
 	filter = AL.empty(filter)? null : filter.toLowerCase();
 	for (i = 0; i < data.length; i ++) {
 		var relevance = data[i][0];
-		//var social_relevance = i * 10; if (social_relevance > 100) social_relevance = 100;//hack
 		var social_relevance = data[i][1];
 		var sources = data[i][2];
-		var text = data[i][3]; if (!AL.empty(text)) text = encode_urls(text);
+		var text = data[i][3]; if (!AL.empty(text)) text = encode_urls(text); else text = '';
 		var times = data[i][4];
 		var trust = data[i][5];
 		var image = data[i][6];
-		if (filter && !((sources && sources.indexOf(filter) != -1) || (text && text.indexOf(filter) != -1) || (times && times.indexOf(filter) != -1)))
+		if (filter && !(contains_insensitive(sources,filter) || contains_insensitive(text,filter) || contains_insensitive(times,filter)))
 			continue;
 		check = $('<input class="news_check" type="checkbox" '+(trust ? 'checked' : '')+'/>');
 		check.change(function(eventObject) {
@@ -1426,22 +1452,34 @@ function news_init(list,data,filter) {
     });
 }
 
+var news_edit_labels = ["text","source","time"];
+var news_edit_keys = ["text", "sources", "times"];
 function add_news() {
 	var text = $('#news_input').val();
 	if (!AL.empty(text)) {
 		$('#news_input').val('');
-		text = AL.toString(text,null);
 		var url = extract_url(text);
+		text = AL.toString(text,null);
 		if (AL.empty(url))
 			url = site_url;
-		var date = current_date_str();
-		var cmd = "There text "+text+', new true, trust true, sources '+url+', times '+date+' update.';
+		url = AL.toString(url,'sources');
+		var cmd = "There text "+text+', sources '+url+', times today, new true, trust true update.';
 		requestBase('#news_list',cmd,false,function(){news_refresh()});
+	}else{
+		var values = ['','','today'];
+		dialog_open(_('News'),null,news_edit_labels,news_edit_labels,values,false, function(){
+			var c = jqualifier(news_edit_labels,values,false,news_edit_keys);
+			if (!AL.empty(c)){
+				var cmd = "There times today, "+c+", new true, trust true update.";
+				requestBase('#news_list',cmd,false,function(){news_refresh()});
+			}
+			return true;
+		});
 	}
 }
 
 function edit_news(item,index) {
-	dialog_open(_('News'),null,["text","source","time"],null,
+	dialog_open(_('News'),null,news_edit_labels,null,
 		[news_data[index][3],news_data[index][2],_(news_data[index][4])],
 		true, null);
 }
@@ -1505,7 +1543,7 @@ function news_update_pending() {
 //-- Peers --
 var peers_data = [];
 
-function jqualifier(names,oldvalues) {
+function jqualifier(names,oldvalues,lower,keys) {
 	var newnames = [];
 	var newvalues = [];
 	for (var i = 0; i < names.length; i++) {
@@ -1513,14 +1551,17 @@ function jqualifier(names,oldvalues) {
 			: $( '#'+name_to_id(names[i]) ).val();
 		if (oldvalues && i < oldvalues.length && oldvalues[i] == value)
 			continue; //skip duplicates
-		newnames.push(names[i]);
+		newnames.push(keys ? keys[i] : names[i]);//if keys provided, use keys instead of names
 		newvalues.push(value);
 	}
+	if (lower)
+		for (var i = 0; i < newvalues.length; i++)
+			newvalues[i] = newvalues[i].toLowerCase();
 	return qualifier(newnames,newvalues,', ');
 }
 
-function peer_split(text) {
-	var values = text.split(/[ \t\r\n,;]+/);
+function peer_split_lower(text) {
+	var values = text.toLowerCase().split(/[ \t\r\n,;]+/);
 	var email = null;
 	var name = null;
 	var surname = null;
@@ -1542,14 +1583,15 @@ function peer_split(text) {
 
 function peer_qualifier_elem(elem) {
 	var index = $(elem)[0].id;
-	var peer = peer_obj(peers_data,index);
-	var q = qualifier(peer_peer_properties,[peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.vkontakte]);
+	var peer = peer_obj(peers_data,index,false);
+	//var q = qualifier(peer_peer_properties,[peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.vkontakte]);
+	var q = qualifier(peer_peer_keys,[peer.name,peer.surname,peer.email]);//because other is obfuscated because of privacy issues!?
 	return !AL.empty(q) ? 'is peer, ' + q : q;
 }
 
 function peer_qualifier_text(text) {
-	var split = peer_split(text);
-	return split && split.length == 3 ? qualifier(["name","surname","email"],split) : null;
+	var split = peer_split_lower(text);
+	return split && split.length == 3 ? qualifier(peer_peer_keys,split) : null;
 }
 
 //building name, which can be empty if social id is present only
@@ -1566,11 +1608,11 @@ function peer_screen_name(peer,html) {
 	return str;
 }
 
-function peer_obj(data,i){
+function peer_obj(data,i,capital){
 	var peer = [];
 	var item = data[i];
-	peer.name = capitalize(item[1]);
-	peer.surname = capitalize(item[2]);
+	peer.name = capital ? capitalize(item[1]) : item[1];
+	peer.surname = capital ? capitalize(item[2]) : item[2];
 	if (item[0] && item[0].indexOf("@vk.com") == -1 && item[0].indexOf("@facebook.com") == -1  && item[0].indexOf("@google.com") == -1)
 		peer.email = item[0];
 	peer.share = item[3] ? true : false;
@@ -1598,7 +1640,7 @@ function peers_init(list,data,filter) {//email,name,surname,trust
 		var item = data[i];
 		if (!AL.empty(filter) && !match(item[0],filter) && !match(item[1],filter) && !match(item[2],filter))
 			continue;
-		var peer = peer_obj(data,i);
+		var peer = peer_obj(data,i,true);
 
 		var str = peer_screen_name(peer,true);//true HTML 
 		
@@ -1703,27 +1745,46 @@ function peers_refresh() {
 
 function edit_peer(item) {
 	var index = $(item)[0].id;
-	var peer = peer_obj(peers_data,index);
+	var peer = peer_obj(peers_data,index,false);
+	var q = qualifier(peer_peer_properties,[peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.vkontakte]);
 	var values = [peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.vkontakte];
-	dialog_open(_('Peer'),null,peer_peer_properties,peer_peer_properties,values,!peer.editable,function(){
-		var q = qualifier(peer_peer_properties,[peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.vkontakte]);
-		var c = jqualifier(peer_peer_properties,values);
-		if (c && c.length > 0)
-			requestBase('#peers_list','is peer, '+q+' '+c+'.');
-		return true;
+	requestBase(null,'what '+q+' is?',true,function(result){
+		peer.editable= result == 'No right.' ? false: true;
+		dialog_open(_('Peer'),null,peer_peer_properties,peer_peer_properties,values,!peer.editable,function(){
+			var c = jqualifier(peer_peer_properties,values);
+			if (c && c.length > 0)
+				requestBase('#peers_list','is peer, '+q+' '+c+'.');
+			return true;
+		});
+	},null);
+	
+}
+
+function add_or_link_peer(qualifier) {
+	requestBase('#peers_list','is peer and '+qualifier+' friend true, trust true.',false,function(result){
+		if ('Ok.' != result)
+			requestBase('#peers_list',"There is peer and friend true and trust true and "+qualifier+'.',false,peers_refresh);
 	});
 }
 
 function add_peer() {
 	text = $('#peers_input').val();
 	if (text && text.length > 0) {
-		var qualifier = peer_qualifier_text(text);
+		var qualifier = peer_qualifier_text(text);//lowercased
 		if (!qualifier) 
 			setTimeout(function() { displayStatus(_('proper_peer')); },500);
 		else {
 			$('#peers_input').val('');
-			requestBase('#peers_list',"There is peer and friend true and trust true and "+qualifier+'.',false,peers_refresh);
+			add_or_link_peer(qualifier);
 		}
+	}else{
+		var values = ['','','','','',''];
+		dialog_open(_('Peer'),null,peer_peer_properties,peer_peer_properties,values,false,function(){
+			var c = jqualifier(peer_peer_properties,values,true);//lowercased
+			if (c && c.length > 0)
+				add_or_link_peer(c);
+			return true;
+		});
 	}
 }
 
@@ -1737,7 +1798,7 @@ function del_peer() {
 	if (selected_peers) {
 		var request = '';
 		selected_peers.forEach(function(value) {
-			var q = peer_qualifier_elem(value) + ' trust false, share false.';
+			var q = peer_qualifier_elem(value) + ' friend false, trust false, share false.';
 			if (request.length > 0)
 				request+=' ';
 			request += q;
