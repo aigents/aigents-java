@@ -31,5 +31,5 @@ import java.io.IOException;
  * @throws IOException
  */
 public interface HTTPHandler {
-	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException;
+	public boolean handleHTTP(HTTPeer parent, String url, String header, String request, String cookie) throws IOException;
 }

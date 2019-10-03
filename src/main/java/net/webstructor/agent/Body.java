@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,6 @@ import net.webstructor.core.Environment;
 import net.webstructor.core.Updater;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
-import net.webstructor.data.Cacher;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.CacherHolder;
 import net.webstructor.data.Translator;
@@ -58,7 +57,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "1.8.0";
+	public final static String VERSION = "1.8.9";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -109,6 +108,9 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String slack_id = "slack id";
 	public static final String slack_key = "slack key";
 	public static final String slack_token = "slack token";
+	public static final String paypal_id = "paypal id";
+	public static final String paypal_key = "paypal key";
+	public static final String paypal_token = "paypal token";
 	public static final String google_id = "google id";//client id or user id
 	public static final String google_key = "google key";//client secret
 	public static final String google_token = "google token";//access_token or temporary code
@@ -140,6 +142,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		google_id, google_key, //google_token,
 		facebook_id, facebook_key, facebook_token, facebook_challenge,
 		slack_id, slack_key, slack_token,
+		paypal_id, paypal_key, paypal_token,
 		vkontakte_id, vkontakte_key, vkontakte_token,
 		telegram_token, telegram_offset,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
@@ -167,6 +170,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public Socializer steemit = null;
 	public Socializer golos = null;
 	public Socializer ethereum = null;
+	public net.webstructor.self.Cacher filecacher = null;
 	public GraphCacher sitecacher = null;
 	public CacherHolder grapher = new CacherHolder();
 	protected HashMap actioners = new HashMap();
@@ -205,7 +209,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	}
 
 	@Override
-	public void register(String path, Cacher cacher) {
+	public void register(String path, net.webstructor.data.Cacher cacher) {
 		grapher.put(path, cacher);
 	}
 	

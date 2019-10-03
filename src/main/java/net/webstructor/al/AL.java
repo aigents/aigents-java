@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -127,6 +127,7 @@ public class AL {
 	public static final String trimmers = separators + dashes;
 		
 	public static final String[] https = {"http://", "https://"};
+	public static final String[] imgs = {".png", ".svg", ".jpeg", ".jpg", ".bmp", ".tiff", ".gif"};
 			
 	protected Body body;
 	//private int recursion = 0;//TODO: need to consider current recursion level?
@@ -147,14 +148,26 @@ public class AL {
 		return objects == null || objects.length == 0;
 	}
 	
+	public static boolean single(Object[] collection) {
+		return collection != null && collection.length == 1;
+	}
+	
 	public static boolean empty(Collection collection) {
 		return collection == null || collection.isEmpty();
+	}
+	
+	public static boolean single(Collection collection) {
+		return collection != null && collection.size() == 1;
 	}
 	
 	public static boolean empty(Set set) {
 		return set == null || set.size() == 0;
 	}
 
+	public static boolean single(Set collection) {
+		return collection != null && collection.size() == 1;
+	}
+	
 	public static boolean empty(Map set) {
 		return set == null || set.isEmpty();
 	}
@@ -165,8 +178,12 @@ public class AL {
     	return Array.prefix(https,str.toLowerCase()) != null && str.indexOf(' ') == -1;
     }
 
+    public static boolean isIMG(String str) {
+    	return isURL(str) && Array.suffix(imgs,str.toLowerCase()) != null;
+    }
+    
 	public static boolean isVariable(String term) {
-		return !AL.empty(term) && term.charAt(0) == '$';
+		return term != null && term.length() > 1 && term.charAt(0) == '$';
 	}
 	    
 	public static int integer(String s, int def) {

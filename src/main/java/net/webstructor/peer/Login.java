@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -66,7 +66,7 @@ class Login extends Mode {
 			if (enstir != null) {
 				session.peer.set(Body.google_token, token);
 				session.peer.set(Body.google_id, id = enstir[4]);
-				bind(session,"google",id,enstir[3],enstir[0],enstir[1],enstir[2]);//offline token,email,name,surname
+				session.bind("google",id,enstir[3],enstir[0],enstir[1],enstir[2]);//offline token,email,name,surname
 				if (!AL.empty(enstir[5]))//refresh_token as google_key
 					session.getStoredPeer().setString(Body.google_key, enstir[5]);
 			} else { 
@@ -86,7 +86,7 @@ class Login extends Mode {
 				session.peer.set(Body.vkontakte_token, ensti[3]);//token
 				if (AL.empty(ensti[0]))
 					ensti[0] = session.peer.getString(AL.email,ensti[4]+"@vk.com");//id -> email
-				bind(session,"vkontakte",ensti[4],ensti[3],ensti[0],ensti[1],ensti[2]);//id,offline token,email,name,surname
+				session.bind("vkontakte",ensti[4],ensti[3],ensti[0],ensti[1],ensti[2]);//id,offline token,email,name,surname
 			}
 			//TODO:restrict origin for better security if passing token?
 			session.output("<html><body onload=\"top.postMessage(\'"
@@ -102,7 +102,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				session.peer.set(Body.vkontakte_token, token);
 				if (AL.empty(enst[0]))
 					enst[0] = session.peer.getString(AL.email,id+"@vk.com");
-				bind(session,"vkontakte",id,enst[3],enst[0],enst[1],enst[2]);//offline token,email,name,surname
+				session.bind("vkontakte",id,enst[3],enst[0],enst[1],enst[2]);//offline token,email,name,surname
 			} else { 
 				session.sessioner.body.debug("vkontakte login failed: "+session.peer);
 				session.output("Not.");
@@ -111,6 +111,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		return false;
 	}
 
+	/*TODO remove 20190913
 	//email may be not available by settings if not confirmed or user registered with phone number 
 	//or may be not required at all (vkontakte)
 	private boolean bind(Session session,String provider,String id, String token, String email, String name, String surname){
@@ -154,6 +155,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			return false;
 		}
 	}
+	*/
 	
 	//TODO: don't touch now, change to unified framework (as for Google+) later
 	public boolean facebook(Session session) {

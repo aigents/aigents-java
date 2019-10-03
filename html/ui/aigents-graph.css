@@ -1,0 +1,17 @@
+<style type="text/css">
+
+/* TODO merge with aigents-wui.css */
+
+<!-- Styles needed for Aigents Graph -->
+.map-label {text-anchor:middle;font-size:18;}
+.map-text-middle {text-anchor:middle;}
+.map-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.map-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;}
+.map-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.map-button {display:inline;}
+body {background:#eaf1fc !important;margin:0 !important;}
+button {margin-left:10px;margin-top:10px;}
+
+</style>

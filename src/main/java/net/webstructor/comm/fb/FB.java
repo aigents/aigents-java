@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -201,7 +201,7 @@ public class FB extends Socializer {
 		
 		//TODO: make sure it is still working after refactoring
 		Reporter rep = new Reporter(env,user_id+".html");
-		rep.initReport("Aigents Report for Facebook (beta)",since,until);
+		rep.initReport("Aigents Report for Facebook (beta)", feeder.since(), feeder.until(), null);
 		rep.initPeer(user_id, null, null, null, since, until);
 		
 		//TODO: exporter to csv

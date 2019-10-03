@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -154,6 +154,7 @@ public class Farm extends Body {
 			if (!AL.empty(eth_url) && !AL.empty(eth_key))
 				ethereum = new Ethereum(this, "ethereum", eth_url, eth_key);
 		}
+		filecacher = new net.webstructor.self.Cacher("pages",this,storager);
 		sitecacher = new GraphCacher("www", this);
 		this.register("update", Siter.getUpdater());
 	}

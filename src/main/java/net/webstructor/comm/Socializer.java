@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -596,7 +596,7 @@ public abstract class Socializer extends HTTP {
 		//TODO fix hack
 		if (feeder.errorMessage != null)
 				title = title + " : " + feeder.errorMessage;
-		rep.initReport(title, feeder.since(), feeder.until());
+		rep.initReport(title, feeder.since(), feeder.until(), null);
 		
 		//adjust reputations and optionally render connections
 		//TODO add connection distance (related on primary feeder)?

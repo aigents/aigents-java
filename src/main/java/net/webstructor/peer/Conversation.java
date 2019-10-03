@@ -236,6 +236,8 @@ class Conversation extends Mode {
 				session.sessioner.body.archiver.clear();
 				if (session.sessioner.body.sitecacher != null)
 					session.sessioner.body.sitecacher.clear(true);//clear with LTM
+				if (session.sessioner.body.filecacher != null)
+					session.sessioner.body.filecacher.clear(true,null);//clear cache entirely 
 			}
 			session.output("Ok.");
 			return false;
@@ -373,6 +375,7 @@ class Conversation extends Mode {
 						new Any(1,AL.you),new Any(1,Self.reading),new Property(reader,"thingname"),
 						new Any(1,in_site),new Property(reader,"url")
 						}))) {
+					reader.setString("range","3");//default, for test compatibility so far
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
 						session.output("My "+Self.reading[0]+" "+reader.getString("thingname")+
@@ -380,16 +383,18 @@ class Conversation extends Mode {
 				}
 				else  
 				// can fail if thingname is not supplied
-				// TODO: decide what to do with this hack!
+				// TODO: decide what to do with this hack - needed for polymorphysm in argments! fix tests?
 				if (session.read(new Seq(new Object[]{
 							new Any(1,AL.you),new Any(1,Self.reading),
 							new Any(1,in_site),new Property(reader = new Thing(),"url")
 							}))) {
+					reader.setString("range","3");//default, for test compatibility so far
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
 						session.output("My "+Self.reading[0]+" site "+Writer.toString(reader.getString("url"))+".");//"Ok.";
 				}
 				else {
+					//NOTE range = 1
 					//TODO:use reader with arguments for async spawn!?
 					//session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", null))//just read all sites altogether

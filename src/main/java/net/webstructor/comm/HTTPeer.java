@@ -271,29 +271,26 @@ public class HTTPeer extends Communicator
 	
 	private void process() {
 		String request = null;
-		String url_header_request[] = {null,null,null};
+		String url_header_request[] = {null,null,null,null};
 		try {
 			in = new BufferedInputStream(socket.getInputStream());
 			out = new BufferedOutputStream(socket.getOutputStream());
 			input(url_header_request); // read HTTP request
 			
-//body.reply("H1:"+url_header_request[0]+":"+url_header_request[1]+":"+url_header_request[2]);
-			
-		    //TODO: if found filter/handler for url_header_request, pass that to the one
-		    if (parent.handleHTTP(this,url_header_request[0],url_header_request[1],url_header_request[2]))
-		    	return;
-
-//body.reply("H2:"+url_header_request[0]+":"+url_header_request[1]+":"+url_header_request[2]);
-		    
 			request = url_header_request[2];
-			if (request == null) {//if no data for Aigets core handling
-				output(null,null);//return 404,TODO:better idea?
-				return;
-			}
-			
+			//body.reply("H1:"+url_header_request[0]+":"+url_header_request[1]+":"+request);
 			body.reply(cookieString+":"+request);
 			if (cookieString == null) { // generate cookie for new sessions
 				cookieString = parent.getCookie();
+			}
+					
+		    //TODO: if found filter/handler for url_header_request, pass that to the one
+		    if (parent.handleHTTP(this,url_header_request[0],url_header_request[1],url_header_request[2],cookieString))
+		    	return;
+
+			if (request == null) {//if no data for Aigents core handling
+				output(null,null);//return 404,TODO:better idea?
+				return;
 			}
 			
 		    //TODO: hack properly using filters and handleHTTP

@@ -1,0 +1,41 @@
+<html>
+<head>
+
+<title>Aigents Graphs Demo</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <link rel="stylesheet" href="/ui/jquery-ui-1.11.4.custom/jquery-ui.css">
+  <script src="https://aigents.com/ui/jquery-1.11.1.js"></script>
+  <script src="https://aigents.com/ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+  <script type="text/javascript" src="https://aigents.com/ui/aigents-al.js"></script>
+  <link rel="stylesheet" href="https://aigents.com/ui/aigents-graph.css">
+  <script type="text/javascript" src="/ui/aigents-graph.js?5"></script>
+</head>
+
+<body>
+<div id="wrapper1" style="width:100%;height:100%"/>
+<br>
+<script>
+var graph_text = "\
+	bob likes mary 1.0\n\
+	bob likes jane 0.6\n\
+	mary likes jane 0.5\n\
+	'big bada' likes jane 0.5\n\
+	jane visits steemit 0.4\n\
+	jane visits facebook 0.2\n\
+	bob visits steemit 0.7\n\
+	jane likes bob 0.4\n\
+	mary likes bob 0.5\n\
+	mary likes 'big bada' 0.5\n\
+	mary visits facebook 0.9\n\
+	bob is person\n\
+	mary is person\n\
+	jane is person\n\
+	steemit is site\n\
+	facebook is site\n\
+	";
+GraphUI.request_graph_inline("svg_inline1", {text : graph_text, builder : function(text) {var config = {labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, "svg_widgets1", document.getElementById("wrapper1"));
+</script>
+<br>
+ 
+</body>
+</html>

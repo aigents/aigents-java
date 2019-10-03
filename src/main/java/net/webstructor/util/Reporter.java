@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -86,7 +86,7 @@ public class Reporter {
 		return sb.toString();
 	}
 	
-	public void initReport(String title, Date since, Date until){
+	public void initReport(String title, Date since, Date until, String header){
 		try {
 			writer.append("<html><head><title>"+net.webstructor.al.Writer.capitalize(title)+"</title>\n");
 			writer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
@@ -98,7 +98,11 @@ public class Reporter {
 			writer.append("<meta http-equiv=\"expires\" content=\"Tue, 01 Jan 1980 1:00:00 GMT\" />\n");
 			writer.append("<meta http-equiv=\"pragma\" content=\"no-cache\" />\n");
 			
-			writer.append("<style> td { vertical-align: text-top; } body {background:#ffffd8;font-family: Helvetica,Arial,sans-serif} .line0 { background: #ffffc8; } .line1 { background: #ffffE8; } </style>");			
+			writer.append("<style> td { vertical-align: text-top; } body {background:#ffffd8;font-family: Helvetica,Arial,sans-serif} .line0 { background: #ffffc8; } .line1 { background: #ffffE8; } </style>");
+			
+			if (!AL.empty(header))
+				writer.append(header);
+			
 			writer.append("</head><body>\n");
 			
 			writer.append("<a title=\"Go to Aigents Home\" target=\"_blank\" href=\"https://aigents.com/\"><img src=\"https://aigents.com/ui/img/aigent32.png\"/></a>");
@@ -247,6 +251,14 @@ public class Reporter {
 		}
 		return obj.toString();
 	}
+
+	public void subtitle(String title){
+		try {
+			writer.append("<br><b><u>"+net.webstructor.al.Writer.capitalize(title)+"</u></b><br>\n");
+		} catch (IOException e) {
+            env.error(e.toString(),e);
+		}
+	}
 	
 	public void table(String id, String title,String[] header, Object[][] rows, int minPercent, int minCount){
 		if (AL.empty(rows))
@@ -277,7 +289,7 @@ public class Reporter {
 			return;
 		
 		try {
-			writer.append("<br><b><u>"+net.webstructor.al.Writer.capitalize(title)+"</u></b><br>\n");
+			subtitle(title);
 			writer.append("<table border=\"1\" style=\"border-collapse:collapse;\"><tr>");
 			for (int i = 0; i < header.length; i++){
 				writer.append("<th class=\"line1\" align=\"left\">");

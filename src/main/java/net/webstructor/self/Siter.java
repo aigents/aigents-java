@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -162,14 +162,15 @@ class Imager {
 
 public class Siter {
 
-	public static final int DEFAULT_RANGE = 3;//TODO: make configurable
+	public static final int DEFAULT_RANGE = 1;//TODO: make configurable
 	
 	Body body;
 	Thing self;
 	Storager storager;
 	private String thingname;
 	String rootPath;
-	Date time; // = Time.day(Time.today);
+	Date realTime; // real time to use for page refreshment
+	Date timeDate; // = Time.day(Time.today); // database time to use for storage
 	boolean forced;//forcing peer: if not null - re-read unconditionally, if null - read only if content is changed
 	boolean strict;//true - follow same-domain links only, false - follow all links
 	Collection focusThings;
@@ -181,22 +182,23 @@ public class Siter {
 	Cacher cacher;
 	long tillTime;
 	long newsLimit;
-	int range;
+	int range;//TODO unify with PathFinder's hopLimit
 	
-	public Siter(Body body,Storager storager,String thingname,String path,Date time,boolean forced,long tillTime,int range,int limit) {
+	public Siter(Body body,Storager storager,String thingname,String path,Date time,boolean forced,long tillTime,int range,int limit,boolean strict) {
 		this.body = body;
 		this.self = body.self();
 		this.storager = storager;
 		this.thingname = thingname;
 		this.rootPath = path;
-		this.time = time;
+		this.realTime = time;
+		this.timeDate = Time.date(time);
 		this.forced = forced;
-		this.strict = true;
+		this.strict = strict;
 		thingPaths = new MapMap();
 		thingTexts = new MapMap();
 		imager = new Imager();
 		linker = new Imager();
-		this.cacher = new Cacher(body,storager,forced,time);
+		this.cacher = body.filecacher;
 		this.tillTime = tillTime;
 		this.range = range < 0 ? 0 : range;
 		this.newsLimit = limit;
@@ -257,9 +259,8 @@ public class Siter {
 		return expired;
 	}
 	
-	//TODO: hopLimit = 0 does not work in PathFinder now!?
-	private int newSpider(int hopLimit) {
-		cacher.clear();
+	private int newSpider() {
+		cacher.clearTodos();
 		int hits = 0;
 		for (Iterator it = allThings.iterator(); it.hasNext();){
 			Thing t = (Thing)it.next();
@@ -269,7 +270,7 @@ public class Siter {
 			goals.add(t);
 			String name = t.getName();
 			body.reply("Spidering site thing begin "+name+" in "+rootPath+".");
-			boolean found = new PathTracker(this,goals,hopLimit).run(rootPath);
+			boolean found = new PathTracker(this,goals,range).run(rootPath);
 			body.reply("Spidering site thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
 			if (found)
 				hits++;
@@ -277,7 +278,6 @@ public class Siter {
 		return hits;
 	}
 	
-	//TODO: make configurable hopLimit
 	public boolean read() {
 		boolean ok = false;
 		body.reply("Spidering site root begin "+rootPath+".");
@@ -285,9 +285,7 @@ public class Siter {
 			Collection goals = storager.getNamed(thingname);
 			ok = new PathTracker(this,goals,range).run(rootPath);
 		} else {
-			//ok = newSpider(HOP_LIMIT) > 0;
-			//TODO: 0 is needed by agent_basic.php (10,100 is not working, 0 is working - why!?)
-			ok = newSpider(0) > 0;
+			ok = newSpider() > 0;
 		}
 		if (ok)
 			ok = update() > 0;
@@ -296,10 +294,10 @@ public class Siter {
 	}
 	
 	private int update(){
-		int hits = update(body,rootPath,time,thingPaths,forced,null);
+		int hits = update(body,rootPath,timeDate,thingPaths,forced,null);
 		thingPaths.clear();//help gc
 		thingTexts.clear();
-		cacher.clear();
+		cacher.clearTodos();
 		return hits;
 	}
 	
@@ -415,7 +413,7 @@ public class Siter {
 		}
 	}
 	
-	boolean readPage(String path,Date time,ArrayList links,Collection things) {
+	boolean readPage(String path,ArrayList links,Collection things) {
 		Thread.yield();
 		boolean result = false;
 		boolean skipped = false;
@@ -425,31 +423,17 @@ public class Siter {
 		body.reply("Spidering site page begin "+path+".");
 		if (!AL.isURL(path)) // if not http url, parse the entire text
 			//result = match(storager,path,time,null,things);
-			result = match(storager,new Iter(Parser.parse(path)),null,time,null,things);//with no positions
+			result = match(storager,new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
 		else
 		//TODO: distinguish skipped || failed in readIfUpdated ?
-		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path)))) {
+		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),forced,realTime))) {
 			ArrayList positions = new ArrayList();
 			Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
-			//result = match(storager,text,time,path,things);
-			result = match(storager,iter,positions,time,path,things);
-			/*if (!AL.empty(links) && body.sitecacher != null){
-				//TODO: actual time of the page
-				Graph g = body.sitecacher.getGraph(Time.day(time));//daily graph
-				for (Iterator it = links.iterator(); it.hasNext();){
-					String[] link = (String[])it.next();
-					String linkUrl = HttpFileReader.alignURL(path,link[0],false);//relaxed, let any "foreign" links
-					//String linkText = link[1];//TODO: use to evaluate source name as the best-weighted link!?
-					if (!AL.empty(linkUrl) && g.getValue(path, linkUrl, "links") == null){
-						g.addValue(path, linkUrl, "links", 1);
-						g.addValue(linkUrl, path, "linked", 1);
-					}
-				}
-			}*/
-			index(path,time,iter,links);
+			result = match(storager,iter,positions,timeDate,path,things);
+			index(path,timeDate,iter,links);
 			//TODO: add source name as page title by default?
 		} else {
-			skipped = true;//if not read
+			skipped = true;//if not read 
 			failed = true;
 		}
 		if (skipped || failed)

@@ -74,6 +74,19 @@ public class Graph implements Serializable {
 		}
 		return (HashMap)o;
 	}
+	public HashMap getPropertyLinkers(Object property) {// p => ( a->p(x,y,...), b->p(x,y,...), ... )
+		HashMap linkers = new HashMap();
+		for (Object context : binders.keySet()) {
+			HashMap properties = (HashMap)binders.get(context);
+			if (AL.empty(properties))//no properties at all
+				continue;
+			Linker targets = (Linker)properties.get(property);
+			if (targets == null || targets.size() == 0)//no given property
+				continue;
+			linkers.put(context, targets);
+		}
+		return linkers;
+	}
 	public Set getSources(){
 		return binders.keySet();
 	}

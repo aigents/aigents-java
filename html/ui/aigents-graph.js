@@ -740,9 +740,13 @@ var GraphUI = {
 		    this.request_graph(graph_id,'graph_popup_widgets',setup);
 		},
 
-		//request graph launch in pre-created inline element
-		request_graph_inline : function(graph_id,setup){
-			this.request_graph(graph_id,'graph_inline_widgets',setup);
+		//request graph launch in pre-created inline element, generate elements for graph and widgets optionally
+		request_graph_inline : function(graph_id,setup,custom_widgets_id,custom_parent){
+			if (custom_widgets_id)
+				this.create_graph_inline_widgets(custom_widgets_id,graph_id,custom_parent);//override widgets id and create widgets manually
+			else
+				custom_widgets_id = 'graph_inline_widgets';//use default widgets id (used for popup template as well)
+			this.request_graph(graph_id,custom_widgets_id,setup);
 		},
 
 		//get property sheets for node and link types
@@ -1089,5 +1093,71 @@ var GraphUI = {
 
 			//final render
 			AigentsSVG.render(svg, props, colors, image);
+		},
+		
+		//TODO use this to create #graph_popup_widgets dynamically in "request_graph_popup" function, instead of using template!
+		//helper to create inline holder for graph controls
+		create_graph_inline_widgets : function create_graph_inline_widgets(controls_id,view_id,parent){
+			if (!parent)
+				parent = document.body;
+			var panel = document.createElement("span");
+			panel.setAttribute('id', controls_id);
+			panel.innerHTML = '\
+		    <span>Slicing mode:</span>\
+		     <select title="Graph view splitting by node types" class="graph_changer" id="custom_slicing">\
+		      <option value="0" selected="selected">None</option>\
+		      <option value="1">Vertical</option>\
+		      <option value="2">Horizontal</option>\
+		     </select>&nbsp;\
+		    <span>Node radius:</span>\
+		     <select title="Graph node radius" class="graph_changer" id="custom_node_radius">\
+		      <option value="10">10</option>\
+		      <option value="20">20</option>\
+		      <option value="30" selected="selected">30</option>\
+		      <option value="40">40</option>\
+		      <option value="50">50</option>\
+		     </select>&nbsp;\
+		    <br>\
+		    <span>Layout - threshold:</span>\
+		     <select title="Force-directed layout threshold" class="graph_changer" id="custom_layout_threshold">\
+		      <option value="1" selected="selected">1</option>\
+		      <option value="2">2</option>\
+		      <option value="5">5</option>\
+		      <option value="10">10</option>\
+		      <option value="0">None</option>\
+		     </select>&nbsp;\
+		    <span>Balance:</span>\
+		     <select title="Force-directed layout push/pull balance" class="graph_changer" id="custom_layout_balance">\
+		      <option value="10">10</option>\
+		      <option value="30">30</option>\
+		      <option value="50">50</option>\
+		      <option value="70" selected="selected">70</option>\
+		      <option value="90">90</option>\
+		     </select>&nbsp;\
+		    <span>Directions:</span>\
+		     <select title="Force-directed layout directions" class="graph_changer" id="custom_layout_directions">\
+		      <option value="3">Both</option>\
+		      <option value="1" selected="selected">Horizontal</option>\
+		      <option value="2">Vertical</option>\
+		     </select>&nbsp;\
+		    <br>\
+		    <span>Filter:</span><input title="Node name filtering option" id="custom_node_filter" type="search" placeholder="Node filter" size="60" value=""></input>\
+		    <span>Range:</span>\
+		     <select title="Filter range" class="graph_changer" id="custom_filter_range">\
+		      <option value="1" selected="selected">1</option>\
+		      <option value="2">2</option>\
+		      <option value="3">3</option>\
+		      <option value="4">4</option>\
+		      <option value="5">5</option>\
+		     </select>&nbsp;\
+		    <br>\
+		    <span id="node_types"></span><span id="link_types"></span>\
+		    ';
+			parent.appendChild(panel);
+			var view = document.createElement("div");
+			view.style = 'margin:2px;width:99%;height:500;border: 2px inset gray;';
+			view.innerHTML = '<svg id="'+view_id+'" style="width:100%;height:100%;"></svg>';
+			parent.appendChild(view);
 		}
+		
 }//GraphUI

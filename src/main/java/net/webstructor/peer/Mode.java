@@ -114,17 +114,18 @@ public abstract class Mode {
 		return peer;
 	}
 	
-	String format(Session session, Thing peer, Seq query, Collection coll){
+	String format(String format, Session session, Thing peer, Seq query, Collection coll){
 		//dump query to output
-		String format;//TODO: move to ontology
-		return peer != null && !AL.empty(format = peer.getString("format")) && format.equalsIgnoreCase("json")
-			? Writer.toJSON(coll) 
+		if (AL.empty(format) && peer != null)
+			format = peer.getString("format");//TODO: move to ontology
+		return "json".equalsIgnoreCase(format) ? Writer.toJSON(coll) 
+			: "html".equalsIgnoreCase(format) ? Writer.toHTML(coll,null)
 			: Writer.toPrefixedString(
 					session,//TODO: fix hack!
 					query, coll);
 	}
 	
-	String answer(Session session, Thing peer, Seq query, Query.Filter filter) throws Throwable {
+	Collection filter(Session session, Thing peer, Seq query, Query.Filter filter) throws Throwable {
 		//execute query: [thing,thing,thing,...,set]
 		Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker)
 			.getThings(query,peer);
@@ -141,8 +142,16 @@ public abstract class Mode {
 				return null;
 			clones = filtered;
 		}
+		return clones;
+	}
+
+	String answer(Session session, Thing peer, Seq query, Query.Filter filter) throws Throwable {
+		//execute query: [thing,thing,thing,...,set]
+		Collection clones = filter(session, peer, query, filter);
+		if (clones == null)//TODO: fix regression hack!?
+			return null;
 		//dump query to output
-		return format(session, peer, query, clones);
+		return format(null, session, peer, query, clones);
 	}
 	
 	boolean answer(Session session) {
@@ -185,7 +194,7 @@ public abstract class Mode {
 				String area = arg.getString("area");
 				if (!AL.empty(area)){
 					//Get peer for matched area
-					Thing peer = session.getAreaPeer(area);
+					Thing peer = session.getAreaPeer(area,true);
 					//if not found, return
 					if (peer != null){
 						//get news feed for the peer
@@ -222,15 +231,13 @@ public abstract class Mode {
 				Thing t = (Thing)i.next();
 				Collection iss = t.getThings(AL.is);
 				Collection sources = t.getThings(AL.sources);
-				if (!AL.empty(iss) && !AL.empty(sources)){
-					String topic = ((Thing)iss.iterator().next()).getName();
+				String text = t.getString(AL.text);
+				if (!AL.empty(sources) && !AL.empty(text)){
 					String link = ((Thing)sources.iterator().next()).getName();
-					String text = t.getString(AL.text);
-					topic = HtmlStripper.encodeHTML(topic);
+					String topic = AL.empty(iss) ? null : HtmlStripper.encodeHTML(((Thing)iss.iterator().next()).getName());
 					text = HtmlStripper.encodeHTML(text);
-					//TODO:encode with function
-					link = link.replaceAll("&", "&amp;");
-					String description = topic+" :\n"+text;
+					link = link.replaceAll("&", "&amp;");//TODO:encode with function
+					String description = topic == null ? text : topic+" :\n"+text;
 					feed.append("  <item>\n");
 					feed.append("    <title>").append(text).append("</title>\n");
 					feed.append("    <link>").append(link).append("</link>\n");

@@ -303,8 +303,12 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
         return (String[])toret.toArray(new String[]{});
     }	
 	
+	/**
+	 * Checks if there are variables in the pattern, recursively
+	 * @param set pattern
+	 * @return true if there is at least one variable in the pattern
+	 */
 	public static boolean containedIn(net.webstructor.al.Set set) {
-		//if all elements are strings, return true
 		for (int i = 0; i < set.size(); i++) {
 			Object o = ((net.webstructor.al.Set) set).get(i);
 			if (o instanceof Property)
@@ -313,5 +317,20 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 				return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Collect names of variables in a patttern set
+	 * @param set correspondig to the pattern
+	 * @param collector
+	 */
+	public static void collectVariableNames(net.webstructor.al.Set set, HashSet<String> collector) {
+		for (int i = 0; i < set.size(); i++) {
+			Object o = ((net.webstructor.al.Set) set).get(i);
+			if (o instanceof Property)
+				collector.add(((Property)o).name);
+			if (o instanceof net.webstructor.al.Set)
+				collectVariableNames((net.webstructor.al.Set)o,collector);
+		}
 	}
 }

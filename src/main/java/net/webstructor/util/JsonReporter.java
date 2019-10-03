@@ -46,7 +46,7 @@ public class JsonReporter extends Reporter {
 	}
 	
 	//@Override
-	public void initReport(String title, Date since, Date until){
+	public void initReport(String title, Date since, Date until, String header){
 		try {
 			writer.append("{");
 			writer.append("\"title\":\"").append(net.webstructor.al.Writer.capitalize(title)).append("\",");

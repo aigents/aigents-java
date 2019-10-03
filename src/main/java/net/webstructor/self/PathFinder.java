@@ -122,7 +122,7 @@ public class PathFinder {
 		//TODO: thread safety in concurrent mode!
 		readPaths.add(path);
 		ArrayList links = new ArrayList();
-		if (siter.readPage(path,siter.time,links,goals)) {
+		if (siter.readPage(path,links,goals)) {
 			pathSeqs.add(pathSeq);
 			return true;
 		}
@@ -187,7 +187,7 @@ public class PathFinder {
 			//	continue;
 			
 			ArrayList links = new ArrayList();
-			if (siter.readPage(path,siter.time,links,goals)) {
+			if (siter.readPage(path,links,goals)) {
 				if (pathSeq != null)//TODO: should we add "head of the trail" as a separate path?
 					pathSeqs.add(pathSeq);
 				cnt++;
@@ -198,7 +198,8 @@ public class PathFinder {
 
 			//TODO: do it above or here just to pass unit test!?
 			//restrict dive depth by number of levels
-			if (!AL.empty(pathSeq) && pathSeq.size() >= hopLimit)
+//			if (!AL.empty(pathSeq) && pathSeq.size() >= hopLimit)
+			if (hopLimit == 0 || (!AL.empty(pathSeq) && pathSeq.size() >= hopLimit))
 				continue;
 
 			//get all “link contexts”
@@ -215,6 +216,7 @@ public class PathFinder {
 				//{link,text}
 				String[] link = (String[])links.get(i);
 				String linkUrl = HttpFileReader.alignURL(path,link[0],siter.strict);
+//siter.body.debug("PathFinder "+link[0]+" => "+linkUrl);
 				String linkText = link[1];
 				//linkText may be null because of graphics!
 				if (!AL.empty(linkUrl) && linkText != null && !readPaths.contains(linkUrl)) {

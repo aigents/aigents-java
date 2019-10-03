@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.agent.Body;
+import net.webstructor.agent.Schema;
 import net.webstructor.al.*;
 
 public class Session  {	
@@ -192,7 +193,7 @@ public class Session  {
 		if (peer != null){
 			Object area = peer.get(AL.areas);
 			if (area != null){
-				Thing areaPeer = getAreaPeer(area);
+				Thing areaPeer = getAreaPeer(area,false);//TODO should canBeTheSame be true so no such parameter is needed?
 				if (areaPeer != null)
 					return areaPeer;
 			}
@@ -205,7 +206,7 @@ public class Session  {
 	 * @param area
 	 * @return
 	 */
-	public Thing getAreaPeer(Object area) {
+	public Thing getAreaPeer(Object area,boolean canBeTheSame) {
 				//TODO:get rid of this ambiguity
 				//try to get peer's areas as a string property or as a linked object's name
 				Collection peers = getByStringOrThing(AL.areas,area);
@@ -219,8 +220,7 @@ public class Session  {
 						//if found are holder and it is not the same as peer 
 						for (Iterator it = peers.iterator(); it.hasNext();){
 							Thing areaPeer = (Thing)it.next();
-							if (areaPeer != getStoredPeer()){
-								//TODO: do we really need to promote channels that way?
+							if (canBeTheSame || areaPeer != getStoredPeer()){
 								areaPeer.set(Peer.activity_time,Time.day(Time.today));//keep the area channel active
 								return areaPeer;
 							}
@@ -349,6 +349,51 @@ public class Session  {
 		} catch (Exception e) {
 			session.output += " " + Mode.statement(e);
 			session.sessioner.body.error(provider+" error: "+e.toString(), e);
+		}
+	}
+	
+	//email may be not available by settings if not confirmed or user registered with phone number 
+	//or may be not required at all (vkontakte)
+	public boolean bind(String provider,String id, String token, String email, String name, String surname){
+		Session session = this;
+		String provider_id = provider+" id";//eg. facebook_id
+		String provider_token = provider+" token";
+		session.sessioner.body.debug(provider+" verified: "+id+" "+email+" "+name+" "+surname+" "+token);
+		Thing peer = new Thing(session.sessioner.body.storager.getNamed(Schema.peer),session.peer,null);
+		peer.set(provider_id, id);
+		peer.set(provider_token, token);
+		if (!AL.empty(name)) 
+			peer.set(AL.name, name.toLowerCase() );
+		if (!AL.empty(surname)) 
+			peer.set(Peer.surname, surname.toLowerCase());
+		if (!AL.empty(email)) 
+			peer.set(AL.email, email.toLowerCase());
+		session.sessioner.body.debug(provider+" looking for: "+peer);
+		Collection peers = session.sessioner.body.storager.get(peer,new String[]{provider_id});
+		if (!AL.empty(peers))
+			session.sessioner.body.debug(provider+" found by id: "+peers.iterator().next());
+		if (AL.empty(peers))//TODO: get rid of this as email is unique now
+			peers = session.sessioner.body.storager.get(peer,new String[]{AL.email,AL.name,Peer.surname});
+		if (!AL.empty(peers))
+			session.sessioner.body.debug(provider+" found by name and email: "+peers.iterator().next());
+		if (AL.empty(peers))
+			peers = session.sessioner.body.storager.get(peer,new String[]{AL.email});
+		if (!AL.empty(peers))
+			session.sessioner.body.debug(provider+" found by email: "+peers.iterator().next());
+		if (AL.empty(peers))
+			peers = session.sessioner.body.storager.get(peer,new String[]{AL.name,Peer.surname});//bind by name+surname only
+		if (!AL.empty(peers) && peers.size() == 1)//only unique identifcations!!!
+			session.sessioner.body.debug(provider+" found by name: "+peers.iterator().next());
+		if (!AL.empty(peers) && peers.size() == 1) {//if matched, auto log in
+			Thing storedPeer = (Thing)peers.iterator().next();
+			storedPeer.set(provider_id, id);
+			storedPeer.set(provider_token, token);
+			session.login(provider,storedPeer);
+			return false;
+		} else {
+			// if not matched, auto register
+			session.register(provider, peer, email);
+			return false;
 		}
 	}
 	

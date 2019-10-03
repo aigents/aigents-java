@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,14 @@
 package net.webstructor.util;
 
 //TODO: sort out if used or cleanup!!!
+
+import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 /*
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
  
@@ -36,10 +39,31 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-
+*/
 import javax.mail.internet.MimeUtility;
 
 public class Code {
+	
+	public static String str2b64(String string,boolean lines) {
+	    ByteArrayOutputStream bos;
+	    byte[] ascii;
+		try {
+			ascii = string.getBytes(StandardCharsets.US_ASCII);
+		    bos = new ByteArrayOutputStream();
+		    OutputStream encodedStream = MimeUtility.encode(bos, "base64");
+		    encodedStream.write(ascii);
+		    bos.close();
+		    encodedStream.close();
+		    String encoded = bos.toString();
+		    if (!lines)
+		    	encoded = encoded.replaceAll("\r", "").replaceAll("\n", "");
+		    return encoded;
+		} catch (Exception e) {
+			return null;// TODO what?
+		}
+	}
+	 	
+	/*
 	private static SecretKey key;
 	
 	public static byte[] e64(byte[] b) throws Exception {
@@ -104,8 +128,27 @@ public class Code {
         return null;
 	}
 	
+	public static String stringb64_1(String string) {
+	    ByteArrayOutputStream bos;
+	    byte[] ascii;
+	    byte[] digest;
+		try {
+			ascii = string.getBytes(StandardCharsets.US_ASCII);
+			digest = string.getBytes("iso-8859-1");
+			System.out.println(ascii);
+			System.out.println(digest);
+		    bos = new ByteArrayOutputStream();
+		    OutputStream encodedStream = MimeUtility.encode(bos, "base64");
+		    encodedStream.write(digest);
+		    encodedStream.flush();
+		    return bos.toString("iso-8859-1");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
+	}
+	
 	public static void main(String[] args) {
-		
 		//http://examples.javacodegeeks.com/core-java/crypto/encrypt-decrypt-string-with-des/
         try {
 	        key = KeyGenerator.getInstance("DES").generateKey();
@@ -116,6 +159,7 @@ public class Code {
 	        System.out.println("s1: " + s1);
 	        System.out.println("s2: " + s2);
 	        System.out.println("s3: " + s3);
+	        System.out.println(Code.stringb64("12345"));
         }
         catch (NoSuchAlgorithmException e) {
             System.out.println("No Such Algorithm:" + e.getMessage());
@@ -126,5 +170,9 @@ public class Code {
             return;
         }
 	}
+	public static void main(String[] args) {
+        String x = Code.str2b64("12345",false);
+        System.out.println(x);
+	}
+	*/
 }
-*/

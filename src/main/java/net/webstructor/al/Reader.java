@@ -64,12 +64,15 @@ public class Reader extends AL {
 	}
 	
 	public static boolean read(String input, Set set) {
-		return read(input, set, null);
+		return read(input, set, null, true/*terminators*/);
 	}
 	
 	public static boolean read(String input, Set set, String delimiters) {
+		return read(input, set, delimiters, true/*terminators*/);
+	}
+	public static boolean read(String input, Set set, String delimiters, boolean terminators) {
 		Iter it = new Iter(Parser.parse(input,delimiters,null));
-		return read(it,set,null);
+		return read(it,set,null,terminators);
 	}
 
 	//TODO: do this in the other place in some other way?
@@ -102,10 +105,13 @@ public class Reader extends AL {
 	
 	//advances on success, stays in place on failure 
 	public static boolean read(Iter it, Object term, StringBuilder summary) {
-		return read(it, term, summary, false);
+		return read(it, term, summary, false, true);
+	}
+	public static boolean read(Iter it, Object term, StringBuilder summary, boolean terminators) {
+		return read(it, term, summary, false, terminators);
 	}
 	
-	public static boolean read(Iter it, Object term, StringBuilder summary, boolean collectingFrame) {
+	public static boolean read(Iter it, Object term, StringBuilder summary, boolean collectingFrame, boolean terminators) {
 		if (!it.has())
 			return false;
 		String s;
@@ -125,7 +131,7 @@ public class Reader extends AL {
 		if (term instanceof Property && 
 			//!AL.empty( s = (String)((String)it.get()) ) &&
 			( s = (String)((String)it.get()) ) != null && //allow empty strings such as ''!
-			((Property)term).domains(s) && !isTerminator(s)) {
+			((Property)term).domains(s) && !(terminators && isTerminator(s))) {
 			if (!Array.contains(AL.lister,s)) {
 				((Property)term).setString(s);//TODO: query handling and check value domain error
 				append(summary,s);
@@ -137,7 +143,7 @@ public class Reader extends AL {
 			return read(it,(Seq)term,summary,collectingFrame);
 		} else
 		if (term instanceof Any) {
-			return read(it,(Any)term,summary,collectingFrame);
+			return read(it,(Any)term,summary,collectingFrame,terminators);
 		}			
 		//TODO: All - set elements to gather in any order ?
 		return false;
@@ -161,6 +167,11 @@ public class Reader extends AL {
 	
 	//TODO: optimise structure
 	private static boolean read(Iter it, Seq seq, StringBuilder rootSummary, boolean collectingFrame) {
+		//TODO fix "terminators" hack, maybe with implicit "gap" variable or account for HTML structure
+		//the terminators set (by default) means the gap/variable filling is terminated by terminating sybmol
+		//the terminators unset (if query ends and starts with terminating sybmol) means the gap/variable filling spans infinitely long
+		boolean terminators = !(seq.size() > 3 && seq.get(0) instanceof String && isTerminator((String)seq.get(0)) && seq.get(seq.size()-1) instanceof String && isTerminator((String)seq.get(seq.size()-1)));  
+
 		int i = 0, read = 0, pos = it.pos, size = seq.size();
 
 		StringBuilder tempSummary = rootSummary != null ? new StringBuilder() : null;
@@ -171,7 +182,7 @@ public class Reader extends AL {
 					
 					if (i < size) {
 						int origpos = it.pos;
-						if (read(it,seq.get(i),tempSummary,i > 0 && seq.get(i-1) instanceof Property)) {
+						if (read(it,seq.get(i),tempSummary,i > 0 && seq.get(i-1) instanceof Property,terminators)) {
 							if (startpos == -1)
 								startpos = origpos;
 							read++;
@@ -185,7 +196,7 @@ public class Reader extends AL {
 							//if (i == 0 && collectingFrame)//if on stack of frame filling (this works)
 							if (collectingFrame)//if on stack of frame filling
 								break;
-							if (isTerminator((String)it.get())) {
+							if (terminators && isTerminator((String)it.get())) {
 								if (seq.get(i) instanceof Property && !((Property)seq.get(i)).hasPatterns())//break property filling process
 									break;
 								if (tempSummary != null)
@@ -271,7 +282,7 @@ public class Reader extends AL {
 	//private final static Any delimiters = new Any(1,AL.lister);
 
 	//TODO:make better decision when to stop - like have a HashSet and count each of options
-	private static boolean read(Iter it, Any set, StringBuilder summary,boolean collectingFrame) {
+	private static boolean read(Iter it, Any set, StringBuilder summary,boolean collectingFrame,boolean terminators) {
 		//new "greedy" Any-parsing strategy
 		int cnt = 0;
 		int first_pos = it.pos;//where to start from
@@ -281,7 +292,7 @@ public class Reader extends AL {
 			if (cnt > 0 && !(set.get(i) instanceof Set && Property.containedIn((Set)set.get(i))))
 				continue;
 			it.pos(first_pos);//
-			if (read(it,set.get(i),summary,collectingFrame)) {
+			if (read(it,set.get(i),summary,collectingFrame,terminators)) {
 				cnt++;
 				if (last_pos < it.pos) //remember where to proceed from after end
 					last_pos = it.pos;

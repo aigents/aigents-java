@@ -66,7 +66,8 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 		http_secure = "true".equalsIgnoreCase(self.getString(Body.http_secure,"false"));
 		
 		//TODO: construct it at body constructor level!?
-		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body)};
+		//handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body)};
+		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body),new PayPaler(body)};
 	}
 	
 	protected synchronized String getCookie() {
@@ -129,10 +130,10 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 	} // end run
 
 	//@Override
-	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException {
+	public boolean handleHTTP(HTTPeer parent, String url, String header, String request, String cookie) throws IOException {
 		if (handlers != null)
 			for (int i = 0; i < handlers.length; i++)
-				if (handlers[i].handleHTTP(parent, url, header, request))
+				if (handlers[i].handleHTTP(parent, url, header, request, cookie))
 					return true;
 		return false;
 	}

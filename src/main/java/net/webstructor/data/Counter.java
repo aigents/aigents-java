@@ -195,6 +195,7 @@ public class Counter extends HashMap implements Linker {
 		int upperThreshold = ((Integer)toRanked[upperIndex][1]).intValue(); 
 		int lowerThreshold = ((Integer)toRanked[lowerIndex][1]).intValue();
 		int direction = -1;//start from the bottom rank
+		if (percentageNeeded < 100)//TODO: fix hack with checking percentage before decreasing and making sure that unit tests still pass! 
 		for(;;){
 			if (direction == 1)
 			{
@@ -375,6 +376,20 @@ public class Counter extends HashMap implements Linker {
 			v[i][1] = new Integer( Math.round((((Integer)v[i][1]).floatValue() * 100 / max)) );
 		}
 		Arrays.sort(v,new ArrayPositionComparator(1));
+		return v;
+	}
+	
+	public Object[][] toData(){
+		Object[][] v = new Object[size()][];
+		int i = 0;
+		for (Iterator it = keySet().iterator(); it.hasNext();){
+			v[i] = new Object[2];
+			Object key = it.next();
+			Object val = get(key);
+			v[i][0] = key;
+			v[i][1] = val;
+			i++;
+		}
 		return v;
 	}
 	

@@ -58,7 +58,7 @@ public class Messenger extends Mediator implements HTTPHandler {
 		return (new StringBuilder(name).append(':').append(chat_id).append(':').append(from_id)).toString();
 	}
 	
-	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException {
+	public boolean handleHTTP(HTTPeer parent, String url, String header, String request, String cookie) throws IOException {
 		if (!url.startsWith("/facebook"))
 			return false;
 		if (url.startsWith("/facebook/report_")){

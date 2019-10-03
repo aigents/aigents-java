@@ -452,7 +452,7 @@ public class Emailer extends Communicator implements Updater {
 			if (notifyable(peer)){
 				if (AL.empty(subject))
 					subject = content.length() < 50 ? content : content.substring(0,50) + "...";
-				Emailer.getEmailer().email(peer, subject, content+"\n"+signature);
+				Emailer.getEmailer().email(peer, subject, content+(AL.empty(signature)? "" : "\n"+signature));
 				return true;
 			}
 		}

@@ -97,7 +97,7 @@ public class Slacker extends Mediator implements HTTPHandler {
 	 * @return true if handled
 	 * @throws IOException
 	 */
-	public boolean handleHTTP(HTTPeer parent, String url, String header, String request) throws IOException {
+	public boolean handleHTTP(HTTPeer parent, String url, String header, String request, String cookie) throws IOException {
 		if (url.startsWith("/slack")){
 			if (!AL.empty(request)){
 				body.debug("Slack input "+request);

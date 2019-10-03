@@ -26,6 +26,7 @@ package net.webstructor.al;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
@@ -35,6 +36,8 @@ import net.webstructor.agent.Schema;
 import net.webstructor.core.Property;
 import net.webstructor.core.Thing;
 import net.webstructor.peer.Session;
+import net.webstructor.util.Str;
+import net.webstructor.cat.HtmlStripper;
 
 public class Writer extends AL {
 	
@@ -477,6 +480,145 @@ public class Writer extends AL {
 			}
 		}
 		out.append('}');
+	}
+
+	//TODO: turn into separate class for HTML/JSON/XLSX
+	public static String toHTML(Object arg,java.util.Set properties){
+		if (arg == null)
+			return "";
+		if (arg instanceof Object[] || arg instanceof Object){
+			StringBuilder sb = new StringBuilder();
+			toHTML(sb,arg,properties);
+			return sb.toString();
+		}
+		return arg.toString();
+	}
+
+	private static java.util.Set getProps(Object arg){
+		if (arg instanceof Map)
+			return ((Map)arg).keySet();
+		if (arg instanceof Thing)
+			return Str.hset(((Thing)arg).getNamesAvailable());
+		return new HashSet();
+	}
+
+	static final String table_start = "<table border=\"1\" style=\"border-collapse:collapse;\">\n";
+	static final String header_start = "<tr><th>";
+	static final String header_break = "</th><th>";
+	static final String header_stop = "</th></tr>\n";
+	static final String rows_start = "<tr><td>";
+	static final String cell_break = "</td><td>";
+	static final String row_break = "</td></tr>\n<tr><td>";
+	static final String table_stop = "</td></tr>\n</table>";
+	
+	public static void toHTML(StringBuilder sb, Object arg, String property){
+		if (arg instanceof java.util.Set){//pass properties as hack to indicate encloseness
+			java.util.Set set = (java.util.Set) arg;//properties of a Thing!
+			//TODO: negation?
+			int i = 0;
+			for (Object o : set) {
+				if (i++ > 0)
+					sb.append(" ");
+				if (o instanceof Thing) {
+					String n = ((Thing) o).getName();
+					if (!AL.empty(n))
+						o = n;
+				}
+				toHTML(sb, o, property);
+			}
+		} else
+		if (arg instanceof String){
+			String s = (String)arg;
+			sb.append(AL.isIMG(s) || "image".equals(property) ? "<img style=\"height:64px;width:auto;\" src=\""+s+"\"/>" :
+					AL.isURL(s) ? "<a href=\""+s+"\" target=\"_blank\">"+s+"</a>" : HtmlStripper.encodeHTML(s));
+		} else {
+			sb.append(HtmlStripper.encodeHTML(arg.toString()));
+		}
+	}
+	
+	public static void toHTML(StringBuilder sb, Object arg, java.util.Set properties){
+		if (arg instanceof Object[]){
+			TreeSet props = new TreeSet(); 
+			Object[] objs = (Object[]) arg;
+			sb.append(table_start);
+			for (int i = 0; i < objs.length; i++)
+				props.addAll(getProps(objs));
+			if (!AL.empty(props)) {
+				sb.append(header_start);
+				int i = 0;
+				for (Object p : props) {
+					if (i++ > 0)
+						sb.append(header_break);
+					sb.append(capitalize((String)p));
+				}
+				sb.append(header_stop);
+			}
+			sb.append(rows_start);
+			for (int i = 0; i < objs.length; i++){
+				if (i > 0)
+					sb.append(row_break);
+				toHTML(sb,objs[i],props);
+			}
+			sb.append(table_stop);
+		} else
+		if (arg instanceof Collection && properties == null){//pass properties as hack to indicate encloseness
+			TreeSet props = new TreeSet(); 
+			Collection coll = (Collection)arg;
+			String[] sorted = new String[coll.size()];
+			for (Object o : coll)
+				props.addAll(getProps(o));
+			sb.append(table_start);
+			if (!AL.empty(props)) {
+				sb.append(header_start);
+				int i = 0;
+				for (Object p : props) {
+					if (i++ > 0)
+						sb.append(header_break);
+					sb.append(capitalize((String)p));
+				}
+				sb.append(header_stop);
+			}
+			int c = 0;
+			for (Iterator it = coll.iterator(); it.hasNext(); )
+				sorted[c++] = toHTML(it.next(),props);
+			Arrays.sort(sorted);
+			sb.append(rows_start);
+			for (int i=0; i<sorted.length; i++) {
+				if (i > 0) { 
+					sb.append(row_break);
+				}
+				sb.append(sorted[i]);
+			}
+			sb.append(table_stop);
+		} else
+		if (arg instanceof Map){
+			Map map = (Map) arg;
+			int count = 0;
+			TreeSet keys = new TreeSet(!AL.empty(properties) ? properties : map.keySet()); //sorted!?
+			for (Iterator i = keys.iterator(); i.hasNext();){
+				Object k = i.next();
+				Object v = map.get(k);
+				if (k != null && v != null){
+					if (count++ > 0)
+						sb.append(cell_break);
+					toHTML(sb,v,(String)k);
+				}
+			}
+		} else
+		if (arg instanceof Thing){
+			int count = 0;
+			TreeSet keys = new TreeSet(!AL.empty(properties) ? properties : getProps(arg)); //sorted!?
+			for (Iterator i = keys.iterator(); i.hasNext();){
+				Object k = i.next();
+				Object v = ((Thing)arg).get((String)k);
+				if (count++ > 0)
+					sb.append(cell_break);
+				if (k != null && v != null)
+					toHTML(sb,v,(String)k);//pass properties as hack to indicate encloseness
+				else
+					sb.append("&nbsp;");
+			}
+		} 
 	}
 
 }

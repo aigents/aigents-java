@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -225,6 +225,7 @@ public class Peer extends Agent {
 		return (!AL.empty(peer.getString(Peer.secret_question)) && !AL.empty(peer.getString(Peer.secret_answer)))
 				|| !AL.empty(peer.getString(Body.telegram_id))
 				|| !AL.empty(peer.getString(Body.slack_id))
+				|| !AL.empty(peer.getString(Body.paypal_id))
 				|| !AL.empty(peer.getString(Body.google_id))
 				|| !AL.empty(peer.getString(Body.facebook_id))
 				|| !AL.empty(peer.getString(Body.vkontakte_id));

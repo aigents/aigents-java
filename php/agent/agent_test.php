@@ -45,6 +45,16 @@ function test_once() {
 	//testing site parsing
 	test_basic();
 
+	//test clistering and classification
+	test_agent_cluster();
+	test_agent_cat();
+	
+	//test free-text chat capabilities
+	test_help();
+	test_search();
+	test_chat();
+	test_groups();
+	
 	//test adaptive learning capabilities
 	test_agent_learn();
 	test_agent_agglomerate();
@@ -55,26 +65,26 @@ function test_once() {
 	test_login_new();
 	test_login_old();
 	test_login_areas();
-		
+	test_login_sessions();
+	
 	//test pattern matching
 	test_agent_patterns();
-	
-	//testing site parsing
-	test_sites();
-	test_extractor();
-		
-	//test web processing and parsing
-	test_agent_web();
-	
-	//test clistering and classification
-	test_agent_cluster();
 
 	//test reputation system capabilities
 	test_reputation();
+
+	//testing site parsing
+	test_sites();
+	test_extractor();
+	test_authoring();
 	
-	//test free-text chat capabilities
-	test_chat();
-		
+	//testing associative thinking
+	test_agent_think();
+	test_agent_think_ex();
+	
+	//test web processing and parsing
+	test_agent_web();
+	
 	test_summary();
 }
 

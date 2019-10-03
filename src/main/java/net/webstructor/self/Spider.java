@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -91,7 +91,7 @@ public class Spider {
 			//TODO: same as above to things of peers!?
 			
 			if (!AL.empty(sites)) {			
-				Date time = Time.day(Time.today);
+				Date time = new Date();
 				int remainingSites = sites.size();
 				for (Iterator it = sites.iterator(); it.hasNext();){
 					//do reading for all user sites and things //TODO:may optimize skipping some sites for some users
@@ -106,7 +106,8 @@ public class Spider {
 					long timePerSite = tillTime == 0 ? 0 : (tillTime - currentTime) / remainingSites;
 					int siteRange = Siter.DEFAULT_RANGE; //TODO: configure
 					int newsLimit = 0; //TODO: configure
-					spider((String)it.next(), null, time, timePerSite == 0 ? 0 : currentTime + timePerSite, false, siteRange, newsLimit);
+					boolean scopeStrict = true; //TODO: configure "scope=site"=>strict, "scope=web"=>false 
+					spider((String)it.next(), null, time, timePerSite == 0 ? 0 : currentTime + timePerSite, false, siteRange, newsLimit, scopeStrict);
 					remainingSites--;
 				}
 				
@@ -120,7 +121,7 @@ public class Spider {
 				//body.updateStatus();
 				
 				if (body.sitecacher != null)
-					body.sitecacher.updateGraph(time, body.sitecacher.getGraph(time), System.currentTimeMillis());
+					body.sitecacher.updateGraph(Time.date(time), body.sitecacher.getGraph(time), System.currentTimeMillis());
 			}
 		} catch (Exception e) {
 			body.error("Spidering sites "+e.toString(),e);
@@ -176,7 +177,7 @@ public class Spider {
 	//http://stackoverflow.com/questions/5715235/java-set-timeout-on-a-certain-block-of-code
 	//http://www.javacoffeebreak.com/articles/network_timeouts/
 	//http://mrfeinberg.com/blog/archives/000016.html
-	public boolean spider(final String site, final String thingname, final Date time, final long tillTime, final boolean forced, final int range,final int limit) {
+	public boolean spider(final String site, final String thingname, final Date time, final long tillTime, final boolean forced, final int range,final int limit,final boolean strict) {
 		final Callable task = new Callable() {
 		    //public void run() { /* Do stuff here. */
 			public Object call() throws Exception {
@@ -185,7 +186,7 @@ public class Spider {
 		    	Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 		    	boolean ok = false;
 		    	try {
-		    		ok = new Siter(body,body.storager,thingname,site,time,forced,tillTime,range,limit).read();
+		    		ok = new Siter(body,body.storager,thingname,site,time,forced,tillTime,range,limit,strict).read();
 		    	} catch (Throwable t){
 					body.error("Spidering site failed unknown "+site+" "+t.toString()+",",t);
 		    	}

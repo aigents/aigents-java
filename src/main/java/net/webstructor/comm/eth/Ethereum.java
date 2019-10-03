@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,6 @@ import java.util.Date;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
-import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.comm.SocialCacher;
@@ -148,7 +147,7 @@ public class Ethereum extends SocialCacher {
 		}
 		
 		Reporter rep = new Reporter(env,user_id+".html");
-		rep.initReport("Aigents Report for Ethereum (beta)",since,until);
+		rep.initReport("Aigents Report for Ethereum (beta)", feeder.since(), feeder.until(), null);
 		rep.initPeer(user_id, null, null, null, since, until);
 
 		Translator t = Translator.get("");

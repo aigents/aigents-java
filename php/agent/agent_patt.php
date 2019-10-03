@@ -2,7 +2,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2014-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2014-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -371,7 +371,7 @@ function test_agent_patterns() {
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 96.");
+	get("My things count 99.");
 	
 	say("Your trusts no john.");
 	get("Ok.");

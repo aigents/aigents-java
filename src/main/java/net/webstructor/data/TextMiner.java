@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,6 +57,10 @@ public class TextMiner extends Miner {
 		documentFeatures = toGraph(documents,documents);
 		return this;
 	}
+	public TextMiner setDocuments(String[] documents, String[] texts){
+		documentFeatures = toGraph(documents,texts);
+		return this;
+	}
 	public TextMiner setDocuments(String[] documents,java.util.Set words){
 		documentFeatures = toGraph(documents,documents,words);
 		return this;
@@ -74,6 +78,12 @@ public class TextMiner extends Miner {
 						if (!AL.empty(exclusions[i][j]))
 							this.exclusions.add(exclusions[i][j]);
 		}
+	}
+	public TextMiner cluster(int similarityThreshold,int featureVolume,int maxCategories) {
+		Map[] out = cluster(documentFeatures,similarityThreshold,featureVolume,maxCategories,tillTime);
+		categoryDocuments = out[0];
+		categoryFeatures = out[1];
+		return this;
 	}
 	public TextMiner cluster() {
 		Map[] out = cluster(documentFeatures,25,50,7,tillTime);
@@ -106,6 +116,17 @@ public class TextMiner extends Miner {
 		Any[] sets = (Any[])names.toArray(new Any[]{});
 		Arrays.sort(sets);
 		return new All(sets);
+	}
+	public final Linker getCategoryCounts(){
+		java.util.Set cats = getCategories();
+		if (AL.empty(cats))
+			return null;
+		Counter c = new Counter();
+		for (Object cat : cats){
+			java.util.Set docs = getCategoryDocuments(cat);
+			c.count(cat, docs.size());
+		}
+		return c;
 	}
 	
 	//TODO: create patterns;

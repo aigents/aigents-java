@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package net.webstructor.al;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -99,6 +100,20 @@ public class Parser {
 	
 	public static String[] split(String subject, String delimiters) {
 		return split(subject, delimiters, null);
+	}
+	
+	public static HashMap<String,String> splitToMap(String subject, String tokenBreakers, String pairBreaker) {
+		String[] split = split(subject, tokenBreakers, null);
+		if (AL.empty(split))
+			return null;
+		HashMap map = new HashMap(split.length);
+		//111
+		for (String s : split){
+			String[] keyvalue = Parser.split(s, pairBreaker);
+			if (keyvalue != null && keyvalue.length == 2)
+				map.put(keyvalue[0], keyvalue[1]);
+		}
+		return map;
 	}
 	
 	//TODO: make it flexible to support N > 2 and maxDistance > 1

@@ -1937,6 +1937,7 @@ function ajax_request_uri_method(uri,callback,silent,method,data,onerror) {
 		url: uri,
 		dataType : 'text',
 		xhrFields: { withCredentials: true },
+		timeout: timeout_millis ? timeout_millis : 0,
 		//context: document.body
 		success: function(data, textStatus, jqXHR) { 
 			console.log("response:"+data);
@@ -2022,6 +2023,7 @@ function requestReport(provider,name){
 
 function loginlowlevel(name,surname){
 	logged_in = true;
+	auto_refreshing = true;
 	graph_login();
 	news_open();
 	if (name || surname){
@@ -2035,6 +2037,7 @@ function loginlowlevel(name,surname){
 function logoutlowlevel(){
 	deleteCookie('username');
 	logged_in = false;
+	auto_refreshing = false;
 	graph_logout();
 	document.getElementById("user").innerHTML = _('user','innerHTML');
 	document.getElementById("aigents_logo").src = '/ui/img/aigent32.png';
@@ -2214,26 +2217,40 @@ function init() {
 		if (document.getElementById('microphone') != null)
 			document.getElementById('microphone').style.display = 'inline-block';
 	
-	ajax_request('my language '+lang,function(){
-		//initialize area by hash (anchor) if supplied
-		if (!AL.empty(area)){
-			requestBase(null,"My areas "+area+".",false,function(){//not silent
-				news_open();
+	//reset widgets
+	displayStatus(null);
+	displayAction(null);//TODO: remove legacy?
+	displayPending(0);
+	
+	//check if user is logged in already
+	var current_user = getCookie('username');
+	if (current_user){// use user set by cookie
+		loginlowlevel(current_user);
+		post_init();
+	}else{//check if user is known by server after redirect with cookie kept in browser
+		requestBase(null,'What my name, surname, login time?',true,function(reply){
+			var data= [];
+			parseToGrid(data,reply.substring(5),['login time','name','surname'],",");
+			if (!AL.empty(data)){//get user upon redirect and use tis context
+				loginlowlevel(capitalize(data[0][1]),capitalize(data[0][2]));
 				post_init();
-			});
-		}else
-			post_init();
-	},true);//silent
+			} else {//create new context
+				ajax_request('my language '+lang,function(){
+					//initialize area by hash (anchor) if supplied
+					if (!AL.empty(area)){
+						requestBase(null,"My areas "+area+".",false,function(){//not silent
+							news_open();
+							post_init();
+						});
+					}else
+						post_init();
+				},true);//silent
+			}
+		},null);
+	}
 }
 
 function post_init(){
-	displayStatus(null);
-	displayAction(null);
-	displayPending(0);
-
-	if (getCookie('username'))
-		loginlowlevel(getCookie('username'));
-	
 	//VK: http://vk.com/dev/openapi
 	//VK.init({ apiId: 4965500 });//Aigents Web
 	window.vkontakteLogin = function(){    	
@@ -2275,7 +2292,6 @@ function post_init(){
         		    	    	talks_say_in("ВКонтакте!");//TODO: what?
     	    					login("#vkontakte_logo",r.response[0].photo_50);
     	    					loginlowlevel(r.response[0].first_name,r.response[0].last_name);
-    							auto_refreshing = true;
     							auto_refresh();
     							frame.src = base_url+'/?';//to refresh next time
     						};
@@ -2292,7 +2308,6 @@ function post_init(){
         			    			talks_say_in(response);
         	    					login("#vkontakte_logo",r.response[0].photo_50);
         	    					loginlowlevel(r.response[0].first_name,r.response[0].last_name);
-        							auto_refreshing = true;
         							auto_refresh();
         			    		}
         				    });	    
@@ -2339,7 +2354,6 @@ function post_init(){
 		    					talks_say_in(response);
 		    					login("#facebook_logo","https://graph.facebook.com/"+id+"/picture");
 		    					loginlowlevel(parseBetween(response,'Hello ','!'));
-		    					auto_refreshing = true;
 		    					auto_refresh();
 		    				}
 			    		});
@@ -2396,7 +2410,6 @@ function post_init(){
 		    		if (response.indexOf("Ok.") == 0) {
 		    			talks_say_in(response);
     					loginlowlevel(parseBetween(response,'Hello ','!'));
-						auto_refreshing = true;
 						auto_refresh();
 						if (!profile.image)
 					    	gapi.client.plus.people.get( {'userId' : 'me'} ).execute(function(profile) {
@@ -2416,7 +2429,6 @@ function post_init(){
 	    		if (response.indexOf("Ok.") == 0) {
 	    			talks_say_in(response);
 					loginlowlevel(parseBetween(response,'Hello ','!'));
-					auto_refreshing = true;
 					auto_refresh();
 			    	gapi.client.plus.people.get( {'userId' : 'me'} ).execute(function(profile) {
 				    	console.log("Google+ gapi.client.plus.people.get: "+profile);
@@ -2451,11 +2463,12 @@ function post_init(){
 	startGoogleApi(3000);
 	setTimeout(vkontakteAutoLogin,6000);
 	setTimeout(function(){
-		//if (!logged_in)//if not logged in via social network, enforce login/registration?
-		//	requestBase('What your name?');
-		news_refresh();
+		if (!logged_in)
+			news_refresh();
+		else
+			auto_refresh();
 	},9000);
-}//init()
+}//post_init()
 
 //talking
 var APPNAME = 'Aigents';
@@ -2506,7 +2519,6 @@ function responseRequestor(requestorHash,silent,message) {
 			talks_say_in(message);
 		if (!requestorHash && message.indexOf("Hello ") != -1) { // on login
 			loginlowlevel(parseBetween(message,'Hello ','!'));
-			auto_refreshing = true;
 			auto_refresh();
 			$('#tabs').tabs({ active: 2 });//by default, go to news
 		}
@@ -2520,7 +2532,6 @@ function responseRequestor(requestorHash,silent,message) {
 	if (message.indexOf("What your ") == 0) {
 		if (message.indexOf("email") != -1){
 			logoutlowlevel();
-			auto_refreshing = false;
 		}
 		talks_say_in(message);
 		ask(message.substring("What your ".length));

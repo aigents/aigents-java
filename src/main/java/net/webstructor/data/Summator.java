@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -322,6 +322,20 @@ public class Summator extends HashMap implements Linker {
 			v[i][1] = new Double( Math.round((((Double)v[i][1]).doubleValue() * 100 / max)) );
 		}
 		Arrays.sort(v,new ArrayPositionComparator(1));
+		return v;
+	}
+
+	public Object[][] toData(){
+		Object[][] v = new Object[size()][];
+		int i = 0;
+		for (Iterator it = keySet().iterator(); it.hasNext();){
+			v[i] = new Object[2];
+			Object key = it.next();
+			Object val = get(key);
+			v[i][0] = key;
+			v[i][1] = val;
+			i++;
+		}
 		return v;
 	}
 

@@ -39,7 +39,7 @@ function test_chat_cleanup() {
 }
 
 function test_help() {
-	login();
+    login();
 	
 	//define help content
 	say("There trust true, patterns help, support; responses 'Type \"help login\", \"help logout\", \"help search\", \"help topics\", \"help sites\", \"help news\", \"help notification\".'.");
@@ -414,6 +414,14 @@ function test_search() {
 	get("Ok.");
 	say("You forget!");
 	get("Ok.");
+	//brk();
+	say("search products in http://localtest.com/sitea/products.html, format html");
+	get();
+	say("No there times today.");
+	get("Ok.");
+	say("You forget!");
+	get("Ok.");
+	//brk();
 	say("What times today?");
 	get("There not.");
 	say("www id products graph date today, period 0");
@@ -423,7 +431,7 @@ function test_search() {
 	say("Search products, period 0");
 	get("Sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/index.html, text about us products info contact us; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
 	say("Search products make \$x, period 0");
-	get("Sources http://localtest.com/sitea/corporate.html, text products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text products make people happier.");
+	get("Sources http://localtest.com/sitea/corporate.html, text products make corporations more profitable, x corporations more profitable; sources http://localtest.com/sitea/personal.html, text products make people happier, x people happier.");
 	say("What times today?");
 	get("There not.");
 	say("Search people");
@@ -439,7 +447,7 @@ function test_search() {
 
 	//test seach in file/URL
 	say("SEARCH 'temperature is \$number' IN http://localtest.com/test/Test.pdf");
-	get("There sources 'http://localtest.com/test/Test.pdf', text temperature is 22.");
+	get("There number 22, sources 'http://localtest.com/test/Test.pdf', text temperature is 22.");
 	say("No there times today.");
 	get("Ok.");
 	say("Search temperature Url 'http://localtest.com/test/Test.pdf'");
@@ -498,9 +506,45 @@ function test_search() {
 	say("search 'products make'");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
 	
+	//test searching ranges
+	say("No there times today.");
+	say("You forget!");
+	say("Search products in http://localtest.com/sitea/, range 0, limit 10");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("Search personal in http://localtest.com/sitea/, range 0, limit 10");
+	get("Not.");
+	say("Search personal in http://localtest.com/sitea/, range 1, limit 10");
+	get("There sources http://localtest.com/sitea/corporate.html, text corporate personal home.");
+	say("Search people in http://localtest.com/sitea/, range 1, limit 10");
+	get("Not.");
+	say("Search people in http://localtest.com/sitea/, range 2, limit 10");
+	get("There sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
+
+	//test caching
+	say("No there times today.");
+	say("You forget everything!");
+	file_put_contents($basePath."html/test.html","<html><body>my test 1. my case a.<a href=\"/sitea/test.html\">link</a></body></html>");
+	file_put_contents($basePath."html/sitea/test.html","<html><body>my test 2. my case b.</body></html>");
+	say("Search test in http://localtest.com/test.html");
+	get("There sources http://localtest.com/sitea/test.html, text my test 2; sources http://localtest.com/test.html, text my test 1.");
+	say("No there times today.");
+	say("You forget!");//no cache clear
+	file_put_contents($basePath."html/test.html","<html><body> empty </body></html>");
+	file_put_contents($basePath."html/sitea/test.html","<html><body> nope </body></html>");
+	say("Search test in http://localtest.com/test.html");
+	get("There sources http://localtest.com/sitea/test.html, text my test 2; sources http://localtest.com/test.html, text my test 1.");
+	say("Search case in http://localtest.com/test.html");
+	get("There sources http://localtest.com/sitea/test.html, text my case b; sources http://localtest.com/test.html, text my case a.");
+	say("No there times today.");
+	say("You forget everything!");//cache clear
+	say("Search test in http://localtest.com/test.html");
+	get("Not.");
+	say("Search case in http://localtest.com/test.html");
+	get("Not.");
+	
 	say("No there times today.");
 	get();
-	say("You forget!");
+	say("You forget everything!");
 	get();
 	logout();
 }
@@ -543,9 +587,9 @@ function test_groups() {
 
 test_init();
 test_help();
-test_search();
 test_chat();
 test_groups();
+test_search();
 test_summary();
 
 ?>
