@@ -58,7 +58,6 @@ public class PayPaler extends Communicator implements HTTPHandler {
 	protected int timeout = 0;
 
 	public PayPaler(Body body) {
-		//super(body,name);
 		super(body);
 	}
 	
@@ -70,6 +69,7 @@ public class PayPaler extends Communicator implements HTTPHandler {
 	public boolean handleHTTP(HTTPeer parent, String url, String header, String request, String cookie) throws IOException {
 		if (url.startsWith("/paypal")) try {
 			if (!AL.empty(request)){
+				String paypal_url = body.self().getString(Body.paypal_url,"https://api.paypal.com");
 				body.debug("PayPal input "+request);
 				//https://developer.paypal.com/docs/connect-with-paypal/integrate/#6-get-access-token
 //TODO: get access token and redirect back to original UI
@@ -77,7 +77,7 @@ public class PayPaler extends Communicator implements HTTPHandler {
 				String code = keyvalues.get("code");
 				String scope = keyvalues.get("scope");
 				if (!AL.empty(code) && !AL.empty(scope)) {
-					String api_url = "https://api.sandbox.paypal.com/v1/oauth2/token";
+					String api_url = paypal_url+"/v1/oauth2/token";
 					//curl -X POST https://api.sandbox.paypal.com/v1/oauth2/token \
 					//	-H 'Authorization: Basic {Your Base64-encoded ClientID:Secret}=' \
 					//	-d 'grant_type=authorization_code&code={authorization_code}'
@@ -133,7 +133,7 @@ public class PayPaler extends Communicator implements HTTPHandler {
 							//curl -v -X GET https://api.sandbox.paypal.com/v1/identity/oauth2/userinfo?schema=paypalv1.1 \
 							//	-H "Content-Type: application/json" \
 							//	-H "Authorization: Bearer Access-Token"
-							api_url = "https://api.sandbox.paypal.com/v1/identity/oauth2/userinfo?schema=paypalv1.1";
+							api_url = paypal_url+"/v1/identity/oauth2/userinfo?schema=paypalv1.1";
 							response = HTTP.simple(api_url,null,"GET",timeout,null,new String[][] {
 								new String[] {"Content-Type","application/json"},
 								new String[] {"Authorization","Bearer "+access_token}

@@ -26,6 +26,7 @@ package net.webstructor.data;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -409,7 +410,8 @@ public class Graph implements Serializable {
 		final char termBreaker = ' ';
 		final String statementBreaker = ".\n";
 		StringBuilder sb = new StringBuilder();
-		Set contexts = binders.keySet(); 
+		Set contexts = binders.keySet();
+		ArrayList<String> res = new ArrayList<String>();
 		for (Iterator c = contexts.iterator(); c.hasNext();){
 			Object context = c.next();
 			HashMap linkers = getLinkers(context, false);
@@ -426,25 +428,24 @@ public class Graph implements Serializable {
 								//TODO: normalize!!!???
 								Number value = linker.value(target);
 								//tuna is fish 134.
+								sb.setLength(0);
 								Writer.quotequotable(sb, context.toString())
 									.append(termBreaker)
 									.append(property).append(termBreaker);
 								Writer.quotequotable(sb, target.toString())
 									.append(termBreaker)
-									.append(value).append(statementBreaker);
-								/*
-								sb.append(context).append(termBreaker)
-								.append(property).append(termBreaker)
-								.append(target).append(termBreaker)
-								.append(value).append(statementBreaker);
-								*/
+									.append(value);
+								res.add(sb.toString());
 							}
 						}
 					}
 				}
 			}
 		}
-		//context property target value
+		sb.setLength(0);
+		Collections.sort(res);
+		for (String r : res)
+			sb.append(r).append(statementBreaker);
 		return sb.toString();
 	}
 	

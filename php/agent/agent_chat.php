@@ -425,9 +425,9 @@ function test_search() {
 	say("What times today?");
 	get("There not.");
 	say("www id products graph date today, period 0");
-	get("products worded http://localtest.com/sitea/personal.html 100.\nproducts worded http://localtest.com/sitea/index.html 100.\nproducts worded http://localtest.com/sitea/corporate.html 100.");
+	get("products worded http://localtest.com/sitea/corporate.html 100.\nproducts worded http://localtest.com/sitea/index.html 100.\nproducts worded http://localtest.com/sitea/personal.html 100.");
 	say("www id make graph date today, period 0");
-	get("make worded http://localtest.com/sitea/personal.html 100.\nmake worded http://localtest.com/sitea/corporate.html 100.\nmake worded http://localtest.com/sitea/mission.html 100.");
+	get("make worded http://localtest.com/sitea/corporate.html 100.\nmake worded http://localtest.com/sitea/mission.html 100.\nmake worded http://localtest.com/sitea/personal.html 100.");
 	say("Search products, period 0");
 	get("Sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/index.html, text about us products info contact us; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
 	say("Search products make \$x, period 0");

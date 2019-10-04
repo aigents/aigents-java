@@ -524,11 +524,11 @@ function test_login_old() {
 	test_o("What name john email, surname?");
 	test_i("John email doe@john.org, surname dare; email john@doe.org, surname doe.");
 	test_o("What your things?");
-	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paypal id, paypal key, paypal token, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paypal id, paypal key, paypal token, paypal url, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
 	say("What times today?");//debug
 	get("There not.");
 	test_o("What your things count?");
-	test_i("My things count 100.");
+	test_i("My things count 101.");
 	say("What your things?");
 	get();	
 	say("What your trusts?");
@@ -539,7 +539,7 @@ function test_login_old() {
 	test_o("No email doe@john.org, name John, surname Dare.");
 	test_i("Ok.");
 	test_o("What your things count?");
-	test_i("My things count 99.");	
+	test_i("My things count 100.");	
 	say("Your trusts no John.");
 	get("Ok.");	
 	test_o("No email john@doe.org, name John, surname Doe.");
@@ -553,7 +553,7 @@ function test_login_old() {
 	say("What your things?");
 	get();
 	test_o("What your things count?");
-	test_i("My things count 100.");
+	test_i("My things count 101.");
 	say("What your trusts?");
 	get("My trusts john.");
 	test_o("You save test2.txt!");
@@ -644,7 +644,7 @@ function test_login_areas() {
 	say("What your things?");
 	get();
 	say("What your things count?");
-	get("My things count 99.");
+	get("My things count 100.");
 	say("my areas academgorodok.");
 	get("Ok.");
 	say("my shares academgorodok.");
@@ -874,7 +874,7 @@ function test_login_areas() {
 	get("Ok.");
 	
 	say("What your things count?");
-	get("My things count 100.");
+	get("My things count 101.");
 	say("What your things?");
 	get();
 	say("Your trusts no John.");
@@ -932,18 +932,18 @@ function test_login_sessions() {
 	say("what email doe@john.org?");
 	get("No right.");
 	say("Your things count?");
-	get("My things count 101.");//count with 2 sessions
+	get("My things count 102.");//count with 2 sessions
 	
 	set_cookie($doe_cookie);//restore doe's session
 	say("my logout");
 
 	set_cookie($john_cookie);//restore john's session
 	say("Your things count?");
-	get("My things count 100.");//count with 1 sessions
+	get("My things count 101.");//count with 1 sessions
 	say("No name doe.");
 	get("Ok.");	
 	say("Your things count?");
-	get("My things count 99.");//count with 1 sessions and with no doe
+	get("My things count 100.");//count with 1 sessions and with no doe
 	
 	set_cookie($john_cookie);//restore session
 	logout();//cleanup john

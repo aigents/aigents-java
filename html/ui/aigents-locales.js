@@ -34,6 +34,7 @@ var locale_ru = {
 		vkontakte_logo : 'Войти/выйти через ВКонтакте и получить персональный отчет через меню',
 		messenger_logo : 'Связаться с нами через Messenger',
 		slack_logo : 'Связаться с нами через Slack',
+		paypal_logo : 'Связаться с нами через PayPal',
 		telegram_logo : 'Связаться с нами через Telegram',
 		map_facebook_logo : 'Показать социальное окружение в сети Facebook',
 		map_google_logo : 'Показать социальное окружение в сети Google+',

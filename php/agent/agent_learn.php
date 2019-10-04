@@ -504,9 +504,9 @@ function test_agent_agglomerate() {
 	get("Ok.");
 
 	say("What your things?");
-	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paypal id, paypal key, paypal token, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paypal id, paypal key, paypal token, paypal url, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
 	say("What your things count?");
-	get("My things count 99.");
+	get("My things count 100.");
 
 	say("Your trusts no john.");
 	get("Ok.");
@@ -647,7 +647,7 @@ function test_agent_site_graph() {
 	say("www id http://localtest.com/sitea graph date today.");
 	get("http://localtest.com/sitea links http://localtest.com/about.html 100.\nhttp://localtest.com/sitea links http://localtest.com/contacts.html 100.\nhttp://localtest.com/sitea links http://localtest.com/products.html 100.\n");
 	say("www id http://localtest.com/siteb graph date today.");
-	get("http://localtest.com/siteb links http://localtest.com/company_products.html 100.\nhttp://localtest.com/siteb links http://localtest.com/contact_info.html 100.\nhttp://localtest.com/siteb links http://localtest.com/about_company.html 100.\n");
+	get("http://localtest.com/siteb links http://localtest.com/about_company.html 100.\nhttp://localtest.com/siteb links http://localtest.com/company_products.html 100.\nhttp://localtest.com/siteb links http://localtest.com/contact_info.html 100.\n");
 	say("www id http://localtest.com/about.html graph date today, range 5.");
 	get("http://localtest.com/about.html linked http://localtest.com/sitea 100.\nhttp://localtest.com/sitea links http://localtest.com/contacts.html 100.\nhttp://localtest.com/sitea links http://localtest.com/products.html 100.\n");
 
