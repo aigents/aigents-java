@@ -249,7 +249,7 @@ public class Reporter {
 			return sb.toString();
 			//return Writer.toString((Object[])obj,null,"",", ","");
 		}
-		return obj.toString();
+		return obj == null ? "" : obj.toString();
 	}
 
 	public void subtitle(String title){

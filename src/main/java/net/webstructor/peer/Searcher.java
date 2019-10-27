@@ -25,14 +25,16 @@ package net.webstructor.peer;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.All;
 import net.webstructor.al.Any;
@@ -51,9 +53,11 @@ import net.webstructor.data.Graph;
 import net.webstructor.data.Counter;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.Linker;
+import net.webstructor.data.ThingComparator;
 import net.webstructor.data.TextMiner;
 import net.webstructor.data.Translator;
 import net.webstructor.self.Siter;
+import net.webstructor.util.ArrayPositionComparator;
 import net.webstructor.util.Reporter;
 import net.webstructor.util.Str;
 
@@ -64,8 +68,10 @@ abstract class Intenter {
 
 class Searcher extends Intenter {
 
+	public static final String name = "search";
+	
 //TODO: abastract reporter for xlsx/html/pdf!?
-	String format(Conversation conversation, Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs) {
+	String format(Conversation conversation, Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs, Thing arg) {
 		Thing peer = conversation.getSessionAreaPeer(session);
 		String language = peer.getString(Peer.language);
 		String out = null;
@@ -84,8 +90,8 @@ class Searcher extends Intenter {
 			if ("html".equalsIgnoreCase(format)) {
 				
 				TextMiner miner = null;
-				String[] texts = !AL.empty(cluster) ? Thing.toStrings(filtered,AL.text) : null;
-				String[] cluster_texts = AL.text.equalsIgnoreCase(cluster) ? texts : Thing.toStrings(filtered,cluster);
+				Object[] texts = !AL.empty(cluster) ? filtered.toArray() : null;
+				String[] cluster_texts = Thing.toStrings(filtered, cluster );
 				if (!AL.empty(texts))
 //TODO configure clustering
 					miner = new TextMiner(session.getBody(),session.getBody().languages,true).setDocuments(texts,cluster_texts).cluster(50,50,10);
@@ -107,9 +113,34 @@ class Searcher extends Intenter {
 //TODO: localize reports
 					Linker cats = miner.getCategoryCounts();
 					if (cats != null && cats.size() > 0) {
+						Map catdocs = miner.getCategoryDocuments();
+						for (Object cat : catdocs.keySet()) {
+							Linker docs_by_cat = (Linker)catdocs.get(cat);
+							String cat_name = cat.toString();
+							for (Object doc : docs_by_cat.keys()) {
+								Thing doc_thing = (Thing)doc;
+								String category = doc_thing.getString("category");
+								doc_thing.setString("category", category == null ? cat_name : category + "; " + cat_name);
+							}
+						}
+//TODO: fix hack to populate "Unclassifeid" as "-"
+						for (Object f : filtered) {
+							Thing doc_thing = (Thing)f;
+							String category = doc_thing.getString("category");
+							if (category == null) {
+								Linker l = (Linker)catdocs.get("-");
+								if (l == null)
+									catdocs.put("-", l = new Counter());
+								l.count(doc_thing);
+								cats.count("-");
+								doc_thing.setString("category", "-");
+							}
+						}
+						Object[][] catdata = cats.toData();
+						Arrays.sort(catdata,new ArrayPositionComparator(0));
 						rep.table("categories",t.loc("Categories"),
 								t.loc(new String[]{"Category","Number of items"}),
-								cats.toData(),1,0);
+								catdata,1,0);
 					}
 					//build graph
 					if (!AL.empty(graphs) && graphs.length > 1) {
@@ -128,25 +159,19 @@ class Searcher extends Intenter {
 							}
 						}
 						//add categories to graph
-//TODO: only if requested i "graphs"
+//TODO: only if requested in "graphs"
 						Map catdocs = miner.getCategoryDocuments();
 						for (Object cat : catdocs.keySet()) {
 							Linker docs_by_cat = (Linker)catdocs.get(cat);
 							String cat_name = cat.toString();
 //TODO: link values - to graph
-							for (Object doc_id : docs_by_cat.keys()) {
-								//hacky way to get Thing
-								for (Object o : filtered) {
-									Thing doc_thing = (Thing)o;
-//TODO: use doc objects as keys in Miner instead of such brute force!!!
-									if (doc_thing.getString(AL.text).equals(doc_id)) {
-										for (int gr = 0; gr < graphs.length; gr++) if (!"category".equalsIgnoreCase(graphs[gr])) {
-											String prop_name = graphs[gr];
-											String doc_value = doc_thing.getString(prop_name);
-											g.addValue(cat_name, doc_value, "category-"+prop_name, 1);
-											g.addValue(doc_value, cat_name, prop_name+"-category", 1);
-										}
-									}
+							for (Object doc : docs_by_cat.keys()) {
+								Thing doc_thing = (Thing)doc;
+								for (int gr = 0; gr < graphs.length; gr++) if (!"category".equalsIgnoreCase(graphs[gr])) {
+									String prop_name = graphs[gr];
+									String doc_value = doc_thing.getString(prop_name);
+									g.addValue(cat_name, doc_value, "category-"+prop_name, 1);
+									g.addValue(doc_value, cat_name, prop_name+"-category", 1);
 								}
 							}
 						}
@@ -190,12 +215,15 @@ class Searcher extends Intenter {
 								row[1] = linker.toRanked();
 								table[r++] = row;
 							}
+							Arrays.sort(table,new ArrayPositionComparator(0));
 							rep.table(gij,t.loc(gij),new String[]{gi,gj},table,0,0);
 						}
 					}
 				}
 				rep.subtitle(t.loc("Data"));
-				writer.append(conversation.format(format, session, peer, q, filtered));
+				List data = filtered instanceof List ? (List)filtered : new ArrayList(filtered); 
+				Collections.sort(data,new ThingComparator(arg.getString("sort"),"asc".equals(arg.getString("order"))));
+				writer.append(conversation.format(format, session, peer, q, data));
 				rep.closeReport();
 				out = writer.toString();
 			} else
@@ -204,23 +232,47 @@ class Searcher extends Intenter {
 		return out;
 	}
 	
+	boolean handle(final Conversation conversation,final Storager storager,final Session session) {
+		final String[] args = session.args();
+		if (AL.empty(args) || args.length < 2 || !args[0].equalsIgnoreCase(name))
+			return false;
+		if (session.read(new Seq(new Object[]{name,"results"})))
+			if (session.status(name))
+				return true;
+//TODO default server configuration
+		final long timeout_millis = 1000L * Integer.valueOf(Str.arg(args, "timeout", "10")).intValue();
+		Thread task = new Thread() {
+	         public void run() {
+	        	session.result( handleTimed(args,conversation,storager,session) );
+				session.complete(name);
+	         };
+	    };
+	    return session.launch(name,task,timeout_millis);
+	}
+	
 	//TODO: members: Conversation conversation, Storager storager, Session session
 	
-	boolean handle(final Conversation conversation,final Storager storager,final Session session) {
-		String[] args = session.args();
-		if (AL.empty(args) || !args[0].equalsIgnoreCase("search"))
-			return false;
+	boolean handleTimed(final String[] args, final Conversation conversation,final Storager storager,final Session session) {
 		Thing peer = conversation.getSessionAreaPeer(session);
 		Thing arg = new Thing();
-		String retention = session.getBody().self().getString(Body.retention_period,"31");
-		final String format = Str.arg(session.args(),"format", "text");
-		final String cluster = Str.arg(session.args(),"cluster", AL.text);
+		final String format = Str.arg(args,"format", "text").toLowerCase();
+		final String cluster = Str.arg(args,"cluster", AL.text);
 		final String[] graphs = Str.get(args,"graph");
-		final int limit = Integer.valueOf(Str.arg(args, "limit", "10")).intValue();
-		final String time = Str.arg(session.args(),"time", "today");
+		//final int limit = Integer.valueOf(Str.arg(args, "limit", "10")).intValue();
+		final String time = Str.arg(args,"time", "today").toLowerCase();
+		final String novelty = Str.arg(args,"novelty", "new").toLowerCase();
+		final String scope = Str.arg(session.args(),"scope", "site").toLowerCase();//site|web|domain pattern?
 		final Date date = Time.day(time);
 		arg.set(AL.time, time);
-		arg.set("scope", Str.arg(session.args(),"scope", "site"));//site|web|domain pattern?
+		arg.set("scope", scope);
+		String default_period = "3";//session.getBody().self().getString(Body.retention_period,"31");//search retention period by default
+		session.read(arg,new String[]{"period","range","limit","minutes"},new String[]{default_period,"2","10","1"});
+		session.read(arg,new String[]{"sort","order"},new String[]{"text","asc"});
+		final int days = Integer.valueOf(arg.getString("period")).intValue();
+		final int limit = Integer.valueOf(arg.getString("limit")).intValue();
+		
+		String[] properties = "html".equals(format) ? new String[]{"sources","text","image"} : new String[]{"sources","text"};
+		
 		//search in URL
 		if (session.read(new Seq(new Object[]{"search",new Property(arg,"thingname"),new Any(1,Conversation.in_site),new Property(arg,"url")}))) {
 			String topic = arg.getString("thingname");
@@ -232,22 +284,21 @@ class Searcher extends Intenter {
 				Collection topics = storager.getNamed(topic);
 				if (AL.empty(topics))
 					new Thing(topic).store(storager);
-				session.read(arg,new String[]{"range","limit","minutes"},new String[]{"3","10","5"});
 //TODO: return results even if nothing new - based on configuration!? 
 				boolean found = session.getBody().act("read", arg);
-				if (!found){//TODO get rid of this?
+				if (!found && novelty.equals("new")){//TODO get rid of this?
 					session.output("Not.");
 					return true;
 				} else
 				{//TODO regardless of success?				
 					String out = null;
 					try {
-						String[] properties = "html".equals(format) ? new String[]{"sources","text","image"} : new String[]{"sources","text"};
 						HashSet<String> set = Str.hset(properties);
 						Property.collectVariableNames((net.webstructor.al.Set)Reader.pattern(storager,new Thing(),topic), set);
 						properties = set.toArray(new String[]{});
 						
 						Seq q = new Seq(new Object[]{new All(new Object[]{new Seq(new Object[]{"is",topic}),new Seq(new Object[]{"times","today"})}),properties});
+						//TODO: no need for this filter if scope = web
 						//TODO: apply relevance
 						//TODO: put found news in news feed if found
 						//TODO: put searched topics and sites to the sites and things as untrusted for history
@@ -264,7 +315,7 @@ class Searcher extends Intenter {
 							q = new Seq(new Object[]{new Seq(new Object[]{"is",topic}),properties});
 							filtered = conversation.filter(session,conversation.getSessionAreaPeer(session),q,filter);
 						}
-						out = format(conversation, session, topic, q, format, limit, filtered, cluster, graphs);
+						out = format(conversation, session, topic, q, format, limit, filtered, cluster, graphs, arg);
 						session.output(!AL.empty(out) ? out : "Not.");
 					} catch (Throwable e) {
 						session.sessioner.body.error("Searcher "+session.input(), e);
@@ -276,10 +327,7 @@ class Searcher extends Intenter {
 		} else
 		//search in STM or LTM
 		if (session.read(new Seq(new Object[]{"search",new Property(arg,"thingname")}))) {
-			session.read(arg,new String[]{"time","period"},new String[]{"today",retention});//search retention period by default
 			final String topic = arg.getString("thingname");
-			final int days = Integer.valueOf(arg.getString("period")).intValue();
-			String[] properties = "html".equals(format) ? new String[]{"sources","text","image"} : new String[]{"sources","text"};
 			HashSet<String> set = Str.hset(properties);
 			Property.collectVariableNames((net.webstructor.al.Set)Reader.pattern(storager,new Thing(),topic), set);
 			properties = set.toArray(new String[]{});
@@ -294,7 +342,7 @@ class Searcher extends Intenter {
 						,properties});
 					Collection clones = conversation.filter(session,peer,q,null);
 					if (!AL.empty(clones)){
-						session.output(format(conversation, session, topic, q, format, limit, clones, cluster, graphs));
+						session.output(format(conversation, session, topic, q, format, limit, clones, cluster, graphs, arg));
 						return true;
 					}
 					//if not found, extend for all texts and search in them with siter matcher
@@ -318,7 +366,7 @@ class Searcher extends Intenter {
 						}
 						//flush final collection to out
 						if (!AL.empty(res)){
-							session.output(format(conversation, session, topic, q, format, limit, res, cluster, graphs));
+							session.output(format(conversation, session, topic, q, format, limit, res, cluster, graphs, arg));
 							return true;
 						}
 					}
@@ -369,7 +417,7 @@ class Searcher extends Intenter {
 						}
 						//flush final collection to out ON the first day AND the first tie on matches
 						if (!AL.empty(res)){
-							session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs));
+							session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, arg));
 							return true;
 						}
 					}

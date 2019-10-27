@@ -596,7 +596,7 @@ function weightValue(val){
 
 //111
 function load_graph(social_net, social_id) {
-	//TODO: updte from cache
+	//TODO: update from cache
 	/*var o = get_data_cached(social_net,social_id,graph_period);
 	if (o){
 		graph_logo = logos[social_net];
@@ -614,30 +614,6 @@ function load_graph(social_net, social_id) {
 	//var r = social_net + ' id ' + social_id + ' report, period ' + days + ', format json, all connections, authorities, fans, similar to me, threshold 0';
 	var r = social_net+' id '+social_id+' graph links calls, pays';
 	function update(response) {
-		/*
-		if (response && response.charAt(0) == ''){
-			//TODO: possibly reload 'enabling users' in facebook/google/vkontakte, if allowed
-			graph_logo = logos[social_net];
-			graph_reloader = social_net == 'steemit' || social_net == 'golos' || social_net == 'ethereum' ? social_net : null;
-			graph_o = JSON.parse(response);
-			console.log(graph_o);
-			put_data_cached(social_net,social_id,graph_period,graph_o);
-			var svg = document.getElementById('map');
-			svg.parentNode.replaceChild(svg.cloneNode(false), svg);//clear
-			dataToSvg(graph_o, graph_logo, graph_reloader, graph_key);//render
-			svg.style['display']='inline';
-			disable_update(false); 
-			if (when_done)
-				when_done();
-			if (social_net == "ethereum"){
-				$('#map').contextmenu(map_menu);
-				$('#map').on("taphold",map_menu);
-			}else{
-				//TODO: clean menu here
-			}
-		} else
-			setTimeout(function(){ajax_request_uri_method_map(base_url,update,true,'POST',r);},5000);
-		*/
 		//alert(response);
 		//parse graph data: 123 pays <2> 456.
 		var parser = new Parser(response);

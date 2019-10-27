@@ -57,7 +57,7 @@ public class TextMiner extends Miner {
 		documentFeatures = toGraph(documents,documents);
 		return this;
 	}
-	public TextMiner setDocuments(String[] documents, String[] texts){
+	public TextMiner setDocuments(Object[] documents, String[] texts){
 		documentFeatures = toGraph(documents,texts);
 		return this;
 	}
@@ -65,7 +65,7 @@ public class TextMiner extends Miner {
 		documentFeatures = toGraph(documents,documents,words);
 		return this;
 	}
-	public TextMiner setDocuments(String[] names, String[] documents,java.util.Set vocabulary){
+	public TextMiner setDocuments(Object[] names, String[] documents,java.util.Set vocabulary){
 		documentFeatures = toGraph(names,documents,vocabulary);
 		return this;
 	}

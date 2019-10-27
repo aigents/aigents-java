@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2015-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,46 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.util;
+package net.webstructor.data;
 
 import java.util.Comparator;
+import java.util.Date;
 
-public class ArrayPositionComparator implements Comparator {
-	private int pos = 0;
-	private int pos2 = -1;
-	boolean asc = true;
-	public ArrayPositionComparator(int pos,boolean asc){
-		this.pos = pos;
+import net.webstructor.al.AL;
+import net.webstructor.core.Thing;
+
+public class ThingComparator implements Comparator {
+	private String name = AL.name;
+	private boolean asc = true;
+	public ThingComparator(String name,boolean asc){
+		this.name = name;
 		this.asc = asc;
 	}
-	public ArrayPositionComparator(int pos){
-		this.pos = pos;
-	}
-	public ArrayPositionComparator(int pos,int pos2){
-		this.pos = pos;
-		this.pos2 = pos2;
-	}
+
 	private int cmp(Object o0, Object o1){
-		float d = 
-				(o0 instanceof String && o1 instanceof String) ? //asc
-					d = ((String)o0).compareTo((String)o1) :
-				(o0 instanceof Integer && o1 instanceof Integer) ?
-					d = ((Integer)o1).intValue() - ((Integer)o0).intValue() : //desc
-				(o0 instanceof Float && o1 instanceof Float) ?
-					d = ((Float)o1).floatValue() - ((Float)o0).floatValue() : //desc
-				//0;
+		float d =
+				(o0 == null && o1 == null) ? 0 : (o0 == null) ? -1 : (o1 == null) ? 1 : //asc? 
+				(o0 instanceof String && o1 instanceof String) ? ((String)o0).compareTo((String)o1) : //asc
+				(o0 instanceof Integer && o1 instanceof Integer) ? ((Integer)o1).compareTo((Integer)o0) : //desc
+				(o0 instanceof Float && o1 instanceof Float) ? ((Float)o1).compareTo((Float)o0) : //desc
+				(o0 instanceof Date && o1 instanceof Date) ? ((Date)o0).compareTo((Date)o1) : //asc
 				o0.toString().compareTo(o1.toString());
 		int i = d < 0 ? -1 : d > 0 ? 1 : 0;
 		return asc ? i : -i;
 	}
+
 	public int compare(Object arg0, Object arg1) {
-		Object[] a0 = (Object[])arg0;
-		Object[] a1 = (Object[])arg1;
-		int d = cmp(a0[pos],a1[pos]);
+		Object a0 = ((Thing)arg0).get(name);
+		Object a1 = ((Thing)arg1).get(name);
+		return cmp(a0,a1);
+		//TODO: multi-key sorting
+		/*
 		if (d != 0)
 			return d;
 		if (pos2 != -1) //breaking ties?
 			d = cmp(a0[pos2],a1[pos2]);
-		return asc ? d : -d;
+		*/
 	}
 }

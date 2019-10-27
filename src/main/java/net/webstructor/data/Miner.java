@@ -553,18 +553,18 @@ if (mergee == null)//TODO:remove???
 		return toGraph(texts,texts,null);
 	}
 
-	public Map toGraph(String[] keys, String[] texts) {
+	public Map toGraph(Object[] keys, String[] texts) {
 		return toGraph(keys,texts,null);
 	}
 
-	public Map toGraph(String[] texts,java.util.Set words) {
+	public Map toGraph(Object[] texts,java.util.Set words) {
 		return toGraph(texts,null,words);
 	}
 
-	public Map toGraph(String[] keys, String[] texts, java.util.Set vocabulary) {
+	public Map toGraph(Object[] keys, String[] texts, java.util.Set vocabulary) {
 		HashMap graph = new HashMap();
 		for (int i = 0; i < texts.length && i < keys.length; i++) {
-			String key = keys[i];
+			Object key = keys[i];
 			String text = texts[i];
 			Linker linker = (Linker)graph.get(key);
 			if (linker == null)

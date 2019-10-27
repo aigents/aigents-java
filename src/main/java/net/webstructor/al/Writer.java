@@ -488,7 +488,7 @@ public class Writer extends AL {
 			return "";
 		if (arg instanceof Object[] || arg instanceof Object){
 			StringBuilder sb = new StringBuilder();
-			toHTML(sb,arg,properties);
+			toHTML(sb,arg,properties,false);
 			return sb.toString();
 		}
 		return arg.toString();
@@ -536,7 +536,7 @@ public class Writer extends AL {
 		}
 	}
 	
-	public static void toHTML(StringBuilder sb, Object arg, java.util.Set properties){
+	public static void toHTML(StringBuilder sb, Object arg, java.util.Set properties, boolean sort){
 		if (arg instanceof Object[]){
 			TreeSet props = new TreeSet(); 
 			Object[] objs = (Object[]) arg;
@@ -557,7 +557,7 @@ public class Writer extends AL {
 			for (int i = 0; i < objs.length; i++){
 				if (i > 0)
 					sb.append(row_break);
-				toHTML(sb,objs[i],props);
+				toHTML(sb,objs[i],props,sort);
 			}
 			sb.append(table_stop);
 		} else
@@ -581,7 +581,8 @@ public class Writer extends AL {
 			int c = 0;
 			for (Iterator it = coll.iterator(); it.hasNext(); )
 				sorted[c++] = toHTML(it.next(),props);
-			Arrays.sort(sorted);
+			if (sort)
+				Arrays.sort(sorted);
 			sb.append(rows_start);
 			for (int i=0; i<sorted.length; i++) {
 				if (i > 0) { 

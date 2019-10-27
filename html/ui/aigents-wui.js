@@ -1939,12 +1939,16 @@ function ajax_request_uri_method(uri,callback,silent,method,data,onerror) {
 		xhrFields: { withCredentials: true },
 		timeout: timeout_millis ? timeout_millis : 0,
 		//context: document.body
-		success: function(data, textStatus, jqXHR) { 
-			console.log("response:"+data);
-			if (callback)
-				callback(data);
-			else
-				response(data,silent); 
+		success: function(message, textStatus, jqXHR) { 
+			console.log("response:"+message);
+			var parts = message.split("\n\n");
+			for (var p in parts){
+				var data = parts[p];
+				if (callback)
+					callback(data);
+				else
+					response(data,silent); 
+			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			message = "error: "+textStatus+": "+(errorThrown ? errorThrown : "possibly no connection")+"."; 
@@ -2565,8 +2569,24 @@ function responseRequestor(requestorHash,silent,message) {
 				;//talks_say_in(null);
 				//requestor.update(message);
 		}
+	} else
+	if (message.indexOf("Search ") == 0) {
+		if (!silent)
+			talks_say_in(message);
+		if (message == "Search working."){
+  			setTimeout(request_search,10000);
+		}
 	}else{
 		if (!silent)
 			talks_say_in(message);
 	}
+}
+
+function request_search() {
+ 	ajax_request("Search results",function(response){
+  		if (response == 'Search busy.')
+  			setTimeout(request_search,10000);
+  		else
+  			talks_say_in(response);
+    },true);//silent	    
 }

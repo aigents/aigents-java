@@ -23,7 +23,9 @@
  */
 package net.webstructor.peer;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -31,6 +33,7 @@ import net.webstructor.comm.Communicator;
 import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
+import net.webstructor.core.Updater;
 import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
 import net.webstructor.al.*;
@@ -56,6 +59,8 @@ public class Session  {
 	private String input = null;//raw input
 	private String args[] = null;//pre-parsed input
 	private String output = null;
+	
+	private StringBuilder outputs = new StringBuilder();//TODO: use it to replace String output
 
 	//protected HashMap expected = new HashMap();
 	private String[] expected = null;
@@ -244,8 +249,20 @@ public class Session  {
 		this.args = Parser.split(this.input, " \t,;");//"compile it"
 	}
 
-	protected String express() {
-		return output; 
+	protected synchronized void post(String message) {
+		if (outputs.length() > 0)
+			outputs.append("\n\n");
+		outputs.append(message);
+	}
+	
+	protected synchronized String express() {
+		if (outputs.length() > 0)
+			outputs.append("\n\n");
+		outputs.append(output);
+		output = null;
+		String out = outputs.toString();
+		outputs.setLength(0);
+		return out;
 	}
 	
 	protected boolean read(Set set) {
@@ -397,4 +414,83 @@ public class Session  {
 		}
 	}
 	
+	//The following variables and methods are needed for session-bound asynchronous operations
+	private boolean result = false;
+	private boolean waiting = false;
+	private boolean working = false;
+	private long start_time = 0;
+	private HashMap<String,String> results = new HashMap<String,String>();
+	
+	protected void result(boolean result) {
+		synchronized (this) {
+			this.result = result;
+		}
+	}
+	protected boolean launch(String name,Thread task,long timeout_millis) {
+		synchronized (this) {
+			if (working) {
+				output(Writer.capitalize(name)+" busy.");
+				return true;
+			}else {
+			    waiting = true;
+			    working = true;
+				result = false;
+				start_time = System.currentTimeMillis();
+			    task.start();
+			}
+		}
+	    synchronized (this) {
+	    	while (waiting && System.currentTimeMillis() < (start_time + timeout_millis)) {
+				try {
+					wait(timeout_millis);
+				} catch (InterruptedException e) {
+					sessioner.body.error(Writer.capitalize(name)+" error",e);
+				}
+	    	}
+	    	if (!waiting) {//completed timely
+	    		return result;
+	    	} else {//still working on it
+	    		waiting = false;
+	    		output(Writer.capitalize(name)+" working.");
+	    		return true;
+	    	}
+	    }
+	}
+	
+	protected boolean status(String name) {
+	    synchronized (this) {
+			if (working) {
+				output(Writer.capitalize(name)+" busy.");
+	    		return true;
+			} else
+	    	if (results.containsKey(name)) {
+	    		String out = results.get(name);
+	    		output(out);
+	    		results.remove(name);
+	    		return true;
+	    	}
+	    }
+	    return false;
+	}
+	
+	protected void complete(String name) {
+		    synchronized (this) {
+		    	working = false;
+ 		    	if (waiting) {//if still waiting
+ 		    		waiting = false;//complete
+ 		    		this.notify();
+ 		    	} else {
+ 		    		if (communicator instanceof Updater) {//async delivery
+ 		    			try {
+							((Updater)communicator).update(getStoredPeer(), null, output(), null);
+						} catch (IOException e) {
+							sessioner.body.error(Writer.capitalize(name)+" update", e);
+						}
+ 		    		}else{//Web REST interface with no async delivery
+ 		    			//post(output());//post for unspecific delivery of results aling with other content
+ 		    			results.put(name, output());//retain for specific retrieval of results by name
+ 		    		}
+ 		    	}
+ 		    }
+	}
 }

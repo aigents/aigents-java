@@ -397,7 +397,36 @@ function test_chat() {
 }
 
 function test_search() {
-	login();
+    global $timeout;
+    
+    login();
+	
+	//TODO !!!
+	//base url is not aligned!!!
+	//say("search '{[\$a products \$c d \$e] [\$d products f g \$h]}' in http://localtest.com/sitea, range 10");
+	
+	//background search
+	say("You forget everything!");
+	get("Ok.");
+	say("what text 'text aigents topics sites news' sources?");
+	get("There not.");
+	say("search '{[\$context business applications \$about] [\$context social networks \$about]}' in http://localtest.com/, range 10, limit 100, timeout 1");
+	get("Search working.");
+	say("search '{[\$context business applications \$about] [\$context social networks \$about]}' in http://localtest.com/, range 10, limit 100, timeout 1");
+	get("Search busy.");
+	say("");//search->ping -> no update
+	get("Ok.");
+	say("What new true text?");
+	get("There not.");
+	say("what text 'text aigents topics sites news' sources?");
+	get("There not.");
+	//say("Search results?");//TODO with proper query parsing and itenters going first in order 
+	say("Search results");
+	get("Search busy.");//search->ping -> no update
+	sleep($timeout * 3);
+	//say("What new true text?");//search->ping -> update
+	say("Search results");//search->ping -> update
+	get("There about including facebook, context social networks: register and login with, sources http://localtest.com/", null, true);
 	
 	//search in LTM graph
 	say("You forget everything!");
@@ -406,7 +435,8 @@ function test_search() {
 	say("search whatever");
 	get("Not.");
 	
-	say("search products in http://localtest.com/sitea/products.html");
+	
+	say("search products in http://localtest.com/sitea/products.html, range 3");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
 	say("search products, period 0");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
@@ -414,14 +444,12 @@ function test_search() {
 	get("Ok.");
 	say("You forget!");
 	get("Ok.");
-	//brk();
-	say("search products in http://localtest.com/sitea/products.html, format html");
+	say("search products in http://localtest.com/sitea/products.html, range 3");
 	get();
 	say("No there times today.");
 	get("Ok.");
 	say("You forget!");
 	get("Ok.");
-	//brk();
 	say("What times today?");
 	get("There not.");
 	say("www id products graph date today, period 0");
@@ -495,6 +523,8 @@ function test_search() {
 	get("Not.");
 	say("search products in http://localtest.com/siteb/");
 	get("Not.");
+	say("search products in http://localtest.com/siteb/, novelty all");
+	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
 	
 	//test search in STM
 	say("what is products, times today text, sources");
