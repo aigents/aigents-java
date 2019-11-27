@@ -33,6 +33,7 @@ import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.core.Thing;
+import net.webstructor.self.Siter.Mode;
 
 public class PathTracker extends PathFinder {
 
@@ -43,7 +44,7 @@ public class PathTracker extends PathFinder {
 	boolean run(String path) {
 		//parse pattern for pathset
 		//TODO: what if many goals of the same name?
-		if (!AL.empty(goals) && goals.size() == 1) {
+		if (!AL.empty(goals) && goals.size() == 1 && siter.mode != Mode.FIND) {//try to track if not in FIND mode 
 			Thing goal = (Thing)goals.iterator().next();
 			String pathStr = goal.getString(AL.path);
 			if (!AL.empty(pathStr)) {
@@ -62,7 +63,7 @@ public class PathTracker extends PathFinder {
 				//if no results, then spawn PathFinder   
 			}
 		}
-		return new PathFinder(this.siter,goals,hopLimit).run(path);
+		return siter.mode != Mode.TRACK ? new PathFinder(this.siter,goals,hopLimit).run(path) : false;//try to find if not in TRACK mode
 	}
 
 	//possible inputs:

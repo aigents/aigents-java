@@ -91,7 +91,7 @@ public class Property extends Anything {
 		return hasPatterns;
 	}
 	
-	//TODO: build pre-compiled ordered list of patterns ad keep in variable!?
+	//TODO: build pre-compiled ordered list of patterns and keep in variable!?
 	private void compile() {
 		if (storager == null)
 			return;
@@ -115,7 +115,7 @@ public class Property extends Anything {
 		if (storager == null)
 			return false;
 		StringBuilder value = new StringBuilder();
-		//if variable has patterns, recursively to vaiable domains
+		//if variable has patterns, recursively to variable domains
 		Thing variable = storager.getThing(name);
 		if (variable == null)
 			return false;
@@ -249,10 +249,17 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 	}
 	
 	//TODO: pre-compile regexp expressions in the map
+	//https://regexr.com/
+	//https://www.rexegg.com/regex-quickstart.html
 	public static boolean isRegexpMatching(String reg, String val) {
-		Pattern p = Pattern.compile(reg.substring(1,reg.length()-1));
+		String pat = reg.substring(1,reg.length()-1);
+		Pattern p = Pattern.compile(pat);
 		Matcher m = p.matcher(val);
-		return m.matches();
+		boolean match = m.matches();//exact match
+//TODO: to eable incremental matching over spaces - fix agent_web.php: get("There text михаил женится на марии.");
+		//if (!match)
+		//	match = m.hitEnd();//partial icremental match //TODO change pattern matcher for that kind of logic?
+		return match;
 	}
 	
 	public Anything setString(String value) {
@@ -321,7 +328,7 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 	
 	/**
 	 * Collect names of variables in a patttern set
-	 * @param set correspondig to the pattern
+	 * @param set corresponding to the pattern
 	 * @param collector
 	 */
 	public static void collectVariableNames(net.webstructor.al.Set set, HashSet<String> collector) {
@@ -333,4 +340,50 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 				collectVariableNames((net.webstructor.al.Set)o,collector);
 		}
 	}
+
+	//https://www.freeformatter.com/java-dotnet-escape.html#ad-output
+	//https://regexr.com/
+	//https://www.rexegg.com/regex-quickstart.html
+	//https://stackoverflow.com/questions/42104546/java-regular-expressions-to-validate-phone-numbers
+	public static void main(String[] args) throws Exception {
+		//String[] ss = { "aabb", "aa", "cc", "aac" };
+		//Pattern p = Pattern.compile("aabb");
+		String[] ss = {
+	    	"(",
+	    	"(123)",
+	    	"(1",
+	    	"+1",
+	       	"1 (",
+	       	"( 1",
+    		"713-904-3537",
+    		"(713) 904-3537",
+    		"( 713 ) 904-3537",
+    		"1 ( 713 ) 904-3537",
+    		"+1 ( 713 ) 904-3537",
+    		"+1 713-904-3537",
+    		"+1(713)904-3537",
+    		"+1-713-904-3537",
+    		"(123) 456-7890",
+    		"1234567890",
+    		"123-456-7890",
+    		"(123)456-7890",
+    		"(123)4567890",
+    		"77006 (713) 904-3537"
+		};
+		String ps = "^\\s?((\\+?[1-9]{1,4}[ \\-]*)|(\\(\\s?[0-9]{2,3}\\s?\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?\\s?";
+		Pattern pt = Pattern.compile(ps);
+		Matcher m = pt.matcher("");
+		System.out.printf("pattern: %s\n",ps);
+		for (String s : ss) {
+			m.reset(s);
+			if (m.matches())
+				System.out.printf("%-4s : match%n", s);
+			else if (m.hitEnd())
+				System.out.printf("%-4s : partial match%n", s);
+			else
+				System.out.printf("%-4s : no match%n", s);
+			//boolean rm = isRegexpMatching("/"+ps+"/",s);
+			//System.out.println(rm);
+    	}
+  	}
 }

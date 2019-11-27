@@ -163,6 +163,9 @@ class Imager {
 public class Siter {
 
 	public static final int DEFAULT_RANGE = 1;//TODO: make configurable
+	public static String punctuation = null; //".";//to maintain the sentence structure
+	
+	enum Mode { SMART, TRACK, FIND };
 	
 	Body body;
 	Thing self;
@@ -183,8 +186,9 @@ public class Siter {
 	long tillTime;
 	long newsLimit;
 	int range;//TODO unify with PathFinder's hopLimit
+	Mode mode;//mode - [smart|track|find] - whether to use existing path if present only (track) or always explore new paths (find) or track first and go to find if nothing is found (default - smart)
 	
-	public Siter(Body body,Storager storager,String thingname,String path,Date time,boolean forced,long tillTime,int range,int limit,boolean strict) {
+	public Siter(Body body,Storager storager,String thingname,String path,Date time,boolean forced,long tillTime,int range,int limit,boolean strict,String mode) {
 		this.body = body;
 		this.self = body.self();
 		this.storager = storager;
@@ -202,6 +206,7 @@ public class Siter {
 		this.tillTime = tillTime;
 		this.range = range < 0 ? 0 : range;
 		this.newsLimit = limit;
+		this.mode = "track".equalsIgnoreCase(mode) ? Mode.TRACK : "find".equalsIgnoreCase(mode) ? Mode.FIND : Mode.SMART;
 		
 		//first, try to get things specified by thing name name (if explicitly provided)
 		allThings = storager.getNamed(thingname);
@@ -428,7 +433,8 @@ public class Siter {
 		//TODO: distinguish skipped || failed in readIfUpdated ?
 		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),forced,realTime))) {
 			ArrayList positions = new ArrayList();
-			Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
+			//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
+			Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,punctuation,positions));//build with original text positions preserved for image matching
 			result = match(storager,iter,positions,timeDate,path,things);
 			index(path,timeDate,iter,links);
 			//TODO: add source name as page title by default?

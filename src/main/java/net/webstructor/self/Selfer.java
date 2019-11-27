@@ -271,7 +271,7 @@ public class Selfer extends Thread {
 			int limit = Integer.parseInt(target.getString("limit", "0"), 10);
 			long tillTime = minutes <= 0 ? 0 : System.currentTimeMillis() + Period.MINUTE * minutes;
 			body.filecacher.clear(false,time);//reset cache to current point in time
-			boolean ok = spider.spider(target.getString("url"), target.getString("thingname"), time, tillTime, true, range, limit, "site".equalsIgnoreCase(scope) ? true : false);
+			boolean ok = spider.spider(target.getString("url"), target.getString("thingname"), time, tillTime, true, range, limit, "site".equalsIgnoreCase(scope) ? true : false, target.getString("mode"));
 			if (ok && body.sitecacher != null)
 				body.sitecacher.updateGraph(time, body.sitecacher.getGraph(Time.date(time)), System.currentTimeMillis());
 			return ok;

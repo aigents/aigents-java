@@ -196,7 +196,7 @@ public class Writer extends AL {
 				return true;
 			if (AL.punctuation.indexOf(ch) != -1) // if punctiation before the end or spaces
 				//if (i == string.length() || AL.spaces.indexOf(string.charAt(i)) != -1)
-				if (!Parser.punctuationException(string,i,string.length()))
+				if (!Parser.punctuationException(string,i,string.length(),AL.punctuation))
 					return true;
 			if (AL.quotes.indexOf(ch) != -1)
 				return true;
@@ -506,8 +506,8 @@ public class Writer extends AL {
 	static final String header_start = "<tr><th>";
 	static final String header_break = "</th><th>";
 	static final String header_stop = "</th></tr>\n";
-	static final String rows_start = "<tr><td>";
-	static final String cell_break = "</td><td>";
+	static final String rows_start = "<tr><td style=\"vertical-align:top;\">";
+	static final String cell_break = "</td><td style=\"vertical-align:top;\">";
 	static final String row_break = "</td></tr>\n<tr><td>";
 	static final String table_stop = "</td></tr>\n</table>";
 	
@@ -529,8 +529,9 @@ public class Writer extends AL {
 		} else
 		if (arg instanceof String){
 			String s = (String)arg;
+			String breakingstyle="overflow-wrap:break-word;word-wrap:break-word;word-break:break-all;";
 			sb.append(AL.isIMG(s) || "image".equals(property) ? "<img style=\"height:64px;width:auto;\" src=\""+s+"\"/>" :
-					AL.isURL(s) ? "<a href=\""+s+"\" target=\"_blank\">"+s+"</a>" : HtmlStripper.encodeHTML(s));
+					AL.isURL(s) ? "<a style=\""+breakingstyle+"\" href=\""+s+"\" target=\"_blank\">"+s+"</a>" : HtmlStripper.encodeHTML(s));
 		} else {
 			sb.append(HtmlStripper.encodeHTML(arg.toString()));
 		}

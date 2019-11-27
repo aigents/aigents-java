@@ -42,6 +42,7 @@ public class Parser {
 	private int size = 0;
 	private boolean quoting = true;
 	private boolean urling = false;
+	private String punctuation = AL.punctuation;
 	
 	public Parser(String input) {
 		pos = 0;
@@ -49,10 +50,12 @@ public class Parser {
 		this.input = input;
 	}
 	
-	public Parser(String input,boolean quoting,boolean urling) {
+	public Parser(String input,boolean quoting,boolean urling,String punctuation) {
 		this(input);
 		this.quoting = quoting;
 		this.urling = urling;
+		if (punctuation != null)//null-defence
+			this.punctuation = punctuation;
 	}
 	
 	public boolean end() {
@@ -67,18 +70,18 @@ public class Parser {
 		pos = cur; 
 	}
 
-	private static boolean isPunctuationOrSpace(char c) {
-		return AL.punctuation.indexOf(c) != -1 || AL.spaces.indexOf(c) != -1;
+	private static boolean isPunctuationOrSpace(char c, String punctuation) {
+		return punctuation.indexOf(c) != -1 || AL.spaces.indexOf(c) != -1;
 	}
 
 	//TODO: cleanup here and in call tree, move to AL
 	//if point or period has next and previous characters present and they are neither punctuation nor space, disregard it as punctuation
-	public static boolean punctuationException(String token, int cur, int length) {
+	public static boolean punctuationException(String token, int cur, int length, String punctuation) {
 		//TODO: do really allow any punctuations in the middle of the token?
 		if (AL.separators.indexOf(token.charAt(cur)) == -1)//not allow anything but , and . inside
 			return false;
 		//treat as fair punctuation if last in text or there are subsequent punctuations  
-		if ((cur + 1) == length || isPunctuationOrSpace(token.charAt(cur + 1)))
+		if ((cur + 1) == length || isPunctuationOrSpace(token.charAt(cur + 1),punctuation))
 			return false;
 		//TODO: do really allow points and periods heading the tokens?
 		//if (cur == 0  || isPunctuationOrSpace(input.charAt(cur - 1)))
@@ -141,23 +144,30 @@ public class Parser {
 	public static Seq parse(String input) {
 		return parse(input,(String)null,(List)null);
 	}
+	
+	public static String[] parseS(String input,boolean tolower) {
+		return parseS(input,(String)null,false,tolower,true,false,null,(List)null);
+	}
 
 	public static Seq parse(String input,List positions) {
-		return parse(input,null,false,true,true,false,positions);
+		return parse(input,null,false,true,true,false,null,positions);
 	}
 
 	public static Seq parse(String input,String delimiters,List positions) {
-		//return parse(input,delimiters,false,true,true,false,positions);//urling=false
-		return parse(input,delimiters,false,true,true,true,positions);//urling=true
+		return parse(input,delimiters,false,true,true,true,null,positions);//urling=true
 	}
 
 	public static Seq parse(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling) {
-		return parse(input,delimiters,regexp,tolower,quoting,urling,null);
+		return parse(input,delimiters,regexp,tolower,quoting,urling,null,null);
 	}
 	
-	public static Seq parse(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling,List positions) {
+	public static Seq parse(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling,String punctuation,List positions) {
+		return new Seq(parseS(input,delimiters,regexp,tolower,quoting,urling,punctuation,positions));
+	}
+
+	public static String[] parseS(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling,String punctuation,List positions) {
 		ArrayList chunks = new ArrayList();
-		Parser parser = new Parser(input,quoting,urling); 
+		Parser parser = new Parser(input,quoting,urling,punctuation); 
 		String s;
 		for (;;) {
 			int pos = parser.pos; 
@@ -170,15 +180,14 @@ public class Parser {
 			if (positions != null)
 				positions.add(new Integer(pos));
 		}
-		String[] strings = (String[])chunks.toArray(new String[]{});
-		return new Seq(strings);
+		return (String[])chunks.toArray(new String[]{});
 	}
 
 	//TODO: add pos account in 2D array?
 	public static Seq parseSentenced(String input,String delimiters,boolean regexp,boolean tolower,boolean quoting,boolean urling,String breakers) {
 		ArrayList sentences = new ArrayList();
 		ArrayList chunks = new ArrayList();
-		Parser parser = new Parser(input,quoting,urling); 
+		Parser parser = new Parser(input,quoting,urling,null); 
 		String s;
 		for (;;) {
 			s = parser.parseTerm(regexp,tolower,delimiters);
@@ -294,7 +303,7 @@ public class Parser {
 				if (delimiters != null && delimiters.indexOf(c) != -1)
 					;//skip delimiters
 				else
-				if (AL.punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size)) {//return symbol
+				if (punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size,punctuation)) {//return symbol
 					s = input.substring(cur,cur+1);
 					pos = ++cur;
 					return tolower ? s.toLowerCase() : s;
@@ -303,11 +312,12 @@ public class Parser {
 					begin = cur;
 				//else skip delimiters
 			} else { //in the middle of the token
-				if ((AL.punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size))
+				if ((punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size,punctuation))
 						|| (delimiters != null && delimiters.indexOf(c) != -1)
 						) {//return token
 					s = input.substring(begin,cur);
-					if (!(urling && AL.isURL(s) && c =='?')){//TODO: any other URL characters? 
+					if (!(urling && AL.isURL(s) && AL.urls.indexOf(c) != -1 && 
+							!((cur + 1) == size || isPunctuationOrSpace(input.charAt(cur + 1),punctuation)))){
 						pos = cur;//stay at delimiter to return symbol later
 						return tolower ? s.toLowerCase() : s;
 					}

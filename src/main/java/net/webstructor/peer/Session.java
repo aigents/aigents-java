@@ -34,6 +34,7 @@ import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.core.Updater;
+import net.webstructor.util.Str;
 import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
 import net.webstructor.al.*;
@@ -112,6 +113,10 @@ public class Session  {
 	
 	public String[] args(){
 		return args;
+	}
+	
+	public int argsCount(){
+		return args == null ? 0 : args.length;
 	}
 	
 	public void output(String output){
@@ -246,7 +251,8 @@ public class Session  {
 	protected void comprehend(String input) {
 		this.mood = reader.readMood(input);
 		this.input = input; 
-		this.args = Parser.split(this.input, " \t,;");//"compile it"
+		//this.args = Parser.split(this.input, " \t,;");//"compile it"
+		this.args = Parser.parseS(this.input,false);//"compile it"
 	}
 
 	protected synchronized void post(String message) {
@@ -278,6 +284,19 @@ public class Session  {
 			String def = defaults != null && i < defaults.length ? defaults[i] : null;
 			if (read(new Seq(new Object[]{props[i],new Property(arg,props[i],def)})))
 				cnt++;
+		}
+		return cnt;
+	}
+	protected int readArgs(Thing arg,String[] props,String[] defaults){
+		int cnt = 0;
+		if (args != null && !AL.empty(props)) for (int i = 0; i < props.length; i++){
+			String def = defaults != null && i < defaults.length ? defaults[i] : null;
+			String name = props[i];
+			String value = Str.arg(args, name, def);
+			if (!AL.empty(value)) {
+				arg.set(name, value);
+				cnt++;
+			}
 		}
 		return cnt;
 	}

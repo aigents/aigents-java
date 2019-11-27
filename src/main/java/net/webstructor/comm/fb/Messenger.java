@@ -144,7 +144,9 @@ public class Messenger extends Mediator implements HTTPHandler {
 					JsonObject messaging = entry.getJsonArray("messaging").getJsonObject(0);
 					String sender = messaging.containsKey("sender") ? messaging.getJsonObject("sender").getString("id") : null;
 					String recipient = messaging.containsKey("recipient") ? messaging.getJsonObject("recipient").getString("id") : null;
-					String message = messaging.containsKey("message") ? messaging.getJsonObject("message").getString("text") : null;
+//					String message = messaging.containsKey("message") ? messaging.getJsonObject("message").getString("text") : null;
+					JsonObject messageObj = messaging.containsKey("message") ? messaging.getJsonObject("message") : null;
+					String message = messageObj != null && messageObj.containsKey("text") ? messageObj.getString("text") : null;
 				    if (!AL.empty(message) && !AL.empty(sender)) {
 				    	String sessionKey = key(sender,recipient);//facebook:12345ABCDE
 						body.debug("Facebook sender "+sender+" message "+message);

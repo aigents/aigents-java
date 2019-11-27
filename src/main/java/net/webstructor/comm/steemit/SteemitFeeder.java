@@ -38,6 +38,7 @@ import javax.json.JsonReader;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
+import net.webstructor.al.Writer;
 import net.webstructor.util.Array;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.comm.HTTP;
@@ -209,8 +210,6 @@ class SteemitFeeder extends SocialFeeder {
 	void postProcessPosts(){
 		HashSet nonOrphanedComments = new HashSet();
 		
-		/*for (int i = 0; i < news.size(); i++){
-			Object[] news_item = (Object[])news.get(i);*/
 		for (Iterator it = permlinksToPosts.values().iterator(); it.hasNext();){
 			Object[] news_item = (Object[])it.next();
 			String text = (String)news_item[4];
@@ -337,7 +336,9 @@ class SteemitFeeder extends SocialFeeder {
 			
 			String response = null;
 			try {
+				body.debug(Writer.capitalize(api.getName())+" request "+api.getUrl()+" "+par);
 				response = Steemit.retryPost(body,api.getUrl(),par);
+				//body.debug(Writer.capitalize(api.getName())+" response "+response);
 				JsonReader jr = Json.createReader(new StringReader(response));
 				JsonObject result = jr.readObject();
 				JsonArray items = result.getJsonArray("result");

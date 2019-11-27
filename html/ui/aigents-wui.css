@@ -46,13 +46,12 @@
 	#eyes {position:absolute;left:200;top:0;}
 
 	.about {position:absolute;left:200;top:-7;font-size:14;width:310px;height:17px;white-space: normal;padding:3px;color:#9a8576;white-space:nowrap;overflow:hidden;}
-	.user  {font-size:14;white-space: normal;padding:3px;color:#ffffff;white-space:nowrap;overflow:hidden;font-weight:bold;display:inline;text-align:right;}
+	.user  {font-size:14 !important;white-space: normal;padding:3px;color:#ffffff;white-space:nowrap;overflow:hidden;font-weight:bold;display:inline;text-align:right;}
 
 	.status {position:absolute;z-index:1;left:200;top:-8;font-size:14;width:295px;height:17px;white-space:nowrap;overflow:hidden;padding:3px}
 	.action {position:absolute;z-index:1;left:210;top:15;font-size:14;width:295px;height:17px;white-space:nowrap;overflow:hidden;padding:3px}
 
-	.count {position: absolute;z-index: 1;left:295;top: 35;font-size:14px;width:18px;height:18px;border-radius:15px;margin:0 auto;margin-left:auto;margin-right:auto;text-align:center;padding:5;}
-	.count {color:9a8576;background:yellow;border-color:#9a8576;}
+	.count {border-radius:15px !important;background:yellow !important;color:9a8576 !important;border-color:#9a8576 !important;position: absolute;z-index: 1;left:295;top: 35;font-size:14px !important;width:18px;height:18px;margin:0 auto;margin-left:auto;margin-right:auto !important;text-align:center !important;padding:5 !important;}
 
 	#tabs {position:absolute;left:0;top:38;}
 		.pane {margin:0;}
@@ -82,6 +81,14 @@
 .log-in {width:90%;white-space: normal;}
 .log-out {width:90%;white-space: normal;float:right;}
 
+.map-label {text-anchor:middle;font-size:18;}
+.map-text-middle {text-anchor:middle;}
+.map-bar {background:#2191c0;padding: 6px 4px 2px 4px;overflow:auto;}
+.map-item {cursor:pointer;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-hover {cursor:pointer;background:#77d5f7;color:#04398e;display:inline;padding: 4px 4px 4px 4px;}
+.map-check {cursor:pointer;background:#0871A0;color:#ffffff;display:inline;padding: 4px 4px 4px 4px;}
+.map-toolbar {display:inline;float:right;padding: 0px 0px 0px 0px;}
+.map-button {display:inline;}
 
 body {background:#ffffd8 !important;}
 

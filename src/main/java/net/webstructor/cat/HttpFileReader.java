@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -306,6 +306,7 @@ public class HttpFileReader implements Reader
             URL url = new URL(encode(docName));
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             conn.setConnectTimeout(TIMEOUT_MILLIS);
+    		conn.setRequestProperty("Accept-Language", "en-US,en;q=0.9, *;q=0.5");//TODO:
             if (cookies != null)
             	conn.setRequestProperty("Cookie", cookies);
             if (userAgent != null)

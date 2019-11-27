@@ -125,6 +125,8 @@ public class AL {
 	public static final String dashes = "-—";//word separators allowed only inside a word
 	public static final String quotes = "\'\"";
 	public static final String trimmers = separators + dashes;
+	//https://stackoverflow.com/questions/1856785/characters-allowed-in-a-url
+	public static final String urls = "?$-_.+!*'";//()";TODO fix hack excluding parentheses for MD: [I'm an inline-style link](https://www.google.com)
 		
 	public static final String[] https = {"http://", "https://"};
 	public static final String[] imgs = {".png", ".svg", ".jpeg", ".jpg", ".bmp", ".tiff", ".gif"};

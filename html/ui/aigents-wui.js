@@ -1907,6 +1907,10 @@ function talks_say_out(text) {
 }
 
 function talks_say_in(text) {
+	if (text.substr(0,6) == "<html>") {
+		popUpReport("Aigents Search Report",text,true);//true - use jquery
+		text = "Ok.";//return;
+	}
 	displayStatus(text);
 	$("#talks_log").append('<div class="log-in ui-widget ui-widget-content ui-corner-all">'+text+'</div>');
 	talks_scroll();
@@ -1981,13 +1985,13 @@ function talks_say_out_internal(text) {
 	}
 }
 
-//TODO:
+var popupMargin = 30;
 //http://stackoverflow.com/questions/2109205/open-window-in-javascript-with-html-inserted
 //http://jqueryui.com/dialog/#default
 function requestReport(provider,name){
 	var title = _("Aigents Report for")+" "+name;
-	var height = $( window ).height() - 30;
-	var width = $( window ).width() - 30;
+	var height = $( window ).height() - popupMargin;
+	var width = $( window ).width() - popupMargin;
     var dialog = $( '#report_dialog' ).dialog({   	 
     	height: height, width: width,
     	top: 15, left: 15,
@@ -2023,6 +2027,47 @@ function requestReport(provider,name){
     request_report(requst_text);
     dialog.dialog( "open" );
 	dialog.html(_("Loading..."));    
+}
+
+//TODO: reuse this in requestReport above
+function renderReport(title,html){
+	var height = $( window ).height() - popupMargin;
+	var width = $( window ).width() - popupMargin;
+    var dialog = $( '#report_dialog' ).dialog({   	 
+    	height: height, width: width,
+    	top: 15, left: 15,
+    	autoOpen: false, modal: true
+    });
+    dialog.empty();
+    if (!dialog_envents_bound) {
+    	dialog_envents_bound = true;
+	    dialog.keyup(function (e) {
+	        if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+	            $(this).parent().find("button:eq(1)").trigger("click");
+	            return false;
+	        }
+	    });
+    }
+    dialog.dialog('option', 'title', title);
+    dialog.dialog( "open" );
+    return dialog;
+}
+
+var popupWindow = null;
+function popUpReport(title,html,jquery){
+	if (jquery){
+		//this fits the standard styles BUT makes in not printable AND breaks styles of "x" buttons in lists 
+		renderReport("Aigents Search Report").html(html);
+	}else {
+		//http://jennifermadden.com/javascript/window3.html
+		//this make it printable but need to arrange the styles and default window size 
+		var o = $(document.body).offset();
+		var specs = "top="+($(window).scrollTop() + o.top + popupMargin/2)+",left="+($(window).scrollLeft() + o.left + popupMargin/2)+",width="+($(window).width() - popupMargin)+",height="+($(window).height() - popupMargin)+",scrollbars=1,resizable=1";
+		popupWindow = window.open("",title,specs,true)
+		popupWindow.document.open()
+		popupWindow.document.write(html)
+		popupWindow.document.close()
+	}
 }
 
 function loginlowlevel(name,surname){
@@ -2590,3 +2635,4 @@ function request_search() {
   			talks_say_in(response);
     },true);//silent	    
 }
+

@@ -107,7 +107,7 @@ public class Spider {
 					int siteRange = Siter.DEFAULT_RANGE; //TODO: configure
 					int newsLimit = 0; //TODO: configure
 					boolean scopeStrict = true; //TODO: configure "scope=site"=>strict, "scope=web"=>false 
-					spider((String)it.next(), null, time, timePerSite == 0 ? 0 : currentTime + timePerSite, false, siteRange, newsLimit, scopeStrict);
+					spider((String)it.next(), null, time, timePerSite == 0 ? 0 : currentTime + timePerSite, false, siteRange, newsLimit, scopeStrict, null);
 					remainingSites--;
 				}
 				
@@ -177,7 +177,7 @@ public class Spider {
 	//http://stackoverflow.com/questions/5715235/java-set-timeout-on-a-certain-block-of-code
 	//http://www.javacoffeebreak.com/articles/network_timeouts/
 	//http://mrfeinberg.com/blog/archives/000016.html
-	public boolean spider(final String site, final String thingname, final Date time, final long tillTime, final boolean forced, final int range,final int limit,final boolean strict) {
+	public boolean spider(final String site, final String thingname, final Date time, final long tillTime, final boolean forced, final int range,final int limit,final boolean strict, final String mode) {
 		final Callable task = new Callable() {
 		    //public void run() { /* Do stuff here. */
 			public Object call() throws Exception {
@@ -186,7 +186,7 @@ public class Spider {
 		    	Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 		    	boolean ok = false;
 		    	try {
-		    		ok = new Siter(body,body.storager,thingname,site,time,forced,tillTime,range,limit,strict).read();
+		    		ok = new Siter(body,body.storager,thingname,site,time,forced,tillTime,range,limit,strict,mode).read();
 		    	} catch (Throwable t){
 					body.error("Spidering site failed unknown "+site+" "+t.toString()+",",t);
 		    	}

@@ -587,10 +587,24 @@ brk();
 		say("You read relationship in 'петр помолвился с натальей'");
 		say("What is relationship text?");
 		get("There text петр помолвился натальей.");
+
+		say("No there is relationship.");		
+		say("You read relationship in 'сначала петр помолвился с натальей летом. осенью закончилось свадьбой.'");
+		say("What is relationship text?");
+		get("There text сначала петр помолвился натальей летом.");
+
+		say("No there is relationship.");
+		say("You read relationship in 'михаил женится на марии'");
+		say("What is relationship text?");
+//TODO: why so!?
+		get("There text михаил женится марии.");
+		
 		say("No there is relationship.");
 		say("You read relationship in 'сегодня михаил потапов женится на марии жженовой'");
 		say("What is relationship text?");
-		get("There text сегодня михаил женится марии жженовой.");
+//TODO: why does it matter!?
+		//get("There text сегодня михаил женится марии жженовой.");//if disabled partial matching in Property
+		get("There text сегодня михаил женится марии жженовой.");//if enabled partial matching in Property
 		say("No there is relationship.");
 		say("My topics no relationship.");
 		say("No name relationship.");

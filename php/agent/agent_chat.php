@@ -423,7 +423,7 @@ function test_search() {
 	//say("Search results?");//TODO with proper query parsing and itenters going first in order 
 	say("Search results");
 	get("Search busy.");//search->ping -> no update
-	sleep($timeout * 3);
+	sleep($timeout * 4);
 	//say("What new true text?");//search->ping -> update
 	say("Search results");//search->ping -> update
 	get("There about including facebook, context social networks: register and login with, sources http://localtest.com/", null, true);
@@ -436,7 +436,7 @@ function test_search() {
 	get("Not.");
 	
 	
-	say("search products in http://localtest.com/sitea/products.html, range 3");
+	say("search products site http://localtest.com/sitea/products.html, range 3");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
 	say("search products, period 0");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
@@ -445,7 +445,9 @@ function test_search() {
 	say("You forget!");
 	get("Ok.");
 	say("search products in http://localtest.com/sitea/products.html, range 3");
-	get();
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+    say("what is http://localtest.com/sitea/mission.html text");
+    get("There text 'our mission is to make people happier! home'.");
 	say("No there times today.");
 	get("Ok.");
 	say("You forget!");
@@ -458,19 +460,19 @@ function test_search() {
 	get("make worded http://localtest.com/sitea/corporate.html 100.\nmake worded http://localtest.com/sitea/mission.html 100.\nmake worded http://localtest.com/sitea/personal.html 100.");
 	say("Search products, period 0");
 	get("Sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/index.html, text about us products info contact us; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
-	say("Search products make \$x, period 0");
+	say("Search 'products make \$x', period 0");
 	get("Sources http://localtest.com/sitea/corporate.html, text products make corporations more profitable, x corporations more profitable; sources http://localtest.com/sitea/personal.html, text products make people happier, x people happier.");
 	say("What times today?");
 	get("There not.");
 	say("Search people");
 	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
-	say("Search make people happier");
+	say("Search \"make people happier\"");
 	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
-	say("Search make people happy");
+	say("Search \"make people happy\"");
 	get("Not.");
 	say("Search 'make people {happy happier}'");
 	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
-	say("Search make people {happy happier}");
+	say("Search \"make people {happy happier}\"");
 	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
 
 	//test seach in file/URL
@@ -484,7 +486,7 @@ function test_search() {
 	get("Ok.");
 	say("what is temperature");
 	get("There not.");
-	say("search temperature in http://localtest.com/test/");
+	say("search temperature site http://localtest.com/test/");
 	get("There sources http://localtest.com/test/, text the outside temperature is 22 c°.");
 	say("what is temperature");
 	get("There about is 22 c°, context the outside, is temperature, sources http://localtest.com/test/, text the outside temperature is 22 c°, times today.");
@@ -517,11 +519,11 @@ function test_search() {
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
 	say("what is products text");
 	get("There text about us products info contact us.");
-	say("search products in http://localtest.com/siteb/");
+	say("search products in http://localtest.com/siteb/ novelty new");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
-	say("search products in http://localtest.com/sitea/");
+	say("search products in http://localtest.com/sitea/, novelty new");
 	get("Not.");
-	say("search products in http://localtest.com/siteb/");
+	say("search products in http://localtest.com/siteb/ novelty new");
 	get("Not.");
 	say("search products in http://localtest.com/siteb/, novelty all");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
@@ -531,7 +533,7 @@ function test_search() {
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
 	say("search products");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
-	say("search our products");
+	say("search \"our products\"");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/siteb/, text our products contact information about our company.");
 	say("search 'products make'");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier.");

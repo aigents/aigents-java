@@ -274,7 +274,7 @@ class Conversation extends Mode {
 			return false;			
 		} else
 		if (session.trusted() && (session.mood == AL.direction || session.mood == AL.declaration)
-			&& session.read(Reader.pattern(AL.you,new String[] {"count","counting"}))) {
+			&& session.argsCount() <= 3 && session.read(Reader.pattern(AL.you,new String[] {"count","counting"}))) {
 			StringBuilder sb = new StringBuilder();
 			try {
 				Collection peers = (Collection)session.sessioner.body.storager.getByName(AL.is,Schema.peer);
@@ -323,7 +323,7 @@ class Conversation extends Mode {
 		} else
 				
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
-			&& session.read(Reader.pattern(AL.you,Self.saving))) {
+			&& session.argsCount() <= 4 && session.read(Reader.pattern(AL.you,Self.saving))) {
 			session.output("Not.");
 			Thing saver = new Thing();
 			if (!session.trusted())
