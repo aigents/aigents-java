@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public abstract class Time extends Date	{
@@ -168,6 +169,11 @@ public abstract class Time extends Date	{
 			time.equals(today(-1))? yesterday :
 			time.equals(today(+1))? tomorrow :
 				day_format().format(time);
+	}
+	
+	public static String rfc822(Date time) {
+		DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+	    return df.format(time);
 	}
 	
 	public static int compare(String a, String b) {

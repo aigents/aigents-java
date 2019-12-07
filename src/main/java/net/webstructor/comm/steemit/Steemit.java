@@ -96,6 +96,19 @@ curl --data '{"jsonrpc": "2.0", "method": "call", "params": [0,"get_content",["m
 
 curl --data '{"jsonrpc": "2.0", "id":25,"method":"get_accounts","params":["akolonin","2","1"]}' https://this.goloscore.org
 
+Golos: 
+@Jackvote [27 нояб. 2019 г., 15:34:32]:
+https://ropox.app/steemjs/api/database_api/get_block
+wss://golos.lexa.host/ws
+wss://golos.solox.world/ws
+wss://api.golos.blckchnd.com/ws
+wss://denisgolub.name/ws
+wss://api-full.golos.id/ws
+wss://lindsay-golos.cf/ws
+https://api-full.golos.id (OK)
+https://api.golos.blckchnd.com (OK)
+Тут же и размеры блоков можно посмотреть на разных нодах.
+
 Golos Support: 
 @Mariaminas Мария, Голос Кор
 https://t.me/goloscoretc
@@ -113,7 +126,7 @@ https://api.golos.cf - ask @vikxx on Telegram
 wss://ws17.golos.io/ - not working on 2015-05-15
 Golos Working:
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api.golos.blckchnd.com
-curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["15958850"]]}' https://api.golos.blckchnd.com
+curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["15958850"]]}' https://api.golos.blckchnd.com/
 Golos Not Working:
 curl --data '{"jsonrpc":"2.0","id":"25","method":"get_account_history","params": ["akolonin","-1","1000"]}' https://api.golos.cf
 curl --data '{"jsonrpc":"2.0","id":"25","method":"get_account_history","params": ["akolonin","-1","1000"]}' https://ws.golos.io
@@ -345,6 +358,8 @@ public class Steemit extends SocialCacher {
 				:"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"call\",\"params\": [\"database_api\",\"get_block\",[\"" + block + "\"]]}";//Golos
 			String response = null;
 			try {
+				if (debug)
+					env.debug(Writer.capitalize(api_name)+" request "+api_url+" "+par);
 				response = retryPost(env, api_url, par);
 				JsonReader res = Json.createReader(new StringReader(response));
 				JsonObject obj = res.readObject();
@@ -362,7 +377,7 @@ public class Steemit extends SocialCacher {
 //TODO: break on date range!?
 				
 env.debug(caps_name+" crawling block "+block+" at "+timestamp);
-if (block % 100 == 0){
+if (block % 10 == 0){
 	long time_curr = System.currentTimeMillis();
 	long time_diff = time_curr - time_start;
 	long blocks = head - block + 1;
@@ -636,7 +651,10 @@ if (block % 100 == 0){
 			//accountSpider(name,new String[]{"akolonin","aigents"},radius,days);
 			*/
 			
-			String url = "steemit".equals(name) ? "https://api.steemit.com" : "https://api.golos.blckchnd.com";
+			//https://api-full.golos.id (OK)//5.829696165440641 blocks/minute at 38 blocks 
+			String url = "steemit".equals(name) ? "https://api.steemit.com" : "https://api-full.golos.id";
+			//https://api.golos.blckchnd.com (OK)//5.535906504690143 blocks/minute
+			//String url = "steemit".equals(name) ? "https://api.steemit.com" : "https://api.golos.blckchnd.com";
 			HTTP.init();
 			//optional input - block number
 			blockSpider(null,new Mainer(),name,url, args.length > 1 ? Long.parseLong(args[1]) : -1 , false);

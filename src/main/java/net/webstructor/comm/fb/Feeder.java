@@ -174,6 +174,7 @@ class Feeder extends SocialFeeder {
 		String time = FB.getJsonString(item,"created_time");//"created_time": "2015-12-01T18:20:49+0000",
 		Date times = Time.time(time,TIME_FORMAT);
 		String id = FB.getJsonString(item,"id");
+		String url = FB.getJsonString(item,"permalink_url");//link to Facebook post
 		String link = FB.getJsonString(item,"link");//may be facebook link, use if if no link found in the message
 		String text = message != null ? message : description;
 //TODO: if no text, and link is not to FB, get text from URL!?
@@ -201,7 +202,7 @@ class Feeder extends SocialFeeder {
 			//countPeriod(times,likes.intValue() - (like.booleanValue()? 1 : 0), commentsCount);
 			
 			Integer comments = new Integer(commentsCount);
-			String[] sources = extractUrls(text,new String[]{link},like,likes,comments,period);
+			String[] sources = extractUrls(text,new String[]{url,link},like,likes,comments,period);
 			Object[] news_item = new Object[]{like,likes,comments,times,text,sources};
 			news.add(news_item);
 		}		
@@ -220,13 +221,11 @@ P.S. Note, that I am making the same submission third time in a row - the first 
 P.P.S. Also note, that at step 3 made by admin (!!!) user, there is a message popped up: "Invalid Scopes: user_posts. This message is only shown to developers. Users of your app will ignore these permissions if present. Please read the documentation for valid permissions at: https://developers.facebook.com/docs/facebook-login/permissions", respectively, when I request user posts by the app, empty data is returned - this is weird because there is no clear way to create submission around this error message and empty data returned on API call. If you reject this submission again please explain how to workaround the behaviour. 	  
 	 */
 	public void getFeed(String token, Date since, Date until) throws IOException {
-		errorMessage = "Facebook API for user feed is not working at the moment, so no reports can be made.";
+		//errorMessage = "Facebook API for user feed is not working at the moment, so no reports can be made.";
 		
 		//do main work
 		//TODO: later, when/if the user_posts is approved
-		/*
 		getFeedPosts(token,since,until);
-		*/
 		
 		//TODO: later, when the rest is approved
 		/*
@@ -262,8 +261,7 @@ P.P.S. Also note, that at step 3 made by admin (!!!) user, there is a message po
 			+ (since != null ? "since="+String.valueOf(since.getTime()/1000)+"&" : "" )
 			+ (until != null ? "until="+String.valueOf(until.getTime()/1000)+"&" : "" )
 			+ "limit=100&"
-			//+ "fields=id,created_time,likes,message,description,link,comments{id,from,message,likes,user_likes}&access_token=" + token;
-			+ "fields=id,created_time,link,message&access_token=" + token;
+			+ "fields=id,created_time,permalink_url,link,privacy,message&access_token=" + token;
 		String out = "";
 		try {
 			for (;;){

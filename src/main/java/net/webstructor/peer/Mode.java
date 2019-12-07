@@ -25,6 +25,7 @@ package net.webstructor.peer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 import net.webstructor.al.AL;
@@ -32,6 +33,7 @@ import net.webstructor.al.Any;
 import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
+import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.core.Mistake;
@@ -200,7 +202,7 @@ public abstract class Mode {
 						//get news feed for the peer
 						Seq query;
 						try {
-							query = session.reader.parseStatement(session,"What new true, times today is, sources, text?",peer);
+							query = session.reader.parseStatement(session,"What new true, times today or yesterday is, sources, text, image, times?",peer);
 							//execute query: [thing,thing,thing,...,set]
 							Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(query,peer); 
 							//format news feed
@@ -219,6 +221,7 @@ public abstract class Mode {
 	}
 	
 	String createRSS(Collection things,String area,String url){
+		area = Writer.capitalize(area);
 		StringBuilder feed = new StringBuilder();
 		feed.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 		feed.append("<rss version=\"2.0\">\n\n");
@@ -232,16 +235,25 @@ public abstract class Mode {
 				Collection iss = t.getThings(AL.is);
 				Collection sources = t.getThings(AL.sources);
 				String text = t.getString(AL.text);
+				String image = t.getString(AL.image);
+				Date time = (Date)t.get(AL.times);
 				if (!AL.empty(sources) && !AL.empty(text)){
 					String link = ((Thing)sources.iterator().next()).getName();
 					String topic = AL.empty(iss) ? null : HtmlStripper.encodeHTML(((Thing)iss.iterator().next()).getName());
 					text = HtmlStripper.encodeHTML(text);
-					link = link.replaceAll("&", "&amp;");//TODO:encode with function
+					link = HtmlStripper.encodeHTML(link);
 					String description = topic == null ? text : topic+" :\n"+text;
 					feed.append("  <item>\n");
 					feed.append("    <title>").append(text).append("</title>\n");
 					feed.append("    <link>").append(link).append("</link>\n");
 					feed.append("    <description>").append(description).append("</description>\n");
+					if (!AL.empty(image))
+						//https://www.w3schools.com/xml/tryrss.asp?filename=rss_ex_enclosure
+						feed.append("    <enclosure url=\"").append(HtmlStripper.encodeHTML(image)).append("\" type=\"image\" />\n");
+					if (time != null)
+						feed.append("    <pubDate>").append(Time.rfc822(time)).append("</pubDate>\n");
+					if (!AL.empty(topic))
+						feed.append("    <category>").append(topic).append("</category>\n");
 					feed.append("  </item>\n");
 				}
 			}
