@@ -9,19 +9,18 @@
   <link rel="stylesheet" href="/ui/jquery-ui-1.11.4.custom/jquery-ui.css">
   <script src="/ui/jquery-1.11.1.js"></script>
   <script src="/ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-  <link rel="stylesheet" type="text/css" href="/ui/aigents-wui.css?224"></link>
-  <script type="text/javascript" src="/ui/aigents-settings.js?220"></script>
-  <script type="text/javascript" src="/ui/aigents-al.js?226"></script>
-  <script type="text/javascript" src="/ui/aigents-speech.js?220"></script>
-  <script type="text/javascript" src="/ui/aigents-locales.js?221"></script>
-  <script type="text/javascript" src="/ui/aigents-graph.js?222"></script>
-  <script type="text/javascript" src="/ui/aigents-gui.js?220"></script>
-  <script type="text/javascript" src="/ui/aigents-map.js?220"></script>
-  <script type="text/javascript" src="/ui/aigents-wui.js?237"></script>
-  <!-- Google+ -->
-  <script src="https://apis.google.com/js/client:platform.js?onload=startApp" async defer></script>
+  <link rel="stylesheet" type="text/css" href="/ui/aigents-wui.css?300"></link>
+  <script type="text/javascript" src="/ui/aigents-settings.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-al.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-speech.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-locales.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-graph.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-gui.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-map.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-wui.js?301"></script>
+  <!-- Google
   <meta name="google-signin-client_id" content="638660736503-ip2avfmusv38va2jn8fub8cf4c4oobm7.apps.googleusercontent.com"></meta>
-
+  -->
   <meta property="og:title" content="Aigents for everyone"/>
   <meta property="og:description" content="Aigents - helping to monitor, extract, evaluate and share information on the Internet, adjusting to your needs and learning the preferences."/>
   <meta property="og:image" content="http://aigents.com/img/aigents-find-share.jpg"/>
@@ -67,7 +66,7 @@ body {background:#eaf1fc !important;margin:0 !important;}
 
 <body onload="init()">
 
-<!-- Google+ -->
+<!-- Google -->
 <script type="text/javascript">
 var auth2 = {};
 </script>
@@ -161,19 +160,19 @@ function microphone_input(input){
   		<div id='microphone' style="display:none;width:24;height:24;" class="ui-icon-mic" title="Click to speak aloud" onclick="hear_voice(function(i){microphone_input(i);},function(i){console.log(i);},'en-US',true);"></div>
 		<div id="user" class="user ui-widget menu-button"><u style="cursor:pointer" onclick="ask(null,'login')">Login & Registration</u></div>
 		<div id="aigents" class="menu-button">
-			<img id="aigents_logo" src="/ui/img/aigent32.png" title="Login to Aigents by email and setup personal settings via menu" style="cursor:pointer" width="32" height="32"/>
+			<img id="aigents_logo" src="/ui/img/aigent32.png" title="Signin to Aigents by email and setup personal settings via menu" style="cursor:pointer" width="32" height="32"/>
 		</div>
 		<div id="google" class="menu-button">
-			<img id="google_logo" src="/ui/img/g+46.png" title="Login/logout via Google+ and get personal report via menu" style="cursor:pointer" width="34" height="34"/>
+			<img id="google_logo" src="/ui/img/google_icon.png" title="Signin/signout with Google and get personal report via menu" style="cursor:pointer" width="32" height="32"/>
 		</div>
 		<div id="facebook" class="menu-button">
-			<img id="facebook_logo" src="/ui/img/fb_logo.png" title="Login/logout via Facebook and get personal report via menu" style="cursor:pointer" width="32" height="32"/>
+			<img id="facebook_logo" src="/ui/img/fb_logo.png" title="Signin/signout with Facebook and get personal report via menu" style="cursor:pointer" width="32" height="32"/>
 		</div>
 		<div id="messenger" class="menu-button"><a href="https://www.messenger.com/t/aigents" target="_blank" style="text-decoration:none">
 			<img id="messenger_logo" src="/ui/img/Messenger_Logo_Color_RGB.png" title="Connect with us on Messenger" style="cursor:pointer" width="34" height="34"/>
 		</a></div>
 		<div id="vkontakte" class="menu-button">
-			<img id="vkontakte_logo" src="/ui/img/vk_logo.png" title="Login/logout via VKontakte and get personal report via menu" style="cursor:pointer" width="34" height="34"/>
+			<img id="vkontakte_logo" src="/ui/img/vk_logo.png" title="Signin/signout with VKontakte and get personal report via menu" style="cursor:pointer" width="34" height="34"/>
 		</div>
 		<div id="telegram" class="menu-button"><a href="https://web.telegram.org/#/im?p=@AigentsBot" target="_blank" style="text-decoration:none">
 			<img id="telegram_logo" src="/ui/img/telegram_square.png" title="Connect with us on Telegram" style="cursor:pointer" width="34" height="34"/>
@@ -254,7 +253,7 @@ function microphone_input(input){
   			-->
   			<li class="ui-widget-content">
   				<iframe width="280" height="158" src="https://www.youtube.com/embed/G-2HmMwu0w0" frameborder="0" allowfullscreen></iframe>
-  				<b>Social Networks: </b>Register and login with social networks including <a href="https://www.facebook.com/aigents" target="_blank">Facebook</a>, <a href="https://plus.google.com/+Aigents" target="_blank">Google+</a> and <a href="https://vk.com/aigents" target="_blank">VKontakte</a>, get personal reports on your social environment activity in these networks and block-chain-based social networks such as <a href="https://steemit.com/@akolonin" target="_blank">Steemit</a> and <a href="https://golos.io/@akolonin" target="_blank">Golos</a>.  
+  				<b>Social Networks: </b>Register and login with social networks including <a href="https://www.facebook.com/aigents" target="_blank">Facebook</a>, <a href="https://plus.google.com/+Aigents" target="_blank">Google</a> and <a href="https://vk.com/aigents" target="_blank">VKontakte</a>, get personal reports on your social environment activity in these networks and block-chain-based social networks such as <a href="https://steemit.com/@akolonin" target="_blank">Steemit</a> and <a href="https://golos.io/@akolonin" target="_blank">Golos</a>.  
   				<br>(help)
   			</li>
   			<li class="ui-widget-content">
@@ -282,7 +281,7 @@ function microphone_input(input){
   			-->
   			<li class="ui-widget-content">
   				<iframe width="280" height="158" src="https://www.youtube.com/embed/zT-dgmLPivw" frameborder="0" allowfullscreen></iframe>
-  				<b>Социальные сети: </b>Зарегистрировавшись в социальных сетях <a href="https://www.facebook.com/aigents" target="_blank">Facebook</a>, <a href="https://plus.google.com/+Aigents" target="_blank">Google+</a> и <a href="https://vk.com/aigents" target="_blank">ВКонтакте</a>, получите персональные отчеты о своей собственной активности и социальном окружении в этих сетях, а также - сетях <a href="https://steemit.com/@akolonin" target="_blank">Steemit</a> и <a href="https://golos.io/@akolonin" target="_blank">Голос</a>, основанных на технологии block-chain.  
+  				<b>Социальные сети: </b>Зарегистрировавшись в социальных сетях <a href="https://www.facebook.com/aigents" target="_blank">Facebook</a>, <a href="https://plus.google.com/+Aigents" target="_blank">Google</a> и <a href="https://vk.com/aigents" target="_blank">ВКонтакте</a>, получите персональные отчеты о своей собственной активности и социальном окружении в этих сетях, а также - сетях <a href="https://steemit.com/@akolonin" target="_blank">Steemit</a> и <a href="https://golos.io/@akolonin" target="_blank">Голос</a>, основанных на технологии block-chain.  
   				(помощь)
   			</li>
   			<li class="ui-widget-content">
@@ -635,7 +634,7 @@ function microphone_input(input){
 					</div>
 					-->
 					<div id="map_google" class="map-button">
-						<img id="map_google_logo" src="/ui/img/g+46.png" title="Display social environment at Google+" width="34" height="34"/>
+						<img id="map_google_logo" src="/ui/img/google_icon.png" title="Display social environment at Google" width="32" height="32"/>
 					</div>
 					<div id="map_facebook" class="map-button">
 						<img id="map_facebook_logo" src="/ui/img/fb_logo.png" title="Display social environment at Facebook" width="32" height="32"/>
@@ -684,22 +683,22 @@ function microphone_input(input){
 <ul id="vkontakte_menu" style="display:none;z-index:100;">
 	<li id="vkontakte_name" class="ui-state-disabled">VKontakte</li>
 	<li id="vkontakte_report" title="VKontakte+ activity report">Report</li>
-	<li id="vkontakte_logout" title="Logout from all accounts">Logout</li>
+	<li id="vkontakte_logout" title="Signout from all accounts">Logout</li>
 </ul> 
 <ul id="google_menu" style="display:none;z-index:100;">
-	<li class="ui-state-disabled">Google+</li>
-	<li id="google_report" title="Google+ activity report">Report</li>
-	<li id="google_logout" title="Logout from all accounts">Logout</li>
+	<li class="ui-state-disabled">Google</li>
+	<li id="google_report" title="Google activity report">Report</li>
+	<li id="google_logout" title="Signout from all accounts">Logout</li>
 </ul> 
 <ul id="facebook_menu" style="display:none;z-index:100;">
 	<li class="ui-state-disabled">Facebook</li>
 	<li id="facebook_report" title="Faceboot activity report">Report</li>
-	<li id="facebook_logout" title="Logout from all accounts">Logout</li>
+	<li id="facebook_logout" title="Signout from all accounts">Logout</li>
 </ul>
 <ul id="aigents_menu" style="display:none;z-index:100;">
 	<li class="ui-state-disabled">Aigents</li>
 	<li id="aigents_profile" title="Personal settings">Settings</li>
-	<li id="aigents_logout" title="Logout from all accounts">Logout</li>
+	<li id="aigents_logout" title="Signout from all accounts">Logout</li>
 </ul>
 <ul id="trusts_menu" style="display:none;z-index:100;">
 	<li id="trusts_menu_check" title="Mark as important">Trust</li>
@@ -802,5 +801,46 @@ function microphone_input(input){
 
 <iframe id="vkontakte_frame" style="visibility:hidden;position:absolute;left:0;top:0;height:0;width:0;border:none;"></iframe>
   
+  <!-- Google -->
+    <script type="text/javascript">
+      //TODO: move this out to main JS
+      var CLIENT_ID = '638660736503-ip2avfmusv38va2jn8fub8cf4c4oobm7.apps.googleusercontent.com';
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/people/v1/rest"];
+      // Authorization scopes required by the API; multiple scopes can be included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
+      //On load, called to load the auth2 library and API client library.
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+      function initClient() {
+        gapi.client.init({
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          console.log(gapi.client.people);
+          auth2 = gapi.auth2.getAuthInstance();
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        }, function(error) {
+          console.log(JSON.stringify(error, null, 2));
+        });
+      }
+      function updateSigninStatus(isSignedIn){
+      	if (isSignedIn){
+      		if (window.loginGoogleApi)//auto-login!
+      			window.loginGoogleApi();
+      		else
+      			setTimeout(function(){updateSigninStatus(true);},3000);
+        }
+      }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+
 </body>
 </html>

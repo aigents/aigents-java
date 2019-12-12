@@ -84,7 +84,7 @@ public abstract class Socializer extends HTTP {
 		return 5844;//16 years
 	}
 	
-	//Can the data be freely browseable: true for Steemit and Golos; false for Facebook, Google+ and VKontakte  
+	//Can the data be freely browseable: true for Steemit and Golos; false for Facebook, Google and VKontakte  
 	public boolean opendata() {
 		return false;
 	}

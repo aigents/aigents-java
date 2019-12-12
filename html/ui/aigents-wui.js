@@ -305,18 +305,17 @@ $(function() {
     
     $("#google").click(function(event){
     	event.stopPropagation();
-    	if (!login_menu("#google","Google Plus"))
+    	if (!login_menu("#google","Google"))
     		window.loginGoogleApi();
     });
     
     $("#facebook").click(function(event){
     	event.stopPropagation();
     	if (!login_menu("#facebook","Facebook")){
-	        FB.login(function(response) {
+    		//https://developers.facebook.com/docs/reference/javascript/FB.login/v5.0#permissions
+    		FB.login(function(response) {
 	        	window.facebookStatusChangeCallback(response);
-	        },{});
-	        //TODO: later, when submission is passed for user_posts
-	        //},{scope: 'user_posts'});
+	        }, {scope: 'email,pages_messaging,public_profile,user_posts'});
 	        //TODO: later, when the rest is resolved
         	//},{scope: 'user_posts,user_likes,user_friends'});
     	}
@@ -417,7 +416,7 @@ $(document).ready(function () {
         //displayAction(null);
         hide_menu();
     });
-    $('#google').mouseenter(function() {login_menu("#google","Google Plus");});
+    $('#google').mouseenter(function() {login_menu("#google","Google");});
     $('#facebook').mouseenter(function() {login_menu("#facebook","Facebook");});
     $('#vkontakte').mouseenter(function() {login_menu("#vkontakte","VKontakte");});
     $('#aigents').mouseenter(function() {login_menu("#aigents","Aigents");});
@@ -1651,7 +1650,7 @@ function peers_init(list,data,filter) {//email,name,surname,trust
 		if (peer.facebook)
 			but += '<a href="https://facebook.com/'+peer.facebook+'" target="_blank"><img src="/ui/img/fb_logo.png" width="32" height="32"/></a>';
 		if (peer.google)
-			but += '<a href="https://plus.google.com/'+peer.google+'" target="_blank"><img src="/ui/img/g+46.png" width="34" height="34"/></a>';
+			but += '<a href="https://plus.google.com/'+peer.google+'" target="_blank"><img src="/ui/img/google_icon.png" width="32" height="32"/></a>';
 		if (peer.vkontakte)
 			but += '<a href="https://vk.com/search?q='+(peer.fullname ? peer.fullname : '')+'" target="_blank"><img src="/ui/img/vk_logo.png" width="34" height="34"/></a>';
 		but += '</div>';
@@ -2433,9 +2432,9 @@ function post_init(){
 	    fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));
 
-	//Google+
+	//Google //TODO eliminate as not used?
 	var updateSignIn = function() {
-		console.log('Google+ update sign in state');
+		console.log('Google update sign in state');
 		if (auth2.isSignedIn.get()) {
 			window.loginGoogleApi();
 		}else{
@@ -2443,81 +2442,78 @@ function post_init(){
 		}
 	}
 	window.loginGoogleApi = function(){
-		//auth2.grantOfflineAccess({'scope': 'profile email'}).then(function (result){
-		auth2.grantOfflineAccess().then(function (result){
-	    	console.log("Google+ grantOfflineAccess: "+JSON.stringify(result));
-	    	/**/
-	    	gapi.client.plus.people.get( {'userId' : 'me'} ).execute(function(profile) {
-		    	console.log('Google+ logged in: '+JSON.stringify(profile));
-		    	if (profile.image)//fails on Safari
-		    		login("#google_logo",profile.image.url);
-	    		var id = profile.id;
-		    	var request = "my google id "+profile.id+", google token '"+result.code+"'.";
-		    	console.log("Google+ : "+request);
-		    	ajax_request(request,function(response){
-			    	console.log('Google+ logged in: '+response);
-		    		if (response.indexOf("Ok.") == 0) {
-		    			talks_say_in(response);
-    					loginlowlevel(parseBetween(response,'Hello ','!'));
+	 //TODO: get rid of the grantOfflineAccess?
+	 auth2.grantOfflineAccess().then(function (result){
+	  console.log("Google grantOfflineAccess: "+JSON.stringify(result));
+	  var result_code = result.code;
+	  setTimeout(function(){//hack - wait for accss to People API granted
+		/*
+                var user = gapi.auth2.getAuthInstance().currentUser.get();
+ 		function mineproperty(o,p){
+			if (o && p) for(var propt in o){
+				var v = o[propt];
+				if (propt == p)
+					return v;
+    				if (v && typeof v === 'object'){
+					v = mineproperty(v,p);				
+					if (v)
+						return v; 
+				}
+			}
+			return null;
+		}
+		var id_token = mineproperty(user,'id_token');
+                console.log("Goolge id_token "+id_token);
+		*/
+		//TODO: get user id and all the rest stuff just from the user object?
+		if (gapi.client.people){
+			gapi.client.people.people.get({
+           			'resourceName': 'people/me',
+           			'personFields': 'names,photos' //,emailAddresses'
+         		}).then(function(response) {
+           			console.log(response);
+				function primary(a){
+					for (var i = 0; i < a.length; i++)
+						if (a[i].metadata.primary)
+							return a[i];
+				}
+				var result = response.result;
+				var profile = primary(result.names);
+				var name = profile.displayName;
+				var id = profile.metadata.source.id;
+				var photo = primary(result.photos).url;
+                                //var email = primary(result.emailAddresses).value;
+				console.log(id+'/'+name+'/'+photo);
+
+		    		var request = "my google id "+id+", google token '"+result_code+"'.";
+		    		console.log("Google : "+request);
+		    		ajax_request(request,function(response){
+			    		console.log('Google logged in: '+response);
+		    			if (response.indexOf("Ok.") == 0) {
+		    				talks_say_in(response);
+    						var realname = parseBetween(response,'Hello ','!');
+						loginlowlevel(realname ? realname : name);
 						auto_refresh();
-						if (!profile.image)
-					    	gapi.client.plus.people.get( {'userId' : 'me'} ).execute(function(profile) {
-						    	console.log('Google+ logged in: '+JSON.stringify(profile));
-								if (profile.image)
-									login("#google_logo",profile.image.url);
-							});
-		    		}
-			    });	    
-			});
-			/**/
-	    	/* this works for Chrome and FF but not Safari 
-	    	var request = "my google id unknown, google token '"+result.code+"'.";
-	    	console.log("Google+ : "+request);
-	    	ajax_request(request,function(response){
-		    	console.log('Google+ logged in: '+response);
-	    		if (response.indexOf("Ok.") == 0) {
-	    			talks_say_in(response);
-					loginlowlevel(parseBetween(response,'Hello ','!'));
-					auto_refresh();
-			    	gapi.client.plus.people.get( {'userId' : 'me'} ).execute(function(profile) {
-				    	console.log("Google+ gapi.client.plus.people.get: "+profile);
-				    	console.log('Google+ logged in: '+JSON.stringify(profile));
-						if (profile.image) login("#google_logo",profile.image.url);
-					});
-	    		}
-		    });
-	    	*/
-    	});
+						login("#google_logo",photo);
+		    			}
+			    	});	    
+
+         		});
+		}
+	  },1000);//hack - wait for accss to People API granted
+     });
 	}
-	function startGoogleApi(delay) {
-		gapi.load('auth2', function() {
-			gapi.client.load('plus','v1').then(function() {
-				gapi.auth2.init({
-					fetch_basic_profile: false,
-					scope:'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.profiles.read https://www.googleapis.com/auth/plus.stream.read'
-				}).then(function (){
-		    		console.log('Google+ init');
-		    		auth2 = gapi.auth2.getAuthInstance();
-			        //TODO: turn on when verified and make sure that need both
-		          	//setTimeout(function(){
-		          	//	auth2.isSignedIn.listen(updateSignIn);
-		          	//	auth2.then(updateSignIn());
-		          	//},delay);
-		    	});//init
-			});//load plus
-		});//load auth2
-	}//startGoogleApi
-	
-	//init login processes and news refresh incrementally with delays
-	startGoogleApi(3000);
-	setTimeout(vkontakteAutoLogin,6000);
-	setTimeout(function(){
-		if (!logged_in)
-			news_refresh();
-		else
-			auto_refresh();
-	},9000);
+
+        //init login processes and news refresh incrementally with delays
+        setTimeout(vkontakteAutoLogin,6000);
+        setTimeout(function(){
+                if (!logged_in)
+                        news_refresh();
+                else
+                        auto_refresh();
+        },9000);
 }//post_init()
+
 
 //talking
 var APPNAME = 'Aigents';

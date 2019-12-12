@@ -257,7 +257,8 @@ public class Messenger extends Mediator implements HTTPHandler {
 				*/
 			}
 			body.debug("Facebook response "+data);
-			HTTP.simple(url,data,"POST",timeout,"application/json");
+			String res = HTTP.simple(url,data,"POST",timeout,"application/json");
+			body.debug("Facebook result "+res);
 		} catch (Exception e){
 			body.error("Facebook error",e);
 		}

@@ -150,8 +150,8 @@ function graph_peers(peers_data,peer_obj){
 				links.push([peer_name,'Facebook',relevance,'networks']);
 			}
 			if (peer.google){
-				counter_add(orders,'Google+',relevance);
-				links.push([peer_name,'Google+',relevance,'networks']);
+				counter_add(orders,'Google',relevance);
+				links.push([peer_name,'Google',relevance,'networks']);
 			}
 			if (peer.vkontakte){
 				counter_add(orders,'VKontakte',relevance);
@@ -162,11 +162,11 @@ function graph_peers(peers_data,peer_obj){
 		mapmap_put(nodes,'Share','is','relationship');
 		mapmap_put(nodes,'Aigents','is','network');
 		mapmap_put(nodes,'Facebook','is','network');
-		mapmap_put(nodes,'Google+','is','network');
+		mapmap_put(nodes,'Google','is','network');
 		mapmap_put(nodes,'VKontakte','is','network');
 		mapmap_put(nodes,'Aigents','image','https://aigents.com/ui/img/aigent32.png');
 		mapmap_put(nodes,'Facebook','image','https://aigents.com/ui/img/fb_logo.png');
-		mapmap_put(nodes,'Google+','image','https://aigents.com/ui/img/g+46.png');
+		mapmap_put(nodes,'Google','image','https://aigents.com/ui/img/google_icon.png');
 		mapmap_put(nodes,'VKontakte','image','https://aigents.com/ui/img/vk_logo.png');
 		//TODO: setup images
     	var setup = {

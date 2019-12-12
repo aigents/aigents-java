@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 //TODO: port to re-use /ui/aigents-graph.js
 
 var logos = {
-	google:"/ui/img/g+46.png",
+	google:"/ui/img/google_icon.png",
 	facebook:"/ui/img/fb_logo.png",
 	vkontakte:"/ui/img/vk_logo.png",
 	steemit:"/ui/img/steemit_logo_new.png",

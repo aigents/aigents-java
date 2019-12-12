@@ -50,7 +50,7 @@ public class Profiler {
 	SocialFeeder feeder = null;
 	String id;
 	String token;
-	String key;//used for refresh_token for Google+
+	String key;//used for refresh_token for Google
 	int maxtopics;// = Body.MAX_TRUSTED_LINKS;
 	int maxSites;// = Body.MAX_TRUSTED_LINKS;
 	

@@ -70,7 +70,7 @@ class Login extends Mode {
 				if (!AL.empty(enstir[5]))//refresh_token as google_key
 					session.getStoredPeer().setString(Body.google_key, enstir[5]);
 			} else { 
-				session.sessioner.body.debug("Google+ failed: "+session.peer);
+				session.sessioner.body.debug("Google failed: "+session.peer);
 				session.output("Not.");
 			}
 		}
@@ -157,7 +157,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 	}
 	*/
 	
-	//TODO: don't touch now, change to unified framework (as for Google+) later
+	//TODO: don't touch now, change to unified framework (as for Google) later
 	public boolean facebook(Session session) {
 		String id = session.peer.getString(Body.facebook_id);
 		String token = session.peer.getString(Body.facebook_token);

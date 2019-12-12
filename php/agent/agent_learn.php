@@ -290,7 +290,7 @@ function test_agent_agglomerate() {
 	global $version;
 	global $copyright;
 	global $basePath;
-	$timeout = 5;
+	global $timeout;
 	
 	//login, registration, verification
 	say("My name john, email john@doe.org, surname doe.");
@@ -523,7 +523,7 @@ function test_agent_parse() {
 	global $version;
 	global $copyright;
 	global $basePath;
-	$timeout = 4;
+	global $timeout;
 
 	//login, registration, verification
 	say("My name john, email john@doe.org, surname doe.");
@@ -626,7 +626,7 @@ function test_agent_parse() {
 function test_agent_site_graph() {
 	global $version;
 	global $copyright;
-	$timeout = 4;
+	global $timeout;
 
 	//login, registration, verification
 	say("My name john, email john@doe.org, surname doe.");

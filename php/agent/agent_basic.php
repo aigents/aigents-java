@@ -28,8 +28,7 @@ include_once("test_api.php");
 function test_basic() {
 global $version;
 global $copyright;
-
-$timeout = 6;
+global $timeout;
 
 //login, registration, verification
 test_o("My login.");

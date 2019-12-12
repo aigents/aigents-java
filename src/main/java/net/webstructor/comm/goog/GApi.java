@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.cat.HttpFileReader;
+import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
 import net.webstructor.data.SocialFeeder;
 
@@ -157,7 +158,7 @@ public class GApi extends Socializer {
 	public String reportOld(String user_id,String access_token) {
 		Date since = Time.today(-365);
 		StringWriter writer = new StringWriter();
-		writer.write("<html><body>Stay tuned to get your <b>Google+</b> report!<br>For the time being, here is just brief summary of your activity:<br>");
+		writer.write("<html><body>Stay tuned to get your <b>Google</b> report!<br>For the time being, here is just brief summary of your activity:<br>");
 		try {
 			String token = URLEncoder.encode(access_token,"UTF-8");
 			//String myurl = "https://www.googleapis.com/plus/v1/people/me?access_token="+token;
@@ -256,6 +257,18 @@ public class GApi extends Socializer {
 		writer.write("</body></html>");
 		return writer.toString();
 	}
+
+    private static JsonObject getPrimary(JsonArray a){
+        if (a != null) for (int i = 0; i < a.size(); i++) {
+        	JsonObject o = a.getJsonObject(0);
+        	if (o.containsKey("metadata")) {
+        		JsonObject m = o.getJsonObject("metadata");
+        		if (m.containsKey("primary") && m.getBoolean("primary"))
+        			return o;
+        	}
+        }
+        return null;
+    }
 	
 	/**
 	 * Validates userId and appId against accessToken
@@ -285,9 +298,9 @@ public class GApi extends Socializer {
 				+ "&client_secret=" + URLEncoder.encode(appSecret,"UTF-8")
 				+ "&grant_type=authorization_code";
 			
-			//body.debug("Google+ request: " + url+ "/"+par);
+			body.debug("Google request: " + url+ "/"+par);
 			out = sendPost(url,par);
-			//body.debug("Google+ response: " + out);
+			body.debug("Google response: " + out);
 			JsonReader jr = Json.createReader(new StringReader(out));
 			JsonObject jauth = jr.readObject();
 			String access_token = jauth.getString("access_token");
@@ -295,41 +308,34 @@ public class GApi extends Socializer {
 			//int expires_in_seconds = jauth.getInt("expires_in");
 			jr.close();
 
-			url = "https://www.googleapis.com/plus/v1/people/me?access_token="+URLEncoder.encode(access_token,"UTF-8");
-			//body.debug("Google+ request: " + url);
+			//https://developers.google.com/people/api/rest/v1/people/get
+			//curl "https://people.googleapis.com/v1/people/me?personFields=names&access_token=<token>"
+			//curl "https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses,photos&access_token=<token>"
+
+			//TODO: get conections for social report and friends profiling
+			//https://developers.google.com/people/api/rest/v1/people.connections/list
+			//curl "https://content-people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses,photos&access_token=<token>"
+			
+			url = "https://people.googleapis.com/v1/people/me?personFields=names,emailAddresses&access_token="+URLEncoder.encode(access_token,"UTF-8");
+			body.debug("Google request: " + url);
 			out = simpleGet(url);
-			//body.debug("Google+ response: " + out);
+			body.debug("Google response: " + out);
 			
 			jr = Json.createReader(new StringReader(out));
 			JsonObject jme = jr.readObject();
-			String id = jme.getString("id");
-			JsonObject nameobj = jme.getJsonObject("name");
-			String name = nameobj.getString("givenName");
-			String surname = nameobj.getString("familyName");
-			if (AL.empty(name) || AL.empty(surname)){
-				String displayName = jme.getString("displayName");
-				String[] names = displayName.split(" ");
-				if (!AL.empty(names)){
-					name = names[0];
-					surname = names.length > 1 ? displayName.substring(name.length()).trim(): names[0];
-				}
-			}
-			String email = id+"@google.com";
-			JsonArray emails = jme.getJsonArray("emails");
-    		for (int i = 0; i < emails.size(); i++){
-    			JsonObject e = emails.getJsonObject(i);
-    			String type = e.getString("type");
-    			if (type.equals("account")){
-    				email = e.getString("value").toString();
-    				break;
-    			}
-    		}
+			JsonObject n = getPrimary(jme.getJsonArray("names"));
+			String id = HTTP.getJsonString(n.getJsonObject("metadata").getJsonObject("source"),"id","");
+			String name = HTTP.getJsonString(n,"givenName");
+			String surname = HTTP.getJsonString(n,"familyName");
+			JsonObject e = getPrimary(jme.getJsonArray("emailAddresses"));
+			String email = e == null ? id+"@google.com" : e.getString("value");	
 			jr.close();
+			
+			body.debug("Google login: " + name + " " + surname + " " + email + " " + access_token + " " + refresh_token);
 			//TODO: remove hack replacing access_token with refresh_token!?
-			//return new String[]{email,name,surname,access_token,String.valueOf(id),refresh_token};
 			return new String[]{email,name,surname,access_token,String.valueOf(id),refresh_token};
 		} catch (Exception e) {
-			body.error("Can't verify Google+ code url "+url+" out "+out, e);
+			body.error("Google can't verify code url "+url+" out "+out, e);
 			return null;
 		}
 	}

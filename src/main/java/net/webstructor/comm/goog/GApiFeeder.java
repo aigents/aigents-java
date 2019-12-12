@@ -132,10 +132,8 @@ class GApiFeeder extends SocialFeeder {
 					+ "&client_secret=" + URLEncoder.encode(appSecret,"UTF-8")
 					+ "&grant_type=refresh_token";
 				request = url+ "/"+par;
-				//body.debug("Google+ feeder request: " + request);
 				String auth = gapi.sendPost(url,par);
 				response = auth;
-				//body.debug("Google+ feeder response: " + auth);
 				JsonReader jr = Json.createReader(new StringReader(auth));
 				JsonObject jauth = jr.readObject();
 				if (jauth.containsKey("access_token"))	
@@ -143,7 +141,7 @@ class GApiFeeder extends SocialFeeder {
 				jr.close();
 			}
 			if (AL.empty(token)) {
-				body.error("Google+ feeder can't refresh token "+user_id,null);
+				body.error("Google feeder can't refresh token "+user_id,null);
 				//TODO: why do we need this? fallback for refresh_token not working?  
 				token = access_token;
 			}
@@ -153,11 +151,11 @@ class GApiFeeder extends SocialFeeder {
 			String page = "";
 			for (;;){
 				String url = base + page;
-				//body.debug("Google+ feeder request: " + url);
+				//body.debug("Google feeder request: " + url);
 				request = url;
 				String out = HTTP.simpleGet(url);
 				response = out;
-				//body.debug("Google+ feeder response: " + out);
+				//body.debug("Google feeder response: " + out);
 				JsonReader jsonReader = Json.createReader(new StringReader(out));
 				JsonObject feed = jsonReader.readObject();
 				JsonArray items = feed.getJsonArray("items");
@@ -220,7 +218,7 @@ class GApiFeeder extends SocialFeeder {
 			addPerCommentWords();//add per-user-comment word counts to per-post word counts
 						
 		} catch (Exception e) {
-			body.error("Spidering peer Google+ feeder user "+user_id+" request "+request+" response"+response,e);
+			body.error("Spidering peer Google feeder user "+user_id+" request "+request+" response"+response,e);
 		}
 	}
 	

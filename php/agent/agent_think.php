@@ -29,7 +29,7 @@ function test_agent_think() {
 	global $basePath;
 	global $version;
 	global $copyright;
-	$timeout = 3;
+	global $timeout;
 	
 	//register 1st user
 	say("My login.");
@@ -210,7 +210,7 @@ function test_agent_think_ex() {
 	global $basePath;
 	global $version;
 	global $copyright;
-	$timeout = 3;
+	global $timeout;
 
 	//register 1st user
 	say("My login.");
