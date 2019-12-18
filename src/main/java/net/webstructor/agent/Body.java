@@ -33,6 +33,7 @@ import java.util.Iterator;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
+import net.webstructor.al.Writer;
 import net.webstructor.comm.Socializer;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.goog.GApi;
@@ -57,7 +58,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.0.3";
+	public final static String VERSION = "2.0.6";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -425,8 +426,12 @@ public abstract class Body extends Anything implements Environment, Updater
 		return days_to_retain;
 	}
 	
+	public String name(){
+		return self().getString(AL.name,"Aigents");
+	}
+	
 	public String signature(){
-		return "-Aigents at "+site();
+		return "-"+Writer.capitalize(name())+" at "+site();
 	}
 	
 	public String site(){

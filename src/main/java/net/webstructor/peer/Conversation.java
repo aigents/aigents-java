@@ -337,6 +337,8 @@ class Conversation extends Mode {
 				if (Self.save(session.getBody(), saver.getString(Body.store_path)))
 					session.output("Ok.");
 			}else{
+				if (session.sessioner.body.sitecacher != null)
+					session.sessioner.body.sitecacher.saveGraphs();//flush
 				if (Self.save(session.getBody(), session.sessioner.body.self().getString(Body.store_path)))
 					session.output("Ok.");
 			}

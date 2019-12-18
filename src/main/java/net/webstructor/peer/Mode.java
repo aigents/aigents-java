@@ -206,7 +206,7 @@ public abstract class Mode {
 							//execute query: [thing,thing,thing,...,set]
 							Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(query,peer); 
 							//format news feed
-							session.output(createRSS(clones,area,session.sessioner.body.site()));
+							session.output(createRSS(clones,area,session.sessioner.body.site(),Writer.capitalize(session.sessioner.body.name())));
 						} catch (Exception e) {
 							session.output(statement(e));
 							session.sessioner.body.error(e.toString(), e);
@@ -220,13 +220,15 @@ public abstract class Mode {
 		return false;
 	}
 	
-	String createRSS(Collection things,String area,String url){
+	//https://validator.w3.org/feed/docs/rss2.html#ltauthorgtSubelementOfLtitemgt
+	String createRSS(Collection things,String area,String url,String author){
 		area = Writer.capitalize(area);
+		String authorarea = author + " on " + area;
 		StringBuilder feed = new StringBuilder();
 		feed.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-		feed.append("<rss version=\"2.0\">\n\n");
+		feed.append("<rss version=\"2.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n\n");
 		feed.append("<channel>\n");
-		feed.append("  <title>Aigents on ").append(area).append("</title>\n");
+		feed.append("  <title>").append(authorarea).append("</title>\n");
 		feed.append("  <link>").append(url).append("</link>\n");
 		feed.append("  <description>Aigents RSS feed about ").append(area).append("</description>\n");
 		if (!AL.empty(things)){
@@ -254,6 +256,8 @@ public abstract class Mode {
 						feed.append("    <pubDate>").append(Time.rfc822(time)).append("</pubDate>\n");
 					if (!AL.empty(topic))
 						feed.append("    <category>").append(topic).append("</category>\n");
+					if (!AL.empty(author))
+						feed.append("    <dc:creator><![CDATA[").append(authorarea).append("]]></dc:creator>\n");//https://www.aitrends.com/feed/
 					feed.append("  </item>\n");
 				}
 			}

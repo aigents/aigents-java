@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -148,6 +148,10 @@ public class GraphCacher implements Cacher {
 				}
 			}
 		}
+	}
+
+	public void updateGraph(Date date, long age){
+		updateGraph(date, getGraph(date), age);
 	}
 	
 	public void updateGraph(Date date, Graph graph, long age){

@@ -423,7 +423,7 @@ function test_search() {
 	//say("Search results?");//TODO with proper query parsing and itenters going first in order 
 	say("Search results");
 	get("Search busy.");//search->ping -> no update
-	sleep($timeout * 4);
+	sleep($timeout * 5);
 	//say("What new true text?");//search->ping -> update
 	say("Search results");//search->ping -> update
 	get("There about including facebook, context social networks: register and login with, sources http://localtest.com/", null, true);
@@ -477,6 +477,7 @@ function test_search() {
 
 	//test seach in file/URL
 	say("SEARCH 'temperature is \$number' IN http://localtest.com/test/Test.pdf");
+	sleep($timeout);
 	get("There number 22, sources 'http://localtest.com/test/Test.pdf', text temperature is 22.");
 	say("No there times today.");
 	get("Ok.");

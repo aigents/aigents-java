@@ -121,7 +121,7 @@ public class Spider {
 				//body.updateStatus();
 				
 				if (body.sitecacher != null)
-					body.sitecacher.updateGraph(Time.date(time), body.sitecacher.getGraph(time), System.currentTimeMillis());
+					body.sitecacher.updateGraph(Time.date(time), System.currentTimeMillis());
 			}
 		} catch (Exception e) {
 			body.error("Spidering sites "+e.toString(),e);
