@@ -25,10 +25,8 @@ package net.webstructor.comm;//TODO move to paypal
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -38,7 +36,6 @@ import javax.json.JsonReader;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
-import net.webstructor.core.Thing;
 import net.webstructor.peer.Session;
 import net.webstructor.util.Code;
 import net.webstructor.util.Str;
@@ -53,12 +50,9 @@ import net.webstructor.util.Str;
 //List Payments
 //https://developer.paypal.com/docs/api/get-an-access-token-curl/
 
-public class PayPaler extends Communicator implements HTTPHandler {
-	public static final String name = "paypal";
-	protected int timeout = 0;
-
+public class PayPaler extends SocialBinder implements HTTPHandler {
 	public PayPaler(Body body) {
-		super(body);
+		super(body,"paypal");
 	}
 	
 	/**
@@ -179,10 +173,13 @@ public class PayPaler extends Communicator implements HTTPHandler {
 								String email = bindUserEmail(name,paypal_id,names[0],names[1],emails);
 								if (!AL.empty(email)) {
 //TODO update name & surname only if missed!?
+//TODO if session is authenticated, don't bind it - just set missed attributes? 
 					            	net.webstructor.peer.Session session = body.sessioner.getSession(parent == null ? this : parent, cookie);//use parent session type for cookie
 					            	session.bind(name, paypal_id, refresh_token, email, names[0], names[1]);
 					            	if (!AL.empty(session.output()))
 					            		body.debug("PayPal bind "+session.output());
+					            	else
+					            		body.debug("PayPal bind failed");
 								}
 							}
 						}
@@ -198,78 +195,10 @@ public class PayPaler extends Communicator implements HTTPHandler {
 		return false;
 	}
 	
-	private String getEmail(String id) {
+	protected String getEmail(String id) {
 		return id + "@paypal.com";
 	}
 	
-	private String getUnusedEmail(Set<String> emails) throws Exception {
-		if (!AL.empty(emails)) for (String email : emails) {
-			Collection by_email = body.storager.getByName(AL.email, email);
-			if (AL.empty(by_email))
-				return email;
-		}
-		return null;
-	}
-
-	//TODO: make unified at the level of Session!?
-	//TODO: login via Conversationer, like it is done for email!?
-	private String bindUserEmail(String network,String id,String name,String surname,Set<String> emails){
-		String network_id = network+"_id";
-		try {
-			//find by network and id
-			Collection by_id = body.storager.getByName(network_id, id);
-			//if found, log in and exit
-			if (AL.single(by_id)) {//if user is found by id, login and provide email for binding if needed
-				Thing peer = (Thing)by_id.iterator().next();
-				String email = peer.getString(AL.email);
-				if (!AL.empty(email)) {//use existing email
-					body.debug("PayPal found by id, has email "+email);
-					return email;
-				}
-				email = getUnusedEmail(emails);//find unused email
-				if (AL.empty(email))
-					email = getEmail(id);
-				peer.setString(AL.email, email);//TODO assign emailless peer email - here or in the other place?
-				body.debug("PayPal found by id, assigned email "+email);
-				return email;
-			} else 
-			if (AL.empty(emails)) {// if user is not found by id and no emails are given, need to create a new one with default email
-				String email = getEmail(id);
-				body.debug("PayPal not found by id, no email");
-				return email;
-			} else {// if user is not found by id, try to bind one by email
-				//if verified
-				//find user by any of emails
-				HashSet<String> avail = new HashSet<String>();
-				for (String email : emails) {
-					//if found, bind (update name and surname if not set), log in and exit
-					Collection by_email = body.storager.getByName(AL.email, email);
-					if (AL.empty(by_email))//count available emails
-						avail.add(email);
-					if (AL.single(by_email)) {
-						Thing p = (Thing)by_email.iterator().next();
-						String existing_id = p.getString(network_id);
-						if (AL.empty(existing_id)){
-							p.setString(network_id, id);//bind user by first unused email
-							body.debug("PayPal found by email "+email);
-							return email;//return first unused email
-						}
-					}
-				}
-				String email = avail.size() > 0 ? avail.iterator().next() : getEmail(id);
-				body.debug("PayPal not found by email, email "+email);
-				return email;//if none is bound by email, return first unused email on emailless one
-//TODO deal with not verified emails and accounts
-				//if not verified
-				//find email not matching a user
-					//if found, create with that email, log in and exit
-			}
-		} catch (Exception e) {
-			body.error("Paypal login error "+id, e);
-		}
-		return null;
-	}
-
 	@Override
 	public void output(Session session, String message) throws IOException {
 		//TODO should we disregard PayPaler as a Communicator so no need to have the fake output(...)? 

@@ -58,7 +58,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.0.6";
+	public final static String VERSION = "2.1.2";
 	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -74,7 +74,8 @@ public abstract class Body extends Anything implements Environment, Updater
 	public final static long MIN_CHECK_CYCLE_MS = 3*Period.HOUR;//TODO: make configurable and used in Selfer.minCheckCycle
 	public final static int MIN_RELEVANT_FEATURE_THRESHOLD_PERCENTS = 20;//TODO: make per-peer (custom) and per-self (default) configurable	
 	
-	public final static String http_user_agent = "Aigents (Automatic intelligent internet agents; +http://www.aigents.com)";
+	//public final static String http_user_agent = "Aigents (Automatic intelligent internet agents; +http://www.aigents.com)";
+	public final static String http_user_agent = APPNAME+"/"+VERSION+" (Automatic Intelligent Internet Agents; +"+ORIGINSITE+")";
 
 	public static final String tcp_port = "tcp port";
 	public static final String tcp_timeout = "tcp timeout";
@@ -113,6 +114,10 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String paypal_key = "paypal key";
 	public static final String paypal_token = "paypal token";
 	public static final String paypal_url = "paypal url";
+	public static final String reddit_id = "reddit id";
+	public static final String reddit_key = "reddit key";
+	public static final String reddit_redirect = "reddit redirect";
+	public static final String reddit_token = "reddit token";
 	public static final String google_id = "google id";//client id or user id
 	public static final String google_key = "google key";//client secret
 	public static final String google_token = "google token";//access_token or temporary code
@@ -145,6 +150,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		facebook_id, facebook_key, facebook_token, facebook_challenge,
 		slack_id, slack_key, slack_token,
 		paypal_id, paypal_key, paypal_token, paypal_url,
+		reddit_id, reddit_key, reddit_token, reddit_redirect,
 		vkontakte_id, vkontakte_key, vkontakte_token,
 		telegram_token, telegram_offset,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
@@ -169,6 +175,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public FB fb = null;
 	public GApi gapi = null;
 	public VK vk = null;
+	public Socializer reddit = null;
 	public Socializer steemit = null;
 	public Socializer golos = null;
 	public Socializer ethereum = null;
@@ -248,6 +255,7 @@ public abstract class Body extends Anything implements Environment, Updater
 			"steemit".equals(name) ? (Socializer)steemit : 
 			"golos".equals(name) ? (Socializer)golos : 
 			"ethereum".equals(name) ? (Socializer)ethereum : 
+			"reddit".equals(name) ? reddit : 
 			null;
 		return provider;
 	}

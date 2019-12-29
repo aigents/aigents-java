@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -96,7 +96,18 @@ curl --data '{"jsonrpc": "2.0", "method": "call", "params": [0,"get_content",["m
 
 curl --data '{"jsonrpc": "2.0", "id":25,"method":"get_accounts","params":["akolonin","2","1"]}' https://this.goloscore.org
 
-Golos: 
+
+Golos (CyberWay): 
+	https://golos.io
+From @gropox (on Telegram)
+	Nodes with API:
+		https://github.com/cyberway/cyberway.launch/blob/master/apinodes
+	API:
+		https://developers.eos.io/eosio-nodeos/v1.2.0/reference
+		example: get_table_rows
+
+Golos (OLD): 
+https://golos.id
 @Jackvote [27 нояб. 2019 г., 15:34:32]:
 https://ropox.app/steemjs/api/database_api/get_block
 wss://golos.lexa.host/ws
@@ -126,7 +137,10 @@ https://api.golos.cf - ask @vikxx on Telegram
 wss://ws17.golos.io/ - not working on 2015-05-15
 Golos Working:
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api.golos.blckchnd.com
-curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["15958850"]]}' https://api.golos.blckchnd.com/
+curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["33119661"]]}' https://api.golos.blckchnd.com/
+curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["33119661"]]}' https://api-full.golos.id
+curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_dynamic_global_properties",[]]}' https://api-full.golos.id
+
 Golos Not Working:
 curl --data '{"jsonrpc":"2.0","id":"25","method":"get_account_history","params": ["akolonin","-1","1000"]}' https://api.golos.cf
 curl --data '{"jsonrpc":"2.0","id":"25","method":"get_account_history","params": ["akolonin","-1","1000"]}' https://ws.golos.io
@@ -277,7 +291,8 @@ public class Steemit extends SocialCacher {
 			if (response.startsWith("<html>")){
 				env.error("Steemit response "+response+" on "+par,null);
 				Thread.sleep(100 * retry);
-			}
+			} else 
+				break;
 		}
 		return response;
 	}
@@ -342,7 +357,7 @@ public class Steemit extends SocialCacher {
 	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {
 		String caps_name = Writer.capitalize(api_name);
 		GraphCacher grapher = new GraphCacher(api_name,env);
-		String site = "steemit".equals(api_name) ? "https://steemit.com/" : "https://golos.io/";
+		String site = "steemit".equals(api_name) ? "https://steemit.com/" : "https://golos.id/";
 		DataLogger logger = new DataLogger(env,Writer.capitalize(api_name)+" crawling");
 		long time_start = System.currentTimeMillis();
 		long age = 0;
@@ -494,7 +509,7 @@ if (block % 10 == 0){
 						}else
 						if (type.equals("vote")){
 							//["vote",{"voter":"munhwan","author":"hjk96","permlink":"6afnxy-with","weight":10000}]
-							int intvalue = JsonInt(args,"weight");
+							int intvalue = getJsonInt(args,"weight");
 							int logvalue = 1 + (int)Math.round(Math.log10(intvalue));//should be non-zero
 							String weight = String.valueOf(intvalue);
 							String voter = getJsonString(args,"voter");

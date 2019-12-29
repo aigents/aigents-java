@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import net.webstructor.agent.Body; 
 import net.webstructor.al.AL;
 import net.webstructor.comm.fb.Messenger;
+import net.webstructor.comm.reddit.Redditer;
 import net.webstructor.core.Thing;
 
 import java.util.UUID;
@@ -66,8 +67,7 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 		http_secure = "true".equalsIgnoreCase(self.getString(Body.http_secure,"false"));
 		
 		//TODO: construct it at body constructor level!?
-		//handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body)};
-		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body),new PayPaler(body)};
+		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body),new PayPaler(body),new Redditer(body)};
 	}
 	
 	protected synchronized String getCookie() {

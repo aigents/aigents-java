@@ -110,52 +110,6 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		}
 		return false;
 	}
-
-	/*TODO remove 20190913
-	//email may be not available by settings if not confirmed or user registered with phone number 
-	//or may be not required at all (vkontakte)
-	private boolean bind(Session session,String provider,String id, String token, String email, String name, String surname){
-		String provider_id = provider+" id";//eg. facebook_id
-		String provider_token = provider+" token";
-		session.sessioner.body.debug(provider+" verified: "+id+" "+email+" "+name+" "+surname+" "+token);
-		Thing peer = new Thing(session.sessioner.body.storager.getNamed(Schema.peer),session.peer,null);
-		peer.set(provider_id, id);
-		peer.set(provider_token, token);
-		if (!AL.empty(name)) 
-			peer.set(AL.name, name.toLowerCase() );
-		if (!AL.empty(surname)) 
-			peer.set(Peer.surname, surname.toLowerCase());
-		if (!AL.empty(email)) 
-			peer.set(AL.email, email.toLowerCase());
-		session.sessioner.body.debug(provider+" looking for: "+peer);
-		Collection peers = session.sessioner.body.storager.get(peer,new String[]{provider_id});
-		if (!AL.empty(peers))
-			session.sessioner.body.debug(provider+" found by id: "+peers.iterator().next());
-		if (AL.empty(peers))//TODO: get rid of this as email is unique now
-			peers = session.sessioner.body.storager.get(peer,new String[]{AL.email,AL.name,Peer.surname});
-		if (!AL.empty(peers))
-			session.sessioner.body.debug(provider+" found by name and email: "+peers.iterator().next());
-		if (AL.empty(peers))
-			peers = session.sessioner.body.storager.get(peer,new String[]{AL.email});
-		if (!AL.empty(peers))
-			session.sessioner.body.debug(provider+" found by email: "+peers.iterator().next());
-		if (AL.empty(peers))
-			peers = session.sessioner.body.storager.get(peer,new String[]{AL.name,Peer.surname});
-		if (!AL.empty(peers) && peers.size() == 1)//only unique identifcations!!!
-			session.sessioner.body.debug(provider+" found by name: "+peers.iterator().next());
-		if (!AL.empty(peers) && peers.size() == 1) {//if matched, auto log in
-			Thing storedPeer = (Thing)peers.iterator().next();
-			storedPeer.set(provider_id, id);
-			storedPeer.set(provider_token, token);
-			session.login(provider,storedPeer);
-			return false;
-		} else {
-			// if not matched, auto register
-			session.register(provider, peer, email);
-			return false;
-		}
-	}
-	*/
 	
 	//TODO: don't touch now, change to unified framework (as for Google) later
 	public boolean facebook(Session session) {

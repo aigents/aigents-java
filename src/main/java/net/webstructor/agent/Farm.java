@@ -47,6 +47,7 @@ import net.webstructor.comm.eth.Ethereum;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.fb.Messenger;
 import net.webstructor.comm.goog.GApi;
+import net.webstructor.comm.reddit.Reddit;
 import net.webstructor.comm.steemit.Steemit;
 import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Anything;
@@ -140,6 +141,12 @@ public class Farm extends Body {
 			String vk_key = self().getString(vkontakte_key);
 			if (!AL.empty(vk_id) && !AL.empty(vk_key))
 				vk = new VK(this,vk_id,vk_key);
+			
+			//TODO: merge Reddit+Redditer and FB+Messenger? 
+			String r_id = self().getString(reddit_id);
+			String r_key = self().getString(reddit_key);
+			if (!AL.empty(r_id) && !AL.empty(r_key))
+				reddit = new Reddit(this,r_id,r_key);
 			
 			String st_url = self().getString(steemit_url);
 			if (!AL.empty(st_url))

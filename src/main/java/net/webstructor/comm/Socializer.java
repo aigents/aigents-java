@@ -57,7 +57,14 @@ import net.webstructor.data.Translator;
  * @author akolonin
  */
 public abstract class Socializer extends HTTP {
+	protected String name;
+	protected int timeout = 0;
 	
+	protected Socializer(Body body, String name) {
+		super(body);
+		this.name = name;
+	}
+
 	protected Socializer(Body body) {
 		super(body);
 	}
@@ -706,10 +713,11 @@ public abstract class Socializer extends HTTP {
 			rep.table(words_liked_by_me,t.loc(words_liked_by_me),
 				t.loc(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","My likes/Posts"}),
 				feeder.getWordsLikedByMe(500,1),minPercent,minCount);
-		if ((options.isEmpty() || options.contains(my_posts_for_the_period)) && !AL.empty(feeder.getDetails()))
+		Object[][] details;
+		if ((options.isEmpty() || options.contains(my_posts_for_the_period)) && !AL.empty(details = feeder.getDetails()))
 			rep.table(my_posts_for_the_period,t.loc(my_posts_for_the_period),
 				t.loc(new String[]{"Date","Likes & Comments","Text & Comments","Links","Comments"}),
-				feeder.getDetails(),0,0);
+				details,0,0);
 		rep.closePeer();
 	}
 }

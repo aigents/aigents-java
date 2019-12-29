@@ -28,6 +28,8 @@ include_once("test_api.php");
 function test_sites() {
 	global $version;
 	global $copyright;
+	global $base_things_count;
+
 	//initialize
 	say("My login.");
 	get("What your email, name, surname?");
@@ -295,7 +297,7 @@ http://indianexpress.com/elections/
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 100.");
+	get("My things count ".($base_things_count).".");
 	//finalize
 	say("Your trusts no john.");
 	get("Ok.");
@@ -311,6 +313,8 @@ http://indianexpress.com/elections/
 function test_extractor() {
 	global $version;
 	global $copyright;
+	global $base_things_count;
+	
 	//initialize
 	say("My login.");
 	get("What your email, name, surname?");
@@ -431,7 +435,7 @@ function test_extractor() {
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 100.");
+	get("My things count ".($base_things_count).".");
 	//finalize
 	say("Your trusts no john.");
 	get("Ok.");

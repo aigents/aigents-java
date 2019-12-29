@@ -159,7 +159,7 @@ public class Session  {
 		return key;
 	}
 	
-	boolean isSecurityLocal() {
+	public boolean isSecurityLocal() {
 		return communicator.getClass().getName().equals("net.webstructor.android.Talker")
 			|| communicator.getClass().getName().equals("net.webstructor.gui.Chatter")
 			;
@@ -387,14 +387,31 @@ public class Session  {
 			session.sessioner.body.error(provider+" error: "+e.toString(), e);
 		}
 	}
-	
+
+	public String bindAuthenticated(String idname,String idvalue,String tokenname,String tokenvalue){
+		Session session = this;
+		try {
+			Collection owners = session.sessioner.body.storager.getByName(idname,idvalue);
+			if (!AL.empty(owners) && (owners.size()>1 || !idvalue.equals(session.getStoredPeer().getString(idname,null))))
+				return Writer.capitalize(idname+" "+idvalue+" is owned.");
+		}catch(Exception e){
+			session.sessioner.body.error("Social bind",e);
+			return e.getMessage();
+		}			
+		session.getStoredPeer().set(idname, idvalue);
+		session.getStoredPeer().set(tokenname, tokenvalue);
+		return "Ok.";
+	}
+
+	//bindNonAutheticated
 	//email may be not available by settings if not confirmed or user registered with phone number 
 	//or may be not required at all (vkontakte)
 	public boolean bind(String provider,String id, String token, String email, String name, String surname){
+		String Provider = Writer.capitalize(provider);//for debugging only
 		Session session = this;
 		String provider_id = provider+" id";//eg. facebook_id
 		String provider_token = provider+" token";
-		session.sessioner.body.debug(provider+" verified: "+id+" "+email+" "+name+" "+surname+" "+token);
+		session.sessioner.body.debug(Provider+" verified: "+id+" "+email+" "+name+" "+surname+" "+token);
 		Thing peer = new Thing(session.sessioner.body.storager.getNamed(Schema.peer),session.peer,null);
 		peer.set(provider_id, id);
 		peer.set(provider_token, token);
@@ -404,31 +421,34 @@ public class Session  {
 			peer.set(Peer.surname, surname.toLowerCase());
 		if (!AL.empty(email)) 
 			peer.set(AL.email, email.toLowerCase());
-		session.sessioner.body.debug(provider+" looking for: "+peer);
+		session.sessioner.body.debug(Provider+" looking for: "+peer.getTitle(Peer.title));
 		Collection peers = session.sessioner.body.storager.get(peer,new String[]{provider_id});
 		if (!AL.empty(peers))
-			session.sessioner.body.debug(provider+" found by id: "+peers.iterator().next());
+			session.sessioner.body.debug(Provider+" found by id: "+((Thing)peers.iterator().next()).getTitle(Peer.title));
 		if (AL.empty(peers))//TODO: get rid of this as email is unique now
-			peers = session.sessioner.body.storager.get(peer,new String[]{AL.email,AL.name,Peer.surname});
+			peers = session.sessioner.body.storager.get(peer,Peer.title);
 		if (!AL.empty(peers))
-			session.sessioner.body.debug(provider+" found by name and email: "+peers.iterator().next());
+			session.sessioner.body.debug(Provider+" found by name and email: "+((Thing)peers.iterator().next()).getTitle(Peer.title));
 		if (AL.empty(peers))
 			peers = session.sessioner.body.storager.get(peer,new String[]{AL.email});
 		if (!AL.empty(peers))
-			session.sessioner.body.debug(provider+" found by email: "+peers.iterator().next());
+			session.sessioner.body.debug(Provider+" found by email: "+((Thing)peers.iterator().next()).getTitle(Peer.title));
 		if (AL.empty(peers))
 			peers = session.sessioner.body.storager.get(peer,new String[]{AL.name,Peer.surname});//bind by name+surname only
-		if (!AL.empty(peers) && peers.size() == 1)//only unique identifcations!!!
-			session.sessioner.body.debug(provider+" found by name: "+peers.iterator().next());
+		if (!AL.empty(peers))//let only unique identifcations!!!
+			for (Iterator it = peers.iterator(); it.hasNext();)
+				session.sessioner.body.debug(Provider+" found by name: "+((Thing)it.next()).getTitle(Peer.title));
 		if (!AL.empty(peers) && peers.size() == 1) {//if matched, auto log in
 			Thing storedPeer = (Thing)peers.iterator().next();
 			storedPeer.set(provider_id, id);
 			storedPeer.set(provider_token, token);
 			session.login(provider,storedPeer);
+			session.sessioner.body.debug(Provider+" updated "+storedPeer.getString(AL.email)+" id "+id);
 			return false;
 		} else {
 			// if not matched, auto register
 			session.register(provider, peer, email);
+			session.sessioner.body.debug(Provider+" registered "+email+" id "+id);
 			return false;
 		}
 	}

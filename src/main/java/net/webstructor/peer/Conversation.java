@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -101,21 +101,6 @@ class Conversation extends Mode {
 		return report != null ? report : "Not.";
 	}
 	
-	//TODO:something more smart?
-	private String socialBind(Session session,String idname,String idvalue,String tokenname,String tokenvalue){
-		try {
-			Collection owners = session.sessioner.body.storager.getByName(idname,idvalue);
-			if (!AL.empty(owners) && (owners.size()>1 || !idvalue.equals(session.getStoredPeer().getString(idname,null))))
-				return Writer.capitalize(idname+" "+idvalue+" is owned.");
-		}catch(Exception e){
-			session.sessioner.body.error("Social bind",e);
-			return e.getMessage();
-		}			
-		session.getStoredPeer().set(idname, idvalue);
-		session.getStoredPeer().set(tokenname, tokenvalue);
-		return "Ok.";
-	}
-	
 	public boolean process(Session session) {
 	  try {
 		Storager storager = session.sessioner.body.storager;
@@ -173,7 +158,7 @@ class Conversation extends Mode {
 		if (session.sessioner.body.vk != null && session.input().indexOf("vkontakte_id=")==0){
 			//update VK login upon callback
 			String ensti[] = session.sessioner.body.vk.verifyRedirect(session.input());
-			String ok = ensti == null ? null : socialBind(session,Body.vkontakte_id, ensti[4],Body.vkontakte_token, ensti[3]);
+			String ok = ensti == null ? null : session.bindAuthenticated(Body.vkontakte_id, ensti[4],Body.vkontakte_token, ensti[3]);
 			if (!ok.equals("Ok."))//TODO: fix hack!?
 				ensti = null;
 			//TODO:restrict origin for better security if passing token?
@@ -186,7 +171,7 @@ class Conversation extends Mode {
 			String token = session.peer.getString(Body.vkontakte_token);
 			String enst[];
 			if (session.sessioner.body.vk != null && ((enst = session.sessioner.body.vk.verifyToken(id, token)) != null)) {
-				session.output(socialBind(session,Body.vkontakte_id, id,Body.vkontakte_token, enst[3]));
+				session.output(session.bindAuthenticated(Body.vkontakte_id, id,Body.vkontakte_token, enst[3]));
 			} else
 				session.output("Not.");
 			return false;		
@@ -198,7 +183,7 @@ class Conversation extends Mode {
 			String enstir[];//email,name,surname,token,id,refresh_token
 			if (session.sessioner.body.gapi != null && ((enstir = session.sessioner.body.gapi.verifyToken(id, token)) != null)) {
 				id = enstir[4];
-				session.output(socialBind(session,Body.google_id, id, Body.google_token, enstir[3]));
+				session.output(session.bindAuthenticated(Body.google_id, id, Body.google_token, enstir[3]));
 				if ("Ok.".equals(session.output())) {//TODO: fix hack!?
 					session.getStoredPeer().set(Body.google_id,id);//TODO:straighten
 					if (!AL.empty(enstir[5]))//refresh_token as google_key
@@ -213,7 +198,7 @@ class Conversation extends Mode {
 			String id = session.peer.getString(Body.facebook_id);
 			String token = session.peer.getString(Body.facebook_token);
 			if (session.sessioner.body.fb != null && (token = session.sessioner.body.fb.verifyToken(id, token)) != null) {
-				session.output(socialBind(session,Body.facebook_id, id,Body.facebook_token, token));
+				session.output(session.bindAuthenticated(Body.facebook_id, id,Body.facebook_token, token));
 			} else
 				session.output("Not.");
 			return false;		

@@ -95,6 +95,8 @@ public class Peer extends Agent {
 		login_count,login_token,login_time,registration_time,activity_time,
 		Body.facebook_id, Body.facebook_token,
 		Body.vkontakte_id, Body.vkontakte_token,
+		Body.paypal_id, Body.paypal_token,
+		Body.reddit_id, Body.reddit_token,
 		Body.telegram_id,
 		Body.google_id, Body.google_token,
 		Body.steemit_id, Body.golos_id, Body.ethereum_id,
@@ -226,6 +228,7 @@ public class Peer extends Agent {
 				|| !AL.empty(peer.getString(Body.telegram_id))
 				|| !AL.empty(peer.getString(Body.slack_id))
 				|| !AL.empty(peer.getString(Body.paypal_id))
+				|| !AL.empty(peer.getString(Body.reddit_id))
 				|| !AL.empty(peer.getString(Body.google_id))
 				|| !AL.empty(peer.getString(Body.facebook_id))
 				|| !AL.empty(peer.getString(Body.vkontakte_id));

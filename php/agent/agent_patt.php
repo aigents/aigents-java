@@ -29,6 +29,8 @@ function test_agent_patterns() {
 	global $basePath;
 	global $version;
 	global $copyright;
+	global $base_things_count;
+	
 	say("My login.");
 	get("What your email, name, surname?");
 	say("My email john@doe.com, name john, surname doe, secret question x, secret answer y.");
@@ -371,7 +373,7 @@ function test_agent_patterns() {
 	say("You forget!");
 	get("Ok.");
 	say("What your things count?");
-	get("My things count 100.");
+	get("My things count ".($base_things_count).".");
 	
 	say("Your trusts no john.");
 	get("Ok.");

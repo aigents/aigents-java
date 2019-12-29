@@ -17,7 +17,7 @@
   <script type="text/javascript" src="/ui/aigents-graph.js?300"></script>
   <script type="text/javascript" src="/ui/aigents-gui.js?300"></script>
   <script type="text/javascript" src="/ui/aigents-map.js?300"></script>
-  <script type="text/javascript" src="/ui/aigents-wui.js?301"></script>
+  <script type="text/javascript" src="/ui/aigents-wui.js?313"></script>
   <!-- Google
   <meta name="google-signin-client_id" content="638660736503-ip2avfmusv38va2jn8fub8cf4c4oobm7.apps.googleusercontent.com"></meta>
   -->
@@ -180,6 +180,14 @@ function microphone_input(input){
 		<div id="slack" class="menu-button"><a href="/en/slack.html" target="_blank"  style="text-decoration:none">
 			<img id="slack_logo" src="/ui/img/slack_logo.png" title="Connect with us on Slack" style="cursor:pointer" width="34" height="34"/>
 		</a></div>
+		<div id="reddit" class="menu-button">
+			<img id="reddit_logo" src="/ui/img/reddit.png" title="Connect with us on Reddit" style="cursor:pointer" width="34" height="34"/>
+<!--
+			<span id="reddit_logo" title="Connect with us on Reddit" style="cursor:pointer">
+			<svg xmlns="http://www.w3.org/2000/svg" width=34 height=34 viewBox="0 0 20 20" class="_1O4jTk-dZ-VIxsCuYB6OR8"><g><circle fill="#FF4500" cx="10" cy="10" r="10"></circle><path fill="#FFF" d="M16.67,10A1.46,1.46,0,0,0,14.2,9a7.12,7.12,0,0,0-3.85-1.23L11,4.65,13.14,5.1a1,1,0,1,0,.13-0.61L10.82,4a0.31,0.31,0,0,0-.37.24L9.71,7.71a7.14,7.14,0,0,0-3.9,1.23A1.46,1.46,0,1,0,4.2,11.33a2.87,2.87,0,0,0,0,.44c0,2.24,2.61,4.06,5.83,4.06s5.83-1.82,5.83-4.06a2.87,2.87,0,0,0,0-.44A1.46,1.46,0,0,0,16.67,10Zm-10,1a1,1,0,1,1,1,1A1,1,0,0,1,6.67,11Zm5.81,2.75a3.84,3.84,0,0,1-2.47.77,3.84,3.84,0,0,1-2.47-.77,0.27,0.27,0,0,1,.38-0.38A3.27,3.27,0,0,0,10,14a3.28,3.28,0,0,0,2.09-.61A0.27,0.27,0,1,1,12.48,13.79Zm-0.18-1.71a1,1,0,1,1,1-1A1,1,0,0,1,12.29,12.08Z"></path></g></svg>
+			</span>
+-->
+		</div>
 		<div id="paypal" class="menu-button"><a href="/en/paypal.html" target="_self" style="text-decoration:none">
 			<img id="paypal_logo" src="/ui/img/paypal_icon_no_border.png" title="Connect with us on Paypal" style="cursor:pointer" width="34" height="34"/>
 		</a></div>
@@ -692,13 +700,23 @@ function microphone_input(input){
 </ul> 
 <ul id="facebook_menu" style="display:none;z-index:100;">
 	<li class="ui-state-disabled">Facebook</li>
-	<li id="facebook_report" title="Faceboot activity report">Report</li>
+	<li id="facebook_report" title="Facebook activity report">Report</li>
 	<li id="facebook_logout" title="Signout from all accounts">Logout</li>
 </ul>
 <ul id="aigents_menu" style="display:none;z-index:100;">
 	<li class="ui-state-disabled">Aigents</li>
 	<li id="aigents_profile" title="Personal settings">Settings</li>
 	<li id="aigents_logout" title="Signout from all accounts">Logout</li>
+</ul>
+<ul id="reddit_menu" style="display:none;z-index:100;">
+	<li class="ui-state-disabled">Reddit</li>
+	<li id="reddit_report" title="Reddit activity report">Report</li>
+	<li id="reddit_logout" title="Signout from all accounts">Logout</li>
+</ul>
+<ul id="paypal_menu" style="display:none;z-index:100;">
+	<li class="ui-state-disabled">PayPal</li>
+	<li id="paypal_report" title="PayPal activity report">Report</li>
+	<li id="paypal_logout" title="Signout from all accounts">Logout</li>
 </ul>
 <ul id="trusts_menu" style="display:none;z-index:100;">
 	<li id="trusts_menu_check" title="Mark as important">Trust</li>

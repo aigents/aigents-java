@@ -327,6 +327,15 @@ $(function() {
     		your_properties();//login
     	}
     });
+
+    $("#reddit").click(function(event){
+        event.stopPropagation();
+        var reddit_redirect = base_url+"/reddit";
+        var reddit_id = "tp-g-UnxYQsZKw";
+        var session = getCookie('aigent');
+        if (!login_menu("#reddit","Reddit"))
+        	window.location.href = "https://www.reddit.com/api/v1/authorize?client_id="+reddit_id+"&response_type=code&state="+session+"&redirect_uri="+reddit_redirect+"&duration=permanent&scope=identity,read,history";
+    });
     
 });
 
@@ -420,6 +429,8 @@ $(document).ready(function () {
     $('#facebook').mouseenter(function() {login_menu("#facebook","Facebook");});
     $('#vkontakte').mouseenter(function() {login_menu("#vkontakte","VKontakte");});
     $('#aigents').mouseenter(function() {login_menu("#aigents","Aigents");});
+    $('#reddit').mouseenter(function() {login_menu("#reddit","Reddit");});
+    $('#paypal').mouseenter(function() {login_menu("#paypal","PayPal");});
     localize();
 });
 function timerIncrement() {
@@ -1981,6 +1992,9 @@ function talks_say_out_internal(text) {
 		logout("#facebook_logo");
 		logout("#google_logo");
 		logout("#vkontakte_logo");
+		logout("#reddit_logo");
+		logout("#paypal_logo");
+		logoutlowlevel();
 	}
 }
 
@@ -2104,7 +2118,7 @@ function login_menu(provider,name){
 		var container_position = container.offset();
 		var cw = container.width();
 		var mw = menu.width();
-		var menu_left = provider == '#vkontakte' 
+		var menu_left = provider == '#paypal' 
 			? container_position.left-menu.width()+container.width()
 			: container_position.left-menu.width()/2+container.width()/2;
 		var menu_top = container_position.top+container.height();
@@ -2270,17 +2284,31 @@ function init() {
 	displayAction(null);//TODO: remove legacy?
 	displayPending(0);
 	
+	function update_redirecting_logins(paypal,reddit){
+		if (!AL.empty(paypal))
+			login("#reddit_logo","/ui/img/reddit_grayed.png");
+		if (!AL.empty(reddit))
+			login("#paypal_logo","/ui/img/paypal_icon_no_border_grayed.png");
+	}
+	
 	//check if user is logged in already
 	var current_user = getCookie('username');
-	if (current_user){// use user set by cookie
-		loginlowlevel(current_user);
+	if (current_user){// user user set by cookie
+     	ajax_request('What my reddit id, paypal id?',function(response){
+			var data= [];
+			parseToGrid(data,response.substring(5),['reddit id','paypal id'],",");
+			if (!AL.empty(data))
+				update_redirecting_logins(data[0][0],data[0][1]);
+			loginlowlevel(current_user);
+        },true);//silent	    
 		post_init();
 	}else{//check if user is known by server after redirect with cookie kept in browser
-		requestBase(null,'What my name, surname, login time?',true,function(reply){
+		requestBase(null,'What my name, surname, login time, reddit id, paypal id?',true,function(reply){
 			var data= [];
-			parseToGrid(data,reply.substring(5),['login time','name','surname'],",");
+			parseToGrid(data,reply.substring(5),['login time','name','surname','reddit id','paypal id'],",");
 			if (!AL.empty(data)){//get user upon redirect and use tis context
 				loginlowlevel(capitalize(data[0][1]),capitalize(data[0][2]));
+				update_redirecting_logins(data[0][3],data[0][4]);
 				post_init();
 			} else {//create new context
 				ajax_request('my language '+lang,function(){

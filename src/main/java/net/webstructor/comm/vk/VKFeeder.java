@@ -73,6 +73,7 @@ class VKFeeder extends SocialFeeder {
 		return id < 0 ? (String)groupNames.get(String.valueOf(-id)) : getUserName(String.valueOf(id));
 	}
 
+	//TODO: remove this because it is moved to SocialFeeder 
 	public String processItem(Date times,String from,String html, OrderedStringSet links, Object[][] commenters, int otherLikesCount, boolean myLike){
 		if (html != null){
 			int commentsCount = countCommentsFromOthers(commenters);

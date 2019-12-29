@@ -291,6 +291,7 @@ function test_agent_agglomerate() {
 	global $copyright;
 	global $basePath;
 	global $timeout;
+	global $base_things_count;
 	
 	//login, registration, verification
 	say("My name john, email john@doe.org, surname doe.");
@@ -504,9 +505,9 @@ function test_agent_agglomerate() {
 	get("Ok.");
 
 	say("What your things?");
-	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paypal id, paypal key, paypal token, paypal url, peer, phone, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+	get("My things activity time, aigents, areas, attention period, birth date, check cycle, cookie domain, cookie name, daytime, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, friend, friends, golos id, golos url, google id, google key, google token, http origin, http port, http secure, http threads, http timeout, ignores, items limit, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paypal id, paypal key, paypal token, paypal url, peer, phone, reddit id, reddit key, reddit redirect, reddit token, registration time, retention period, secret answer, secret question, self, sensitivity threshold, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
 	say("What your things count?");
-	get("My things count 100.");
+	get("My things count ".($base_things_count).".");
 
 	say("Your trusts no john.");
 	get("Ok.");
