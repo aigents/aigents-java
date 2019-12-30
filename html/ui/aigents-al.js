@@ -234,7 +234,23 @@ var AL = {
 			if (a1[i] != a2[i])
 				return false;
 		return true;
-	} 
+	},
+	parseBetween : function (source, pre, post, aMustPost) {
+		if (source) {
+			var beg = source.indexOf(pre);
+			if (beg != -1){
+				beg += pre.length;
+				if (post == null)
+					return source.substring(beg);
+				var end = source.indexOf(post, beg);
+				if (end != -1)
+					return source.substring(beg,end);
+				if (!aMustPost)
+					return source.substring(beg);
+			}
+		}
+		return null;
+	}
 };
 
 function strcmp(a, b){   

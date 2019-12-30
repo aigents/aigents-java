@@ -11,13 +11,13 @@
   <script src="/ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
   <link rel="stylesheet" type="text/css" href="/ui/aigents-wui.css?300"></link>
   <script type="text/javascript" src="/ui/aigents-settings.js?300"></script>
-  <script type="text/javascript" src="/ui/aigents-al.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-al.js?302"></script>
   <script type="text/javascript" src="/ui/aigents-speech.js?300"></script>
-  <script type="text/javascript" src="/ui/aigents-locales.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-locales.js?302"></script>
   <script type="text/javascript" src="/ui/aigents-graph.js?300"></script>
-  <script type="text/javascript" src="/ui/aigents-gui.js?300"></script>
+  <script type="text/javascript" src="/ui/aigents-gui.js?301"></script>
   <script type="text/javascript" src="/ui/aigents-map.js?300"></script>
-  <script type="text/javascript" src="/ui/aigents-wui.js?313"></script>
+  <script type="text/javascript" src="/ui/aigents-wui.js?322"></script>
   <!-- Google
   <meta name="google-signin-client_id" content="638660736503-ip2avfmusv38va2jn8fub8cf4c4oobm7.apps.googleusercontent.com"></meta>
   -->
@@ -715,7 +715,7 @@ function microphone_input(input){
 </ul>
 <ul id="paypal_menu" style="display:none;z-index:100;">
 	<li class="ui-state-disabled">PayPal</li>
-	<li id="paypal_report" title="PayPal activity report">Report</li>
+	<!-- <li id="paypal_report" title="PayPal activity report">Report</li> -->
 	<li id="paypal_logout" title="Signout from all accounts">Logout</li>
 </ul>
 <ul id="trusts_menu" style="display:none;z-index:100;">
@@ -848,8 +848,8 @@ function microphone_input(input){
       }
       function updateSigninStatus(isSignedIn){
       	if (isSignedIn){
-      		if (window.loginGoogleApi)//auto-login!
-      			window.loginGoogleApi();
+      		if (window.loginGoogleApiAuto)//auto-login!
+      			window.loginGoogleApiAuto();
       		else
       			setTimeout(function(){updateSigninStatus(true);},3000);
         }

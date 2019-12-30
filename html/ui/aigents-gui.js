@@ -157,6 +157,10 @@ function graph_peers(peers_data,peer_obj){
 				counter_add(orders,'VKontakte',relevance);
 				links.push([peer_name,'VKontakte',relevance,'networks']);
 			}
+			if (peer.reddit){
+				counter_add(orders,'Reddit',relevance);
+				links.push([peer_name,'Reddit',relevance,'networks']);
+			}
 		}
 		mapmap_put(nodes,'Trust','is','relationship');
 		mapmap_put(nodes,'Share','is','relationship');
@@ -164,10 +168,12 @@ function graph_peers(peers_data,peer_obj){
 		mapmap_put(nodes,'Facebook','is','network');
 		mapmap_put(nodes,'Google','is','network');
 		mapmap_put(nodes,'VKontakte','is','network');
+		mapmap_put(nodes,'Reddit','is','network');
 		mapmap_put(nodes,'Aigents','image','https://aigents.com/ui/img/aigent32.png');
 		mapmap_put(nodes,'Facebook','image','https://aigents.com/ui/img/fb_logo.png');
 		mapmap_put(nodes,'Google','image','https://aigents.com/ui/img/google_icon.png');
 		mapmap_put(nodes,'VKontakte','image','https://aigents.com/ui/img/vk_logo.png');
+		mapmap_put(nodes,'Reddit','image','https://aigents.com/ui/img/reddit.png');
 		//TODO: setup images
     	var setup = {
     			graph : {orders:orders,links:links,nodes:nodes,config:{

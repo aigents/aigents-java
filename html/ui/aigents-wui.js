@@ -988,7 +988,7 @@ var peer_self_properties = ['email','name','surname',
                        //'secret question','secret answer',
                        //'facebook login',//'vkontakte login',
                        'check cycle', 'items limit', 'trusts limit', 'news limit', 'email notification', 'steemit id', 'golos id', 'ethereum id'];
-var peer_peer_properties = ['name','surname','email','facebook id','google id','vkontakte id'];
+var peer_peer_properties = ['name','surname','email','facebook id','google id','reddit id','vkontakte id'];
 var peer_peer_keys = ['name','surname','email']
 
 function fields(names) {
@@ -1623,15 +1623,16 @@ function peer_obj(data,i,capital){
 	var item = data[i];
 	peer.name = capital ? capitalize(item[1]) : item[1];
 	peer.surname = capital ? capitalize(item[2]) : item[2];
-	if (item[0] && item[0].indexOf("@vk.com") == -1 && item[0].indexOf("@facebook.com") == -1  && item[0].indexOf("@google.com") == -1)
+	if (item[0] && item[0].indexOf("@vk.com") == -1 && item[0].indexOf("@facebook.com") == -1 && item[0].indexOf("@google.com") == -1 && item[0].indexOf("@reddit.com") == -1)
 		peer.email = item[0];
 	peer.share = item[3] ? true : false;
 	peer.facebook = item[4];
-	peer.google = item[6];
 	peer.vkontakte = item[5];
-	peer.editable = !peer.facebook && !peer.google && !peer.vkontakte;
-	peer.relevance = item[7];
-	peer.trust = item[8] ? true : false;
+	peer.google = item[6];
+	peer.reddit = item[7];
+	peer.editable = !peer.facebook && !peer.google && !peer.vkontakte && !peer.reddit;
+	peer.relevance = item[8];
+	peer.trust = item[9] ? true : false;
 	//building name, which can be empty if social id is present only
 	peer.fullname = !AL.empty(peer.name) ? peer.name : null;		
 	if (!AL.empty(peer.surname))
@@ -1659,11 +1660,13 @@ function peers_init(list,data,filter) {//email,name,surname,trust
 		
 		var but = '<div style="float:right;display:inline-block;'+height+'">';
 		if (peer.facebook)
-			but += '<a href="https://facebook.com/'+peer.facebook+'" target="_blank"><img src="/ui/img/fb_logo.png" width="32" height="32"/></a>';
+			but += '<img src="/ui/img/fb_logo.png" width="32" height="32"/>';
 		if (peer.google)
-			but += '<a href="https://plus.google.com/'+peer.google+'" target="_blank"><img src="/ui/img/google_icon.png" width="32" height="32"/></a>';
+			but += '<img src="/ui/img/google_icon.png" width="32" height="32"/>';
 		if (peer.vkontakte)
 			but += '<a href="https://vk.com/search?q='+(peer.fullname ? peer.fullname : '')+'" target="_blank"><img src="/ui/img/vk_logo.png" width="34" height="34"/></a>';
+		if (peer.reddit)
+			but += '<a href="https://www.reddit.com/user/'+peer.reddit+'" target="_blank"><img src="/ui/img/reddit.png" width="32" height="32"/></a>';
 		but += '</div>';
 		
 		var html = $('<div style="display:inline-block;'+height+'">'+str+'</div>');
@@ -1749,15 +1752,15 @@ function is_secret(name) {
 }
 
 function peers_refresh() {
-	requestBase("#peers_list","what is peer, friend true email, facebook id, vkontakte id, google id, name, surname, share, relevance, trust?",true);
+	requestBase("#peers_list","what is peer, friend true email, facebook id, vkontakte id, google id, reddit id, name, surname, share, relevance, trust?",true);
 	$('#peers_input').val('');
 }
 
 function edit_peer(item) {
 	var index = $(item)[0].id;
 	var peer = peer_obj(peers_data,index,false);
-	var q = qualifier(peer_peer_properties,[peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.vkontakte]);
-	var values = [peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.vkontakte];
+	var q = qualifier(peer_peer_properties,[peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.reddit,peer.vkontakte]);
+	var values = [peer.name,peer.surname,peer.email,peer.facebook,peer.google,peer.reddit,peer.vkontakte];
 	requestBase(null,'what '+q+' is?',true,function(result){
 		peer.editable= result == 'No right.' ? false: true;
 		dialog_open(_('Peer'),null,peer_peer_properties,peer_peer_properties,values,!peer.editable,function(){
@@ -1826,7 +1829,7 @@ function peers_update(string) {
 	if (!string) 
 		$('#peers_list').empty();
 	else {
-		parseToGrid(peers_data,string,["email", "name", "surname", "share", "facebook id", "vkontakte id", "google id", "relevance", "trust"],",");
+		parseToGrid(peers_data,string,["email", "name", "surname", "share", "facebook id", "vkontakte id", "google id", "reddit id", "relevance", "trust"],",");
 		peers_data.sort(function(a,b){
 			for (var n = 0; n < 3; n ++) {
 				var cmp;
@@ -1918,7 +1921,10 @@ function talks_say_out(text) {
 
 function talks_say_in(text) {
 	if (text.substr(0,6) == "<html>") {
-		popUpReport("Aigents Search Report",text,true);//true - use jquery
+		var title = AL.parseBetween(text,"<title>","</title>",true);
+		if (!title)
+			title = "Aigents Search Report";
+		popUpReport(title,text,true);//true - use jquery
 		text = "Ok.";//return;
 	}
 	displayStatus(text);
@@ -2070,7 +2076,7 @@ var popupWindow = null;
 function popUpReport(title,html,jquery){
 	if (jquery){
 		//this fits the standard styles BUT makes in not printable AND breaks styles of "x" buttons in lists 
-		renderReport("Aigents Search Report").html(html);
+		renderReport(title).html(html);
 	}else {
 		//http://jennifermadden.com/javascript/window3.html
 		//this make it printable but need to arrange the styles and default window size 
@@ -2460,76 +2466,99 @@ function post_init(){
 	    fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));
 
-	//Google //TODO eliminate as not used?
-	var updateSignIn = function() {
+	//Google
+	//TODO eliminate as not used?
+	/*var updateSignIn = function() {
 		console.log('Google update sign in state');
 		if (auth2.isSignedIn.get()) {
 			window.loginGoogleApi();
 		}else{
 		    console.log('signed out');
 		}
+	}*/
+	//TODO 111
+	function getGoogleUser(response){
+		function primary(a){
+			for (var i = 0; i < a.length; i++)
+				if (a[i].metadata.primary)
+					return a[i];
+		}
+		var user = {};
+		var result = response.result;
+		var profile = primary(result.names);
+		user.name = profile.displayName;
+		user.id = profile.metadata.source.id;
+		user.photo = primary(result.photos).url;
+        //user.email = primary(result.emailAddresses).value;
+		return user;
 	}
 	window.loginGoogleApi = function(){
-	 //TODO: get rid of the grantOfflineAccess?
-	 auth2.grantOfflineAccess().then(function (result){
-	  console.log("Google grantOfflineAccess: "+JSON.stringify(result));
-	  var result_code = result.code;
-	  setTimeout(function(){//hack - wait for accss to People API granted
-		/*
-                var user = gapi.auth2.getAuthInstance().currentUser.get();
- 		function mineproperty(o,p){
-			if (o && p) for(var propt in o){
-				var v = o[propt];
-				if (propt == p)
-					return v;
-    				if (v && typeof v === 'object'){
-					v = mineproperty(v,p);				
-					if (v)
-						return v; 
+		//TODO: get rid of the grantOfflineAccess?
+		auth2.grantOfflineAccess().then(function (result){
+			console.log("Google grantOfflineAccess: "+JSON.stringify(result));
+			var result_code = result.code;
+			//TODO eliminate as not used?
+			/*
+	                var user = gapi.auth2.getAuthInstance().currentUser.get();
+	 		function mineproperty(o,p){
+				if (o && p) for(var propt in o){
+					var v = o[propt];
+					if (propt == p)
+						return v;
+	    				if (v && typeof v === 'object'){
+						v = mineproperty(v,p);				
+						if (v)
+							return v; 
+					}
 				}
+				return null;
 			}
-			return null;
-		}
-		var id_token = mineproperty(user,'id_token');
-                console.log("Goolge id_token "+id_token);
-		*/
-		//TODO: get user id and all the rest stuff just from the user object?
-		if (gapi.client.people){
-			gapi.client.people.people.get({
-           			'resourceName': 'people/me',
-           			'personFields': 'names,photos' //,emailAddresses'
-         		}).then(function(response) {
-           			console.log(response);
-				function primary(a){
-					for (var i = 0; i < a.length; i++)
-						if (a[i].metadata.primary)
-							return a[i];
-				}
-				var result = response.result;
-				var profile = primary(result.names);
-				var name = profile.displayName;
-				var id = profile.metadata.source.id;
-				var photo = primary(result.photos).url;
-                                //var email = primary(result.emailAddresses).value;
-				console.log(id+'/'+name+'/'+photo);
-
-		    		var request = "my google id "+id+", google token '"+result_code+"'.";
-		    		console.log("Google : "+request);
-		    		ajax_request(request,function(response){
-			    		console.log('Google logged in: '+response);
-		    			if (response.indexOf("Ok.") == 0) {
-		    				talks_say_in(response);
-    						var realname = parseBetween(response,'Hello ','!');
-						loginlowlevel(realname ? realname : name);
-						auto_refresh();
-						login("#google_logo",photo);
-		    			}
-			    	});	    
-
-         		});
-		}
-	  },1000);//hack - wait for accss to People API granted
-     });
+			var id_token = mineproperty(user,'id_token');
+	                console.log("Goolge id_token "+id_token);
+			*/
+			//TODO: get user id and all the rest stuff just from the user object?
+			if (gapi.client.people){
+				gapi.client.people.people.get({
+	           			'resourceName': 'people/me',
+	           			'personFields': 'names,photos' //,emailAddresses'
+	         		}).then(function(response) {
+	           		console.log(response);
+	           		var user = getGoogleUser(response);
+					console.log(user.id+'/'+user.name+'/'+user.photo);
+			    	var request = "my google id "+user.id+", google token '"+result_code+"'.";
+			    	console.log("Google : "+request);
+			    	ajax_request(request,function(response){
+				    	console.log('Google logged in: '+response);
+			    		if (response.indexOf("Ok.") == 0) {
+			    			talks_say_in(response);
+	    					var realname = parseBetween(response,'Hello ','!');
+							loginlowlevel(realname ? realname : user.name);
+							auto_refresh();
+							login("#google_logo",user.photo);
+			    		}
+				    });
+	         	});
+			}
+		});//auth2.grantOfflineAccess
+	}
+	window.loginGoogleApiAuto = function(){
+		setTimeout(function(){//hack - wait for access to People API granted
+			if (gapi.client.people){
+				gapi.client.people.people.get({
+	           			'resourceName': 'people/me',
+	           			'personFields': 'names,photos' //,emailAddresses'
+	         		}).then(function(response) {
+	           		console.log('Google auto login response '+response);
+	           		var user = getGoogleUser(response);
+					ajax_request('What my google id?',function(response){
+						var data = [];
+						parseToGrid(data,response.substring(5),['google id'],",");
+						if (!AL.empty(data) && user.id == data[0][0])
+							login("#google_logo",user.photo);
+					},true);//silent	    
+			    });	    
+         	}
+		},1000);//hack - wait for accss to People API granted
 	}
 
         //init login processes and news refresh incrementally with delays

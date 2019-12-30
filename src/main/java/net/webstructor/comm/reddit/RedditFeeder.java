@@ -54,7 +54,6 @@ Many default User-Agents (like "Python/urllib" or "Java") are drastically limite
 Including the version number and updating it as you build your application allows us to safely block old buggy/broken versions of your app.
 NEVER lie about your user-agent. This includes spoofing popular browsers and spoofing other bots. We will ban liars with extreme prejudice.
 
-
 TODO:
 - report 
 	https://www.reddit.com/dev/api/
