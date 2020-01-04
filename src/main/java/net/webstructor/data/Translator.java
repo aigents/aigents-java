@@ -63,6 +63,7 @@ public class Translator {
 		r.put("friends","друзья");
 		r.put("text","текст");
 		r.put("links","ссылки");
+		r.put("image","картинка");
 		r.put("posts","публикации");
 		r.put("count","число");
 		r.put("occurences","упоминаний");

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@ import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.util.JSON;
+import net.webstructor.util.Reporter;
 import net.webstructor.util.Str;
 
 /*
@@ -82,76 +83,6 @@ class RedditFeeder extends SocialFeeder {
 		super(body,user_id,langPack,false,since,until);
 		this.api = api;
 	}
-
-//TODO: remove or rewrite
-	/*
-	private Object[][] processComments(String token,int id) throws IOException{
-		//TODO:process all comments, not just first 100 as now
-		String url = "";//TODO:
-		sleep(1000);
-		String out = HTTP.simpleGet(url);
-		JsonReader jr = Json.createReader(new StringReader(out));
-		JsonObject jobj = jr.readObject();
-		JsonArray comments = jobj.getJsonArray("items");
-		ArrayList collected = new ArrayList();
-		if (comments != null)
-		for (int i = 0; i < comments.size(); i++){
-			JsonObject comment = comments.getJsonObject(i);
-			String from_id = String.valueOf(comment.getInt("from_id"));
-			String text = comment.getString("text");
-			JsonObject likes = comment.getJsonObject("likes");
-			int user_likes = likes.getInt("user_likes");
-			int likes_count = likes.getInt("count");
-			Date date_day = new Date( ((long)comment.getInt("date")) * 1000 );
-			Counter period = getWordsPeriod(getPeriodKey(date_day));
-			countPeriod(date_day,likes_count - user_likes,0);
-			
-			String name;
-			if (from_id.equals(user_id)){//my own texts
-				//name = user_name;
-				if (likes_count > 0){//count likes on me if liked by others
-					HashMap likers = new HashMap();
-					//user_likes = extractLikes(token, "comment", comment.getInt("cid"), likers);
-					processLikes(likers,date_day);//count who liked my comment
-				}
-				extractUrls(text, null, new Boolean(user_likes > 0),new Integer(likes_count - user_likes), new Integer(0), period);
-			}else{//texts by others
-				//TODO: process "unfamiliar" users (obtained with "extended=1" which is now not working with VK) 
-				Object[] user = getUser(from_id,null);
-				if (user == null)
-					continue;
-				name = getUserName(user);
-				body.debug("Spidering peer vkontakte "+user_id+" other user text:"+from_id+" "+name);
-				//if (user_likes == 0)//maybe just VK bug
-				//	user_likes = extractLikes(token, "comment", comment.getInt("cid"), null);				
-				countComments(from_id,name,text,date_day);
-				if (user_likes > 0){//if likedb by me, count links on author and acquire liked words
-					countMyLikes(from_id,name);
-					extractUrls(text, null, new Boolean(user_likes > 0),new Integer(likes_count - user_likes), new Integer(0), period);
-				}
-			}
-			//collected.add(new Object[]{from_id,name,text,new Boolean(user_likes == 1),new Integer(likes_count - user_likes)});
-		}
-		jr.close();
-		return (Object[][]) collected.toArray(new Object[][]{});
-	}
-	
-//TODO: remove or rewrite
-	private void processContent(JsonObject item,StringBuilder content,OrderedStringSet links){
-		body.debug("Spidering peer vkontakte item content "+item);
-		String text = HTTP.getJsonString(item,"text",null);
-		JsonArray reposts = item.containsKey("copy_history") ? item.getJsonArray("copy_history") : null;
-		if (!AL.empty(text)){
-			body.debug("Spidering peer vkontakte item text "+text);
-			content.append(text);
-		}
-		if (reposts != null){
-			body.debug("Spidering peer vkontakte item reposts "+reposts);
-			for (int j = 0; j < reposts.size(); j++)
-				processContent(reposts.getJsonObject(j),content,links);
-		}
-	}
-	*/
 	
 	public void getFeed(String token, Date since, Date until, StringBuilder detail) throws IOException {
 		try {
@@ -163,7 +94,7 @@ class RedditFeeder extends SocialFeeder {
 			String[][] hdr = new String[][] {new String[] {"Authorization","bearer "+access_token}};
 			String after = null;
 			for (boolean days_over = false; !days_over;) {
-//TODO: throttling
+//TODO: throttling based on header info or invalid replies 
 				//https://www.reddit.com/dev/api#GET_user_{username}_{where}
 				String api_url = "https://oauth.reddit.com/user/"+this.user_id+"/submitted";
 				String params = "limit=100" + (after == null ? "" : "&after="+after);
@@ -172,6 +103,7 @@ class RedditFeeder extends SocialFeeder {
 				if (debug) body.debug("Spidering peer reddit "+user_id+" response "+response);
 				if (AL.empty(response))
 					break;
+//(new Filer(body)).save("reddit.json",response);
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
 				JsonObject json = jsonReader.readObject();
 				JsonObject data = JSON.getJsonObject(json,"data");
@@ -182,6 +114,15 @@ class RedditFeeder extends SocialFeeder {
 					JsonObject item = children.getJsonObject(i);
 					//String type = JSON.getJsonString(item, "type");//t1_Comment,t2_Account,t3_Link,t4_Message,t5_Subreddit,t6_Award
 					item = JSON.getJsonObject(item,"data");
+					String subreddit_type = JSON.getJsonString(item, "subreddit_type");//like "public"
+					boolean is_robot_indexable = JSON.getJsonBoolean(item, "is_robot_indexable", true);
+					if (!is_robot_indexable || !"public".equals(subreddit_type))
+						continue;
+					Date date = JSON.getJsonDateFromUnixTime(item, "created");//decimal Unix time, seconds
+					if (date.compareTo(since) < 0){
+						days_over = true;
+						break;
+					}								
 					String typed_id = JSON.getJsonString(item, "name");//typed id, like "t3_eglml"
 					//String untyped_id = JSON.getJsonString(item, "url");//untyped id, like "eglml"
 					//String link_id = JSON.getJsonString(item, "link_id");//like "t3_e5bx6b", points to origin of commet if comment
@@ -193,43 +134,42 @@ class RedditFeeder extends SocialFeeder {
 					//String body_html = JSON.getJsonString(item, "body_html");//body html for comment?
 					int ups = JSON.getJsonInt(item, "ups");//number of upvotes
 					int downs = JSON.getJsonInt(item, "downs");//number of downvotes
+					int comments = JSON.getJsonInt(item, "num_comments");
 					String thumbnail = JSON.getJsonString(item, "thumbnail");//image
-					Date date = JSON.getJsonDateFromUnixTime(item, "created");//decimal Unix time, seconds
 					String author = JSON.getJsonString(item, "author");//like "akolonin"
 					String permalink = JSON.getJsonString(item, "permalink");//add "https://www.reddit.com" to "/r/artificial/comments/eg7lml/ai_article_index_from_peter_voss/
 					String url = JSON.getJsonString(item, "url");//if link
 			
-					if (date.compareTo(since) < 0){
-						days_over = true;
-						break;
-					}								
-					
 					StringBuilder content = new StringBuilder();
 					Str.append(content, title);
 					Str.append(content, selftext);
 					Str.append(content, body);
 					String uri = Reddit.home_url + permalink; 
 					OrderedStringSet links = new OrderedStringSet();
-					//if (!AL.empty(uri))//no need for permlik uri to get extra linked? 
-					//	links.add(uri);
-					if (!AL.empty(url))
+					if (!AL.empty(url)) {
+						if (!AL.isURL(url))
+							url = Reddit.home_url + url;
 						links.add(url);
-					
-					//TODO: regular reporting and profiling - test
-					
-					//TODO: thumbail to report detail!?
-					
-					//TODO: alert with thumbnail for news feed!?
-					//TODO: if public only!!!???
-					
-					//TODO: remember id and later request all comments in batch (!!!) using get_info
-					//and the call reportDetail in separate loop with all comments filled!!! 
-		
-					String text = content.toString();
+					}
+					String imghtml = null;
+					if (!AL.empty(thumbnail)) {
+						if (AL.isIMG(thumbnail))
+							imghtml = Reporter.img(uri, null, thumbnail);
+						else {
+							if (AL.isURL(thumbnail))
+								links.add(thumbnail);
+						}
+					}
+
+//TODO: remember it and later request all comments in batch (!!!) using get_info
+//and the call reportDetail in separate loop with all comments filled!!! 
 					Object[][] commenters = null;//see VK
 					
+					String text = content.toString();
 					text = processItem(date,author,text,links,commenters,ups-downs,true);
-					reportDetail(detail,author,uri,typed_id,text,date,null,links,null,ups-downs,0,0);
+					reportDetail(detail,author,uri,typed_id,text,date,null,links,null,ups-downs,0,comments,imghtml);
+
+					api.matchPeerText(user_id, text, date, uri, thumbnail);
 				}
 				after = JSON.getJsonString(data, "after");
 				if (after == null)

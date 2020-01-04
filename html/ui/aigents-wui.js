@@ -1,5 +1,5 @@
 /*
-Copyright 2018-2019 Anton Kolonin, Aigents®
+Copyright 2018-2020 Anton Kolonin, Aigents®
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -2089,7 +2089,13 @@ function popUpReport(title,html,jquery){
 	}
 }
 
-function loginlowlevel(name,surname){
+function update_redirecting_logins(paypal,reddit){
+	if (!AL.empty(paypal))
+		login("#reddit_logo","/ui/img/reddit_grayed.png");
+	if (!AL.empty(reddit))
+		login("#paypal_logo","/ui/img/paypal_icon_no_border_grayed.png");
+}
+function loginlowlevel(name,surname,no_refresh){
 	logged_in = true;
 	auto_refreshing = true;
 	graph_login();
@@ -2101,6 +2107,13 @@ function loginlowlevel(name,surname){
 	}
 	document.getElementById("aigents_logo").src = '/ui/img/aigent32left.png';
 	ajax_request('my language '+get_language(),function(){},true);//silent
+	if (!no_refresh)//if no need to refresh redirectig logins 
+     	ajax_request('What my reddit id, paypal id?',function(response){
+			var data= [];
+			parseToGrid(data,response.substring(5),['reddit id','paypal id'],",");
+			if (!AL.empty(data))
+				update_redirecting_logins(data[0][0],data[0][1]);
+        },true);//silent	    
 }
 function logoutlowlevel(){
 	deleteCookie('username');
@@ -2290,30 +2303,26 @@ function init() {
 	displayAction(null);//TODO: remove legacy?
 	displayPending(0);
 	
-	function update_redirecting_logins(paypal,reddit){
-		if (!AL.empty(paypal))
-			login("#reddit_logo","/ui/img/reddit_grayed.png");
-		if (!AL.empty(reddit))
-			login("#paypal_logo","/ui/img/paypal_icon_no_border_grayed.png");
-	}
-	
 	//check if user is logged in already
 	var current_user = getCookie('username');
 	if (current_user){// user user set by cookie
+		/*
      	ajax_request('What my reddit id, paypal id?',function(response){
 			var data= [];
 			parseToGrid(data,response.substring(5),['reddit id','paypal id'],",");
 			if (!AL.empty(data))
 				update_redirecting_logins(data[0][0],data[0][1]);
 			loginlowlevel(current_user);
-        },true);//silent	    
+        },true);//silent
+     	*/
+		loginlowlevel(current_user);
 		post_init();
 	}else{//check if user is known by server after redirect with cookie kept in browser
 		requestBase(null,'What my name, surname, login time, reddit id, paypal id?',true,function(reply){
 			var data= [];
 			parseToGrid(data,reply.substring(5),['login time','name','surname','reddit id','paypal id'],",");
 			if (!AL.empty(data)){//get user upon redirect and use tis context
-				loginlowlevel(capitalize(data[0][1]),capitalize(data[0][2]));
+				loginlowlevel(capitalize(data[0][1]),capitalize(data[0][2]),true);
 				update_redirecting_logins(data[0][3],data[0][4]);
 				post_init();
 			} else {//create new context
@@ -2493,30 +2502,9 @@ function post_init(){
 		return user;
 	}
 	window.loginGoogleApi = function(){
-		//TODO: get rid of the grantOfflineAccess?
 		auth2.grantOfflineAccess().then(function (result){
 			console.log("Google grantOfflineAccess: "+JSON.stringify(result));
 			var result_code = result.code;
-			//TODO eliminate as not used?
-			/*
-	                var user = gapi.auth2.getAuthInstance().currentUser.get();
-	 		function mineproperty(o,p){
-				if (o && p) for(var propt in o){
-					var v = o[propt];
-					if (propt == p)
-						return v;
-	    				if (v && typeof v === 'object'){
-						v = mineproperty(v,p);				
-						if (v)
-							return v; 
-					}
-				}
-				return null;
-			}
-			var id_token = mineproperty(user,'id_token');
-	                console.log("Goolge id_token "+id_token);
-			*/
-			//TODO: get user id and all the rest stuff just from the user object?
 			if (gapi.client.people){
 				gapi.client.people.people.get({
 	           			'resourceName': 'people/me',

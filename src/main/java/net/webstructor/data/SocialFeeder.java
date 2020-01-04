@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -724,7 +724,11 @@ public abstract class SocialFeeder {
 	}
 
 	protected void reportDetail(StringBuilder detail, String from, String uri, String id, String text, Date date, 
-		Object[][] comments, OrderedStringSet links, HashMap likers, int others_likes, int user_likes, int comments_count/*, int reposts_count, int user_reposted*/){
+			Object[][] comments, OrderedStringSet links, HashMap likers, int others_likes, int user_likes, int comments_count){
+		reportDetail(detail,from,uri,id,text,date,comments,links,likers,others_likes,user_likes,comments_count,null);
+	}
+	protected void reportDetail(StringBuilder detail, String from, String uri, String id, String text, Date date, 
+		Object[][] comments, OrderedStringSet links, HashMap likers, int others_likes, int user_likes, int comments_count,String imgurl){
 		//int total_likes = others_likes+user_likes;
 		if (detail != null && !AL.empty(text)){
 			
@@ -747,6 +751,7 @@ public abstract class SocialFeeder {
 					//AL.empty(from) ? "" : " " + from,//TODO: what?
 					"+"+user_likes+"/"+others_likes+"/"+comments_count
 						+ (AL.empty(likers) ? "" : "<br><small>"+OrderedStringSet.fromStrings(likers.values()).toString("<br>")+"</small>"),
+					imgurl,
 					textHTML,
 					links == null ? null : links.toArray(new String[]{}),
 					commentBuilder.toString()

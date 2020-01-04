@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -421,14 +421,26 @@ public class Thing extends Anything { // implements ORObject
 		return set(name, value, null);
 	}
 	
-	public final Anything set(String name,Object value,Thing setter) {
-		//TODO: make type conversion more consistent!?
+	//TODO: make type conversion more consistent!?
+	public static Object cast(String name,Object value) {
 		Class cls = Schema.cls(name);
 		if (value != null && cls != value.getClass() && cls == Date.class && value instanceof String){
 			Date date = Time.date((String)value);
 			if (date != null)
 				value = date;
 		}
+		return value;
+	}
+	
+	public final Anything set(String name,Object value,Thing setter) {
+		//TODO: make type conversion more consistent!?
+		/*Class cls = Schema.cls(name);
+		if (value != null && cls != value.getClass() && cls == Date.class && value instanceof String){
+			Date date = Time.date((String)value);
+			if (date != null)
+				value = date;
+		}*/
+		value = cast(name,value);
 		String reverse = Schema.reverse(name);
 		if (reverse != null) {
 			if (storager != null && setter != null && setter.storager != null) {

@@ -69,6 +69,13 @@ public class Reporter {
 		}
 	}
 	
+	public static String img(String url, String style, String src) {
+		String s = style == null ? "" : "style=\""+style+"\"";
+		return url != null
+				? "<a href=\""+url+"\" target=\"_blank\" ><img "+s+" src=\""+src+"\"/></a>"
+				: "<img "+s+" src=\""+src+"\"/>";
+	}
+
 	public boolean needsId(){
 		return false;
 	}
@@ -98,7 +105,7 @@ public class Reporter {
 			writer.append("<meta http-equiv=\"expires\" content=\"Tue, 01 Jan 1980 1:00:00 GMT\" />\n");
 			writer.append("<meta http-equiv=\"pragma\" content=\"no-cache\" />\n");
 			
-			writer.append("<style> td { vertical-align: text-top; } body {background:#ffffd8;font-family: Helvetica,Arial,sans-serif} .line0 { background: #ffffc8; } .line1 { background: #ffffE8; } </style>");
+			writer.append("<style> td { vertical-align: top; } body {background:#ffffd8;font-family: Helvetica,Arial,sans-serif} .line0 { background: #ffffc8; } .line1 { background: #ffffE8; } </style>");
 			
 			if (!AL.empty(header))
 				writer.append(header);

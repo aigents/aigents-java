@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -585,7 +585,7 @@ public class Siter {
 
 	//match one Pattern for one Thing for one Site
 	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker) {
-		//Date now = Time.date(time);
+		Date now = Time.date(time);
 		int matches = 0;
 		//TODO:optimization so pattern with properties is not rebuilt every time?
 		iter.pos(0);//reset 
@@ -621,7 +621,7 @@ public class Siter {
 //also, don't add "is thing" to not memorized instance? 
 			
 			instance.addThing(AL.is, thing);
-			instance.set(AL.times, time);
+			instance.set(AL.times, now);
 			instance.setString(AL.text,nl_text);
 			Integer textPos = positions == null ? new Integer(0) : (Integer)positions.get(iter.cur() - 1);
 			if (imager != null){
@@ -703,7 +703,8 @@ public class Siter {
 		Object[] topics_trusts = {AL.trusts,thing};
 		Object[] sites_trusts = {AL.trusts,path};
 		All query = group != null ? new All(new Object[]{new Seq(topics),new Seq(topics_trusts),new Seq(new Object[]{AL.groups,group})})
-				: new All(new Object[]{new Seq(topics),new Seq(sites),new Seq(topics_trusts),new Seq(sites_trusts)});
+				: !AL.empty(path) ? new All(new Object[]{new Seq(topics),new Seq(sites),new Seq(topics_trusts),new Seq(sites_trusts)})
+				: new All(new Object[]{new Seq(topics),new Seq(topics_trusts)});//TODO: more restrictive!?
 		try {
 			Collection peers = storager.get(query,(Thing)null);//forcer?
 			if (!AL.empty(peers))
@@ -890,4 +891,33 @@ public class Siter {
 	}
 	*/
 	
+	//TODO: move to other place!?
+	public static void match(Body body, String provider, String id, String text, Date time, String permlink, String imgurl){
+		try {
+			Collection peers = body.storager.getByName(provider + " id", id);
+			for (Object peer : peers) {
+				Thing p = (Thing)peer;
+				Collection k = p.getThings(AL.topics);
+				Collection t = p.getThings(AL.trusts);
+				if (!AL.empty(k) && !AL.empty(t)){//keep trusted topics only
+					t = new HashSet(t);
+					t.retainAll(k);
+				}
+				Imager imager = null;
+//TODO: actual image positions based on text MD/HTML parsing!? 
+				if (!AL.empty(imgurl)) {
+					imager = new Imager();
+					TreeMap tm = imager.getMap(permlink);
+        			tm.put(new Integer(0), imgurl);
+				}
+				MapMap thingPaths = new MapMap();//collector
+				Iter parse = new Iter(Parser.parse(text));
+				for (Object thing: t)
+					Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null);
+				Siter.update(body,null,time,thingPaths,true,null);//forced
+			}
+		} catch (Exception e) {
+			body.error("Siter matchig "+provider+" "+id+" "+text,e);
+		}
+	}
 }

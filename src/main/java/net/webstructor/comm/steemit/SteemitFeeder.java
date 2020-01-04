@@ -40,6 +40,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.util.Array;
+import net.webstructor.util.Reporter;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
@@ -194,7 +195,7 @@ class SteemitFeeder extends SocialFeeder {
 		if (!AL.empty(postComments)){
 			for (int c = 0; c < postComments.size(); c++){
 				Object[] comment = (Object[])postComments.get(c);
-				String comment_permlink = (String)comment[5];
+				String comment_permlink = (String)comment[0]+"."+(String)comment[5];
 				int comment_likes[] = getLikeCounts(comment_permlink);
 				comment[3] = new Boolean(comment_likes[0] > 0);
 				comment[4] = new Integer(comment_likes[1]);
@@ -231,7 +232,7 @@ class SteemitFeeder extends SocialFeeder {
 			
 			//process post comments
 			ArrayList collectedComments = new ArrayList();
-			int othersComments = collectComments(permlink,collectedComments);
+			int othersComments = collectComments(author+"."+permlink,collectedComments);
 			Object[][] comments = (Object[][])collectedComments.toArray(new Object[][]{});
 			news_item[2] = new Integer( othersComments );
 
@@ -257,10 +258,24 @@ class SteemitFeeder extends SocialFeeder {
 			sources = extractUrls(text,sources,(Boolean)news_item[0],(Integer)news_item[1],(Integer)news_item[2],period);
 			news_item[5] = sources;
 
+			String img = null;
+			String uri = null;
+			if (!AL.empty(sources)) {
+				for (String s : sources) if (AL.isURL(s) && !AL.isIMG(s)) {
+					uri = s;
+					break;
+				}
+				//TODO: use permlink for uri 
+				for (String s : sources) if (AL.isURL(s) && AL.isIMG(s)) {
+					img = Reporter.img(uri, "height:auto;width:140px;", s);
+					break;
+				}
+			}
+			
 			//dump to html buffer for report details section
 			reportDetail(detail,
 				author,//getUserName(from),
-				null,//uri
+				uri,//uri
 				permlink,//id
 				text,
 				date_day,
@@ -269,7 +284,8 @@ class SteemitFeeder extends SocialFeeder {
 				getLikers(permlink),//likers,
 				news_likes[1],//likes_count-user_likes,
 				news_likes[0],//user_likes,
-				othersComments);
+				othersComments,
+				img);
 		}
 
 //TODO: count words here!?

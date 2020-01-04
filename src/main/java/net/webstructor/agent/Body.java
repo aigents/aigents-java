@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,8 +58,8 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.1.2";
-	public final static String COPYRIGHT = "Copyright © 2019 Anton Kolonin, Aigents®.";
+	public final static String VERSION = "2.1.7";
+	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
 	//public final static int MAX_TRUSTED_NEWS = 500;//999; 

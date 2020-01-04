@@ -50,6 +50,7 @@ import net.webstructor.util.Reporter;
 import net.webstructor.data.Graph;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Translator;
+import net.webstructor.self.Siter;
 
 /**
  * Keeps context of entire social network.
@@ -57,14 +58,8 @@ import net.webstructor.data.Translator;
  * @author akolonin
  */
 public abstract class Socializer extends HTTP {
-	protected String name;
 	protected int timeout = 0;
 	
-	protected Socializer(Body body, String name) {
-		super(body);
-		this.name = name;
-	}
-
 	protected Socializer(Body body) {
 		super(body);
 	}
@@ -714,10 +709,16 @@ public abstract class Socializer extends HTTP {
 				t.loc(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","My likes/Posts"}),
 				feeder.getWordsLikedByMe(500,1),minPercent,minCount);
 		Object[][] details;
-		if ((options.isEmpty() || options.contains(my_posts_for_the_period)) && !AL.empty(details = feeder.getDetails()))
+		if ((options.isEmpty() || options.contains(my_posts_for_the_period)) && !AL.empty(details = feeder.getDetails())) {
 			rep.table(my_posts_for_the_period,t.loc(my_posts_for_the_period),
-				t.loc(new String[]{"Date","Likes & Comments","Text & Comments","Links","Comments"}),
+				t.loc(new String[]{"Date","Likes & Comments","Image","Text & Comments","Links","Comments"}),
 				details,0,0);
+		}
 		rep.closePeer();
 	}
+
+	public void matchPeerText(String peer_id, String text, Date time, String permlink, String imgurl) {
+		Siter.match(body, provider(), peer_id, text, time, permlink, imgurl);
+	}
+
 }
