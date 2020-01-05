@@ -19,12 +19,13 @@ var logos = {
 	google:"/ui/img/google_icon.png",
 	facebook:"/ui/img/fb_logo.png",
 	vkontakte:"/ui/img/vk_logo.png",
+	reddit:"/ui/img/reddit.png",
 	steemit:"/ui/img/steemit_logo_new.png",
 	golos:"/ui/img/golos_logo.png",
 	ethereum:"/ui/img/eth32.png"
 };
 
-var networks = ['steemit','facebook','google','golos','vkontakte','ethereum'];//,'aigents'];
+var networks = ['google','facebook','vkontakte','reddit','steemit','golos','ethereum'];//,'aigents'];
 
 var graph_hashing_names = false;
 var graph_user_name = 'I';

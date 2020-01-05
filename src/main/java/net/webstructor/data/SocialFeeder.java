@@ -46,6 +46,8 @@ import net.webstructor.util.Reporter;
 
 public abstract class SocialFeeder {
 	public static final long MAX_CLUSTER_TIME = Period.MINUTE*10;//TODO: make configurable
+	public static final String anonymous = "anonymous";
+	public static final String Anonymous = "Anonymous";
 	
 	protected Environment body;
 	protected String user_id;
@@ -915,7 +917,8 @@ public abstract class SocialFeeder {
 			//TODO: promote this code to be generic for all sources!?
 			ArrayList collectedLinks = new ArrayList();
 			//parse link tags from html with stripped anchors
-			String text = HtmlStripper.convert(html," ",collectedLinks);//.toLowerCase();
+			String text = HtmlStripper.convert(html," ",collectedLinks);
+			text = HtmlStripper.convertMD(text, collectedLinks, null);//links and NO images
 			for (int l = 0; l < collectedLinks.size(); l++) //translate url+text pairs to single urls
 				collectedLinks.set(l, ((String[])collectedLinks.get(l))[0] );
 			for (int i = 0; i < collectedLinks.size(); i++)

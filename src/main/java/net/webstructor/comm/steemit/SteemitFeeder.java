@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -118,6 +118,7 @@ class SteemitFeeder extends SocialFeeder {
 		OrderedStringSet links = new OrderedStringSet();
 		ArrayList collectedLinks = new ArrayList();
 		String text = HtmlStripper.convert(body," ",collectedLinks);		
+		text = HtmlStripper.convertMD(text, collectedLinks, collectedLinks);//links and images both
 		//translate url+text pairs to single urls
 		for (int l = 0; l < collectedLinks.size(); l++) 
 			links.add(((String[])collectedLinks.get(l))[0] );

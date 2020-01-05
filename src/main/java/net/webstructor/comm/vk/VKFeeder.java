@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,8 +73,8 @@ class VKFeeder extends SocialFeeder {
 		return id < 0 ? (String)groupNames.get(String.valueOf(-id)) : getUserName(String.valueOf(id));
 	}
 
-	//TODO: remove this because it is moved to SocialFeeder 
-	public String processItem(Date times,String from,String html, OrderedStringSet links, Object[][] commenters, int otherLikesCount, boolean myLike){
+	//TODO: remove this because it is moved to SocialFeeder
+	/*public String processItem(Date times,String from,String html, OrderedStringSet links, Object[][] commenters, int otherLikesCount, boolean myLike){
 		if (html != null){
 			int commentsCount = countCommentsFromOthers(commenters);
 			Counter period = getWordsPeriod(getPeriodKey(times));
@@ -109,7 +109,7 @@ class VKFeeder extends SocialFeeder {
 			return text;
 		}
 		return null;
-	}
+	}*/
 
 	Object[][] processComments(String token,int id) throws IOException{
 		//TODO:process all comments, not just first 100 as now

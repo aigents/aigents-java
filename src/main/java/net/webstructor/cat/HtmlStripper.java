@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package net.webstructor.cat;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import net.webstructor.al.AL;
@@ -493,5 +494,65 @@ import net.webstructor.util.Array;
             	}
         	}
         }
-	}
+
+    	//TODO: unittest
+    	public static String convertMD(String md, List links, List images) {
+    		StringBuilder sb = null;
+    		int fromIndex = 0;
+    		for (;;) {
+    			int i1 = md.indexOf('[', fromIndex);
+    			if (i1 >= fromIndex) {
+    				int i2 = md.indexOf(']', i1+1);
+    				if (i2 > i1) {
+    					int i3 = md.indexOf('(', i2+1);
+    					if (i3 > i2) {
+    						int i4 = md.indexOf(')', i3+9);//+8 for non empty link url
+    						if (i4 > i3) {
+    							String text = md.substring(i1+1,i2).trim();
+    							if (AL.isURL(text)) {
+    								text = HtmlStripper.stripHtmlAnchor(text);
+    								//https://stackoverflow.com/questions/10438008/different-behaviours-of-treating-backslash-in-the-url-by-firefox-and-chrome
+    								text = text.replace("\\", "");//backslah was seen in lnik text on some MD-s from Reddit (like links to Zoom videos) 
+    							}
+    							String url = md.substring(i3+1,i4).trim();
+                    			url = HtmlStripper.stripHtmlAnchor(url);
+                    			if (AL.isURL(url)) {
+                    				int i0;
+                    				if (i1 > 0 && md.charAt(i1-1) == '!') {//image url
+                    					i0 = i1-1;
+                    					if (images != null)
+                    						images.add(new String[]{url,text});
+                    				} else {
+                    					i0 = i1;
+                    					if (links != null)
+                    						links.add(new String[]{url,text});
+                    				}
+                    				if (sb == null)
+                    					sb = new StringBuilder();
+                    				sb.append(md.substring(fromIndex,i0));
+                    				if (!text.equals(url))
+                    					sb.append(text);
+                    				fromIndex = i4 + 1;
+//System.out.println(md.substring(fromIndex)); 	
+                    				continue;
+    							}
+    						}
+    					}
+    				}
+    			}
+    			if (sb != null)
+    				sb.append(md.substring(fromIndex));
+    			break;
+    		}
+    		return sb != null ? sb.toString() : md;
+    	}
+
+    	public static void main(String args[]) {
+    		String md = "a[b](http://x)c![d](http://y)e[ f ](http://z)g";
+    		ArrayList links = new ArrayList();
+    		System.out.println(convertMD(md,links,null));
+    		System.out.println(links);
+    	}
+
+}
 
