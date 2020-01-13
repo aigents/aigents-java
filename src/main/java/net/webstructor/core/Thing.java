@@ -36,6 +36,7 @@ import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
+import net.webstructor.cat.StringUtil;
 import net.webstructor.util.Array;
 
 public class Thing extends Anything { // implements ORObject
@@ -384,6 +385,24 @@ public class Thing extends Anything { // implements ORObject
 	public final boolean getBoolean(String name) {
 		String str = getString(name);
 		return AL._true.equals(str);
+	}
+	
+	public final Date getDate(String name,Date def) {
+		Object o = get(name);
+		if (o instanceof Date)
+			return (Date)o;
+		if (o instanceof String)
+			return Time.date((String)o);
+		return def;
+	}
+	
+	public final int getInt(String name,int def) {
+		Object o = get(name);
+		if (o instanceof Number)
+			return ((Number)o).intValue();
+		if (o instanceof String)
+			return StringUtil.toIntOrDefault((String)o,10,def);
+		return def;
 	}
 	
 	public final String getString(String name) {

@@ -89,7 +89,7 @@ function test_once() {
 }
 
 
-for ($i=0;$i<2;$i++) test_once();
+for ($i=0;$i<1;$i++) test_once();
 //for (;;) test_once();
 	
 

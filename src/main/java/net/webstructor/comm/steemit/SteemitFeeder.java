@@ -101,9 +101,36 @@ class SteemitFeeder extends SocialFeeder {
 			countLikes(voter, voter);
 			*/
 	}
+
+	
+	static String parsePost(String title, String body, ArrayList links){
+		//TODO: fix patches in original texts!?
+		boolean isPatch = body.indexOf("@@ ") == 0;
+		if (isPatch)
+			return null;
+		
+		//add title to body
+		StringBuilder sb = new StringBuilder(!AL.empty(title) ? title : "");
+		if (!AL.empty(body))
+			sb.append(sb.length() > 0 ? ". " : "").append(body);
+		body = sb.toString();
+		
+		body = body.replace("\\n", " ");//TODO!?
+		body = body.replace('\n', ' ');
+		
+		ArrayList collectedLinks = new ArrayList();
+		String text = HtmlStripper.convert(body," ",collectedLinks);		
+		text = HtmlStripper.convertMD(text, collectedLinks, collectedLinks);//links and images both
+		//translate url+text pairs to single urls
+		for (int l = 0; l < collectedLinks.size(); l++) 
+			links.add(((String[])collectedLinks.get(l))[0] );
+		return text;
+	}
+	
 	
 	//TODO: MD parsing for links
 	public String processPost(Date times,String permlink,String author,String parent_permlink,String parent_author,String title, String body){
+		/*
 		//TODO: fix patches in original texts!?
 		boolean isPatch = body.indexOf("@@ ") == 0;
 		if (isPatch)
@@ -122,6 +149,9 @@ class SteemitFeeder extends SocialFeeder {
 		//translate url+text pairs to single urls
 		for (int l = 0; l < collectedLinks.size(); l++) 
 			links.add(((String[])collectedLinks.get(l))[0] );
+		*/
+		OrderedStringSet links = new OrderedStringSet();
+		String text = parsePost(title,body,links);
 		
 		if (!AL.empty(text)){
 			Integer comments = new Integer(0);
@@ -144,7 +174,7 @@ class SteemitFeeder extends SocialFeeder {
 				Object[] news_item = (Object[]) permlinksToPosts.get(permlink);
 				if (news_item == null){
 					news_item = new Object[]{like,likes,comments,times,
-							text,(String[])links.toArray(new String[]{}),permlink,author,times};
+							text,(String[])links.toArray(new String[]{}),permlink,author,times,parent_permlink};
 					permlinksToPosts.put(permlink, news_item);
 				}
 			}
@@ -217,6 +247,7 @@ class SteemitFeeder extends SocialFeeder {
 			String text = (String)news_item[4];
 			String[] sources = (String[])news_item[5];
 			String permlink = (String)news_item[6];
+			String parent_permlink = (String)news_item[9];
 			String author = (String)news_item[7];
 			Date date_day = (Date)news_item[8];
 			int news_likes[] = getLikeCounts(permlink);
@@ -259,16 +290,18 @@ class SteemitFeeder extends SocialFeeder {
 			sources = extractUrls(text,sources,(Boolean)news_item[0],(Integer)news_item[1],(Integer)news_item[2],period);
 			news_item[5] = sources;
 
+			//build uri from permlink
+			//String uri = (AL.empty(parent_permlink)) ? null : api.base_url + "/" + parent_permlink + "/@" + author + "/" + permlink;
+			String uri = Steemit.permlink_url(api.base_url,parent_permlink,author,permlink);
 			String img = null;
-			String uri = null;
+			String imgsrc = null;
 			if (!AL.empty(sources)) {
-				for (String s : sources) if (AL.isURL(s) && !AL.isIMG(s)) {
+				if (uri == null) for (String s : sources) if (AL.isURL(s) && !AL.isIMG(s)) {
 					uri = s;
 					break;
 				}
-				//TODO: use permlink for uri 
-				for (String s : sources) if (AL.isURL(s) && AL.isIMG(s)) {
-					img = Reporter.img(uri, "height:auto;width:140px;", s);
+				for (String s : sources) if (AL.isIMG(s)) {
+					img = Reporter.img(uri, "height:auto;width:140px;", imgsrc = s);
 					break;
 				}
 			}
@@ -287,6 +320,8 @@ class SteemitFeeder extends SocialFeeder {
 				news_likes[0],//user_likes,
 				othersComments,
 				img);
+			
+			api.matchPeerText(author, text, date_day, uri, imgsrc);
 		}
 
 //TODO: count words here!?

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -208,7 +208,7 @@ public class Self {
 
 		//8) clear STM page/document data cache 
 		if (body.filecacher != null)
-			body.archiver.clear(Time.today(0));//TODO attetion period instead of today!?
+			body.filecacher.clear(Time.today(0));//TODO attention period instead of today!?
 	}
 	
 	public static boolean save(Body body,String path) {

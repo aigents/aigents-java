@@ -73,44 +73,6 @@ class VKFeeder extends SocialFeeder {
 		return id < 0 ? (String)groupNames.get(String.valueOf(-id)) : getUserName(String.valueOf(id));
 	}
 
-	//TODO: remove this because it is moved to SocialFeeder
-	/*public String processItem(Date times,String from,String html, OrderedStringSet links, Object[][] commenters, int otherLikesCount, boolean myLike){
-		if (html != null){
-			int commentsCount = countCommentsFromOthers(commenters);
-			Counter period = getWordsPeriod(getPeriodKey(times));
-			countPeriod(times,otherLikesCount,commentsCount);
-			
-			//TODO: promote this code to be generic for all sources!?
-			ArrayList collectedLinks = new ArrayList();
-			//parse link tags from html with stripped anchors
-			String text = HtmlStripper.convert(html," ",collectedLinks);//.toLowerCase();
-			for (int l = 0; l < collectedLinks.size(); l++) //translate url+text pairs to single urls
-				collectedLinks.set(l, ((String[])collectedLinks.get(l))[0] );
-			for (int i = 0; i < collectedLinks.size(); i++)
-				links.add(collectedLinks.get(i));
-			
-			Integer comments = new Integer(commentsCount);
-			Integer likes = new Integer(otherLikesCount);
-			Boolean like = new Boolean(myLike); 
-			String[] sources = extractUrls(text,null,like,likes,comments,period);
-			if (sources != null)
-				for (int i = 0; i < sources.length; i++)
-					links.add(sources[i]);
-			if (!from.equals(user_id)){//treat posts of others as comments
-				if (myLike)
-					countMyLikes(from,null);
-				//TODO: fix null
-				countComments(from,null,text,times);
-			}else{
-				sources = (String[])links.toArray(new String[]{});
-				Object[] news_item = new Object[]{like,likes,comments,times,text,sources};
-				news.add(news_item);
-			}
-			return text;
-		}
-		return null;
-	}*/
-
 	Object[][] processComments(String token,int id) throws IOException{
 		//TODO:process all comments, not just first 100 as now
 		String url = "https://api.vk.com/method/wall.getComments?v="+vkversion+"&post_id="+id+"&need_likes=1&sort=desc&count=100"

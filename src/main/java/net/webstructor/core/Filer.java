@@ -102,11 +102,14 @@ public class Filer {
 	 * @param path
 	 * @return string data in terminal fiel on the end of the path
 	 */
-	public String get(String[] path, boolean data){
+	public File getFile(String[] path){
 		String fileName = path(path,true);
 		if (AL.empty(fileName))
 			return null;
-		File file = env.getFile(fileName);
+		return env.getFile(fileName);
+	}
+	public String get(String[] path, boolean data){
+		File file = getFile(path);
 		if (file.exists() && file.isFile()){
 			if (!data)
 				return "";

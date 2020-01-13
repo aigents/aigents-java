@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.agent.Body;
 import net.webstructor.main.Mainer;
+import net.webstructor.self.Siter;
 import net.webstructor.core.Environment;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.HTTP;
@@ -53,6 +55,7 @@ import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.LangPack;
+import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 
 /*
@@ -158,15 +161,14 @@ public class Steemit extends SocialCacher {
 	//TODO update url upon redirect!!!
 	//protected String url;
 	protected HttpFileReader reader;//TODO: move up to HTTP or fix native HTTP
-	//protected String name; //steemit or golos 
-	//protected GraphCacher cacher;
+	protected String base_url;
 	
 	public Steemit(Body body, String name, String url) {
 		super(body,name,url);
 		//this.name = name;
 		//this.url = body != null ? body.self().getString(name+" url",url) : url;
 		this.reader = new HttpFileReader();
-		//cacher = new GraphCacher(name,body);
+		base_url = base_url(provider());
 	}
 
 	//TODO:@Override
@@ -186,6 +188,14 @@ public class Steemit extends SocialCacher {
 		return feeder;
 	}
 
+	static String base_url(String name) {
+		return name.equals("steemit") ? "https://steemit.com" : "https://golos.id";
+	}
+	
+	static String permlink_url(String base_url, String parent_permlink, String author, String permlink) {
+		return (AL.empty(parent_permlink)) ? null : base_url + "/" + parent_permlink + "/@" + author + "/" + permlink;
+	}
+	
 	//TODO:@Override
 	public void resync_tmp() {
 		//get list of recently active peers
@@ -352,12 +362,10 @@ public class Steemit extends SocialCacher {
 		}
 	}
 		
-	//This works but inpractically slow
-	//API block access - 24 (Novosibirsk) or 42 (Ireland) or 56 (Hetzner) blocks/minute, real block rate approx 20 blocks/minute 
 	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {
 		String caps_name = Writer.capitalize(api_name);
 		GraphCacher grapher = new GraphCacher(api_name,env);
-		String site = "steemit".equals(api_name) ? "https://steemit.com/" : "https://golos.id/";
+		String site = base_url(api_name);
 		DataLogger logger = new DataLogger(env,Writer.capitalize(api_name)+" crawling");
 		long time_start = System.currentTimeMillis();
 		long age = 0;
@@ -401,8 +409,8 @@ if (block % 10 == 0){
 }
 
 				//TODO: break on block age recorded in daily graphs
-				Date new_key = Time.date(date);
-				if (key == null || !key.equals(new_key)){ 
+				Date new_date = Time.date(date);
+				if (key == null || !key.equals(new_date)){ 
 					if (pending_update){
 						env.debug(caps_name+" graph saving for "+key+", age "+new Date((long)age*1000)+" memory "+env.checkMemory());
 						if (api != null) 
@@ -411,7 +419,7 @@ if (block % 10 == 0){
 							grapher.updateGraph(key,graph,age);
 						pending_update = false;
 					}
-					key = new_key;
+					key = new_date;
 					graph = api != null ? api.getGraph(key) : grapher.getGraph(key);
 					env.debug(caps_name+" graph loaded for "+key+", age "+new Date((long)graph.getAge()*1000)+" memory "+env.checkMemory());
 				}
@@ -535,12 +543,12 @@ if (block % 10 == 0){
 							if (body == null){
 								body = getJsonString(args,"",null);
 								//TODO: it happens: ["comment",{"parent_author":"soysilverio","parent_permlink":"gran-gato-dibujo-con-tinta","author":"steemitboard","permlink":"steemitboard-notify-soysilverio-20180819t003759000z","title":"","":"Congratulations @soysilverio! You have completed the following achievement on Steemit and have been rewarded with new badge(s) :\n\n[![](https://steemitimages.com/70x70/http://steemitboard.com/notifications/firstcommented.png)](http://steemitboard.com/@soysilverio) You got a First Reply\n\n<sub>_Click on the badge to view your Board of Honor._</sub>\n<sub>_If you no longer want to receive notifications, reply to this comment with the word_ `STOP`</sub>\n\n\n\n**Do not miss the last post from @steemitboard:**\n[SteemitBoard and the Veterans on Steemit - The First Community Badge.](https://steemit.com/veterans/@steemitboard/steemitboard-and-the-veterans-on-steemit-the-first-community-badge)\n\n> Do you like [SteemitBoard's project](https://steemit.com/@steemitboard)? Then **[Vote for its witness](https://v2.steemconnect.com/sign/account-witness-vote?witness=steemitboard&approve=1)** and **get one more award**!","json_metadata":"{\"image\":[\"https://steemitboard.com/img/notify.png\"]}"}]
-								env.debug("Steemit bodyless:"+operation);
+								env.debug(caps_name+" bodyless:"+operation);
 							}
 							if (body != null)
 								body = recode(body);
 							else
-								env.debug("Steemit empty comment:"+operation);
+								env.debug(caps_name+" empty comment:"+operation);
 							int intvalue = body != null ? body.length() : 1;//empty comment still counts
 							String weight = body != null ? String.valueOf(intvalue) : null;
 							int logvalue = 1 + (int)Math.round(Math.log10(intvalue));//should be non-zero
@@ -550,20 +558,44 @@ if (block % 10 == 0){
 							//                name, time, type, from, 						 to, 						          value, unit, child, 						   parent, 					   			title, 	input, tags, format
 							String author = getJsonString(args,"author");
 							String parent_author = getJsonString(args,"parent_author");
-							write(logger, api_name, date, block, type, author, parent_author, weight, "", getJsonString(args,"permlink"), getJsonString(args,"parent_permlink"), title, body, null, null);
+							String permlink = getJsonString(args,"permlink");
+							String parent_permlink = getJsonString(args,"parent_permlink");
+							write(logger, api_name, date, block, type, author, parent_author, weight, "", permlink, parent_permlink, title, body, null, null);
 							//TODO: update comments/commented link
-							if (!AL.empty(parent_author)){
+							if (!AL.empty(parent_author)){//comment on post
 								if (api != null)
 									api.alert(date,block,"comments",author,parent_author,null,site);
 								graph.addValue(author, parent_author, "comments", logvalue);//out
 								graph.addValue(parent_author, author, "commented", logvalue);//in
+							}else {//original post
+//TODO: monitoring
+								if (api != null) {
+									Date attention_date = Time.today(-api.body.self().getInt(Body.attention_period,14));
+									if (attention_date.compareTo(new_date) < 0) {
+										OrderedStringSet links = new OrderedStringSet();
+										String text = SteemitFeeder.parsePost(title,body,links);
+										if (AL.empty(text))
+											;//Skip edits//api.body.debug(caps_name+" empty text:"+operation);
+										else {
+//TODO extractUrls(...)?
+											String imgurl = null;//TODO extract
+											for (Object s : links) if (AL.isIMG((String)s)) {
+												imgurl = (String)s;
+												break;
+											}
+											String permlink_url = Steemit.permlink_url(site,parent_permlink,author,permlink);
+											Collection peers = api.body.storager.getAttributed(api.provider()+" id");
+											Siter.matchPeersText(api.body, peers, text, new_date, permlink_url, imgurl);
+										}
+									}
+								}
 							}
 							//TODO: update uses/used links
 							//TODO: update mentions/mentioned links
 							pending_update = true;
 							
 						}else{
-							env.debug("Steemit unknown:"+operation);
+							env.debug(caps_name+" unknown:"+operation);
 							//writing operation params into "input" field for now
 							write(logger, api_name, date, block, type, null, null, null, null, null, null, null, args.toString(), null, null);
 						}
@@ -572,7 +604,7 @@ if (block % 10 == 0){
 			}//graph
 //TODO:indent			
 			} catch (Exception e) {
-				env.error("Steemit crawling error "+response,e);
+				env.error(caps_name+" crawling error "+response,e);
 			}
 			
 		}//blocks

@@ -267,12 +267,18 @@ public class Farm extends Body {
 	}
 	
 	private Profiler[] profilers(Thing peer) {
-		if (fb != null || gapi != null || vk != null) {
-			final Profiler fb_profiler = new Profiler(this,fb,peer,Body.facebook_id,Body.facebook_token,Body.facebook_key);
-			final Profiler go_profiler = new Profiler(this,gapi,peer,Body.google_id,Body.google_token,Body.google_key);
-			final Profiler vk_profiler = new Profiler(this,vk,peer,Body.vkontakte_id,Body.vkontakte_token,Body.google_key);
-			Profiler[] profilers = new Profiler[]{fb_profiler,go_profiler,vk_profiler};
-			return fb_profiler.applies() || go_profiler.applies() || vk_profiler.applies() ? profilers : null;
+		if (fb != null || gapi != null || vk != null || reddit != null || steemit != null || golos != null) {
+			Profiler[] profilers = new Profiler[]{
+				new Profiler(this,fb,peer,Body.facebook_id,Body.facebook_token,Body.facebook_key),
+				new Profiler(this,gapi,peer,Body.google_id,Body.google_token,Body.google_key),
+				new Profiler(this,vk,peer,Body.vkontakte_id,Body.vkontakte_token,Body.google_key),
+				new Profiler(this,reddit,peer,Body.reddit_id,Body.reddit_token,Body.reddit_key),
+				new Profiler(this,steemit,peer,Body.steemit_id),
+				new Profiler(this,golos,peer,Body.golos_id)
+			};
+			for (Profiler p : profilers)
+				if (p.applies())
+					return profilers;//if any matches, return all 
 		}
 		return null;
 	}

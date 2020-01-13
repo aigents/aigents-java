@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -425,7 +425,7 @@ class Conversation extends Mode {
 						data.set("categories", m.getCategoryNames());
 						data.set("category_documents", m.getCategoryDocuments());
 						data.set("category_features", m.getCategoryFatures());
-						session.output(Writer.toJSON(data));
+						session.output(Writer.toJSON(data,null));
 					} else
 						session.output("You topics "+Writer.toString(m.getCategoryNames())+"."
 							+TextMiner.toString(m.getCategoryDocuments(),AL.sites,",",";\n")+"\n"

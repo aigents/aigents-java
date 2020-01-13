@@ -264,11 +264,10 @@ public class Siter {
 		return expired;
 	}
 	
-	private int newSpider() {
-		cacher.clearTodos();
+	private int newSpider(Collection topics) {
 		int hits = 0;
-		for (Iterator it = allThings.iterator(); it.hasNext();){
-			Thing t = (Thing)it.next();
+		for (Object topic : topics){
+			Thing t = (Thing)topic;
 			if (expired())
 				break;
 			Collection goals = new ArrayList(1);
@@ -284,14 +283,16 @@ public class Siter {
 	}
 	
 	public boolean read() {
-		boolean ok = false;
+		cacher.clearTodos();
+		Collection topics = !AL.empty(thingname) ? storager.getNamed(thingname) : allThings;
+
+		//TODO:
+		//111
+		//1 integrate it with Socializer's new function calling matchThingsText( ..., topics ) 
+		//2 have Socializer's for Reddit capable for user-less operations 
+					
 		body.reply("Spidering site root begin "+rootPath+".");
-		if (!AL.empty(thingname)){
-			Collection goals = storager.getNamed(thingname);
-			ok = new PathTracker(this,goals,range).run(rootPath);
-		} else {
-			ok = newSpider() > 0;
-		}
+		boolean ok = newSpider(topics) > 0;
 		if (ok)
 			ok = update() > 0;
 		body.reply("Spidering site root end "+(ok ? "found" : "missed")+" "+rootPath+".");
@@ -330,12 +331,12 @@ public class Siter {
 						String thingName = thing.getName();
 					
 //TODO: use "forcer" consistently						
-						//TODO:make sure if GLOBAL novelty is required, indeed... 
-						//if ((existing = existing(thing,instance,path,false,null) != null)//old version
-						//if ((existing = existing(thing,instance,path,false,nl_text) != null)//new path-full identity
+//TODO:make sure if GLOBAL novelty is required, indeed... 
+//TODO: use "newly existing" logic same as used in archiver.exists!?
 						if (existing(body,thing,instance,null,false,text) != null)//new path-less identity
 							continue;
-						if (!forced && body.archiver.exists(thingName,text))//check LTM
+						Date date = instance.getDate(AL.times,null);
+						if (!forced && body.archiver.exists(thingName,text,date))//check LTM
 							continue;
 					
 						hits++;
@@ -891,33 +892,49 @@ public class Siter {
 	}
 	*/
 	
-	//TODO: move to other place!?
-	public static void match(Body body, String provider, String id, String text, Date time, String permlink, String imgurl){
-		try {
-			Collection peers = body.storager.getByName(provider + " id", id);
-			for (Object peer : peers) {
-				Thing p = (Thing)peer;
-				Collection k = p.getThings(AL.topics);
-				Collection t = p.getThings(AL.trusts);
-				if (!AL.empty(k) && !AL.empty(t)){//keep trusted topics only
-					t = new HashSet(t);
-					t.retainAll(k);
-				}
-				Imager imager = null;
-//TODO: actual image positions based on text MD/HTML parsing!? 
-				if (!AL.empty(imgurl)) {
-					imager = new Imager();
-					TreeMap tm = imager.getMap(permlink);
-        			tm.put(new Integer(0), imgurl);
-				}
-				MapMap thingPaths = new MapMap();//collector
-				Iter parse = new Iter(Parser.parse(text));
-				for (Object thing: t)
-					Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null);
-				Siter.update(body,null,time,thingPaths,true,null);//forced
+	
+	static Set peerThings(Collection peers) {
+		HashSet allThings = new HashSet();
+		for (Object peer : peers) {
+			Thing p = (Thing)peer;
+			Collection k = p.getThings(AL.topics);
+			Collection t = p.getThings(AL.trusts);
+			if (!AL.empty(k) && !AL.empty(t)){//keep trusted topics only
+				t = new HashSet(t);
+				t.retainAll(k);
+				allThings.addAll(t);
 			}
-		} catch (Exception e) {
-			body.error("Siter matchig "+provider+" "+id+" "+text,e);
 		}
+		return allThings;
 	}
+
+	public static void matchPeersText(Body body, Collection peers, String text, Date time, String permlink, String imgurl){
+		Set allThings = peerThings(peers);//targets
+		MapMap thingPaths = new MapMap();//collector
+		int matches = matchThingsText(body,allThings,text,time,permlink,imgurl,thingPaths);
+		if (matches > 0)
+			Siter.update(body,null,time,thingPaths,false,null);//forced=false, because may be retrospective
+	}
+	
+	//TODO: move to other place!?
+	public static int matchThingsText(Body body, Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths){
+			Imager imager = null;
+//TODO: actual image positions based on text MD/HTML parsing!? 
+			if (!AL.empty(imgurl)) {
+				imager = new Imager();
+				TreeMap tm = imager.getMap(permlink);
+       			tm.put(new Integer(0), imgurl);
+			}
+			Iter parse = new Iter(Parser.parse(text));
+			int matches = 0;
+			for (Object thing: allThings) {
+				int match = Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null);
+				if (match > 0) {
+					body.debug("Siter matching found "+((Thing)thing).getName()+" in "+permlink);
+					matches += match;
+				}
+			}
+			return matches;
+	}
+
 }

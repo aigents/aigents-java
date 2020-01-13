@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -718,7 +719,15 @@ public abstract class Socializer extends HTTP {
 	}
 
 	public void matchPeerText(String peer_id, String text, Date time, String permlink, String imgurl) {
-		Siter.match(body, provider(), peer_id, text, time, permlink, imgurl);
+		Date attention_date = Time.today(-body.self().getInt(Body.attention_period,14));
+		if (attention_date.compareTo(time) < 0) {
+			try {
+				Collection peers = body.storager.getByName(provider() + " id", peer_id);
+				Siter.matchPeersText(body, peers, text, time, permlink, imgurl);
+			} catch (Exception e) {
+				body.error("Siter matchig "+provider()+" "+peer_id+" "+text,e);
+			}
+		}
 	}
 
 }

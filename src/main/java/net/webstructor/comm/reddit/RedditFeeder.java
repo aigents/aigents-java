@@ -32,7 +32,9 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
+//import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
+import net.webstructor.al.Time;
 import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
 import net.webstructor.data.LangPack;
@@ -94,7 +96,8 @@ class RedditItem {
 	String author;//like "akolonin"
 	String permalink;//add "https://www.reddit.com" to "/r/artificial/comments/eg7lml/ai_article_index_from_peter_voss/
 	String url;//if link
-	Date date;//decimal Unix time, seconds
+	Date time;//decimal Unix time, seconds
+	Date date;//day
 	String text;
 	
 	RedditItem(JsonObject item){
@@ -120,7 +123,8 @@ class RedditItem {
 		author = JSON.getJsonString(item, "author");//like "akolonin"
 		permalink = JSON.getJsonString(item, "permalink");//add "https://www.reddit.com" to "/r/artificial/comments/eg7lml/ai_article_index_from_peter_voss/
 		url = JSON.getJsonString(item, "url");//if link
-		date = JSON.getJsonDateFromUnixTime(item, "created");//decimal Unix time, seconds
+		time = JSON.getJsonDateFromUnixTime(item, "created");//decimal Unix time, seconds
+		date = Time.date(time);//day
 		StringBuilder content = new StringBuilder();
 		Str.append(content, title);
 		Str.append(content, selftext);
@@ -160,7 +164,7 @@ class RedditFeeder extends SocialFeeder {
 						JsonObject item = children.getJsonObject(i);
 						item = JSON.getJsonObject(item,"data");
 						RedditItem ri = new RedditItem(item);
-						countComments(ri.author,ri.author,ri.text,ri.date);
+						countComments(ri.author,ri.author,ri.text,ri.time);
 						comments[i] = new Object[]{ri.author,ri.author,ri.text,false,new Integer(ri.score)};
 					}
 				}
@@ -171,11 +175,10 @@ class RedditFeeder extends SocialFeeder {
 	
 	public void getFeed(String token, Date since, Date until, StringBuilder detail) throws IOException {
 		try {
-			//TODO:
 			String access_token = api.refresh_token(token);
 			if (AL.empty(access_token))
 				return;
-			
+
 			String[][] hdr = new String[][] {new String[] {"Authorization","bearer "+access_token}};
 			String after = null;
 			for (boolean days_over = false; !days_over;) {
@@ -235,6 +238,10 @@ class RedditFeeder extends SocialFeeder {
 					String text = processItem(ri.date,ri.author,ri.text,links,comments,ri.score,true);
 					reportDetail(detail,ri.author,uri,ri.typed_id,text,ri.date,comments,links,null,ri.score,0,ri.comments,imghtml);
 
+//TODO: or not todo					
+					//if (today.compareTo(ri.date)>=0) {
+					//	
+					//}
 					api.matchPeerText(user_id, text, ri.date, uri, ri.thumbnail);
 				}
 				after = JSON.getJsonString(data, "after");

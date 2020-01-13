@@ -691,7 +691,7 @@ public abstract class SocialFeeder {
 		
 		return 1;
 	}
-		
+
 	//TODO: count word use, likes and comments along the way!!!
 	public final String[] extractUrls(String text, String[] links, Boolean like, Integer likes, Integer comments, Counter period){
 		OrderedStringSet urls = new OrderedStringSet();
@@ -907,14 +907,12 @@ public abstract class SocialFeeder {
 		try {Thread.sleep(millis);} catch (InterruptedException e) {}
 	}
 
-	//TODO: this is taken from VKFeeder, so remove origin in VKFeeder
 	public String processItem(Date times,String from,String html, OrderedStringSet links, Object[][] commenters, int otherLikesCount, boolean myLike){
 		if (html != null){
 			int commentsCount = countCommentsFromOthers(commenters);
 			Counter period = getWordsPeriod(getPeriodKey(times));
 			countPeriod(times,otherLikesCount,commentsCount);
-			
-			//TODO: promote this code to be generic for all sources!?
+
 			ArrayList collectedLinks = new ArrayList();
 			//parse link tags from html with stripped anchors
 			String text = HtmlStripper.convert(html," ",collectedLinks);

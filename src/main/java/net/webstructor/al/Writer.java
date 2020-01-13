@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -376,25 +376,25 @@ public class Writer extends AL {
 	}
 
 	//JSONify
-	public static String toJSON(Object arg){
+	public static String toJSON(Object arg, Thing context){
 		if (arg == null)
 			return "";
 		if (arg instanceof Object[] || arg instanceof Object){
 			StringBuilder sb = new StringBuilder();
-			toJSON(sb,arg);
+			toJSON(sb,arg,context);
 			return sb.toString();
 		}
 		return arg.toString();
 	}
 
-	public static void toJSON(StringBuilder sb, Object arg){
+	public static void toJSON(StringBuilder sb, Object arg, Thing context){
 		if (arg instanceof Object[]){
 			Object[] objs = (Object[]) arg;
 			sb.append('[');
 			for (int i = 0; i < objs.length; i++){
 				if (i > 0)
 					sb.append(',');
-				toJSON(sb,objs[i]);
+				toJSON(sb,objs[i],context);
 			}
 			sb.append(']');
 		} else
@@ -408,7 +408,7 @@ public class Writer extends AL {
 				if (i > 0) { 
 					sb.append(',');
 				}
-				toJSON(sb,set.get(i));
+				toJSON(sb,set.get(i),context);
 			}
 			sb.append(']');
 		} else
@@ -417,7 +417,7 @@ public class Writer extends AL {
 			String[] sorted = new String[coll.size()];
 			int c = 0;
 			for (Iterator it = coll.iterator(); it.hasNext(); )
-				sorted[c++] = toJSON(it.next());
+				sorted[c++] = toJSON(it.next(),context);
 			Arrays.sort(sorted);
 			sb.append('[');
 			for (int i=0; i<sorted.length; i++) {
@@ -439,13 +439,13 @@ public class Writer extends AL {
 				if (k != null && v != null){
 					if (count++ > 0)
 						sb.append(',');
-					sb.append('\"').append(k.toString()).append("\":").append(toJSON(v));
+					sb.append('\"').append(k.toString()).append("\":").append(toJSON(v,context));
 				}
 			}
 			sb.append('}');
 		} else
 		if (arg instanceof Thing){
-			toJSON(sb, (Thing) arg);//as a JSON
+			toJSON(sb, (Thing) arg, context);//as a JSON
 		} else 
 		if (arg instanceof String){
 			String s = (String)arg;
@@ -458,10 +458,15 @@ public class Writer extends AL {
 		}
 	}
 
-	public static void toJSON(StringBuilder out,Thing thing) {
-		out.append('{');
+	public static void toJSON(StringBuilder out,Thing thing, Thing context) {
+		//TODO: make unique reference AKA buildQualifier
+		String ref = thing.getString(name);
+		if (context != null && !AL.empty(ref)) {
+			toJSON(out,ref,context);
+		} else
 		//TODO: do more fancy stuff like toString?
 		{
+			out.append('{');
 			String[] names = thing.getNamesAvailable();
 			{
 				String[] sorted = new String[names.length];
@@ -469,7 +474,7 @@ public class Writer extends AL {
 					String name = (String)names[i];
 					Object value = thing.get(name);
 					if (value != null)
-						sorted[c++] = '\"' + name + "\":" + toJSON(value);
+						sorted[c++] = '\"' + name + "\":" + toJSON(value,thing);
 				}
 				Arrays.sort(sorted);
 				for (int i=0; i<names.length; i++) {
@@ -478,8 +483,8 @@ public class Writer extends AL {
 					out.append(sorted[i]);
 				}
 			}
+			out.append('}');
 		}
-		out.append('}');
 	}
 
 	//TODO: turn into separate class for HTML/JSON/XLSX

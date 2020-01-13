@@ -69,6 +69,10 @@ public class Profiler {
 		maxSites = StringUtil.toIntOrDefault(peer.getString(Peer.trusts_limit),10,Body.PEER_TRUSTS_LIMIT);
 	}
 
+	public Profiler(Body body,Socializer provider,Thing peer,String id_name){
+		this(body,provider,peer,id_name,id_name,id_name);//dummy id names if no token and key is needed (Steemit and Golos) 
+	}
+	
 	public Socializer provider(){
 		return provider;
 	}

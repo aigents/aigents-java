@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -180,6 +180,25 @@ public class MapMap {
 		return false;
 	}
 
+	public Collection getObjects(Object key1,Class cls) {
+		HashMap map = getMap(key1,false);
+		if (map != null) {
+			HashSet objects = new HashSet();
+			synchronized (map) {
+				Collection objectSets = map.values();
+				for (Object objectSet : objectSets) {
+					if (objectSet instanceof Set) {
+						for (Object o : (Set)objectSet)
+							if (cls == null || cls.isInstance(o))
+								objects.add(o);
+					}
+				}
+				return objects;
+			}
+		}
+		return null;
+	}
+	
 	//TODO:never use!
 	//careful - may be very slow
 	public Collection getObjects(Class cls,Set debugTrap) {

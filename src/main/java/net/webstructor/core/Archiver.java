@@ -23,6 +23,7 @@
  */
 package net.webstructor.core;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
@@ -99,16 +100,26 @@ public class Archiver {
 			env.error("Archiver encoding "+thing+" "+instance, e);
 		}
 	}
-	public boolean exists(String thing,String instance){
+	public static String[] path(String dir, String file) throws UnsupportedEncodingException {
+		return new String[] {URLEncoder.encode(dir,"UTF8"),URLEncoder.encode(file,"UTF8")};
+	}
+	public static String[] path(String dir, String subdir, String file) throws UnsupportedEncodingException {
+		return new String[] {URLEncoder.encode(dir,"UTF8"),URLEncoder.encode(subdir,"UTF8"),URLEncoder.encode(file,"UTF8")};
+	}
+	public boolean exists(String thing,String instance,Date date){
 		try {
-			thing = URLEncoder.encode(thing,"UTF8");
-			instance = URLEncoder.encode(instance,"UTF8");
-			String[] latest = filer.latest(new String[]{"is-instances",thing});
-			if (Array.contains(latest, instance))
-				return true;
+			if (date == null) {
+				String[] latest = filer.latest(path("is-instances",thing));
+				return Array.contains(latest, instance); 
+			}else {
+				String[] path = path("is-instances",thing,instance);
+				File file = filer.getFile(path);
+				//assume exists if present and has the same or older date!!! 
+				return file != null && file.lastModified() >= date.getTime() ? true : false;
+			}
 		} catch (UnsupportedEncodingException e) {
 			env.error("Archiver encoding "+thing+" "+instance, e);
+			return false;
 		}
-		return false;
 	}
 }

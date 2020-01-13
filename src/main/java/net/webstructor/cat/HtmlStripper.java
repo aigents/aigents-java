@@ -154,9 +154,10 @@ import net.webstructor.util.Array;
             	pos = 0;
 
             startOfText = pos;
-            if( source.indexOf(LT,pos) < 0 )
-            {
-                return source ;
+            if( source.indexOf(LT,pos) < 0 ){
+            	StringBuilder decodedText = new StringBuilder();
+            	addText(decodedText,source);//just remove &...; and &#...; encodings
+                return decodedText.toString();
             }
             String baseHref = getTagAttr(source,0,pos,BASE,HREF);
             if (AL.empty(baseHref))
@@ -330,9 +331,9 @@ import net.webstructor.util.Array;
                                  {
                                      c = str.charAt(i);
                                      if(c == '&')
-                                     {
-                                    	 //try stuff like &#8212
-                                    	 //TODO: stuff like &#x2019 '’'
+                                     for (;;) {//repeatedly handle continious encodings like &amp;#x200B;
+                                    	 //handle stuff like &#8212 and &#x2019 '’'
+                                    	 boolean handled = false; 
                                     	 int ihash = i + 1, iend, ilen, ihex;
                                     	 String shex;
                                     	 boolean hex;
@@ -343,14 +344,18 @@ import net.webstructor.util.Array;
                                     		(ihex = StringUtil.toIntOrZero(shex,hex ? 16 : 10)) != 0) {
                                     		c = (char) ihex;
                                     		i += ilen + 1;
+                                    		handled = true;
                                     	 }
                                     	 else
                                     	 for (int j = 0; j < etokens.length; j++)
                                     		 if (str.regionMatches(i, etokens[j], 0, etokens[j].length())) {
                                     			 i += (etokens[j].length() - 1);
                                     			 c = echars[j];
+                                    			 handled = true; 
                                     			 break;
                                     		 }
+                                    	 if (!handled)
+                                    		 break;
                                      } 
                                      else
                                      //http://www.adamkoch.com/2009/07/25/white-space-and-character-160/

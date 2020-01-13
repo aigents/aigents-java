@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -120,7 +120,7 @@ public abstract class Mode {
 		//dump query to output
 		if (AL.empty(format) && peer != null)
 			format = peer.getString("format");//TODO: move to ontology
-		return "json".equalsIgnoreCase(format) ? Writer.toJSON(coll) 
+		return "json".equalsIgnoreCase(format) ? Writer.toJSON(coll,null) 
 			: "html".equalsIgnoreCase(format) ? Writer.toHTML(coll,null)
 			: Writer.toPrefixedString(
 					session,//TODO: fix hack!
@@ -258,6 +258,8 @@ public abstract class Mode {
 						feed.append("    <category>").append(topic).append("</category>\n");
 					if (!AL.empty(author))
 						feed.append("    <dc:creator><![CDATA[").append(authorarea).append("]]></dc:creator>\n");//https://www.aitrends.com/feed/
+					//https://validator.w3.org/feed/docs/rss2.html#ltguidgtSubelementOfLtitemgt
+//TODO: <guid isPermaLink="true">http://inessential.com/2002/09/01.php#a2</guid>
 					feed.append("  </item>\n");
 				}
 			}

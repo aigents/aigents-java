@@ -501,6 +501,13 @@ public class Storager {
 		//}
 		return all_set;
 	}
+
+	/**
+	 * Get all Things which have properties of this attribute name 
+	 */
+	public Collection getAttributed(String name) {
+		return mapmap.getObjects(name, Thing.class);
+	}
 	
 	/**
 	 * Removes unlinked things except listed classes and instances. 
