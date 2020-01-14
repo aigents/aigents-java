@@ -58,18 +58,27 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. Changing email later will require confirmation code.
 	1. For channel-based integration, fake emails may be used as identifiers in email-conforming format like *12345@mysite.org* or *channel_cats@my_site.com*. 
 1. The registration flow is the following.
-	1. Client - current session (if any) is closed by logout: *logout*
+	1. Client - current session (if any, just in case) is closed by logout: *logout*
 	1. Server - confirms: *Ok.*
 	1. Client - initiates login: *login*
-	1. Server - prompts for registration: *What your email, name, surname?*
+	1. Server - prompts for login/registration: *What your email, name, surname?*
 	1. Client - enters email, name and surname, e.g.: *myemail@mysite.mydomain, myname, mysurname* 
 	1. Server - asks for secret question and answer for authentication: *What your secret question, secret answer?*
 	1. Client - provides the question and answer, e.g.: *my secret question "fish", secret answer "tuna"* (or *my secret question "strong password", secret answer "@ghTyYUU19%*1gpy90tY56"*)
-	1. Server - checks for answer, e.g.: *What your fish?* (or *What your strong password?*)
+	1. Server - checks for answer on secret question, e.g.: *What your fish?* (or *What your strong password?*)
 	1. Client - answers, e.g.: *my fish "tuna"* (or *my strong password "@ghTyYUU19%*1gpy90tY56"*)
 	1. Server - confirms registration, e.g.: *Ok. Hello Myname Mysurname! My Aigents 2.2.4 Copyright © 2020 Anton Kolonin, Aigents®*
 1. The login attempt for the user should be tried whenever it is not sure if the previous session is still valid (which may be not the case if the server has had interal error losing session context).
-1. TODO
+1. The login flow is the following.
+	1. Client - current session (if any, just in case) is closed by logout: *logout*
+	1. Server - confirms: *Ok.*
+	1. Client - initiates login: *login*
+	1. Server - prompts for login/registration: *What your email, name, surname?*
+	1. Client - enters email, e.g.: *myemail@mysite.mydomain* 
+	1. Server - checks for answer on secret question, e.g.: *What your fish?* (or *What your strong password?*)
+	1. Client - answers, e.g.: *my fish "tuna"* (or *my strong password "@ghTyYUU19%*1gpy90tY56"*)
+	1. Server - confirms registration, e.g.: *Ok. Hello Myname Mysurname! My Aigents 2.2.4 Copyright © 2020 Anton Kolonin, Aigents®*
+1. The [Python example of creation of Aigents session](https://github.com/akolonin/singnet/blob/master/agent/adapters/aigents/__init__.py#L73) (simplified version) can be found on githib in pre-alpha version of [SingularityNET](https://github.com/singnet/).
 
 ## 4. Set up the channel configuration
 
@@ -79,5 +88,4 @@ TODO
 
 TODO
 
-TODO example from github/akolonin
 
