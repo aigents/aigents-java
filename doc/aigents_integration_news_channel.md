@@ -85,7 +85,7 @@ In order to integrate Aigents news syndication in your applications, two options
 
 ## 4. Manage channel (area) configuration
 
-## 4.1. Set up channel (area) configuration
+### 4.1. Set up channel (area) configuration
 
 1. The channel (area) configuration is set up by adding and removing sites and topics for the user (peer) who owns the channel, like [described in the earlier publication](https://medium.com/@aigents/aigents-news-monitoring-tips-and-tricks-ab8d2ede2fa5).
 	1. **NB:** The following descrbies **simplified** version of the topics configuration missing details on configuring **multiple patterns per topic** and **variables in patterns** (see the details in the publication referenced above).
@@ -103,17 +103,40 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. To have a site removed from the list of trusts: *my trusts not "https://medium.com/@aigents/"* 
 	1. To have a topic removed from the list of trusts: *my trusts not "{ai agi [artificial intelligence] [artificial general intelligence]}"*
 
-## 4.2. View channel (area) configuration
+### 4.2. View channel (area) configuration
 
-1. Configuration of a chanel (area) associated with current user may be achieved with AL queries having the query results returned in AL, JSON or HTML format as it has been descrbied above, based on what kind of parsing is convenient. 
+1. Viewing of a chanel (area) setup associated with current user may be achieved with AL queries having the query results returned in either AL or JSON or HTML format as it has been descrbied above, based on what kind of parsing is convenient. 
 1. The list of the topics ad sites with boolean indications of whether they are also trusted along with currently evaluated relevace of the topics (to the scope of trusted content in the users' news feed) can be be requested with correspoding statements.
 	1. Topics: *what my topics name, trust, relevance?*
 	1. Sites: *what my sites name, trust, relevance?*   
 
-## 5. Get news from users' (peers') channels
+## 5. Manage news from users' (peers') channels
 
-TODO what
-TODO think
+### 5.1. Get news from users' (peers') channels
+
+1. Viewing of a chanel (area) news feed associated with current user may be achieved with AL queries having the query results returned in either AL or JSON or HTML format as it has been descrbied above, based on what kind of parsing is convenient. 
+1. In order to update the news relevances accordingly to the trusts (ratings) set by user need to initiate **thinking** process with respective statement: *you think!*
+1. In order to retrieve all news items need to issue the statement: *what new true sources, text, times, trust, relevance, social relevance, image, is?*
+1. In order to retrieve news items for particular day only need to issue the statement with **times** set to date in **YYYY-MM-DD** format, e.g.: *what new true, times 2020-02-20 sources, text, trust, relevance, social relevance, image, is?*
+1. In order to retrieve only trusted or untrusted news items need to issue the statement with **trust** set to fals or true, e.g.: *what new true, trust true sources, text, times, trust, relevance, social relevance, image, is?* or *what new true, trust false sources, text, times, trust, relevance, social relevance, image, is?*, respectively.
+1. In order to retrieve only trusted or untrusted news items for particular day only need to issue the statement with **trust** set to fals or true, e.g.: *what new true, times 2020-02-20, trust true sources, text, trust, relevance, social relevance, image, is?* or *what new true, times 2020-02-20, trust false sources, text, trust, relevance, social relevance, image, is?*, respectively.
+1. In order to retrieve only limited set of attributes (properties) of the news items need to issue the statement with these attributes, e.g. requesting only the text and date: *what new true text, times?*
+1. In order to retrieve un limited set of attributes (properties) of the news items, including additional property values filled by the patter matcher based on the **pattern variables** need to issue the statement without of the attributes listed, e.g.: *what new true?*
+1. Extra filtering may be applied on top of the requested criteria based o the attributed property values.
+1. The standard property values referred to above are the following. 
+	1. **sources** - URL of the news source (may be many URLs, but typically one), corrsponding to **RSS link**. 
+	1. **text** - text of the news item, corresponds to **RSS title**.
+	1. **times** - date of the news item in **YYYY-MM-DD** format, correspods to **RSS pubDate**.
+	1. **trust** - either *true* or *false* indicating whether the item is trusted (positively ranked) or not trusted (ot ranked) by user, respectively.  
+	1. **relevance** (personal relevance) - 0-100% as estimation of the extent to which the **text** and the **sources** may be trusted by the user, given the earlier **trusts** given by user to the other news items earlier or to the **topics** (in case if no trusts to news items are given at all).     
+	1. **social relevance** - 0-100% as estimation of the expected trust assessed like above but in regard to social connections of the user istead of the user itself (setting up social connections to be considered [separately](aigents_integration_news_user.md)).   
+	1. **image** - URL to the image assocciated with the **text**, corresponds to **RSS enclosure**. 
+	1. **is** - original Aigents **topic** of the news item as it is set up with **topics** verb earlier, correspods to **RSS category**.
+	1. **NB:** **context** - now used as a custom attribute based on pattern variables in some of sample patterns, but in later versions of Aigents pattern matcher it may be re-defined as broader textual **context** of the **text** ad become represeting **RSS description**.
+
+
+### 5.2. Mark news trusted (rate the news)
+
 TODO trust
 
 
