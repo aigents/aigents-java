@@ -2,11 +2,13 @@
 
 ## 1. Setting up the server
 
-### [Set up server of your own](https://aigents.com/download/latest/readme.html)
+### Set up server of your own
+
+To setup your own in-house Aigents server you can refer to the [instructions](https://aigents.com/download/latest/readme.html).
 
 ### Use existig Aigents Web Demo server
 
-API URL: https://aigents.com/al  
+Tu use existing Aigents Web Demo server you can use this API URL: https://aigents.com/al  
 
 ## 2. Understand the basics
 
@@ -41,14 +43,28 @@ API URL: https://aigents.com/al
 	1. Turn feed of the current user into named area with name "my_area": *my areas my_area*
 	1. Remove named area with name from being associated with feed of the current user "my_area": *my areas not my_area*	
 	1. Make the current user feed associated with correspodig named area as shared to public: *my shares my_area*
-1. The shared area (channel) can be obtanied as RSS feed as it is shown in the folliwng video. Assuming the Aigents API URL is ***https://aigents.com/al** and area name is **ai**, the url *[https://aigents.com/al?rss%20ai](https://aigents.com/al?rss%20ai)* will provide the RSS feed.
+1. The shared area (channel) can be obtanied as RSS feed as it is shown in the folliwng video. Assuming the Aigents API URL is **https://aigents.com/al** and area name is **ai**, the url *[https://aigents.com/al?rss%20ai](https://aigents.com/al?rss%20ai)* will provide the RSS feed.
+
 [![](http://img.youtube.com/vi/8r_vmlkFKfI/0.jpg)](http://www.youtube.com/watch?v=8r_vmlkFKfI "")
 
 ## 3. Set up the users per channel and restart sessions 
 
 1. For the user registration purpose, [registration and login by email flow](https://github.com/aigents/aigents-java/blob/master/test.out) is suggested.
 1. The registration for every user should be performed only once, using the email.
-1. TODO
+	1. No email confirmation is requiered on registration.
+	1. Changing email later will require confirmation code.
+	1. For channel-based integration, fake emails may be used as identifiers in email-conforming format like *12345@mysite.org* or *channel_cats@my_site.com*. 
+1. The registration flow is the following.
+	1. Client - current session (if any) is closed by logout: *logout*
+	1. Server - confirms: *Ok.*
+	1. Client - initiates login: *login*
+	1. Server - prompts for registration: *What your email, name, surname?*
+	1. Client - enters email, name and surname, e.g.: *myemail@mysite.mydomain, myname, mysurname* 
+	1. Server - asks for secret question and answer for authentication: *What your secret question, secret answer?*
+	1. Client - provides the question and answer, e.g.: *my secret question "fish", secret answer "tuna"* (or *my secret question "strong password", secret answer "@ghTyYUU19%*1gpy90tY56"*)
+	1. Server - checks for answer, e.g.: *What your fish?* (or *What your strong password?*)
+	1. Client - answers, e.g.: *my fish "tuna"* (or *my strong password "@ghTyYUU19%*1gpy90tY56"*)
+	1. Server - confirms registration, e.g.: *Ok. Hello Myname Mysurname! My Aigents 2.2.4 Copyright © 2020 Anton Kolonin, Aigents®*
 1. The login attempt for the user should be tried whenever it is not sure if the previous session is still valid (which may be not the case if the server has had interal error losing session context).
 1. TODO
 
