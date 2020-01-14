@@ -10,7 +10,7 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. To setup your own in-house Aigents server you can refer to the [instructions](https://aigents.com/download/latest/readme.html).
 1. Use existig Aigents Web Demo server
 	1. Pro: no need to deploy and maintain your your server.
-	1. Con: may experience performance ad reliability issue due to development activity on Aigents Web Demo server.  
+	1. Con: may experience performance and reliability issue due to development activity on Aigents Web Demo server.  
 	1. To use existing Aigents Web Demo server you can use this API URL: https://aigents.com/al 
 
 ## 2. Understand the basics
@@ -89,7 +89,7 @@ In order to integrate Aigents news syndication in your applications, two options
 
 1. The channel (area) configuration is set up by adding and removing sites and topics for the user (peer) who owns the channel, like [described in the earlier publication](https://medium.com/@aigents/aigents-news-monitoring-tips-and-tricks-ab8d2ede2fa5).
 	1. **NB:** The following descrbies **simplified** version of the topics configuration missing details on configuring **multiple patterns per topic** and **variables in patterns** (see the details in the publication referenced above).
-1. In order the site or topic to be involved in the news monitoring for give user, it has to be ot only listed in the list of sites ad topics, but included in the list of things trusted by user as well.
+1. In order the site or topic to be involved in the news monitoring for give user, it has to be ot only listed in the list of sites and topics, but included in the list of things trusted by user as well.
 1. In order to stop monitoring of the site or topic, it has to be removed from the list of trusted things. In order to remove  it from the list of sites ot being curretly monitored by the user, need to remove it from te list of sites as well.
 1. To change the existing site or topic, need to remove old one and add new one - for list of sites or topics respectively and for the list of trusts as well.
 1. To add sites and topics use the following statements - assuming the site is "https://medium.com/@aigents/" and the topic is "{ai agi [artificial intelligence] [artificial general intelligence]}", for example. 
@@ -106,7 +106,7 @@ In order to integrate Aigents news syndication in your applications, two options
 ### 4.2. View channel (area) configuration
 
 1. Viewing of a chanel (area) setup associated with current user may be achieved with AL queries having the query results returned in either AL or JSON or HTML format as it has been descrbied above, based on what kind of parsing is convenient. 
-1. The list of the topics ad sites with boolean indications of whether they are also trusted along with currently evaluated relevace of the topics (to the scope of trusted content in the users' news feed) can be be requested with correspoding statements.
+1. The list of the topics and sites with boolean indications of whether they are also trusted along with currently evaluated relevace of the topics (to the scope of trusted content in the users' news feed) can be be requested with correspoding statements.
 	1. Topics: *what my topics name, trust, relevance?*
 	1. Sites: *what my sites name, trust, relevance?*   
 
@@ -132,11 +132,26 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. **social relevance** - 0-100% as estimation of the expected trust assessed like above but in regard to social connections of the user istead of the user itself (setting up social connections to be considered [separately](aigents_integration_news_user.md)).   
 	1. **image** - URL to the image assocciated with the **text**, corresponds to **RSS enclosure**. 
 	1. **is** - original Aigents **topic** of the news item as it is set up with **topics** verb earlier, correspods to **RSS category**.
-	1. **NB:** **context** - now used as a custom attribute based on pattern variables in some of sample patterns, but in later versions of Aigents pattern matcher it may be re-defined as broader textual **context** of the **text** ad become represeting **RSS description**.
+	1. **NB:** **context** - now used as a custom attribute based on pattern variables in some of sample patterns, but in later versions of Aigents pattern matcher it may be re-defined as broader textual **context** of the **text** and become representing **RSS description**.
 
 
-### 5.2. Mark news trusted (rate the news)
+### 5.2. Mark news trusted (rate the news) or outdated (hide the news)
 
-TODO trust
-
-
+1. The user who owns the channel (area) may have the news items marked (rated) as trusted, so another time the **thinking** process is executed, the other news items as well as topics and sites have their **relevance** and **social relevance** properties updated respectively - this is done setting **trust** property of a news item to *true*. Removal of the trust is achieved setting **trust** property of a news item to *false*. 
+1. The user who owns the channel (area) may have the news items marked **no news** setting value of the **new** property to *false*, which would effect in removal of the news item from the news feed. Respectively, to get the news item back to the news feed need to restore the **new** property value to *true*.
+1. Setting of the **trust** and **new** prpoperty values is done with AL statements referrig the the news item by means of its other attributes such as **text**, **sources** and **times**, like in the following examples.
+	1. Give **trust** to a news item: *sources 'http://mysite.mydomain' and text 'my matching news text' and times today trust true*.
+	1. Remove **trust** from a news item: *sources 'http://mysite.mydomain' and text 'my matching news text' and times today trust false*.
+	1. Give **trust** to all today news items from specific domain: *sources 'http://mysite.mydomain' and times today trust true*.
+	1. Give **trust** to all today news item with specific text: *text 'my matching news text' and times today trust true*.
+	1. Give **trust** to all news items from specific domain: *sources 'http://mysite.mydomain' trust true*.
+	1. Give **trust** to all news item with specific text: *text 'my matching news text' trust true*.
+	1. Give **trust** to all news items: *times today, new true trust true*.
+	1. Give **trust** to all news items: *new true trust true*.
+	1. Hide all **new** items: *new true new false*.
+	1. Unhide news items from specific domain: *sources 'http://mysite.mydomain' new true*.
+	1. Unhide all all today news items from specific domain: *sources 'http://mysite.mydomain' and times today new true*.
+	1. et. cetera...
+1. All settings to the **trust** and **new** attributes are specific to context of a given user context, so setting these prpoperties to *true* or *false* for specific user and its respective channel (area) does not affect other users ad their channels (areas).
+ 
+**The End**
