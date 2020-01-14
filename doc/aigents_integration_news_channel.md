@@ -21,10 +21,13 @@ In order to integrate Aigents news syndication in your applications, two options
 1. All interactions in AL are symmetric (peer-2-peer) and asynchroous by its design. However, using HTTP/HTTPS protocol iteractions are treated as asymmetric synchronous client-server with server being the Aigents Server. When using HTTP/HTTPS, the following applies.
 	1. Client requests can be submitted either as POST (more secure) or GET (less secure) requests in AL language syntax and semantics.
 	1. Server responses may come in few forms, as follows.
-		1. AL language syntax and semantics in most of cases
+		1. AL language syntax and semantics in most of cases. Parsing AL may be done with either of the following.
+			1. Simplified AL parser in JavaScript fork or port of it refering to the *[parseToGrid function](https://github.com/aigents/aigents-java/blob/master/html/ui/aigents-al.js#L528)* - the easiest option.
+			1. Custom (simplified) AL parser implementd accordingly to AL [language specification](papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) - moderate complexity option.
+			1. Native Java AL parser forked from original [reference implementation](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/al/Reader.java#L521) - most complext option. 
 		1. JSON encodings in case of responses to **what ... ?** sorts of interrogative AL statements - in case if curret session is configured with **format json**.
 		1. HTML mark-ups in case of responses to **what ... ?** sorts of interrogative AL statements - in case if curret session is configured with **format json**.
-		1. The **format** setting ca be set to **text** or **json** or **html** saying to server either of the following.
+		1. The **format** setting can be set to **text** or **json** or **html** saying to server either of the following.
 			1. *my format text* (being default)
 			1. *my format json*
 			1. *my format html*
@@ -80,12 +83,37 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. Server - confirms registration, e.g.: *Ok. Hello Myname Mysurname! My Aigents 2.2.4 Copyright © 2020 Anton Kolonin, Aigents®*
 1. The [Python example of creation of Aigents session](https://github.com/akolonin/singnet/blob/master/agent/adapters/aigents/__init__.py#L73) (simplified version) can be found on githib in pre-alpha version of [SingularityNET](https://github.com/singnet/).
 
-## 4. Set up the channel configuration
+## 4. Manage channel (area) configuration
 
-TODO 
+## 4.1. Set up channel (area) configuration
 
-## 5. Get news from users' channels
+1. The channel (area) configuration is set up by adding and removing sites and topics for the user (peer) who owns the channel, like [described in the earlier publication](https://medium.com/@aigents/aigents-news-monitoring-tips-and-tricks-ab8d2ede2fa5).
+	1. **NB:** The following descrbies **simplified** version of the topics configuration missing details on configuring **multiple patterns per topic** and **variables in patterns** (see the details in the publication referenced above).
+1. In order the site or topic to be involved in the news monitoring for give user, it has to be ot only listed in the list of sites ad topics, but included in the list of things trusted by user as well.
+1. In order to stop monitoring of the site or topic, it has to be removed from the list of trusted things. In order to remove  it from the list of sites ot being curretly monitored by the user, need to remove it from te list of sites as well.
+1. To change the existing site or topic, need to remove old one and add new one - for list of sites or topics respectively and for the list of trusts as well.
+1. To add sites and topics use the following statements - assuming the site is "https://medium.com/@aigents/" and the topic is "{ai agi [artificial intelligence] [artificial general intelligence]}", for example. 
+	1. To have a site added to the list of sites: *my sites "https://medium.com/@aigents/"* 
+	1. To have a topic added to the list of topis: *my topics "{ai agi [artificial intelligence] [artificial general intelligence]}"*
+	1. To have a site added to the list of trusted things: *my trusts "https://medium.com/@aigents/"* 
+	1. To have a topic added to the list of trusted things: *my trusts "{ai agi [artificial intelligence] [artificial general intelligence]}"*
+1. To remove sites of topics use the following statements: 
+	1. To have a site removed from the list of sites: *my sites not "https://medium.com/@aigents/"* 
+	1. To have a topic removed from the list of topis: *my topics not "{ai agi [artificial intelligence] [artificial general intelligence]}"*
+	1. To have a site removed from the list of trusts: *my trusts not "https://medium.com/@aigents/"* 
+	1. To have a topic removed from the list of trusts: *my trusts not "{ai agi [artificial intelligence] [artificial general intelligence]}"*
 
-TODO
+## 4.2. View channel (area) configuration
+
+1. Configuration of a chanel (area) associated with current user may be achieved with AL queries having the query results returned in AL, JSON or HTML format as it has been descrbied above, based on what kind of parsing is convenient. 
+1. The list of the topics ad sites with boolean indications of whether they are also trusted along with currently evaluated relevace of the topics (to the scope of trusted content in the users' news feed) can be be requested with correspoding statements.
+	1. Topics: *what my topics name, trust, relevance?*
+	1. Sites: *what my sites name, trust, relevance?*   
+
+## 5. Get news from users' (peers') channels
+
+TODO what
+TODO think
+TODO trust
 
 
