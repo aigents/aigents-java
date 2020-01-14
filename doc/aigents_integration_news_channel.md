@@ -2,19 +2,22 @@
 
 ## 1. Setting up the server
 
-### Set up server of your own
+In order to integrate Aigents news syndication in your applications, two options are possible, as follows.
 
-To setup your own in-house Aigents server you can refer to the [instructions](https://aigents.com/download/latest/readme.html).
-
-### Use existig Aigents Web Demo server
-
-Tu use existing Aigents Web Demo server you can use this API URL: https://aigents.com/al  
+1. Set up server of your own.
+	1. Pro: have full control over perfromance and reliability of your server.
+	1. Con: have to deploy and maintain the server yourself. 
+	1. To setup your own in-house Aigents server you can refer to the [instructions](https://aigents.com/download/latest/readme.html).
+1. Use existig Aigents Web Demo server
+	1. Pro: no need to deploy and maintain your your server.
+	1. Con: may experience performance ad reliability issue due to development activity on Aigents Web Demo server.  
+	1. To use existing Aigents Web Demo server you can use this API URL: https://aigents.com/al 
 
 ## 2. Understand the basics
 
 ### 2.1. Communication protocol
 
-1. Operations with the Aigents server are committed by means of [**Aigents Lagnuage**](http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) or **AL** over any supported commuication protocol enabling transmission of fill text. The preferred protocol is HTTPS because of its security.     
+1. Operations with the Aigents server are committed by means of [**Aigents Language**](papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) or **AL** over any supported commuication protocol enabling transmission of fill text. The preferred protocol is HTTPS because of its security.     
 1. All interactions in AL are symmetric (peer-2-peer) and asynchroous by its design. However, using HTTP/HTTPS protocol iteractions are treated as asymmetric synchronous client-server with server being the Aigents Server. When using HTTP/HTTPS, the following applies.
 	1. Client requests can be submitted either as POST (more secure) or GET (less secure) requests in AL language syntax and semantics.
 	1. Server responses may come in few forms, as follows.
@@ -47,7 +50,7 @@ Tu use existing Aigents Web Demo server you can use this API URL: https://aigent
 
 [![](http://img.youtube.com/vi/8r_vmlkFKfI/0.jpg)](http://www.youtube.com/watch?v=8r_vmlkFKfI "")
 
-## 3. Set up the users per channel and restart sessions 
+## 3. Set up users per channel and restart sessions 
 
 1. For the user registration purpose, [registration and login by email flow](https://github.com/aigents/aigents-java/blob/master/test.out) is suggested.
 1. The registration for every user should be performed only once, using the email.
