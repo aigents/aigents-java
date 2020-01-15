@@ -15,11 +15,11 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. Con: may experience performance and reliability issue due to development activity on Aigents Web Demo server.  
 	1. To use existing Aigents Web Demo server you can use this API URL: https://aigents.com/al 
 
-## 2. Understand the basics
+## 2. Understandig the basics
 
 ### 2.1. Communication protocol
 
-1. Operations with the Aigents server are committed by means of [**Aigents Language**](https://github.com/aigents/aigents-java/blob/master/doc/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) or **AL** over any supported communication protocol enabling transmission of fill text. The preferred protocol is HTTPS because of its security.     
+1. Operations with the Aigents server are committed by means of [**Aigents Language**](https://github.com/aigents/aigents-java/blob/master/doc/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) or **AL** over any supported communication protocol enabling transmission of plain text. The preferred protocol is HTTPS because of its security.     
 1. All interactions in AL are symmetric (peer-2-peer) and asynchronous by its design. However, using HTTP/HTTPS protocol interactions are treated as asymmetric synchronous client-server with server being the Aigents Server. When using HTTP/HTTPS, the following applies.
 	1. Client requests can be submitted either as POST (more secure) or GET (less secure) requests in AL language syntax and semantics.
 	1. Server responses may come in few forms, as follows.
