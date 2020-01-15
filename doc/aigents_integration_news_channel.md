@@ -17,13 +17,13 @@ In order to integrate Aigents news syndication in your applications, two options
 
 ### 2.1. Communication protocol
 
-1. Operations with the Aigents server are committed by means of [**Aigents Language**](papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) or **AL** over any supported commuication protocol enabling transmission of fill text. The preferred protocol is HTTPS because of its security.     
+1. Operations with the Aigents server are committed by means of [**Aigents Language**](https://github.com/aigents/aigents-java/blob/master/doc/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) or **AL** over any supported commuication protocol enabling transmission of fill text. The preferred protocol is HTTPS because of its security.     
 1. All interactions in AL are symmetric (peer-2-peer) and asynchroous by its design. However, using HTTP/HTTPS protocol iteractions are treated as asymmetric synchronous client-server with server being the Aigents Server. When using HTTP/HTTPS, the following applies.
 	1. Client requests can be submitted either as POST (more secure) or GET (less secure) requests in AL language syntax and semantics.
 	1. Server responses may come in few forms, as follows.
 		1. AL language syntax and semantics in most of cases. Parsing AL may be done with either of the following.
 			1. Simplified AL parser in JavaScript fork or port of it refering to the *[parseToGrid function](https://github.com/aigents/aigents-java/blob/master/html/ui/aigents-al.js#L528)* - the easiest option.
-			1. Custom (simplified) AL parser implementd accordingly to AL [language specification](papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) - moderate complexity option.
+			1. Custom (simplified) AL parser implementd accordingly to AL [language specification](https://github.com/aigents/aigents-java/blob/master/doc/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf) - moderate complexity option.
 			1. Native Java AL parser forked from original [reference implementation](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/al/Reader.java#L521) - most complext option. 
 		1. JSON encodings in case of responses to **what ... ?** sorts of interrogative AL statements - in case if curret session is configured with **format json**.
 		1. HTML mark-ups in case of responses to **what ... ?** sorts of interrogative AL statements - in case if curret session is configured with **format json**.
@@ -35,7 +35,9 @@ In order to integrate Aigents news syndication in your applications, two options
 		1. HTML mark-ups in case of **search** results requested, based on **format** specification.
 1. Al interactions are being committed in a user context where user may be anonymous or authenticated. Scope of Aigents Server actions directed my means of AL statements for anonymous sessions is restricted while scope of actions for autheticated sessions is extended.
 1. Session contexts are maintaied in different ways, lke follows.
-	1. HTTP/HTTPS - cookies, so you need to keep cookies on the HTTP/HTTPS client side.  
+	1. HTTP/HTTPS - cookies, so you need to keep cookies on the HTTP/HTTPS client side - see the following examples how to maintain the cookies.
+		1. [Cookies maintained in PHP](https://github.com/aigents/aigents-java/blob/master/php/agent/test_api.php#L69).
+		1. [Cookies maintained in Java](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/HTTP.java#L218).
 	1. Telegram, Slack and Facebook Messeger - user identifiers and session tokens corresponding to API-s of those messengers.
 	1. TCP/IP sessions - socket connection contexts.
 1. For the authentication purposes, users may be registered with and logged into Aigents in different ways - using email as well as third party systems, such as Facebook, Google, PaPal, Telegram, Slack, Reddit and VKontakte.
@@ -129,7 +131,7 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. **times** - date of the news item in **YYYY-MM-DD** format, correspods to **RSS pubDate**.
 	1. **trust** - either *true* or *false* indicating whether the item is trusted (positively ranked) or not trusted (ot ranked) by user, respectively.  
 	1. **relevance** (personal relevance) - 0-100% as estimation of the extent to which the **text** and the **sources** may be trusted by the user, given the earlier **trusts** given by user to the other news items earlier or to the **topics** (in case if no trusts to news items are given at all).     
-	1. **social relevance** - 0-100% as estimation of the expected trust assessed like above but in regard to social connections of the user istead of the user itself (setting up social connections to be considered [separately](aigents_integration_news_user.md)).   
+	1. **social relevance** - 0-100% as estimation of the expected trust assessed like above but in regard to social connections of the user istead of the user itself (setting up social connections to be considered [separately](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_user.md)).   
 	1. **image** - URL to the image assocciated with the **text**, corresponds to **RSS enclosure**. 
 	1. **is** - original Aigents **topic** of the news item as it is set up with **topics** verb earlier, correspods to **RSS category**.
 	1. **NB:** **context** - now used as a custom attribute based on pattern variables in some of sample patterns, but in later versions of Aigents pattern matcher it may be re-defined as broader textual **context** of the **text** and become representing **RSS description**.
