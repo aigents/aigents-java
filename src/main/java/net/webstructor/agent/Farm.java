@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -243,6 +243,8 @@ public class Farm extends Body {
 			}
 		//update all user profiles on user-specific basis
 		try {
+			long start_time = System.currentTimeMillis();;
+			debug("Peers crawling start "+new Date(start_time)+".");
 			//TODO: to other place, separate "socializer" class?
 			Collection peers = (Collection)storager.getByName(AL.is,Schema.peer);
 			if (!AL.empty(peers)){
@@ -261,8 +263,10 @@ public class Farm extends Body {
 					i++;
 				}
 			}
+			long end_time = System.currentTimeMillis();
+			debug("Peers crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 		} catch (Exception e) {
-			error("Spidering peers update error ",e);
+			error("Peers crawling update error ",e);
 		}
 	}
 	

@@ -723,7 +723,8 @@ public abstract class Socializer extends HTTP {
 		if (attention_date.compareTo(time) < 0) {
 			try {
 				Collection peers = body.storager.getByName(provider() + " id", peer_id);
-				Siter.matchPeersText(body, peers, text, time, permlink, imgurl);
+				if (!AL.empty(peers))
+					Siter.matchPeersText(body, Siter.peerThings(peers), text, time, permlink, imgurl);
 			} catch (Exception e) {
 				body.error("Siter matchig "+provider()+" "+peer_id+" "+text,e);
 			}

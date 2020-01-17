@@ -39,6 +39,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.All;
 import net.webstructor.al.Iter;
 import net.webstructor.al.Parser;
+import net.webstructor.al.Period;
 import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Time;
@@ -260,7 +261,7 @@ public class Siter {
 	boolean expired(){
 		boolean expired = tillTime > 0 && System.currentTimeMillis() > tillTime;
 		if (expired)
-			body.debug("Spidering site time out:"+rootPath);
+			body.debug("Site crawling time out:"+rootPath);
 		return expired;
 	}
 	
@@ -273,9 +274,9 @@ public class Siter {
 			Collection goals = new ArrayList(1);
 			goals.add(t);
 			String name = t.getName();
-			body.reply("Spidering site thing begin "+name+" in "+rootPath+".");
+			body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
 			boolean found = new PathTracker(this,goals,range).run(rootPath);
-			body.reply("Spidering site thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
+			body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
 			if (found)
 				hits++;
 		}
@@ -291,11 +292,11 @@ public class Siter {
 		//1 integrate it with Socializer's new function calling matchThingsText( ..., topics ) 
 		//2 have Socializer's for Reddit capable for user-less operations 
 					
-		body.reply("Spidering site root begin "+rootPath+".");
+		body.reply("Site crawling root begin "+rootPath+".");
 		boolean ok = newSpider(topics) > 0;
 		if (ok)
 			ok = update() > 0;
-		body.reply("Spidering site root end "+(ok ? "found" : "missed")+" "+rootPath+".");
+		body.reply("Site crawling root end "+(ok ? "found" : "missed")+" "+rootPath+".");
 		return ok;
 	}
 	
@@ -426,7 +427,7 @@ public class Siter {
 		boolean failed = false;
 		String text = null;
 		
-		body.reply("Spidering site page begin "+path+".");
+		body.reply("Site crawling page begin "+path+".");
 		if (!AL.isURL(path)) // if not http url, parse the entire text
 			//result = match(storager,path,time,null,things);
 			result = match(storager,new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
@@ -444,9 +445,9 @@ public class Siter {
 			failed = true;
 		}
 		if (skipped || failed)
-			body.reply("Spidering site page end "+(failed? "failed": "skipped")+" "+path+".");
+			body.reply("Site crawling page end "+(failed? "failed": "skipped")+" "+path+".");
 		else
-			body.reply("Spidering site page end "+(result? "found": "missed")+" "+path+".");
+			body.reply("Site crawling page end "+(result? "found": "missed")+" "+path+".");
 		return result;
 	}
 
@@ -892,8 +893,7 @@ public class Siter {
 	}
 	*/
 	
-	
-	static Set peerThings(Collection peers) {
+	public static Set peerThings(Collection peers) {
 		HashSet allThings = new HashSet();
 		for (Object peer : peers) {
 			Thing p = (Thing)peer;
@@ -908,10 +908,9 @@ public class Siter {
 		return allThings;
 	}
 
-	public static void matchPeersText(Body body, Collection peers, String text, Date time, String permlink, String imgurl){
-		Set allThings = peerThings(peers);//targets
+	public static void matchPeersText(Body body, Set things, String text, Date time, String permlink, String imgurl){
 		MapMap thingPaths = new MapMap();//collector
-		int matches = matchThingsText(body,allThings,text,time,permlink,imgurl,thingPaths);
+		int matches = matchThingsText(body,things,text,time,permlink,imgurl,thingPaths);
 		if (matches > 0)
 			Siter.update(body,null,time,thingPaths,false,null);//forced=false, because may be retrospective
 	}
@@ -927,6 +926,8 @@ public class Siter {
 			}
 			Iter parse = new Iter(Parser.parse(text));
 			int matches = 0;
+			long start = System.currentTimeMillis();  
+			body.debug("Siter matching start "+permlink);
 			for (Object thing: allThings) {
 				int match = Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null);
 				if (match > 0) {
@@ -934,6 +935,8 @@ public class Siter {
 					matches += match;
 				}
 			}
+			long stop = System.currentTimeMillis();  
+			body.debug("Siter matching stop "+permlink+", took "+Period.toHours(stop-start));
 			return matches;
 	}
 

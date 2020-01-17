@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  * Copyright (c) 2018-2019 SingularityNET
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -234,5 +234,9 @@ public class Str {
 			return null;
 		l -= 1;
 		return builder.substring(l-n, l);
+	}
+
+	public static String first(String s, int n) {
+		return s == null ? s : s.substring(0, Math.min(s.length(), n));
 	}
 }

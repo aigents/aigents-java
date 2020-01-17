@@ -359,8 +359,8 @@ class Conversation extends Mode {
 			if (!AL.empty(topics)) {
 				Thing reader = new Thing();
 				if (session.read(new Seq(new Object[]{
-						new Any(1,AL.you),new Any(1,Self.reading),new Property(reader,"thingname"),
-						new Any(1,in_site),new Property(reader,"url")
+						new Any(1,AL.you),new Any(1,Self.reading),new Property(reader,"thingname",1000),
+						new Any(1,in_site),new Property(reader,"url",1000)
 						}))) {
 					reader.setString("range","3");//default, for test compatibility so far
 					session.read(reader,new String[]{"range","limit","minutes"});			
@@ -373,7 +373,7 @@ class Conversation extends Mode {
 				// TODO: decide what to do with this hack - needed for polymorphysm in argments! fix tests?
 				if (session.read(new Seq(new Object[]{
 							new Any(1,AL.you),new Any(1,Self.reading),
-							new Any(1,in_site),new Property(reader = new Thing(),"url")
+							new Any(1,in_site),new Property(reader = new Thing(),"url",1000)
 							}))) {
 					reader.setString("range","3");//default, for test compatibility so far
 					session.read(reader,new String[]{"range","limit","minutes"});			
@@ -402,7 +402,7 @@ class Conversation extends Mode {
 			
 			//get all docs
 			if (session.read(new Seq(new Object[]{new Any(1,AL.you),"cluster","format","json","texts",
-					new Property(reader,"texts")})) && !AL.empty((json = reader.getString("texts")))){
+					new Property(reader,"texts",1000)})) && !AL.empty((json = reader.getString("texts")))){
 				//TODO: JSON
 				JsonReader jr = Json.createReader(new StringReader(json));
 				JsonArray ja = jr.readArray();

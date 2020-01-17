@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,11 +46,13 @@ import net.webstructor.al.Reader;
  * @author akolonin
  */
 public class Property extends Anything {
+	public static final int DEFAULT_PROPERTY_LIMIT = 100; 
 	private static final String[] names = {"owner","value"};
 	protected String name;//TODO: is
 	protected Anything owner;
 	protected Storager storager = null;
 	private boolean hasPatterns = false;
+	private int limit = DEFAULT_PROPERTY_LIMIT;
 
 	public Property(Anything owner,String name,String def) {
 		this.owner = owner;
@@ -61,6 +63,11 @@ public class Property extends Anything {
 	
 	public Property(Anything owner,String name) {
 		this(owner,name,null);
+	}
+	
+	public Property(Anything owner,String name,int limit) {
+		this(owner,name,null);
+		this.limit = limit;
 	}
 	
 	public Property(Storager storager,Anything owner,String name) {
@@ -239,7 +246,9 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 						}
 				}
 		}
-		return name_match >= 0 ? true : false;
+		//return name_match >= 0 ? true : false;
+		return name_match == 0 ? value != null && value.length() < limit
+				: name_match >= 0 ? true : false;
 	}
 
 	//http://stackoverflow.com/questions/1649435/regular-expression-to-limit-number-of-characters-to-10

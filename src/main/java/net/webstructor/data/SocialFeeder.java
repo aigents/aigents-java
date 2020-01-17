@@ -45,7 +45,7 @@ import net.webstructor.core.Environment;
 import net.webstructor.util.Reporter;
 
 public abstract class SocialFeeder {
-	public static final long MAX_CLUSTER_TIME = Period.MINUTE*10;//TODO: make configurable
+	public static final long MAX_CLUSTER_TIME = Period.MINUTE*5;//TODO: make configurable
 	public static final String anonymous = "anonymous";
 	public static final String Anonymous = "Anonymous";
 	

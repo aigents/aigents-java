@@ -393,7 +393,7 @@ public class Thing extends Anything { // implements ORObject
 			return (Date)o;
 		if (o instanceof String)
 			return Time.date((String)o);
-		return def;
+		return def == null ? new Date(0) : def;
 	}
 	
 	public final int getInt(String name,int def) {

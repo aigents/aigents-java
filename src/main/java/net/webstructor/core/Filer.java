@@ -50,6 +50,10 @@ public class Filer {
 	
 	private static final int MAX_FILE_NAME_LENGTH = 255;
 	
+	public static String ext(String path, String ext) {
+		return AL.empty(path) || AL.empty(ext) ? path : path.substring(0,path.lastIndexOf('.'))+"."+ext;
+	}
+	
 	String path(String[] path,boolean includeFilePart){
 		if (AL.empty(path))
 			return null;

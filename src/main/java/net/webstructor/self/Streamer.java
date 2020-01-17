@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,10 +42,12 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
+import net.webstructor.core.Filer;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.main.Mainer;
 import net.webstructor.util.Array;
+import net.webstructor.util.Str;
 
 public class Streamer {
 
@@ -62,26 +64,30 @@ public class Streamer {
 	Body body; 
 	
 	private void write(Thing owner, String name, Object value) throws Exception {
-		Integer id = (Integer)byId.get(owner);
 		StringBuilder b = new StringBuilder();
-		b.append('#').append(id.intValue()).append(' ');//subject - thing
-		Writer.toString(b,(String)name);//predicate - string
-		b.append(' ');
-		if (value instanceof String)
-			Writer.toString(b,value,name);//object - string
-		else
-		if (value instanceof Date)
-			b.append(Time.day((Date)value,false));
-		else
-		if (value instanceof Thing) 
-			try {
-				b.append('#').append(((Integer)byId.get(value)).intValue());//object - thing
-			} catch (Exception e) {
-				body.error("Write fails: ["+owner+"] "+name+" "+value, e);
-				return;
-			}
-		b.append(".\n");
-		writer.write(b.toString());
+		try {
+			Integer id = (Integer)byId.get(owner);
+			b.append('#').append(id.intValue()).append(' ');//subject - thing
+			Writer.toString(b,(String)name);//predicate - string
+			b.append(' ');
+		} catch (Exception e) {
+			body.error("Write fails owner: ["+Str.first(owner.toString(),200)+"] "+name+" "+value+" "+b.toString(), e);
+			throw(e);//TODO remove for fail-tolerance!?
+		}
+		try {
+			if (value instanceof String)
+				Writer.toString(b,value,name);//object - string
+			else
+			if (value instanceof Date)
+				b.append(Time.day((Date)value,false));
+			else
+			if (value instanceof Thing) 
+					b.append('#').append(((Integer)byId.get(value)).intValue());//object - thing
+			b.append(".\n");
+			writer.write(b.toString());
+		} catch (Exception e) {
+			body.error("Write fails value: ["+Str.first(owner.toString(),200)+"] "+name+" "+value+" "+b.toString(), e);
+		}
 	}
 	
 	private void writeProperties(String name) throws Exception {
@@ -97,7 +103,7 @@ public class Streamer {
 	}
 	
 	public void write(String path) throws Exception {
-        File temp = body.getFile(path.substring(0,path.lastIndexOf('.'))+".tmp");
+        File temp = body.getFile(Filer.ext(path, "tmp"));
         writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"));
 
         //Make id's for all Things
@@ -117,7 +123,7 @@ public class Streamer {
 		}
         
 		writer.close();
-        body.getFile(path).delete();
+		try {body.getFile(path).renameTo(body.getFile(Filer.ext(path, "bak")));}catch(Exception e){}
         temp.renameTo(body.getFile(path));            		
 	}
 

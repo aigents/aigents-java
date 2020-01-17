@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -46,8 +47,10 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.agent.Body;
 import net.webstructor.main.Mainer;
+import net.webstructor.peer.Peer;
 import net.webstructor.self.Siter;
 import net.webstructor.core.Environment;
+import net.webstructor.core.Thing;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.SocialCacher;
@@ -373,13 +376,34 @@ public class Steemit extends SocialCacher {
 		Graph graph = null;
 		boolean pending_update = false;
 		long head = start_block > 0 ? start_block : headBlock(env, api_url, api_name);
+
+		//set up peer topic for news monitoring 
+		Set peerThings = null; 
+		Date attention_date = api == null ? null : Time.today(-api.body.attentionDays());
+		if (api != null) {
+			String name_id = api.provider()+" id";
+			Collection candidates = api.body.storager.getAttributed(name_id);
+			if (candidates != null) {
+				Collection peers = new ArrayList();
+				for (Object candidate : candidates) {
+					Thing peer = (Thing)candidate;
+					Date activity_date = peer.getDate(Peer.activity_time,null);//ignore inactive peers
+					if (!AL.empty(peer.getString(name_id)) && attention_date.compareTo(activity_date) < 0)
+						peers.add(peer);
+				}
+				if (!AL.empty(peers))
+					peerThings = Siter.peerThings(peers);
+			}
+		}
 		
+		long start = System.currentTimeMillis(); 
 		env.debug(caps_name+" crawling start");// since "+since+" until "+until);
 		for (long block = head; block > 0; block--){
 			String par = "steemit".equals(api_name) ? 
 				"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"get_block\",\"params\": [\""+ block + "\"]}"//Steemit
 				:"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"call\",\"params\": [\"database_api\",\"get_block\",[\"" + block + "\"]]}";//Golos
 			String response = null;
+			
 			try {
 				if (debug)
 					env.debug(Writer.capitalize(api_name)+" request "+api_url+" "+par);
@@ -568,15 +592,11 @@ if (block % 10 == 0){
 								graph.addValue(author, parent_author, "comments", logvalue);//out
 								graph.addValue(parent_author, author, "commented", logvalue);//in
 							}else {//original post
-//TODO: monitoring
-								if (api != null) {
-									Date attention_date = Time.today(-api.body.self().getInt(Body.attention_period,14));
+								if (api != null) {//content monitoring
 									if (attention_date.compareTo(new_date) < 0) {
 										OrderedStringSet links = new OrderedStringSet();
 										String text = SteemitFeeder.parsePost(title,body,links);
-										if (AL.empty(text))
-											;//Skip edits//api.body.debug(caps_name+" empty text:"+operation);
-										else {
+										if (!AL.empty(text)) {//Skip edits//api.body.debug(caps_name+" empty text:"+operation);
 //TODO extractUrls(...)?
 											String imgurl = null;//TODO extract
 											for (Object s : links) if (AL.isIMG((String)s)) {
@@ -584,8 +604,7 @@ if (block % 10 == 0){
 												break;
 											}
 											String permlink_url = Steemit.permlink_url(site,parent_permlink,author,permlink);
-											Collection peers = api.body.storager.getAttributed(api.provider()+" id");
-											Siter.matchPeersText(api.body, peers, text, new_date, permlink_url, imgurl);
+											Siter.matchPeersText(api.body, peerThings, text, new_date, permlink_url, imgurl);
 										}
 									}
 								}
@@ -616,7 +635,8 @@ if (block % 10 == 0){
 				grapher.updateGraph(key,graph,age);
 		}
 		logger.close();//TODO: move it to updateGraphs in SocialCacher
-		env.debug(caps_name+" crawling stop");
+		long stop = System.currentTimeMillis(); 
+		env.debug(caps_name+" crawling stop, took "+Period.toHours(stop-start));
 	}
 	
 	public static void accountSpider(String name,String[] peers,int range,int days) throws Exception {

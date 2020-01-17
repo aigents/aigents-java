@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -100,7 +100,7 @@ public class Spider {
 					//new Siter(body,body.storager,null,sites[i]).spider();
 					long currentTime = System.currentTimeMillis();
 					if (tillTime != 0 && currentTime > tillTime){
-						body.debug("Spidering sites time out");
+						body.debug("Sites crawling time out");
 						break;
 					}
 					long timePerSite = tillTime == 0 ? 0 : (tillTime - currentTime) / remainingSites;
@@ -124,7 +124,7 @@ public class Spider {
 					body.sitecacher.updateGraph(Time.date(time), System.currentTimeMillis());
 			}
 		} catch (Exception e) {
-			body.error("Spidering sites "+e.toString(),e);
+			body.error("Sites crawling "+e.toString(),e);
 		}
 	}
 
@@ -188,7 +188,7 @@ public class Spider {
 		    	try {
 		    		ok = new Siter(body,body.storager,thingname,site,time,forced,tillTime,range,limit,strict,mode).read();
 		    	} catch (Throwable t){
-					body.error("Spidering site failed unknown "+site+" "+t.toString()+",",t);
+					body.error("Site crawling failed unknown "+site+" "+t.toString()+",",t);
 		    	}
 		    	//stopTask(startTime,System.currentTimeMillis(),site);
 				return new Boolean(ok);
@@ -196,7 +196,7 @@ public class Spider {
 		};
 //TODO: self.addThing("readings",site);
 		long startTime = System.currentTimeMillis();
-		body.reply("Spidering site "+site+", started "+new Date(startTime)+".");
+		body.reply("Site crawling "+site+", started "+new Date(startTime)+".");
 		final ExecutorService executor = Executors.newSingleThreadExecutor();
 		final Future future = executor.submit(task);
 		executor.shutdown(); // This does not cancel the already-scheduled task.
@@ -211,23 +211,23 @@ public class Spider {
 				ok = result.booleanValue();//if waited till he end, get result
 		}
 		catch (InterruptedException ie) {  
-			body.error("Spidering site failed interrupted "+site+" "+ie.toString()+",",ie);
+			body.error("Site crawling failed interrupted "+site+" "+ie.toString()+",",ie);
 		}
 		catch (ExecutionException ee) {  
-			body.error("Spidering site failed execution "+site+" "+ee.toString()+",",ee);
+			body.error("Site crawling failed execution "+site+" "+ee.toString()+",",ee);
 		}
 		catch (TimeoutException te) {
 			future.cancel(true);//let it be dead//TODO:make sure if it is working
-			body.error("Spidering site failed timeout "+site+" "+te.toString()+",",te);
+			body.error("Site crawling failed timeout "+site+" "+te.toString()+",",te);
 			ok = true;//if not waited, be optimistic, assume success
 		}
 		catch (Throwable t) {  
-			body.error("Spidering site failed unknown "+site+" "+t.toString()+",",t);
+			body.error("Site crawling failed unknown "+site+" "+t.toString()+",",t);
 		}
 		if (!executor.isTerminated())
 		    executor.shutdownNow(); // If you want to stop the code that hasn't finished.
 		long endTime = System.currentTimeMillis();
-		body.reply("Spidering site "+site+" "+(ok?"succeeded":"failed")+" "+new Date(endTime)+" took "+new Period(endTime-startTime).toMinutes()+".");
+		body.reply("Site crawling "+site+" "+(ok?"succeeded":"failed")+" "+new Date(endTime)+" took "+new Period(endTime-startTime).toMinutes()+".");
 //TODO: self.delThing("readings",site);
 		return ok;
 	}

@@ -199,12 +199,12 @@ public class Selfer extends Thread {
 						//TODO: this all in separate thread, not re-enterable till completion!?
 						try {
 		    	    		long start_time = System.currentTimeMillis();
-							body.debug("Spidering sites start "+new Date(start_time)+", next time "+new Date(next_time)+".");
+							body.debug("Sites crawling start "+new Date(start_time)+", next time "+new Date(next_time)+".");
 							spider.spider(next_time);
 		    	    		long end_time = System.currentTimeMillis();
-							body.debug("Spidering sites stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+							body.debug("Sites crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 						} catch (Exception e) {
-							body.error("Spidering sites error :"+e.toString(),e);
+							body.error("Sites crawling error :"+e.toString(),e);
 						}
 					}
 					next_spider_time.set( next_time );
@@ -226,12 +226,12 @@ public class Selfer extends Thread {
 						try {
 							//TODO: this is separate "socializer" class
 							long start_time = current_time;
-							body.debug("Spidering peers start "+new Date(start_time)+".");
+							body.debug("Social crawling start "+new Date(start_time)+".");
 							body.updateStatusRarely();
 							long end_time = System.currentTimeMillis();
-							body.debug("Spidering peers stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+							body.debug("Social crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 						} catch (Exception e) {
-							body.error("Spidering peers error :"+e.toString(),e);
+							body.error("Social crawling error :"+e.toString(),e);
 						}
 						next_profile_time.set( current_time + Period.HOUR * 24 );//TODO: make configurable
 					}
