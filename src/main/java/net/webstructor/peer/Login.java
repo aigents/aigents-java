@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,9 @@ import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Writer;
 import net.webstructor.comm.Emailer;
+import net.webstructor.comm.fb.FB;
+import net.webstructor.comm.goog.GApi;
+import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Thing;
 import net.webstructor.util.Array;
 
@@ -58,11 +61,12 @@ class Login extends Mode {
 	}
 
 	public boolean google(Session session) {
-		if (session.sessioner.body.gapi != null) {
+		GApi gapi = (GApi)session.sessioner.body.getSocializer("google");//TODO:validate type
+		if (gapi != null) {
 			String id = session.peer.getString(Body.google_id);
 			String token = session.peer.getString(Body.google_token);
 			//email,name,surname,token,id,refresh_token
-			String enstir[] = session.sessioner.body.gapi.verifyToken(id, token);
+			String enstir[] = gapi.verifyToken(id, token);
 			if (enstir != null) {
 				session.peer.set(Body.google_token, token);
 				session.peer.set(Body.google_id, id = enstir[4]);
@@ -78,9 +82,10 @@ class Login extends Mode {
 	}
 
 	public boolean vkontakte(Session session) {
-		if (session.sessioner.body.vk != null && session.input().indexOf("vkontakte_id=")==0){
+		VK vk = (VK)session.sessioner.body.getSocializer("vkontakte");//TODO: validate type or make type-less 
+		if (vk != null && session.input().indexOf("vkontakte_id=")==0){
 			//update VK login upon callback
-			String ensti[] = session.sessioner.body.vk.verifyRedirect(session.input());
+			String ensti[] = vk.verifyRedirect(session.input());
 			if (ensti != null) {
 				//TODO: refresh token?
 				session.peer.set(Body.vkontakte_token, ensti[3]);//token
@@ -92,11 +97,11 @@ class Login extends Mode {
 			session.output("<html><body onload=\"top.postMessage(\'"
 					+(ensti == null ? "Error:" : "Success:")+session.input()+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");		
 		}else
-		if (session.sessioner.body.vk != null) {
+		if (vk != null) {
 			String id = session.peer.getString(Body.vkontakte_id);
 			String token = session.peer.getString(Body.vkontakte_token);
 session.sessioner.body.debug("vkontakte: "+id+" "+token);			
-			String enst[] = session.sessioner.body.vk.verifyToken(id, token);
+			String enst[] = vk.verifyToken(id, token);
 			if (enst != null) {
 				//TODO: refresh token?
 				session.peer.set(Body.vkontakte_token, token);
@@ -117,8 +122,9 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		String token = session.peer.getString(Body.facebook_token);
 		String email = session.peer.getString(AL.email);
 		session.sessioner.body.debug("Facebook login: "+email+"/"+id+"/"+token);
-		if (session.sessioner.body.fb != null && (token = session.sessioner.body.fb.verifyToken(id, token)) != null) {
-			String[] me = session.sessioner.body.fb.getMe(token);
+		FB fb = (FB)session.sessioner.body.getSocializer("facebook");//TODO: validate type or make typeless
+		if (fb != null && (token = fb.verifyToken(id, token)) != null) {
+			String[] me = fb.getMe(token);
 			if (me != null) {
 				//email may be not available by settings if not confirmed or user registered with phone number
 				if (!AL.empty(me[0])) 

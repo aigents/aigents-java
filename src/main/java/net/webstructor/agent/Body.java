@@ -58,7 +58,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.2.9";
+	public final static String VERSION = "2.3.1";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -171,18 +171,20 @@ public abstract class Body extends Anything implements Environment, Updater
 	public Schema schema;
 	public LangPack languages;
 	private Logger logger = null;
-	//TODO: move to other place - plugins or configurable list of "providers"?
-	public FB fb = null;
-	public GApi gapi = null;
-	public VK vk = null;
-	public Socializer reddit = null;
-	public Socializer steemit = null;
-	public Socializer golos = null;
-	public Socializer ethereum = null;
+	//TODO: remove - being plugins or configurable list of "providers"!!!
+	protected FB fb = null;
+	protected GApi gapi = null;
+	protected VK vk = null;
+	protected Socializer reddit = null;
+	protected Socializer steemit = null;
+	protected Socializer golos = null;
+	protected Socializer ethereum = null;
+	
 	public net.webstructor.self.Cacher filecacher = null;
 	public GraphCacher sitecacher = null;
 	public CacherHolder grapher = new CacherHolder();
 	protected HashMap actioners = new HashMap();
+	protected HashMap<String,Socializer> socializers = new HashMap<String,Socializer>();
 	
 	//TODO:configuration on-line
 	protected boolean console;
@@ -243,13 +245,25 @@ public abstract class Body extends Anything implements Environment, Updater
 		}
 	}
 	
+	public Socializer getSocializer(String name){
+		synchronized (socializers) {
+			return socializers.get(name);
+		}
+	}
+	
+	public Collection<Socializer> getSocializers(){
+		synchronized (socializers) {
+			return socializers.values();
+		}
+	}
+	
 	public void start() {
 		languages = new LangPack(this);
 	}
 	
 	//TODO: make configurable plugins for each provider
 	public Socializer provider(String name){
-		Socializer provider = "facebook".equals(name) ? (Socializer)fb :
+		/*Socializer provider = "facebook".equals(name) ? (Socializer)fb :
 			"vkontakte".equals(name) ? (Socializer)vk :
 			"google".equals(name) ? (Socializer)gapi : 
 			"steemit".equals(name) ? (Socializer)steemit : 
@@ -257,7 +271,8 @@ public abstract class Body extends Anything implements Environment, Updater
 			"ethereum".equals(name) ? (Socializer)ethereum : 
 			"reddit".equals(name) ? reddit : 
 			null;
-		return provider;
+		return provider;*/
+		return getSocializer(name);
 	}
 
 	public Logger logger() {

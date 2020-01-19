@@ -47,6 +47,7 @@ import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.cat.StringUtil;
 import net.webstructor.comm.HTTP;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Actioner;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Property;
@@ -286,16 +287,19 @@ public class Siter {
 	public boolean read() {
 		cacher.clearTodos();
 		Collection topics = !AL.empty(thingname) ? storager.getNamed(thingname) : allThings;
-
-		//TODO:
-		//111
-		//1 integrate it with Socializer's new function calling matchThingsText( ..., topics ) 
-		//2 have Socializer's for Reddit capable for user-less operations 
-					
 		body.reply("Site crawling root begin "+rootPath+".");
-		boolean ok = newSpider(topics) > 0;
-		if (ok)
+
+		boolean ok = false;
+		for (Socializer s : body.getSocializers())//try channel-readers first
+			if (s.readChannel(rootPath, topics, thingPaths) >= 0) {
+				ok = true;
+				break;
+			}
+		if (!ok)//use no channel-reader responded, try site-reader as fallback
+			ok = newSpider(topics) > 0;
+		if (ok)//send updates on success
 			ok = update() > 0;
+			
 		body.reply("Site crawling root end "+(ok ? "found" : "missed")+" "+rootPath+".");
 		return ok;
 	}
@@ -908,7 +912,7 @@ public class Siter {
 		return allThings;
 	}
 
-	public static void matchPeersText(Body body, Set things, String text, Date time, String permlink, String imgurl){
+	public static void matchPeersText(Body body, Collection things, String text, Date time, String permlink, String imgurl){
 		MapMap thingPaths = new MapMap();//collector
 		int matches = matchThingsText(body,things,text,time,permlink,imgurl,thingPaths);
 		if (matches > 0)

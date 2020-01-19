@@ -32,9 +32,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-//import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
-import net.webstructor.al.Time;
 import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
 import net.webstructor.data.LangPack;
@@ -42,7 +40,6 @@ import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.util.JSON;
 import net.webstructor.util.Reporter;
-import net.webstructor.util.Str;
 
 /*
 TODO:
@@ -75,63 +72,6 @@ TODO:
 	https://www.reddit.com/dev/api/#GET_api_info
 - extract and monitor individual reddits  
 */
-
-class RedditItem {
-	String subreddit_type;//like "public"
-	boolean is_robot_indexable;
-	String typed_id;//typed id, like "t3_eglml"
-	String untyped_id;//untyped id, like "eglml"
-	//String link_id = JSON.getJsonString(item, "link_id");//like "t3_e5bx6b", points to origin of commet if comment
-	String subreddit;//like "aigents"
-	String title;//subject fr post
-	String selftext;//body for post
-	String body;//body for comment
-	//String selftext_html;//body html for post?
-	//String body_html;//body html for comment?
-	//int ups;//number of upvotes
-	//int downs;//number of downvotes
-	int score;//=ups-downs
-	int comments;
-	String thumbnail;//image
-	String author;//like "akolonin"
-	String permalink;//add "https://www.reddit.com" to "/r/artificial/comments/eg7lml/ai_article_index_from_peter_voss/
-	String url;//if link
-	Date time;//decimal Unix time, seconds
-	Date date;//day
-	String text;
-	
-	RedditItem(JsonObject item){
-		subreddit_type = JSON.getJsonString(item, "subreddit_type");//like "public"
-		is_robot_indexable = JSON.getJsonBoolean(item, "is_robot_indexable", true);
-		typed_id = JSON.getJsonString(item, "name");//typed id, like "t3_eglml"
-		untyped_id = JSON.getJsonString(item, "id");//untyped id, like "eglml"
-		//String link_id = JSON.getJsonString(item, "link_id");//like "t3_e5bx6b", points to origin of commet if comment
-		subreddit = JSON.getJsonString(item, "subreddit");//like "aigents"
-		title = JSON.getJsonString(item, "title");//subject fr post
-		selftext = JSON.getJsonString(item, "selftext");//body for post
-		body = JSON.getJsonString(item, "body");//body for comment
-		//String selftext_html = JSON.getJsonString(item, "selftext_html");//body html for post?
-		//String body_html = JSON.getJsonString(item, "body_html");//body html for comment?
-
-		//https://www.reddit.com/r/announcements/comments/28hjga/reddit_changes_individual_updown_vote_counts_no/
-		//ups = JSON.getJsonInt(item, "ups");//number of upvotes
-		//downs = JSON.getJsonInt(item, "downs");//number of downvotes
-		score = JSON.getJsonInt(item, "score");//=ups-downs
-		
-		comments = JSON.getJsonInt(item, "num_comments");
-		thumbnail = JSON.getJsonString(item, "thumbnail");//image
-		author = JSON.getJsonString(item, "author");//like "akolonin"
-		permalink = JSON.getJsonString(item, "permalink");//add "https://www.reddit.com" to "/r/artificial/comments/eg7lml/ai_article_index_from_peter_voss/
-		url = JSON.getJsonString(item, "url");//if link
-		time = JSON.getJsonDateFromUnixTime(item, "created");//decimal Unix time, seconds
-		date = Time.date(time);//day
-		StringBuilder content = new StringBuilder();
-		Str.append(content, title);
-		Str.append(content, selftext);
-		Str.append(content, body);
-		text = content.toString();
-	}
-}
 
 class RedditFeeder extends SocialFeeder {
 	Reddit api;
@@ -203,7 +143,6 @@ class RedditFeeder extends SocialFeeder {
 					//String type = JSON.getJsonString(item, "type");//t1_Comment,t2_Account,t3_Link,t4_Message,t5_Subreddit,t6_Award
 					item = JSON.getJsonObject(item,"data");
 					RedditItem ri = new RedditItem(item);
-
 					if (!ri.is_robot_indexable || !"public".equals(ri.subreddit_type))
 						continue;
 					if (ri.date.compareTo(since) < 0){
@@ -211,7 +150,6 @@ class RedditFeeder extends SocialFeeder {
 						break;
 					}
 					
-					String uri = Reddit.home_url + ri.permalink; 
 					OrderedStringSet links = new OrderedStringSet();
 					if (!AL.empty(ri.url)) {
 						if (!AL.isURL(ri.url))
@@ -221,7 +159,7 @@ class RedditFeeder extends SocialFeeder {
 					String imghtml = null;
 					if (!AL.empty(ri.thumbnail)) {
 						if (AL.isIMG(ri.thumbnail))
-							imghtml = Reporter.img(uri, null, ri.thumbnail);
+							imghtml = Reporter.img(ri.uri, null, ri.thumbnail);
 						else {
 							if (AL.isURL(ri.thumbnail))
 								links.add(ri.thumbnail);
@@ -236,13 +174,11 @@ class RedditFeeder extends SocialFeeder {
 					Object[][] comments = getComments(hdr,ri.subreddit,ri.untyped_id);
 					
 					String text = processItem(ri.date,ri.author,ri.text,links,comments,ri.score,true);
-					reportDetail(detail,ri.author,uri,ri.typed_id,text,ri.date,comments,links,null,ri.score,0,ri.comments,imghtml);
+					reportDetail(detail,ri.author,ri.uri,ri.typed_id,text,ri.date,comments,links,null,ri.score,0,ri.comments,imghtml);
 
-//TODO: or not todo					
-					//if (today.compareTo(ri.date)>=0) {
-					//	
-					//}
-					api.matchPeerText(user_id, text, ri.date, uri, ri.thumbnail);
+//TODO: or not todo	- update for today ad yesterday only 
+					//if (today.compareTo(ri.date)>=0)
+					api.matchPeerText(user_id, text, ri.date, ri.uri, ri.thumbnail);
 				}
 				after = JSON.getJsonString(data, "after");
 				if (after == null)

@@ -46,6 +46,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.StringUtil;
+import net.webstructor.util.MapMap;
 import net.webstructor.util.Reporter;
 
 import net.webstructor.data.Graph;
@@ -99,6 +100,17 @@ public abstract class Socializer extends HTTP {
 	//virtual, applies for blockchain-s only (so far)
 	public Graph getGraph(Date date){
 		return null;
+	}
+	
+	/**
+	 * Read newsfeed/personal channel like subreddit, group or personal feed 
+	 * @param uri of the channel
+	 * @param topics to be searched
+	 * @param collector to accumulate findings in triple store: Thing topic, String path, Thing instance
+	 * @return -1 if ot supported, 0 if supported but not read, 1 if read
+	 */
+	public int readChannel(String uri, Collection topics, MapMap collector){
+		return -1;
 	}
 	
 	//TODO keep not transient SocialFeeders, but serialized SocialFeeds

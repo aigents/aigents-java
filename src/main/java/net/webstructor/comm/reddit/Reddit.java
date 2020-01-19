@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,25 +25,34 @@ package net.webstructor.comm.reddit;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.Date;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
+import net.webstructor.al.Time;
+import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.self.Siter;
 import net.webstructor.util.Code;
+import net.webstructor.util.JSON;
+import net.webstructor.util.MapMap;
+import net.webstructor.util.Str;
 
 //TODO: merge Reddit+Redditer and FB+Messenger? 
 public class Reddit extends Socializer {
 	String appId;
 	String appSecret;
 	protected HttpFileReader reader;//TODO: move up to HTTP or fix native HTTP
+	boolean debug = true; 
 	
 	public static final String oauth_url = "https://www.reddit.com/api/v1/access_token";
 	public static final String home_url = "https://www.reddit.com";
@@ -91,4 +100,89 @@ public class Reddit extends Socializer {
 	String refresh_token(String token) throws IOException {
 		return refresh_token(appId,appSecret,token);
 	}	
+
+	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
+		if (AL.empty(uri) || AL.empty(appId) || AL.empty(appSecret))
+			return -1;
+		
+		String subreddit = Str.parseBetween(uri, "https://www.reddit.com/r/", "/", false);
+		//TODO: user submitted or now?
+		//String user = Str.parseBetween(uri, "https://www.reddit.com/user/", "/", false);
+		
+		if (AL.empty(subreddit))
+			return -1;
+		
+		//https://github.com/reddit-archive/reddit/wiki/OAuth2
+//TODO: mobile/tablet/desktop case
+		//https://oauth.reddit.com/grants/installed_client:
+		//	Installed app types (as these apps are considered "non-confidential", have no secret, and thus, are ineligible for client_credentials grant.
+		//	Other apps acting on behalf of one or more "logged out" users.
+		//web-case
+		//client_credentials:
+		//	Confidential clients (web apps / scripts) not acting on behalf of one or more logged out users.
+		//https://www.reddit.com/api/v1/access_token
+		//For client_credentials grants include the following information in your POST data (NOT as part of the URL)
+		//grant_type=client_credentials
+		//You must supply your OAuth2 client's credentials via HTTP Basic Auth for this request. The "user" is the client_id, the "password" is the client_secret.
+		String params = "grant_type=client_credentials";
+		String auth_base64 = auth_base64(appId,appSecret);
+		String response;
+		try {
+			body.debug("Reddit read channel "+uri+" request "+params+" "+auth_base64);
+			response = HTTP.simple(Reddit.oauth_url,params,"POST",timeout,null,new String[][] {new String[] {"Authorization",auth_base64}});
+			body.debug("Reddit read channel "+uri+" response "+response);
+			if (!AL.empty(response)) {
+				JsonReader jsonReader = Json.createReader(new StringReader(response));
+				JsonObject json = jsonReader.readObject();
+				if (json.containsKey("access_token")) {
+					String access_token = HTTP.getJsonString(json,"access_token");
+					String[][] hdr = new String[][] {new String[] {"Authorization","bearer "+access_token}};
+					String after = null;
+					//Date since = Time.today(-body.self().getInt(Body.attention_period,14));
+					Date since = Time.today(-1);
+					int matches = 0;
+					for (boolean days_over = false; !days_over;) {
+//TODO: throttling based on header info or invalid replies 
+						//https://www.reddit.com/dev/api#GET_new
+						String api_url = "https://oauth.reddit.com/r/"+subreddit+"/new";
+						params = "limit=100" + (after == null ? "" : "&after="+after);
+						if (debug) body.debug("Reddit read channel "+uri+" request "+api_url+" "+params);
+						response = HTTP.simple(api_url+"?"+params,null,"GET",0,null,hdr);
+						if (debug) body.debug("Reddit read channel "+uri+" response "+response);
+						if (AL.empty(response))
+							break;
+						jsonReader = Json.createReader(new StringReader(response));
+						json = jsonReader.readObject();
+						JsonObject data = JSON.getJsonObject(json,"data");
+						if (data == null)
+							break;
+						JsonArray children = JSON.getJsonArray(data, "children");
+						if (children != null) for (int i = 0; i < children.size(); i++) {
+							JsonObject item = children.getJsonObject(i);
+							//String type = JSON.getJsonString(item, "type");//t1_Comment,t2_Account,t3_Link,t4_Message,t5_Subreddit,t6_Award
+							item = JSON.getJsonObject(item,"data");
+							RedditItem ri = new RedditItem(item);
+							if (!ri.is_robot_indexable)// || !"public".equals(ri.subreddit_type))
+								continue;
+							if (ri.date.compareTo(since) < 0){
+								days_over = true;
+								break;
+							}
+							String text = HtmlStripper.convert(ri.text," ",null);
+							text = HtmlStripper.convertMD(text, null, null);
+//TODO: consider if we want to consider links and images same way as we do that for Siter's web pages  
+							matches += Siter.matchThingsText(body,topics,text,ri.date,ri.uri,AL.isURL(ri.thumbnail)?ri.thumbnail:null,thingPathsCollector);
+						}
+						after = JSON.getJsonString(data, "after");
+						if (after == null)
+							break;
+					}
+					return matches;
+				}
+			}
+		} catch (IOException e) {
+			body.error("Reddit read channel "+uri+" error",e);
+		}
+		return -1;
+	}
 }

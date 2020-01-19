@@ -259,19 +259,36 @@ public class Peer extends Agent {
 		//unreference all the rest for the peer
 		
 		Collection allNews = (Collection)peer.getThings(AL.news);
-		Collection trusts = (Collection)peer.getThings(AL.trusts);
 		if (AL.empty(allNews))
 			return;
+		Collection trusts = (Collection)peer.getThings(AL.trusts);
+		Collection topics = peer.getThings(AL.topics);
+		if (topics != null)
+			topics.retainAll(trusts);
 		ArrayList news = new ArrayList();
+		ArrayList dels = new ArrayList();
 		Date today = Time.today(0);
 		Date yesterday = Time.today(-1);
 		for (Iterator it = allNews.iterator(); it.hasNext();){
 			Thing t = (Thing)it.next();
 			Object day = t.get(AL.times);
-			//consider for removal news for today and yesterday, not trusted and originated from our site
-			if ((day.equals(today) || day.equals(yesterday)) && !trusts.contains(t) && !t.hasThing(AL.sources, origin))
-				news.add(t);
+			//consider for removal news for today and yesterday, if not either trusted or originated from our site
+			//compact oly the recent news, keep old news hanging?!  			
+			/*if ((day.equals(today) || day.equals(yesterday)) && !trusts.contains(t) && !t.hasThing(AL.sources, origin))
+				news.add(t);*/
+			if (!(day.equals(today) || day.equals(yesterday)))
+				continue;
+			if (!trusts.contains(t) && !t.hasThing(AL.sources, origin)) {
+				boolean relevant = false;  
+				if (topics != null) for (Object i : t.getThings(AL.is)) if (topics.contains(i)) {
+					relevant = true; 
+					break;
+				}
+				(relevant ? news : dels).add(t);
+			}
 		}
+		for (Object del : dels)
+			peer.delThing(AL.news, (Thing)del);
 		if (news.size() > news_limit){
 			Object[][] pairs = body.thinker.think(news, Peer.relevance, peer);
 			Arrays.sort(pairs,new Comparator(){

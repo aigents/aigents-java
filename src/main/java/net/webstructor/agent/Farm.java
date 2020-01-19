@@ -128,38 +128,38 @@ public class Farm extends Body {
 			String fb_id = self().getString(facebook_id);
 			String fb_key = self().getString(facebook_key);
 			if (!AL.empty(fb_id) && !AL.empty(fb_key))
-				fb = new FB(this,fb_id,fb_key);
+				socializers.put("facebook", fb = new FB(this,fb_id,fb_key));
 			
 			String goog_id = self().getString(google_id);
 			String goog_key = self().getString(google_key);
 			if (!AL.empty(goog_id) && !AL.empty(goog_key))
-				gapi = new GApi(this,goog_id,goog_key);
+				socializers.put("google", gapi = new GApi(this,goog_id,goog_key));
 			else
-				gapi = new GApi(this,null,null);//fake instance for testing
+				socializers.put("google", gapi = new GApi(this,null,null));//fake instance for testing
 			
 			String vk_id = self().getString(vkontakte_id);
 			String vk_key = self().getString(vkontakte_key);
 			if (!AL.empty(vk_id) && !AL.empty(vk_key))
-				vk = new VK(this,vk_id,vk_key);
+				socializers.put("vkontakte", vk = new VK(this,vk_id,vk_key));
 			
 			//TODO: merge Reddit+Redditer and FB+Messenger? 
 			String r_id = self().getString(reddit_id);
 			String r_key = self().getString(reddit_key);
 			if (!AL.empty(r_id) && !AL.empty(r_key))
-				reddit = new Reddit(this,r_id,r_key);
+				socializers.put("reddit", reddit = new Reddit(this,r_id,r_key));
 			
 			String st_url = self().getString(steemit_url);
 			if (!AL.empty(st_url))
-				steemit = new Steemit(this,"steemit",st_url);
+				socializers.put("steemit", steemit = new Steemit(this,"steemit",st_url));
 			
 			String go_url = self().getString(golos_url);
 			if (!AL.empty(go_url))//Golos.io is clone/fork of Steemit
-				golos = new Steemit(this,"golos",go_url);
+				socializers.put("golos", golos = new Steemit(this,"golos",go_url));
 
 			String eth_url = self().getString(ethereum_url);
 			String eth_key = self().getString(ethereum_key);
 			if (!AL.empty(eth_url) && !AL.empty(eth_key))
-				ethereum = new Ethereum(this, "ethereum", eth_url, eth_key);
+				socializers.put("ethereum", ethereum = new Ethereum(this, "ethereum", eth_url, eth_key));
 		}
 		filecacher = new net.webstructor.self.Cacher("pages",this,storager);
 		sitecacher = new GraphCacher("www", this);

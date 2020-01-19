@@ -58,6 +58,9 @@ import net.webstructor.cat.StringUtil;
 import net.webstructor.comm.Emailer;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.comm.Socializer;
+import net.webstructor.comm.fb.FB;
+import net.webstructor.comm.vk.VK;
+import net.webstructor.comm.goog.GApi;
 import net.webstructor.core.Mistake;
 import net.webstructor.core.Property;
 import net.webstructor.core.Query;
@@ -149,15 +152,16 @@ class Conversation extends Mode {
 		if (curPeer != null)//TODO:cleanup as it is just in case for post-mortem peer operations in tests
 			curPeer.set(Peer.activity_time,Time.day(Time.today));
 		
+		VK vk = (VK)session.sessioner.body.getSocializer("vkontakte");//TODO: validate type or make type-less 
 		if (session.mood == AL.interrogation) {
 			return answer(session);
 		} else
 		//binding Social Network accounts
 		//TODO: refactor for unification
 		//TODO: ensure no id stealing happens (re-steal, if so)
-		if (session.sessioner.body.vk != null && session.input().indexOf("vkontakte_id=")==0){
+		if (vk != null && session.input().indexOf("vkontakte_id=")==0){
 			//update VK login upon callback
-			String ensti[] = session.sessioner.body.vk.verifyRedirect(session.input());
+			String ensti[] = vk.verifyRedirect(session.input());
 			String ok = ensti == null ? null : session.bindAuthenticated(Body.vkontakte_id, ensti[4],Body.vkontakte_token, ensti[3]);
 			if (!ok.equals("Ok."))//TODO: fix hack!?
 				ensti = null;
@@ -170,7 +174,7 @@ class Conversation extends Mode {
 			String id = session.peer.getString(Body.vkontakte_id);
 			String token = session.peer.getString(Body.vkontakte_token);
 			String enst[];
-			if (session.sessioner.body.vk != null && ((enst = session.sessioner.body.vk.verifyToken(id, token)) != null)) {
+			if (vk != null && ((enst = vk.verifyToken(id, token)) != null)) {
 				session.output(session.bindAuthenticated(Body.vkontakte_id, id,Body.vkontakte_token, enst[3]));
 			} else
 				session.output("Not.");
@@ -181,7 +185,8 @@ class Conversation extends Mode {
 			String id = session.peer.getString(Body.google_id);
 			String token = session.peer.getString(Body.google_token);
 			String enstir[];//email,name,surname,token,id,refresh_token
-			if (session.sessioner.body.gapi != null && ((enstir = session.sessioner.body.gapi.verifyToken(id, token)) != null)) {
+			GApi gapi = (GApi)session.sessioner.body.getSocializer("google");//TODO:validate type or make typeless
+			if (gapi != null && ((enstir = gapi.verifyToken(id, token)) != null)) {
 				id = enstir[4];
 				session.output(session.bindAuthenticated(Body.google_id, id, Body.google_token, enstir[3]));
 				if ("Ok.".equals(session.output())) {//TODO: fix hack!?
@@ -197,7 +202,8 @@ class Conversation extends Mode {
 			session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.facebook_id,Body.facebook_token}))) {
 			String id = session.peer.getString(Body.facebook_id);
 			String token = session.peer.getString(Body.facebook_token);
-			if (session.sessioner.body.fb != null && (token = session.sessioner.body.fb.verifyToken(id, token)) != null) {
+			FB fb = (FB)session.sessioner.body.getSocializer("facebook");//TODO: validate type or make typeless
+			if (fb != null && (token = fb.verifyToken(id, token)) != null) {
 				session.output(session.bindAuthenticated(Body.facebook_id, id,Body.facebook_token, token));
 			} else
 				session.output("Not.");
