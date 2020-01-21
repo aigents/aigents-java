@@ -170,7 +170,7 @@ class Conversation extends Mode {
 			return false;		
 		}else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
-			session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.vkontakte_id,Body.vkontakte_token}))) {
+			session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.vkontakte_id,Body.vkontakte_token},256))) {
 			String id = session.peer.getString(Body.vkontakte_id);
 			String token = session.peer.getString(Body.vkontakte_token);
 			String enst[];
@@ -181,7 +181,7 @@ class Conversation extends Mode {
 			return false;		
 		} else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
-			session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.google_id,Body.google_token}))) {
+			session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.google_id,Body.google_token},256))) {
 			String id = session.peer.getString(Body.google_id);
 			String token = session.peer.getString(Body.google_token);
 			String enstir[];//email,name,surname,token,id,refresh_token
@@ -199,7 +199,7 @@ class Conversation extends Mode {
 			return false;		
 		} else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
-			session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.facebook_id,Body.facebook_token}))) {
+			session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.facebook_id,Body.facebook_token},256))) {
 			String id = session.peer.getString(Body.facebook_id);
 			String token = session.peer.getString(Body.facebook_token);
 			FB fb = (FB)session.sessioner.body.getSocializer("facebook");//TODO: validate type or make typeless

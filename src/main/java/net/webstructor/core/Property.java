@@ -247,8 +247,8 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 				}
 		}
 		//return name_match >= 0 ? true : false;
-		return name_match == 0 ? value != null && value.length() < limit
-				: name_match >= 0 ? true : false;
+		return name_match == 0 ? value != null && (limit <= 0 || value.length() < limit)//if no explicit constrains and limit is eher not set or satisfied
+				: name_match > 0 ? true : false;//if explicit constraints either matched or not
 	}
 
 	//http://stackoverflow.com/questions/1649435/regular-expression-to-limit-number-of-characters-to-10

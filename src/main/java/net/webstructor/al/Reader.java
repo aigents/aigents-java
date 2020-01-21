@@ -303,6 +303,9 @@ public class Reader extends AL {
 	}
 
 	public static Seq pattern(String[] refs, Anything owner, String[] terms) {
+		return pattern(refs, owner, terms, 0);
+	}
+	public static Seq pattern(String[] refs, Anything owner, String[] terms, int limit) {
 		ArrayList pats = new ArrayList();
 		for (int i=0; i<terms.length; i++) {
 			String[] term = Writer.needsQuoting(terms[i]) 
@@ -311,7 +314,7 @@ public class Reader extends AL {
 			Object[] objects = new Object[term.length + 1];
 			for (int j=0; j<term.length; j++)
 				objects[j] = term[j];
-			objects[term.length] = new Property(owner,terms[i]);
+			objects[term.length] = new Property(owner,terms[i],limit);
 			pats.add(new Seq(objects));
 		}
 		Seq seq = !AL.empty(refs)?

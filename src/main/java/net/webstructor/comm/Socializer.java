@@ -52,6 +52,7 @@ import net.webstructor.util.Reporter;
 import net.webstructor.data.Graph;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Translator;
+import net.webstructor.peer.Peer;
 import net.webstructor.self.Siter;
 
 /**
@@ -736,7 +737,7 @@ public abstract class Socializer extends HTTP {
 			try {
 				Collection peers = body.storager.getByName(provider() + " id", peer_id);
 				if (!AL.empty(peers))
-					Siter.matchPeersText(body, Siter.peerThings(peers), text, time, permlink, imgurl);
+					Siter.matchPeersText(body, Peer.peerTopics(peers), text, time, permlink, imgurl);
 			} catch (Exception e) {
 				body.error("Siter matchig "+provider()+" "+peer_id+" "+text,e);
 			}

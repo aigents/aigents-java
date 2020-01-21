@@ -897,21 +897,6 @@ public class Siter {
 	}
 	*/
 	
-	public static Set peerThings(Collection peers) {
-		HashSet allThings = new HashSet();
-		for (Object peer : peers) {
-			Thing p = (Thing)peer;
-			Collection k = p.getThings(AL.topics);
-			Collection t = p.getThings(AL.trusts);
-			if (!AL.empty(k) && !AL.empty(t)){//keep trusted topics only
-				t = new HashSet(t);
-				t.retainAll(k);
-				allThings.addAll(t);
-			}
-		}
-		return allThings;
-	}
-
 	public static void matchPeersText(Body body, Collection things, String text, Date time, String permlink, String imgurl){
 		MapMap thingPaths = new MapMap();//collector
 		int matches = matchThingsText(body,things,text,time,permlink,imgurl,thingPaths);

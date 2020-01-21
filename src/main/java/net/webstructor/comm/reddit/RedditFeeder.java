@@ -126,9 +126,9 @@ class RedditFeeder extends SocialFeeder {
 				//https://www.reddit.com/dev/api#GET_user_{username}_{where}
 				String api_url = "https://oauth.reddit.com/user/"+this.user_id+"/submitted";
 				String params = "limit=100" + (after == null ? "" : "&after="+after);
-				if (debug) body.debug("Spidering peer reddit "+user_id+" request "+api_url+" "+params);
+				if (debug) body.debug("Spidering peer reddit request "+user_id+" "+api_url+" "+params);
 				String response = HTTP.simple(api_url+"?"+params,null,"GET",0,null,hdr);
-				if (debug) body.debug("Spidering peer reddit "+user_id+" response "+response);
+				if (debug) body.debug("Spidering peer reddit response "+user_id+" "+response);
 				if (AL.empty(response))
 					break;
 //(new Filer(body)).save("reddit.json",response);

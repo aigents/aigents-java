@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -168,7 +168,9 @@ public class JsonReporter extends Reporter {
 			sb.append(']');
 			return sb.toString();
 		}
-		return obj.toString();
+		//return obj.toString();
+		//https://stackoverflow.com/questions/21120999/representing-null-in-json
+		return obj == null ? "\"\"" : obj.toString();//TODO: null ?
 	}
 	
 	public void table(String id, String title,String[] header, Object[][] rows, int minPercent, int minCount){

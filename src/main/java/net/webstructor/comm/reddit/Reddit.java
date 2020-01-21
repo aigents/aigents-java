@@ -105,11 +105,10 @@ public class Reddit extends Socializer {
 		if (AL.empty(uri) || AL.empty(appId) || AL.empty(appSecret))
 			return -1;
 		
-		String subreddit = Str.parseBetween(uri, "https://www.reddit.com/r/", "/", false);
-		//TODO: user submitted or now?
-		//String user = Str.parseBetween(uri, "https://www.reddit.com/user/", "/", false);
+		String subreddit = Str.parseBetween(uri, "reddit.com/r/", "/", false);
+		String user = Str.parseBetween(uri, "reddit.com/user/", "/", false);
 		
-		if (AL.empty(subreddit))
+		if (AL.empty(subreddit) && AL.empty(user))
 			return -1;
 		
 		//https://github.com/reddit-archive/reddit/wiki/OAuth2
@@ -144,11 +143,12 @@ public class Reddit extends Socializer {
 					for (boolean days_over = false; !days_over;) {
 //TODO: throttling based on header info or invalid replies 
 						//https://www.reddit.com/dev/api#GET_new
-						String api_url = "https://oauth.reddit.com/r/"+subreddit+"/new";
+						//https://www.reddit.com/dev/api#GET_user_{username}_{where}
+						String api_url = !AL.empty(subreddit) ? "https://oauth.reddit.com/r/"+subreddit+"/new" : "https://oauth.reddit.com/user/"+user+"/submitted";
 						params = "limit=100" + (after == null ? "" : "&after="+after);
-						if (debug) body.debug("Reddit read channel "+uri+" request "+api_url+" "+params);
+						if (debug) body.debug("Reddit read channel request "+uri+" "+api_url+" "+params);
 						response = HTTP.simple(api_url+"?"+params,null,"GET",0,null,hdr);
-						if (debug) body.debug("Reddit read channel "+uri+" response "+response);
+						if (debug) body.debug("Reddit read channel response "+uri+" "+response);
 						if (AL.empty(response))
 							break;
 						jsonReader = Json.createReader(new StringReader(response));
@@ -181,7 +181,7 @@ public class Reddit extends Socializer {
 				}
 			}
 		} catch (IOException e) {
-			body.error("Reddit read channel "+uri+" error",e);
+			body.error("Reddit read channel error "+uri,e);
 		}
 		return -1;
 	}

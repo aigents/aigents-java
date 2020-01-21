@@ -392,7 +392,7 @@ public class Steemit extends SocialCacher {
 						peers.add(peer);
 				}
 				if (!AL.empty(peers))
-					peerThings = Siter.peerThings(peers);
+					peerThings = Peer.peerTopics(peers);
 			}
 		}
 		

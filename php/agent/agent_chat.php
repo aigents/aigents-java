@@ -477,7 +477,7 @@ function test_search() {
 
 	//test seach in file/URL
 	say("SEARCH 'temperature is \$number' IN http://localtest.com/test/Test.pdf");
-	sleep($timeout * 2);
+	sleep($timeout * 3);
 	get("There number 22, sources 'http://localtest.com/test/Test.pdf', text temperature is 22.");
 	say("No there times today.");
 	get("Ok.");

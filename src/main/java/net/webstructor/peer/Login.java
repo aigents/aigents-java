@@ -199,15 +199,15 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		}
 
 		if (session.mood == AL.declaration && !session.isSecurityLocal()){
-			if (session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.facebook_id,Body.facebook_token}))) {
+			if (session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.facebook_id,Body.facebook_token},256))) {
 				//session.read(Reader.pattern(AL.i_my,session.peer,new String[] {AL.email}));//optional?
 				return facebook(session);
 			}
-			if (session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.google_id,Body.google_token}))) {
+			if (session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.google_id,Body.google_token},256))) {
 				//session.read(Reader.pattern(AL.i_my,session.peer,new String[] {AL.email,AL.name,Peer.surname}));//optional?
 				return google(session);
 			}
-			if (session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.vkontakte_id,Body.vkontakte_token}))) {
+			if (session.read(Reader.pattern(AL.i_my,session.peer,new String[] {Body.vkontakte_id,Body.vkontakte_token},256))) {
 				session.read(Reader.pattern(AL.i_my,session.peer,new String[] {AL.email,AL.name,Peer.surname}));//optional?
 				return vkontakte(session);//flow via Aigents Language (client token)
 			}

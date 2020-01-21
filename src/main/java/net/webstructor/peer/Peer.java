@@ -29,7 +29,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
@@ -254,17 +256,15 @@ public class Peer extends Agent {
 		Thing origin = AL.empty(origins) ? null : (Thing)origins.iterator().next();
 		
  		body.thinker.think(peer);
+ 		
 		//get unchecked daily news with relevance less than 100
 		//leave only MAX of them with topmost relevance or equal to the least relevance under MAX
 		//unreference all the rest for the peer
-		
 		Collection allNews = (Collection)peer.getThings(AL.news);
 		if (AL.empty(allNews))
 			return;
 		Collection trusts = (Collection)peer.getThings(AL.trusts);
-		Collection topics = peer.getThings(AL.topics);
-		if (topics != null)
-			topics.retainAll(trusts);
+		Collection topics = Peer.peerTopics(peer);
 		ArrayList news = new ArrayList();
 		ArrayList dels = new ArrayList();
 		Date today = Time.today(0);
@@ -347,6 +347,27 @@ public class Peer extends Agent {
 					peer.delThing(AL.news, n);
 			}
 		}
+	}
+
+	public static Set peerTopics(Thing peer) {
+		Collection topics = peer.getThings(AL.topics);
+		Collection trusts = peer.getThings(AL.trusts);
+		if (!AL.empty(topics) && !AL.empty(trusts)){//keep trusted topics only
+			HashSet result = new HashSet(topics);
+			result.retainAll(trusts);
+			return result;
+		}
+		return null;
+	}
+	
+	public static Set peerTopics(Collection peers) {
+		HashSet allTopics = new HashSet();
+		for (Object peer : peers) {
+			Set topics = peerTopics((Thing)peer);
+			if (!AL.empty(topics))
+				allTopics.addAll(topics);
+		}
+		return allTopics;
 	}
 
 }
