@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import net.webstructor.agent.Body;
@@ -56,7 +57,7 @@ public class TCPeer extends Communicator
 	      while (true) {
 	        int c = in.read(  );
 	        if (c == -1) 
-	        	break;
+	        	return null;
 	        if (c == '\r' || c == '\n') { 
 	        	if (count > 0) //return completed lines only 
 	        		break;
@@ -65,39 +66,40 @@ public class TCPeer extends Communicator
 		        request.append((char) c);
 		        //TODO: If this is HTTP 1.0 or later send a MIME header
 		        if (++count > input_max) {  	
-				    //logger.log(StringUtil.first(request.toString(),MAX_INPUT),"suspect");
 		        	//bDone = true;//TODO:indicate error and ignore?
 		        	break;
 		        }
 	        }
 	      }
-		  //logger.log(StringUtil.first(requestString,MAX_INPUT),"request");//TODO rework		    
 	      return request.toString();
 	}
 
 	public void output(Session session, String message) throws IOException {
 		//TODO: use session
-	    byte[] bytes = message.getBytes("UTF-8");		    		  
-	    out.write(bytes);
-	    out.write('\n');
-	    out.flush();
-	    //logger.log(StringUtil.first(result,MAX_INPUT),"response");//TODO rework		    
+	    byte[] bytes;
+		try {
+			bytes = message.getBytes("UTF-8");
+		    out.write(bytes);
+		    out.write('\n');
+		    out.flush();
+		} catch (SocketException e) {
+			body.reply("TCP/IP closed");
+			terminate();
+		}
 	}
 	
 	public void run() {
 		try {
-			while (alive()) {
-			    String requestString = input();		      		      
-			    //Peer peer = body.sessioner.getPeer("tcp",socket.toString());
+			String requestString;
+			while (alive() && (requestString = input()) != null) {
 			    Session session = body.sessioner.getSession(this,socket.toString());
 			    body.conversationer.handle(this, session, requestString);
 			}//while
 		} catch (SocketTimeoutException e) {
-			body.output("TCP/IP socket closed.");
+			body.reply("TCP/IP timeout");
 		} catch (IOException e) {		
-			//logger.log("Failed: " + e.toString(),"failure");//TODO rework
-			if (alive())
-				body.error("TCP/IP error.",e);
+			//if (alive())
+				body.error("TCP/IP error",e);
 		} finally {
 			cleanup();
 		}
@@ -112,7 +114,7 @@ public class TCPeer extends Communicator
 				socket = null;
 			}
 		} catch (Exception e) {
-			if (alive())
+			//if (alive())
 				body.error("TCP/IP close error.",e);
 		}
 	}

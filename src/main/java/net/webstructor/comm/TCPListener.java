@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,8 +38,6 @@ public class TCPListener extends Communicator {
 
 	public TCPListener(Body body) {
 		super(body);
-		//net.webstructor.core.Thing self = body.self();
-		
 		port = AL.integer(body.self().getString(Farm.tcp_port,Integer.toString(port)),port);
 		tcp_timeout = AL.integer(body.self().getString(Farm.tcp_timeout,Integer.toString(tcp_timeout)),tcp_timeout);
 	}
@@ -50,29 +48,26 @@ public class TCPListener extends Communicator {
 	
 	public void run(  ) {
 		try {
-			//Logger logger = Logger.getLogger();
 			ServerSocket server = new ServerSocket(port);
-			body.reply("Started TCP at " + server.getLocalPort() + ".");
-			//logger.log("Started at " + server.getLocalPort(),"startup");//TODO rework
+			body.reply("TCP/IP started at port " + server.getLocalPort() + ".");
 			while (alive()) {
 				try {
 					Socket socket = server.accept();
 					socket.setSoTimeout(tcp_timeout);//prevent silent read access from port scanners	      
-					//logger.log(connection.getRemoteSocketAddress().toString(),"connection");//TODO rework		      
 					TCPeer tcpeer = new TCPeer(body,socket);
 					tcpeer.start();	
 				}  // end try
-				catch (Exception e) {		
-					//logger.log("Failed: " + e.toString(),"failure");//TODO rework
+				catch (Exception e) {
+					body.error("TCP/IP service error", e);
 				}
 			} // end while
 			if (server != null) {
-				//server.close();
-				body.output("Releasing port "+ port +".");
+				server.close();
+				body.reply("TCP/IP released port "+ port +".");
 			}
 		} // end try
 		catch (IOException e) {
-			body.output("Could not start TCP/IP server (" + e.toString() + ").");
+			body.error("TCP/IP server error",e);
 		}
 	} // end run
 }

@@ -88,7 +88,7 @@ public class Redditer extends SocialBinder implements HTTPHandler {
 						String params = "grant_type=authorization_code&code="+code+"&redirect_uri="+redirect_uri;
 						//String client_id_secret = client_id+":"+client_secret;
 						//String auth_base64 = "Basic "+Code.str2b64(client_id_secret,false)+"=";
-						String auth_base64 = reddit.auth_base64(client_id,client_secret);
+						String auth_base64 = HTTP.auth_base64(client_id,client_secret);
 						body.debug("Reddit auth request "+params+" "+auth_base64);
 						String response = HTTP.simple(Reddit.oauth_url,params,"POST",timeout,null,new String[][] {new String[] {"Authorization",auth_base64}});
 						body.debug("Reddit auth response "+response);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -93,7 +93,7 @@ class Worker extends Thread {
 	        	message.session.communicator.terminate();	
 	        
 		} catch (IOException e) {
-			conversationer.body.error("Conversation error",e);				
+			conversationer.body.error("Conversation error: \""+message.text+"\" replied with "+outgoingMessage,e);				
 		}
 	}
 }
