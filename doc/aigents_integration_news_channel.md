@@ -29,7 +29,7 @@ In order to integrate Aigents news syndication in your applications, two options
 			1. Native Java AL parser forked from original [reference implementation](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/al/Reader.java#L521) - the most complex option. 
 		1. JSON encodings in case of responses to **what ... ?** sorts of interrogative AL statements - in case if current session is configured with **format json**.
 		1. HTML mark-ups in case of responses to **what ... ?** sorts of interrogative AL statements - in case if current session is configured with **format json**.
-		1. The **format** setting can be set to **text** or **json** or **html** saying to server either of the following.
+		1. The **format** setting can be set to **text** or **json** or **html** saying to server either of the following statements. Note, if you are using your own server, in order to use these statements you need configure the **peer** entity in advance saying *peer has format*.
 			1. *my format text* (being default)
 			1. *my format json*
 			1. *my format html*
