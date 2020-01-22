@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -131,7 +131,7 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 
 	//@Override
 	public boolean handleHTTP(HTTPeer parent, String url, String header, String request, String cookie) throws IOException {
-		if (handlers != null)
+		if (url != null && handlers != null)
 			for (int i = 0; i < handlers.length; i++)
 				if (handlers[i].handleHTTP(parent, url, header, request, cookie))
 					return true;

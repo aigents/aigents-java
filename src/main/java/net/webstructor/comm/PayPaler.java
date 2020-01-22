@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2019-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,6 +51,9 @@ import net.webstructor.util.Str;
 //https://developer.paypal.com/docs/api/get-an-access-token-curl/
 
 public class PayPaler extends SocialBinder implements HTTPHandler {
+	
+	transient private String access_token = null;//cache access token between the calls
+	
 	public PayPaler(Body body) {
 		super(body,"paypal");
 	}
@@ -62,22 +65,75 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 	 */
 	public boolean handleHTTP(HTTPeer parent, String url, String header, String request, String cookie) throws IOException {
 		if (url.startsWith("/paypal")) try {
+			String client_id = body.self().getString(Body.paypal_id);
+			String client_secret = body.self().getString(Body.paypal_key);
+			if (AL.empty(client_id) || AL.empty(client_secret))
+				return false;
+			body.debug("PayPal input "+url+" "+request);
+			String paypal_url = body.self().getString(Body.paypal_url,"https://api.paypal.com");
+			String api_url = paypal_url+"/v1/oauth2/token";
+			if (url.startsWith("/paypal/create-payment/")) {
+				String total = Str.parseBetween(request, "total=", "&",false);
+				String currency = Str.parseBetween(request, "currency=", "&",false);
+				if (AL.empty(total) || AL.empty(currency))
+					return false;
+				//https://www.paypal.com/apex/developer/expressCheckout/getAccessToken
+				String auth_base64 = HTTP.auth_base64(client_id,client_secret);
+				body.debug("PayPal request grant_type=client_credentials "+auth_base64);
+				String response = HTTP.simple(api_url,"grant_type=client_credentials","POST",timeout,null,new String[][] {
+					{"Accept", "application/json"},
+					{"Accept-language", "en_US"},
+					{"Authorization",auth_base64},
+					{"Content-Type", "application/x-www-form-urlencoded"}
+					});
+				body.debug("PayPal response "+response);
+				JsonReader jsonReader = Json.createReader(new StringReader(response));
+				JsonObject json = jsonReader.readObject();
+				access_token = HTTP.getJsonString(json,"access_token");
+				//https://www.paypal.com/apex/developer/expressCheckout/createPayment
+				//https://developer.paypal.com/docs/archive/checkout/how-to/server-integration/#1-set-up-your-client-to-call-your-server
+				String site = body.site();
+				String params = "{\"intent\": \"sale\",\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": [{\"amount\":{ \"total\": \""+total+"\", \"currency\": \""+currency+"\"}}],\"redirect_urls\":{\"return_url\": \""+site+"\",\"cancel_url\": \""+site+"\"}}";
+				body.debug("PayPal request "+params);
+				response = HTTP.simple(paypal_url+"/v1/payments/payment",params,"POST",timeout,null,new String[][] {
+					{"Accept", "application/json"},
+					{"Accept-language", "en_US"},
+					{"Authorization","Bearer "+access_token},
+					{"Content-Type", "application/json"}
+					});
+				body.debug("PayPal response "+response);
+				parent.respond("");//TODO: what?
+				return true;
+			} else
+			if (url.startsWith("/paypal/execute-payment/")) {
+				String payment_id = Str.parseBetween(request, "payment=", "&",false);
+				String payer_id = Str.parseBetween(request, "payer=", "&",false);
+				if (AL.empty(payment_id) || AL.empty(payer_id))
+					return false;
+				//https://www.paypal.com/apex/developer/expressCheckout/executeApprovedPayment				
+				String params = "{\"payer_id\": \""+payer_id+"\"}";
+				body.debug("PayPal request "+request);
+				String response = HTTP.simple(paypal_url+"/v1/payments/payment/"+payment_id+"/execute",params,"POST",timeout,null,new String[][] {
+					{"Accept", "application/json"},
+					{"Accept-language", "en_US"},
+					{"Authorization","Bearer "+access_token},
+					{"Content-Type", "application/json"}
+					});
+				body.debug("PayPal response "+response);
+				parent.respond("");//TODO: what?
+				return true;
+			} else
 			if (!AL.empty(request)){
-				String paypal_url = body.self().getString(Body.paypal_url,"https://api.paypal.com");
-				body.debug("PayPal input "+request);
 				//https://developer.paypal.com/docs/connect-with-paypal/integrate/#6-get-access-token
 //TODO: get access token and redirect back to original UI
 				Map<String,String> keyvalues = Parser.splitToMap(request, "&","=");
 				String code = keyvalues.get("code");
 				String scope = keyvalues.get("scope");
 				if (!AL.empty(code) && !AL.empty(scope)) {
-					String api_url = paypal_url+"/v1/oauth2/token";
 					//curl -X POST https://api.sandbox.paypal.com/v1/oauth2/token \
 					//	-H 'Authorization: Basic {Your Base64-encoded ClientID:Secret}=' \
 					//	-d 'grant_type=authorization_code&code={authorization_code}'
 					String params = "grant_type=authorization_code&code="+code;
-					String client_id = body.self().getString(Body.paypal_id);
-					String client_secret = body.self().getString(Body.paypal_key);
 					String client_id_secret = client_id+":"+client_secret;
 					String auth_base64 = "Basic "+Code.str2b64(client_id_secret,false)+"=";
 					body.debug("PayPal client_id_secret "+client_id_secret);

@@ -38,6 +38,7 @@ import java.util.List;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
+import net.webstructor.util.Code;
 import net.webstructor.util.JSON;
 
 public abstract class HTTP extends JSON {
@@ -264,6 +265,11 @@ public abstract class HTTP extends JSON {
 		//print result
 		//System.out.println(response.toString());
 		return response.toString(); 
+	}
+
+	public static String auth_base64(String client_id,String client_secret) {
+		String client_id_secret = client_id+":"+client_secret;
+		return "Basic "+Code.str2b64(client_id_secret,false)+"=";
 	}
 
 	public static void main(String[] args){

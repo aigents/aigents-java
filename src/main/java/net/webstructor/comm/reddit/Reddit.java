@@ -42,7 +42,6 @@ import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.self.Siter;
-import net.webstructor.util.Code;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
@@ -76,12 +75,6 @@ public class Reddit extends Socializer {
 		return feeder;
 	}
 	
-	String auth_base64(String client_id,String client_secret) {
-		String client_id_secret = client_id+":"+client_secret;
-		body.debug("Reddit client_id_secret "+client_id_secret);
-		return "Basic "+Code.str2b64(client_id_secret,false)+"=";
-	}
-
 	String refresh_token(String client_id,String client_secret,String refresh_token) throws IOException {
 		String params = "grant_type=refresh_token&refresh_token="+refresh_token;
 		String auth_base64 = auth_base64(client_id,client_secret);
