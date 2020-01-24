@@ -67,7 +67,7 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 		http_secure = "true".equalsIgnoreCase(self.getString(Body.http_secure,"false"));
 		
 		//TODO: construct it at body constructor level!?
-		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body),new PayPaler(body),new Redditer(body)};
+		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body),new net.webstructor.comm.paypal.PayPaler(body),new Redditer(body)};
 	}
 	
 	protected synchronized String getCookie() {

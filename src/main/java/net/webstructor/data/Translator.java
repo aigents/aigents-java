@@ -43,9 +43,11 @@ public class Translator {
 		r.put("rank","ранг");
 		r.put("contragent","контрагент");
 		r.put("contragents","контрагенты");
+		r.put("calls","обращения");
 		r.put("paid","мои платежи");
 		r.put("pays","платежи");
-		r.put("calls","обращения");
+		r.put("payments","платежи");//TODO:ambiguity?
+		r.put("number","число");
 		r.put("friend","друг");	
 		r.put("connections","связи");	
 		r.put("crosses","пересечений");

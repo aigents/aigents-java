@@ -186,6 +186,8 @@ public class JsonReporter extends Reporter {
 			int columns = Math.min(header.length, row.length);
 			boolean minPercentExceeded = false;
 			for (int j = 0; j < columns; j++){
+				if (header[j] == null)
+					continue;
 				boolean percent = header[j].indexOf('%') != -1 && row[j] instanceof Integer;
 				if (percent){
 					int percentValue = ((Integer)row[j]).intValue();
@@ -207,6 +209,8 @@ public class JsonReporter extends Reporter {
 			writer.append("\"subtitle\":\"").append(net.webstructor.al.Writer.capitalize(title)).append("\",");
 			writer.append("\"headings\":[");
 			for (int i = 0; i < header.length; i++){
+				if (header[i] == null)
+					continue;
 				if (i != 0)
 					writer.append(',');
 				writer.append('\"').append(header[i]).append('\"');
@@ -221,6 +225,8 @@ public class JsonReporter extends Reporter {
 				writer.append("\t\t\t[");
 				int columns = Math.min(header.length, row.length);
 				for (int j = 0; j < columns; j++){
+					if (header[j] == null)
+						continue;
 					if (j != 0)
 						writer.append(",");
 					writer.append(toString(row[j]));

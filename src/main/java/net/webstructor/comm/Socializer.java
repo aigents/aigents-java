@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -293,6 +293,8 @@ public abstract class Socializer extends HTTP {
 	
 	//TODO: get rid of "final String key" because not used!?
 	public final String cachedReport(final String user_id, final String access_token, final String key, final String name, final String surname, final String language, final String format, final boolean fresh, final String query, final int threshold, final String period, final String[] areas) {
+		if (AL.empty(user_id))
+			return null;
 		//final int report_days = period == null ? 0 : StringUtil.toIntOrDefault(period,10,Body.RETROSPECTION_PERIOD_DAYS);
 		final int report_days = period == null ? 0 : StringUtil.toIntOrDefault(period,10,0);
 		String cached = getCachedReports(user_id, report_days, format, fresh);
@@ -646,7 +648,7 @@ public abstract class Socializer extends HTTP {
 		 						 : new String[]{"Rank,%","Contragent","Paid","Pays","Calls"};
 	}
 	
-	private void reportPeer(Reporter rep, Translator t, SocialFeeder feeder,String title, String user_id, String name, String surname, java.util.Set options, int minPercent, int minCount, Object[][] cross_peers) {	
+	protected void reportPeer(Reporter rep, Translator t, SocialFeeder feeder,String title, String user_id, String name, String surname, java.util.Set options, int minPercent, int minCount, Object[][] cross_peers) {	
 		String perPeriod = t.loc("number of posts")+" "+feeder.getNewsCount();
 		rep.initPeer(user_id, Writer.capitalize(name), Writer.capitalize(surname), perPeriod, feeder.since(), feeder.until());
 		

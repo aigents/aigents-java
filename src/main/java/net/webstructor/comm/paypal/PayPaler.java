@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.comm;//TODO move to paypal
+package net.webstructor.comm.paypal;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,6 +36,10 @@ import javax.json.JsonReader;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
+import net.webstructor.comm.HTTP;
+import net.webstructor.comm.HTTPHandler;
+import net.webstructor.comm.HTTPeer;
+import net.webstructor.comm.SocialBinder;
 import net.webstructor.peer.Session;
 import net.webstructor.util.Code;
 import net.webstructor.util.Str;
@@ -46,10 +50,14 @@ import net.webstructor.util.Str;
 //https://developer.paypal.com/docs/connect-with-paypal/integrate/
 //https://developer.paypal.com/docs/connect-with-paypal/reference/button-js-builder/#
 
-
+//Make Payments
+//https://developer.paypal.com/docs/archive/checkout/how-to/server-integration/
+//https://www.paypal.com/apex/developer/expressCheckout/getAccessToken
+	
 //List Payments
 //https://developer.paypal.com/docs/api/get-an-access-token-curl/
-
+//https://developer.paypal.com/docs/api/payments/v1/#payment_list
+	
 public class PayPaler extends SocialBinder implements HTTPHandler {
 	
 	transient private String access_token = null;//cache access token between the calls
@@ -73,12 +81,14 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 			String paypal_url = body.self().getString(Body.paypal_url,"https://api.paypal.com");
 			String api_url = paypal_url+"/v1/oauth2/token";
 			if (url.startsWith("/paypal/create-payment/")) {
+				String type = Str.parseBetween(request, "type=", "&",false);
 				String total = Str.parseBetween(request, "total=", "&",false);
 				String currency = Str.parseBetween(request, "currency=", "&",false);
-				if (AL.empty(total) || AL.empty(currency))
+				if (AL.empty(total) || AL.empty(currency) || AL.empty(type))
 					return false;
+				
 				//https://www.paypal.com/apex/developer/expressCheckout/getAccessToken
-				String auth_base64 = HTTP.auth_base64(client_id,client_secret);
+				/*String auth_base64 = HTTP.auth_base64(client_id,client_secret);
 				body.debug("PayPal request grant_type=client_credentials "+auth_base64);
 				String response = HTTP.simple(api_url,"grant_type=client_credentials","POST",timeout,null,new String[][] {
 					{"Accept", "application/json"},
@@ -89,20 +99,22 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 				body.debug("PayPal response "+response);
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
 				JsonObject json = jsonReader.readObject();
-				access_token = HTTP.getJsonString(json,"access_token");
+				access_token = HTTP.getJsonString(json,"access_token");*/
+				access_token = PayPal.token(body, api_url, timeout, client_id, client_secret);
+				
 				//https://www.paypal.com/apex/developer/expressCheckout/createPayment
 				//https://developer.paypal.com/docs/archive/checkout/how-to/server-integration/#1-set-up-your-client-to-call-your-server
 				String site = body.site();
-				String params = "{\"intent\": \"sale\",\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": [{\"amount\":{ \"total\": \""+total+"\", \"currency\": \""+currency+"\"}}],\"redirect_urls\":{\"return_url\": \""+site+"\",\"cancel_url\": \""+site+"\"}}";
+				String params = "{\"intent\": \"sale\",\"note_to_payer\":\""+type+"\",\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": [{\"amount\":{ \"total\": \""+total+"\", \"currency\": \""+currency+"\"},\"description\": \""+type+"\"}],\"redirect_urls\":{\"return_url\": \""+site+"\",\"cancel_url\": \""+site+"\"}}";
 				body.debug("PayPal request "+params);
-				response = HTTP.simple(paypal_url+"/v1/payments/payment",params,"POST",timeout,null,new String[][] {
+				String response = HTTP.simple(paypal_url+"/v1/payments/payment",params,"POST",timeout,null,new String[][] {
 					{"Accept", "application/json"},
 					{"Accept-language", "en_US"},
 					{"Authorization","Bearer "+access_token},
 					{"Content-Type", "application/json"}
 					});
 				body.debug("PayPal response "+response);
-				parent.respond("");//TODO: what?
+				parent.respond(response);
 				return true;
 			} else
 			if (url.startsWith("/paypal/execute-payment/")) {
@@ -120,7 +132,7 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 					{"Content-Type", "application/json"}
 					});
 				body.debug("PayPal response "+response);
-				parent.respond("");//TODO: what?
+				parent.respond(response);
 				return true;
 			} else
 			if (!AL.empty(request)){

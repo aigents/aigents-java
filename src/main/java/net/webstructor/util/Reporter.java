@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -280,6 +280,8 @@ public class Reporter {
 			int columns = Math.min(header.length, row.length);
 			boolean minPercentExceeded = false;
 			for (int j = 0; j < columns; j++){
+				if (header[j] == null)
+					continue;
 				boolean percent = header[j].indexOf('%') != -1 && row[j] instanceof Integer;
 				if (percent){
 					int percentValue = ((Integer)row[j]).intValue();
@@ -299,6 +301,8 @@ public class Reporter {
 			subtitle(title);
 			writer.append("<table border=\"1\" style=\"border-collapse:collapse;\"><tr>");
 			for (int i = 0; i < header.length; i++){
+				if (header[i] == null)
+					continue;
 				writer.append("<th class=\"line1\" align=\"left\">");
 				writer.append(header[i]);
 				writer.append("</th>");
@@ -312,6 +316,8 @@ public class Reporter {
 				writer.append("<tr class=\"line"+i%2+"\">\n");
 				int columns = Math.min(header.length, row.length);
 				for (int j = 0; j < columns; j++){
+					if (header[j] == null)
+						continue;
 					//writer.append("<td valign=top>");
 					if (j == 0)//don't ever wrap first column!?	
 						writer.append("<td style=\"white-space:nowrap;\">");

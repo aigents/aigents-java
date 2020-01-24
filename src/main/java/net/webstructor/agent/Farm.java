@@ -47,6 +47,7 @@ import net.webstructor.comm.eth.Ethereum;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.fb.Messenger;
 import net.webstructor.comm.goog.GApi;
+import net.webstructor.comm.paypal.PayPal;
 import net.webstructor.comm.reddit.Reddit;
 import net.webstructor.comm.steemit.Steemit;
 import net.webstructor.comm.vk.VK;
@@ -147,6 +148,12 @@ public class Farm extends Body {
 			String r_key = self().getString(reddit_key);
 			if (!AL.empty(r_id) && !AL.empty(r_key))
 				socializers.put("reddit", reddit = new Reddit(this,r_id,r_key));
+			
+			//TODO: merge PayPal+PayPaler? 
+			String p_id = self().getString(paypal_id);
+			String p_key = self().getString(paypal_key);
+			if (!AL.empty(p_id) && !AL.empty(p_key))
+				socializers.put("paypal", paypal = new PayPal(this,p_id,p_key));
 			
 			String st_url = self().getString(steemit_url);
 			if (!AL.empty(st_url))
@@ -270,13 +277,15 @@ public class Farm extends Body {
 		}
 	}
 	
+//TODO: use socializers istead of this hack !!!
 	private Profiler[] profilers(Thing peer) {
-		if (fb != null || gapi != null || vk != null || reddit != null || steemit != null || golos != null) {
+		if (fb != null || gapi != null || vk != null || reddit != null || steemit != null || golos != null || paypal != null) {
 			Profiler[] profilers = new Profiler[]{
 				new Profiler(this,fb,peer,Body.facebook_id,Body.facebook_token,Body.facebook_key),
 				new Profiler(this,gapi,peer,Body.google_id,Body.google_token,Body.google_key),
 				new Profiler(this,vk,peer,Body.vkontakte_id,Body.vkontakte_token,Body.google_key),
 				new Profiler(this,reddit,peer,Body.reddit_id,Body.reddit_token,Body.reddit_key),
+				new Profiler(this,paypal,peer,Body.paypal_id,Body.paypal_token,Body.paypal_key),
 				new Profiler(this,steemit,peer,Body.steemit_id),
 				new Profiler(this,golos,peer,Body.golos_id)
 			};
