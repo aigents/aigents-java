@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,26 +24,10 @@
 package net.webstructor.comm.goog;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-
-import net.webstructor.agent.Body;
-import net.webstructor.al.AL;
-import net.webstructor.al.Time;
-import net.webstructor.cat.HtmlStripper;
-import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
-import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
-import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 
 class GApiFeeder extends SocialFeeder {
@@ -57,7 +41,7 @@ class GApiFeeder extends SocialFeeder {
 		this.gapi = gapi;
 	}
 	
-	public void processComment(Object[] comment,Date time){
+	/*public void processComment(Object[] comment,Date time){
 		//{id,name,content,new Boolean(mylike),new Integer(likers.size())};
 		String id = (String)comment[0];
 		String name = (String)comment[1];
@@ -106,12 +90,15 @@ class GApiFeeder extends SocialFeeder {
 			return text;
 		}		
 		return null;
-	}
+	}*/
 	
 	public void getFeed(String access_token, String refresh_token, Date since, Date until, StringBuilder detail) throws IOException {
+		countMyLikes("Google","Google");//HACK till Google+ reports are replaced with something else
+		/*
 		this.detail = detail;
 		String request = "";
 		String response = "";
+		
 		try {
 			String token = null;
 			//TODO: move this out to refreshToken?
@@ -220,6 +207,7 @@ class GApiFeeder extends SocialFeeder {
 		} catch (Exception e) {
 			body.error("Spidering peer Google feeder user "+user_id+" request "+request+" response"+response,e);
 		}
+		*/
 	}
 	
 }

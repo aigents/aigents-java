@@ -35,9 +35,9 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Writer;
 import net.webstructor.comm.Socializer;
-import net.webstructor.comm.fb.FB;
-import net.webstructor.comm.goog.GApi;
-import net.webstructor.comm.vk.VK;
+//import net.webstructor.comm.fb.FB;
+//import net.webstructor.comm.goog.GApi;
+//import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Actioner;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Archiver;
@@ -58,7 +58,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.3.8";
+	public final static String VERSION = "2.3.9";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -171,7 +171,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public Schema schema;
 	public LangPack languages;
 	private Logger logger = null;
-	//TODO: remove - being plugins or configurable list of "providers"!!!
+	/*//TODO: remove - being plugins or configurable list of "providers"!!!
 	protected FB fb = null;
 	protected GApi gapi = null;
 	protected VK vk = null;
@@ -179,7 +179,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	protected Socializer steemit = null;
 	protected Socializer golos = null;
 	protected Socializer ethereum = null;
-	protected Socializer paypal = null;
+	protected Socializer paypal = null;*/
 	
 	public net.webstructor.self.Cacher filecacher = null;
 	public GraphCacher sitecacher = null;

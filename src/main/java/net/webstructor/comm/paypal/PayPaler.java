@@ -106,14 +106,14 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 				//https://developer.paypal.com/docs/archive/checkout/how-to/server-integration/#1-set-up-your-client-to-call-your-server
 				String site = body.site();
 				String params = "{\"intent\": \"sale\",\"note_to_payer\":\""+type+"\",\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": [{\"amount\":{ \"total\": \""+total+"\", \"currency\": \""+currency+"\"},\"description\": \""+type+"\"}],\"redirect_urls\":{\"return_url\": \""+site+"\",\"cancel_url\": \""+site+"\"}}";
-				body.debug("PayPal request "+params);
+				body.debug("PayPal request create "+params);
 				String response = HTTP.simple(paypal_url+"/v1/payments/payment",params,"POST",timeout,null,new String[][] {
 					{"Accept", "application/json"},
 					{"Accept-language", "en_US"},
 					{"Authorization","Bearer "+access_token},
 					{"Content-Type", "application/json"}
 					});
-				body.debug("PayPal response "+response);
+				body.debug("PayPal response create "+response);
 				parent.respond(response);
 				return true;
 			} else
@@ -124,14 +124,26 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 					return false;
 				//https://www.paypal.com/apex/developer/expressCheckout/executeApprovedPayment				
 				String params = "{\"payer_id\": \""+payer_id+"\"}";
-				body.debug("PayPal request "+request);
+				body.debug("PayPal request execute "+payment_id+" "+payer_id);
 				String response = HTTP.simple(paypal_url+"/v1/payments/payment/"+payment_id+"/execute",params,"POST",timeout,null,new String[][] {
 					{"Accept", "application/json"},
 					{"Accept-language", "en_US"},
 					{"Authorization","Bearer "+access_token},
 					{"Content-Type", "application/json"}
 					});
-				body.debug("PayPal response "+response);
+				body.debug("PayPal response execute "+response);
+				if (!AL.empty(response)) {
+//TODO: resync profile
+					//{"id":"PAYID-LYU34MA8AR79209583584949","intent":"sale","state":"approved",...,"create_time":"2020-01-23T15:39:28Z","update_time":"2020-01-23T15:40:10Z",
+					JsonObject json = Json.createReader(new StringReader(response)).readObject();
+					PayPalItem item = new PayPalItem(json);
+					PayPal paypal = (PayPal)body.getSocializer(name);
+					if (paypal != null && item.valid()) {
+						paypal.updatePeerTerm(item.payer_id, item.date, item.description);
+						body.debug("PayPal updated peer "+item.payer_id+" "+item.date+" "+item.description);
+//TODO: send message (but do it asyc to avoid HTTP session hangup)!!!
+					}
+				}
 				parent.respond(response);
 				return true;
 			} else

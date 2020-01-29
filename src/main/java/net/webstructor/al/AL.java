@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -78,6 +78,8 @@ public class AL {
 	public final static String path 	= "path";
 	public final static String text 	= "text"; // TODO: move this out to name?
 	public final static String version  = "version";
+	public final static String format   = "format";
+	public final static String context  = "context";
 
 	//things
 	public final static String number 	= "number";//integer or floating point

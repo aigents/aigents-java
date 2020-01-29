@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -189,5 +189,19 @@ public abstract class Time extends Date	{
 			return 1;
 		int time =  b.compareTo(a); // so latest at the very bottom
 		return time;
+	}
+
+	public static Date addYears(Date d, int y) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.add(Calendar.YEAR, y);
+		return c.getTime();
+	}
+
+	public static Date addMonths(Date d, int m) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.add(Calendar.MONTH, m);
+		return c.getTime();
 	}
 }

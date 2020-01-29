@@ -11,3 +11,8 @@ var timeout_millis = 0*1000;//how long to wait on AJAX requsts
 var status_seconds = 20;//how long the status stays shown and how fast it is show on idle
 var action_seconds = 5;//how long the action stays shown
 var display_emails = false;//whether emails of friends should be displayed or not in the view
+
+var paypal_setup = 'production'
+var paypal_monthly_usd = 0.02;//9
+var paypal_yearly_usd = 0.03;//99
+var rate_usd_rub = 62

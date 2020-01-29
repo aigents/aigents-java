@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -74,7 +74,8 @@ public class Peer extends Agent {
 		login_token = "login token",
 		language = "language",
 		relevance = "relevance",
-		social_relevance = "social relevance";
+		social_relevance = "social relevance",
+		paid_term = "paid term";
 	public static final String[] properties = new String[] {
 		AL.email,
 		phone,
@@ -95,6 +96,9 @@ public class Peer extends Agent {
 		telegram_notification,
 		language,
 		login_count,login_token,login_time,registration_time,activity_time,
+		paid_term,
+		AL.currency,
+		//AL.format,//TODO: fix unit test in agent_sites.php (not trivial!)?
 		Body.facebook_id, Body.facebook_token,
 		Body.vkontakte_id, Body.vkontakte_token,
 		Body.paypal_id, Body.paypal_token,

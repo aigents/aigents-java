@@ -10,23 +10,19 @@
   <script src="/ui/jquery-1.11.1.js"></script>
   <script src="/ui/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
   <link rel="stylesheet" type="text/css" href="/ui/aigents-wui.css?300"></link>
-  <script type="text/javascript" src="/ui/aigents-settings.js?400"></script>
+  <script type="text/javascript" src="/ui/aigents-settings.js?403"></script>
   <script type="text/javascript" src="/ui/aigents-al.js?400"></script>
   <script type="text/javascript" src="/ui/aigents-speech.js?400"></script>
-  <script type="text/javascript" src="/ui/aigents-locales.js?401"></script>
+  <script type="text/javascript" src="/ui/aigents-locales.js?402"></script>
   <script type="text/javascript" src="/ui/aigents-graph.js?400"></script>
   <script type="text/javascript" src="/ui/aigents-gui.js?400"></script>
   <script type="text/javascript" src="/ui/aigents-map.js?401"></script>
-  <script type="text/javascript" src="/ui/aigents-wui.js?404"></script>
-  <!-- Google
-  <meta name="google-signin-client_id" content="638660736503-ip2avfmusv38va2jn8fub8cf4c4oobm7.apps.googleusercontent.com"></meta>
-  -->
+  <script type="text/javascript" src="/ui/aigents-wui.js?418"></script>
   <meta property="og:title" content="Aigents for everyone"/>
   <meta property="og:description" content="Aigents - helping to monitor, extract, evaluate and share information on the Internet, adjusting to your needs and learning the preferences."/>
   <meta property="og:image" content="http://aigents.com/img/aigents-find-share.jpg"/>
   <meta property="og:url" content="http://aigents.com"/>
   <meta property="fb:app_id" content="763733953664689"/>
-
 </head>
 
 <style>
@@ -708,6 +704,7 @@ function microphone_input(input){
 </ul>
 <ul id="aigents_menu" style="display:none;z-index:100;">
 	<li class="ui-state-disabled">Aigents</li>
+	<li id="aigents_subscription" title="Paid subscription information">Subscription</li>
 	<li id="aigents_profile" title="Personal settings">Settings</li>
 	<li id="aigents_logout" title="Signout from all accounts">Logout</li>
 </ul>
@@ -718,6 +715,7 @@ function microphone_input(input){
 </ul>
 <ul id="paypal_menu" style="display:none;z-index:100;">
 	<li class="ui-state-disabled">PayPal</li>
+	<li id="paypal_subscription" title="Paid subscription information">Subscription</li>
 	<li id="paypal_report" title="PayPal activity report">Report</li>
 	<li id="paypal_logout" title="Signout from all accounts">Logout</li>
 </ul>
@@ -764,6 +762,7 @@ function microphone_input(input){
  -->
 </ul>
 
+<div id="subscription_dialog" title="Aigents Subscription" style="display: none;">Aigents Subscription</div>
 <div id="dialog" title="My properties"  style="display: none;">Aigents Properties</div>
 <div id="report_dialog" title="Aigents Report" style="display:none;"></div>
 

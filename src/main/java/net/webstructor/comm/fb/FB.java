@@ -38,9 +38,11 @@ import net.webstructor.al.Time;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
+import net.webstructor.core.Thing;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.main.Mainer;
+import net.webstructor.peer.Profiler;
 import net.webstructor.util.Reporter;
 
 /*
@@ -273,5 +275,10 @@ public class FB extends Socializer {
 		
 		rep.closePeer();
 		rep.closeReport();
+	}
+
+	@Override
+	public Profiler getProfiler(Thing peer) {
+		return new Profiler(body,this,peer,Body.facebook_id,Body.facebook_token,Body.facebook_key);
 	}
 }

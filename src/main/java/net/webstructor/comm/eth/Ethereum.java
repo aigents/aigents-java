@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,11 +32,13 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.core.Environment;
+import net.webstructor.core.Thing;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Translator;
 import net.webstructor.main.Mainer;
+import net.webstructor.peer.Profiler;
 import net.webstructor.util.Reporter;
 
 public class Ethereum extends SocialCacher {
@@ -156,6 +158,11 @@ public class Ethereum extends SocialCacher {
 		
 		rep.closePeer();
 		rep.closeReport();
+	}
+
+	@Override
+	public Profiler getProfiler(Thing peer) {
+		return null;
 	}
 
 }//class

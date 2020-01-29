@@ -118,7 +118,7 @@ public abstract class SocialCacher extends Socializer {
 
 	//API method forcing resync
 	//virtual, applies for blockchain-s only
-	//TODO:@Override
+	@Override
 	public void resync(long block) {
 		//TODO: enable but ensure no syncing conflict is experienced
 		try {

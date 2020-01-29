@@ -1012,6 +1012,150 @@ function your_properties() {
 	});
 }
 
+
+//--- PayPal Integration ---
+
+var paypal_loaded = false;
+var default_term = '????-??-??';
+function subsciption_paypal_render(button_id,type){
+	function render(button_id,type){
+	  paypal.Button.render({
+		    env: paypal_setup, //'sandbox', // Or 'production'
+		    // Set up the payment:
+		    // 1. Add a payment callback
+		    payment: function(data, actions) {
+		    	var total = type == 'yearly' ? paypal_yearly_usd : paypal_monthly_usd;
+		    	var currency = 'USD';
+		    	if ($( "#currency" ).val() == 'RUB'){
+		    		total *= rate_usd_rub;
+		    		currency = 'RUB';
+		    	}
+		      // 2. Make a request to your server
+		      console.log('create-payment '+type+' '+total+' '+currency+' '+paypal_setup);
+		      console.log(data);
+		      return actions.request.post(base_url+'/paypal/create-payment/?total='+total+'&currency='+currency+'&type='+type)
+		        .then(function(res) {
+		          // 3. Return res.id from the response
+		          console.log(res);
+		          return res.id;
+		        });
+		    },
+		    // Execute the payment:
+		    // 1. Add an onAuthorize callback
+		    onAuthorize: function(data, actions) {
+		      // 2. Make a request to your server
+		      console.log('execute-payment');
+		      console.log(data);
+		      return actions.request.post(base_url+'/paypal/execute-payment/?payment='+data.paymentID+'&payer='+data.payerID, {
+		        paymentID: data.paymentID,
+		        payerID:   data.payerID
+		      })
+		        .then(function(res) {
+		        	console.log(res);
+		        	var amount = res && res.transactions && res.transactions[0] && res.transactions[0].amount ? res.transactions[0].amount : null;
+		        	// 3. Show the buyer a confirmation message.
+		       		ajax_request('What paid term?',function(response){
+		       			var data= [];
+		       			parseToGrid(data,response.substring(5),['paid term'],",");
+		       			if (!AL.empty(data))
+		       				$( "#paid_term" ).val(data[0][0]);
+		       		},true);//silent	    
+		        	if (amount)
+			        	talks_say_in("Payment id "+res.id+", "+amount.total+amount.currency+" "+res.transactions[0].description+" "+res.update_time);
+		        });
+		    }
+		  }, button_id);
+	}
+	if (paypal_loaded)
+		render(button_id);
+	else
+		$.getScript("https://www.paypalobjects.com/api/checkout.js", function(data, textStatus, jqxhr) {
+			paypal_loaded = true;
+			render(button_id,type);
+			console.log('Loaded PayPal.');
+		});
+}
+function subscription_open_dialog(term,currency) {
+	var window_height = $( window ).height();
+	var window_width = $( window ).width();
+    var height = 540;
+    var width = 400; 
+    var left = 0;
+    var top = 0;
+    if (height > window_height)
+    	height = window_height;
+    else
+    	top = (window_height - height)/2;
+    if (width > window_width)
+    	width = window_width;
+    else
+    	left = (window_width - width)/2;
+    function doClick() {
+    	var currency = $( "#currency" ).val();
+   		ajax_request('My currency '+(currency && currency == 'RUB' ? 'rub' : 'usd'),null,true);
+   		$( this ).dialog( "close" );
+    }
+    function doCancel() { $( this ).dialog( "close" );}
+    var dialog = $( "#subscription_dialog" ).dialog({
+    	autoOpen: false, 
+    	height: height, 
+    	width: width,
+    	top: top,
+      	left: left,
+      	modal: true,
+        buttons:[{ text: _("Ok"), id: "dialog_default", click: doClick},{text: _("Cancel"), click: doCancel}]
+    });
+    dialog.empty();
+    if (!dialog_envents_bound) {
+    	dialog_envents_bound = true;
+	    dialog.keyup(function (e) {
+	        if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+	            var button = $(this).parent().find("#dialog_default");
+	            button.trigger("click");
+	            return false;
+	        }
+	    });
+	    dialog.submit( function(e) {
+	    	e.preventDefault();//TODO://sure, need this?
+	    	return false;
+	    });
+    }
+    if (AL.empty(term))
+    	term = default_term;
+    var src = '<form><fieldset>'
+    	+ '<span class="dialog-text" class="ui-widget-content"><b>'+_('Supported till')+' <span id="paid_term">'+term+'</span></b></span>'
+    	+ '<span class="dialog-text" class="ui-widget-content">'+_('Extend your support for')+'<img src="/ui/img/aigent32left.png"/></span>'
+        + '<label class="dialog-label" for="paypal-button-monthly">1 '+_('month')+': '+paypal_monthly_usd+'USD:</label>'
+		+ '<div class="dialog-input" id="paypal-button-monthly"></div>'
+    	+ '<label class="dialog-label" for="paypal-button-yearly">1 '+_('year')+': '+paypal_yearly_usd+'USD:</label>'
+		+ '<div class="dialog-input" id="paypal-button-yearly"></div>'
+		+ '<label class="dialog-label" for="currency">'+_('Currency')+'</label>'
+    	+ '<select class="dialog-input" id="currency"><option value="USD" selected="selected">USD</option><option value="RUB">RUB</option></select>'
+    	+ '</fieldset></form>';
+    dialog.dialog('option', 'title', _('Aigents Subscription'));
+    dialog.append(src);
+    dialog.dialog( "open" );
+    subsciption_paypal_render('#paypal-button-monthly','monthly');
+    subsciption_paypal_render('#paypal-button-yearly','yearly');
+    $( "#currency" ).val(currency && currency.toUpperCase() == 'RUB' ? 'RUB' : 'USD');
+}
+
+function subscription_open(){
+	var term = default_term;
+	var currency = 'USD';
+	//subscription_open_dialog('2020-02-20','rub');
+ 	ajax_request('What my currency, paid term?',function(response){
+		var data= [];
+		parseToGrid(data,response.substring(5),['currency','paid term'],",");
+		if (!AL.empty(data)){
+			term = data[0][1];
+			currency = data[0][0];
+		}
+		subscription_open_dialog(term,currency);
+    },true);//silent	    
+}
+
+
 //--- Things ---
 var things_data = [];
 
@@ -2154,6 +2298,10 @@ function login_menu(provider,name){
 	    	requestReport(provider,name);
 	    	hide_menu();
 	    });
+	    $(provider+"_subscription").off().click(function(){
+	    	subscription_open();
+	    	hide_menu();
+	    });
 	    if (provider == '#aigents')
 	    	$("#aigents_profile").off().click(function(){
 	    		hide_menu();
@@ -2476,16 +2624,6 @@ function post_init(){
 	}(document, 'script', 'facebook-jssdk'));
 
 	//Google
-	//TODO eliminate as not used?
-	/*var updateSignIn = function() {
-		console.log('Google update sign in state');
-		if (auth2.isSignedIn.get()) {
-			window.loginGoogleApi();
-		}else{
-		    console.log('signed out');
-		}
-	}*/
-	//TODO 111
 	function getGoogleUser(response){
 		function primary(a){
 			for (var i = 0; i < a.length; i++)

@@ -24,27 +24,63 @@
 package net.webstructor.comm.paypal;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
-import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.util.JSON;
 
+
+class PayPalItem {
+	Date date = null;
+	String payer_id = null;
+	String description = null;
+	String currency = null;
+	String total = null;
+	PayPalItem(JsonObject payment){
+		String timestamp = JSON.getJsonString(payment,"update_time");
+		if (timestamp != null) {
+			date = Time.time(timestamp,"yyyy-MM-dd'T'HH:mm:ss'Z'");
+			JsonObject payer = JSON.getJsonObject(payment,"payer");
+			if (date != null && payer != null) {
+				JsonObject payer_info = JSON.getJsonObject(payer,"payer_info");
+				if (payer_info != null)
+					payer_id = JSON.getJsonString(payer_info, "payer_id"); 
+				if (payer_id != null) {
+					JsonArray transactions = JSON.getJsonArray(payment,"transactions");
+					if (transactions != null) for (int t = 0; t < transactions.size(); t++) {
+						JsonObject transaction = transactions.getJsonObject(t);
+						description = JSON.getJsonString(transaction,"description");
+						JsonObject amount = JSON.getJsonObject(transaction,"amount");
+						if (amount != null) {
+							currency = JSON.getJsonString(amount, "currency");
+//TODO: BigDecimal
+							total = JSON.getJsonString(amount, "total");
+						}
+					}
+				}
+			}
+		}
+	}
+	boolean valid() {
+		return date != null && !AL.empty(payer_id) && !AL.empty(total); 
+	}
+}
+
+
 class PayPalFeeder extends SocialFeeder {
 	PayPal api;
 	boolean debug = true;
+	Date term = null; 
 
 	public PayPalFeeder(Environment body, PayPal api, String user_id, LangPack langPack, Date since, Date until) {
 		super(body,user_id,langPack,false,since,until);
@@ -52,79 +88,40 @@ class PayPalFeeder extends SocialFeeder {
 	}
 
 	public void getFeed(String token, Date since, Date until, StringBuilder detail) throws IOException {
-		cache();
+		api.resync(0);
 		Set dates = api.payments.getSubKeySet(user_id);
-		if (dates != null)for (Object date : dates) {
-			String payment = (String)api.payments.getObject(user_id, date, false);
-			countComments(payment,payment,null,(Date)date,1);
-			countPeriod((Date)date,0,1);
-		}
-	}
-	
-	//TODO: move to PayPal
-	//TODO: can be also invoked by resync 
-	void cache() throws IOException {
-		try {
-			int timeout = 0;//TODO
-			String access_token = PayPal.token(body, PayPal.auth_url(api.base_url()), timeout, api.appId, api.appSecret);
-			String next_id = null;
-			for (;;) {
-				//https://developer.paypal.com/docs/api/get-an-access-token-curl/
-				//https://developer.paypal.com/docs/api/payments/v1/#payment_list
-				//https://developer.paypal.com/docs/integration/direct/payments/search-payment-details/
-				String request = "?count=20&sort_by=create_time";
-				if (next_id != null)
-					request += "&start_id="+next_id;
-				body.debug("PayPal request "+request+" "+access_token);
-				String response = HTTP.simple(PayPal.payment_url(api.base_url())+request,null,"GET",timeout,null,new String[][] {
-					{"Accept", "application/json"},
-					{"Accept-language", "en_US"},
-					{"Content-Type", "application/json"},
-					{"Authorization","Bearer "+access_token}
-					});
-				body.debug("PayPal response "+response);
-				JsonReader jsonReader = Json.createReader(new StringReader(response));
-				JsonObject json = jsonReader.readObject();
-				JsonArray payments = JSON.getJsonArray(json, "payments");
-				next_id = JSON.getJsonString(json, "next_id");
-				if (payments != null) for (int i = 0; i < payments.size(); i++) {
-					Date date = null;
-					String payer_id = null;
-					JsonObject payment = payments.getJsonObject(i);
-					String timestamp = JSON.getJsonString(payment,"update_time");
-					if (timestamp != null) {
-						date = Time.time(timestamp,"yyyy-MM-dd'T'HH:mm:ss'Z'");
-						JsonObject payer = JSON.getJsonObject(payment,"payer");
-						if (date != null && payer != null) {
-							JsonObject payer_info = JSON.getJsonObject(payer,"payer_info");
-							if (payer_info != null)
-								payer_id = JSON.getJsonString(payer_info, "payer_id"); 
-							if (payer_id != null) {
-								JsonArray transactions = JSON.getJsonArray(payment,"transactions");
-								if (transactions != null) for (int t = 0; t < transactions.size(); t++) {
-									JsonObject transaction = transactions.getJsonObject(t);
-									String description = JSON.getJsonString(transaction,"description");
-									JsonObject amount = JSON.getJsonObject(transaction,"amount");
-									if (amount != null) {
-										String currency = JSON.getJsonString(amount, "currency");
-//TODO: BigDecimal
-										String total = JSON.getJsonString(amount, "total");
-										Collection c = api.payments.getObjects(user_id, date);
-										boolean found = !AL.empty(c);
-										body.debug("Spidering peer paypal "+found+" "+payer_id+" "+total+" "+currency+" "+description);
-										if (!found)
-											api.payments.putObject(payer_id, date, description + " " + total + " " + currency);
-									}
-								}
-							}
-						}
-					}
+		if (dates != null) {
+			int i = 0;
+			Object[][] items = new Object[dates.size()][]; 
+			for (Object date : dates) {
+//TODO:filter in since-until range
+				String payment = (String)api.payments.getObject(user_id, date, false);
+				countComments(payment,payment,null,(Date)date,1);
+				countPeriod((Date)date,0,1);
+				items[i++] = new Object[] {date,payment};
+			}
+			Arrays.sort(items,new Comparator(){
+				public int compare(Object arg0, Object arg1) {
+					return ((Date)((Object[])arg0)[0]).compareTo((Date)((Object[])arg1)[0]);
 				}
-				if (AL.empty(next_id))
-					break;
-			}//pagination
-		} catch (Exception e) {
-			body.error("Spidering peer paypal "+user_id, e);
+			});
+			for (Object[] item: items) {
+				term = PayPal.updateTerm(term,(Date)item[0],(String)item[1]);
+				reportDetail(detail,
+						"",//getUserName(from),
+						"",//uri
+						"",//id
+						item[0].toString() + " " +item[1].toString()+ " - "+term.toString(),
+						(Date)item[0],
+						null,
+						null,
+						null,//likers,
+						0,//likes_count-user_likes,
+						0,//user_likes,
+						0,
+						null);
+			}
 		}
 	}
+
 }

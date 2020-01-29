@@ -40,7 +40,9 @@ import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
+import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
@@ -177,5 +179,10 @@ public class Reddit extends Socializer {
 			body.error("Reddit read channel error "+uri,e);
 		}
 		return -1;
+	}
+
+	@Override
+	public Profiler getProfiler(Thing peer) {
+		return new Profiler(body,this,peer,Body.reddit_id,Body.reddit_token,Body.reddit_key);
 	}
 }

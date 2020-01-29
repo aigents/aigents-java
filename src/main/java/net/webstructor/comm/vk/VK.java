@@ -38,7 +38,9 @@ import net.webstructor.al.AL;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.Socializer;
+import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.peer.Profiler;
 import net.webstructor.util.Str;
 
 /*
@@ -237,12 +239,16 @@ body.debug(provider()+" verifyToken: " + appSecret);
 		return null;
 	}
     
-
+	@Override
+	public Profiler getProfiler(Thing peer) {
+		return new Profiler(body,this,peer,Body.vkontakte_id,Body.vkontakte_token,Body.vkontakte_key);
+	}
+	
 	public static void main(String[] args) {
 		ArrayList collectedLinks = new ArrayList();
 		String html = "Статья про Язык Агентов с конференции ЗОНТ-2015 <br>https://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf со слайдами http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin-slides.pdf";
 		String text = HtmlStripper.convert(html," ",collectedLinks);//.toLowerCase();
 		System.out.println(text);
 	}
-	
+
 }//class

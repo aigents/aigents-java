@@ -48,6 +48,7 @@ import net.webstructor.al.Writer;
 import net.webstructor.agent.Body;
 import net.webstructor.main.Mainer;
 import net.webstructor.peer.Peer;
+import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
@@ -365,6 +366,11 @@ public class Steemit extends SocialCacher {
 		}
 	}
 		
+	@Override
+	public Profiler getProfiler(Thing peer) {
+		return new Profiler(body,this,peer,Body.steemit_id);
+	}
+
 	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {
 		String caps_name = Writer.capitalize(api_name);
 		GraphCacher grapher = new GraphCacher(api_name,env);

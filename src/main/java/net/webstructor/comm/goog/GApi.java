@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,23 +25,20 @@ package net.webstructor.comm.goog;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import net.webstructor.agent.Body;
-import net.webstructor.al.AL;
-import net.webstructor.al.Time;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
+import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.peer.Profiler;
 
 /*
 https://developers.google.com/apis-explorer/#p/plus/v1/plus.people.get
@@ -86,7 +83,7 @@ public class GApi extends Socializer {
 		return feeder;
 	}
 	
-	static Object[][] processComments(JsonObject object, String token, String user_id) throws IOException{
+	/*static Object[][] processComments(JsonObject object, String token, String user_id) throws IOException{
 		JsonObject replies = object.getJsonObject("replies");
 		int replies_count = replies.getInt("totalItems");
 		String repliesLink = getJsonString(replies,"selfLink",null);
@@ -149,7 +146,7 @@ public class GApi extends Socializer {
 		return mylike;
 	}
 	
-	public static final String TIME_FORMAT = "yyyy-MM-dd";
+	/*public static final String TIME_FORMAT = "yyyy-MM-dd";
 	//TODO:
 	//- limit by period
 	//- count my likes
@@ -256,7 +253,7 @@ public class GApi extends Socializer {
 		}
 		writer.write("</body></html>");
 		return writer.toString();
-	}
+	}*/
 
     private static JsonObject getPrimary(JsonArray a){
         if (a != null) for (int i = 0; i < a.size(); i++) {
@@ -338,6 +335,11 @@ public class GApi extends Socializer {
 			body.error("Google can't verify code url "+url+" out "+out, e);
 			return null;
 		}
+	}
+
+	@Override
+	public Profiler getProfiler(Thing peer) {
+		return new Profiler(body,this,peer,Body.google_id,Body.google_token,Body.google_key);
 	}
 	
 }

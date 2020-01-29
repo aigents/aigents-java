@@ -46,6 +46,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.StringUtil;
+import net.webstructor.core.Thing;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Reporter;
 
@@ -53,6 +54,7 @@ import net.webstructor.data.Graph;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Translator;
 import net.webstructor.peer.Peer;
+import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
 
 /**
@@ -71,6 +73,7 @@ public abstract class Socializer extends HTTP {
 	
 	public abstract String provider();
 	public abstract SocialFeeder getFeeder(String id, String token, String key, Date since, Date until, String[] areas) throws IOException;
+	public abstract Profiler getProfiler(Thing peer);
 	
 	//TODO: include reporting days, but then need actial days from Feeder object 
 	//public String reportingPath(String user_id,String format,int period_days){
@@ -94,8 +97,8 @@ public abstract class Socializer extends HTTP {
 		return false;
 	}
 
-	//virtual, applies for blockchain-s only
-	public void resync(long block) {
+	//virtual, applies to blockchain-s and PayPal only
+	public void resync(long blockOrTimemillis) {
 	}
 	
 	//virtual, applies for blockchain-s only (so far)
