@@ -52,7 +52,7 @@ class SyncLong {
 public class Selfer extends Thread {
 	private static final long DEFAULT_SPIDER_CYCLE_MS = 3 * Period.HOUR;
 	private static final long DEFAULT_STORE_CYCLE_MS = Period.MINUTE;
-	private static final long DEFAULT_FORGET_CYCLE_MS = Period.DAY / 2;
+	private static final long DEFAULT_FORGET_CYCLE_MS = Period.DAY / 4;
 
 	Body body;
 	Spider spider;

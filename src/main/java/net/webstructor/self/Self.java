@@ -141,6 +141,8 @@ public class Self {
 	}
 	
 	public static void clear(Body body,String[] exceptions) {
+		body.debug("Forgetting start "+body.checkMemory());
+		
 		//0) setup attetion and retention days
 		int attention_days = Integer.valueOf(body.self().getString(Body.attention_period,"14")).intValue();
 		int retention_days = Integer.valueOf(body.self().getString(Body.retention_period,"31")).intValue();
@@ -209,6 +211,8 @@ public class Self {
 		//8) clear STM page/document data cache 
 		if (body.filecacher != null)
 			body.filecacher.clear(Time.today(0));//TODO attention period instead of today!?
+
+		body.debug("Forgetting stop "+body.checkMemory());
 	}
 	
 	public static boolean save(Body body,String path) {

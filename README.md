@@ -1,4 +1,5 @@
 # Aigents Java Core Platform
+![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
 
 ## Pre-requisites
 1. Ensure that the following software is installed for build and test purposes:
@@ -38,5 +39,9 @@ org
 4. Run Aigents GUI with java command as **java -jar Aigents.jar**
 5. If needed, bundle Aigents Desktop App for Mac accordingly to [instructions](https://docs.oracle.com/javase/7/docs/technotes/guides/jweb/packagingAppsForMac.html)
 6. If needed, build Aigents Desktop for Windows Executable from Jar using [Excelsior JET Technology](https://www.excelsiorjet.com/kb/35/howto-create-a-single-exe-from-your-java-application)  
-7. If needed, configure Aigents Power Server following [Aigents Server requirements configuration, operation and API use](https://aigents.com/download/latest/readme.html) instructions
 
+## Manuals
+1. If needed, configure Aigents Power Server following [Aigents Server requirements configuration, operation and API use instructions](https://aigents.com/download/latest/readme.html)
+2. If needed, integrate Aigents Power Server in your own application following [Aigents Server Documentation](https://github.com/aigents/aigents-java/blob/master/doc/README.md) 
+
+![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)

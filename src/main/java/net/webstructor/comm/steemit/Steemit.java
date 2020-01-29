@@ -50,6 +50,7 @@ import net.webstructor.main.Mainer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
+import net.webstructor.util.MapMap;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.cat.HttpFileReader;
@@ -383,8 +384,13 @@ public class Steemit extends SocialCacher {
 		boolean pending_update = false;
 		long head = start_block > 0 ? start_block : headBlock(env, api_url, api_name);
 
+		long start = System.currentTimeMillis(); 
+		env.debug(caps_name+" crawling start");// since "+since+" until "+until);
+		
 		//set up peer topic for news monitoring 
 		Set peerThings = null; 
+		MapMap thingPaths = new MapMap();//collector
+		int thingMatches = 0;
 		Date attention_date = api == null ? null : Time.today(-api.body.attentionDays());
 		if (api != null) {
 			String name_id = api.provider()+" id";
@@ -402,8 +408,6 @@ public class Steemit extends SocialCacher {
 			}
 		}
 		
-		long start = System.currentTimeMillis(); 
-		env.debug(caps_name+" crawling start");// since "+since+" until "+until);
 		for (long block = head; block > 0; block--){
 			String par = "steemit".equals(api_name) ? 
 				"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"get_block\",\"params\": [\""+ block + "\"]}"//Steemit
@@ -610,7 +614,9 @@ if (block % 10 == 0){
 												break;
 											}
 											String permlink_url = Steemit.permlink_url(site,parent_permlink,author,permlink);
-											Siter.matchPeersText(api.body, peerThings, text, new_date, permlink_url, imgurl);
+											//Siter.matchPeersText(api.body, peerThings, text, new_date, permlink_url, imgurl);
+											//do updates later
+											thingMatches += Siter.matchThingsText(api.body,peerThings,text,new_date,permlink_url,imgurl,thingPaths);
 										}
 									}
 								}
@@ -641,6 +647,10 @@ if (block % 10 == 0){
 				grapher.updateGraph(key,graph,age);
 		}
 		logger.close();//TODO: move it to updateGraphs in SocialCacher
+
+		if (thingMatches > 0)
+			Siter.update(api.body,null,Time.date(new Date(start)),thingPaths,false,null);//forced=false, because may be retrospective
+
 		long stop = System.currentTimeMillis(); 
 		env.debug(caps_name+" crawling stop, took "+Period.toHours(stop-start));
 	}

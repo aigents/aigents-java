@@ -35,9 +35,11 @@ The following aspects should be kept in mind and taken care of in order to assur
 	1. Telegram
 		1. Telegram integration requires to set-up your own Telegram bot, and get *bot id* and *token* for it.
 		1. Your application *bot id* and *token* should be passed to Aigents server as *telegram id* and *telegram token* over secure communication channel.
-		1. The your users interacting with Telegram will be assigned *telegram id* which will be stored on side of the Aigents server and made available to your application over integration protocol over secure communication channel.  
-	1. Slack integration requires to set-up your own Slack development account, create your Aigents-based Slack application under this account and get *application id* and *application secret*. You will also need to get permissions necessary for conventional chat-bot operations.
-		1. **TODO**   
+		1. Your users interacting with Telegram will be assigned *telegram id* which will be stored on side of the Aigents server and made available to your application over integration protocol over secure communication channel.  
+	1. Slack
+		1. Slack integration requires to set-up your own Slack development account, create your Aigents-based Slack application under this account and get *application id* and *application secret*. You will also need to get permissions necessary for conventional chat-bot operations.
+		1. Your application *application id* and *application secret* should be passed to Aigents server as *slack id* and *slack key* over secure communication channel.
+		1. Your users interacting with Slack will be assigned *slack id* which will be stored on side of the Aigents server and made available to your application over integration protocol over secure communication channel.  
 	
 ## 2. TODO
 

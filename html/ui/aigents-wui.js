@@ -1054,11 +1054,11 @@ function subsciption_paypal_render(button_id,type){
 		        	console.log(res);
 		        	var amount = res && res.transactions && res.transactions[0] && res.transactions[0].amount ? res.transactions[0].amount : null;
 		        	// 3. Show the buyer a confirmation message.
-		       		ajax_request('What paid term?',function(response){
+		       		ajax_request('What my paid term?',function(response){
 		       			var data= [];
 		       			parseToGrid(data,response.substring(5),['paid term'],",");
 		       			if (!AL.empty(data))
-		       				$( "#paid_term" ).val(data[0][0]);
+		       				$( "#paid_term" ).html(data[0][0]);
 		       		},true);//silent	    
 		        	if (amount)
 			        	talks_say_in("Payment id "+res.id+", "+amount.total+amount.currency+" "+res.transactions[0].description+" "+res.update_time);
