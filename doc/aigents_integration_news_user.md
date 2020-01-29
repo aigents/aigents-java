@@ -41,8 +41,68 @@ The following aspects should be kept in mind and taken care of in order to assur
 		1. Your application *application id* and *application secret* should be passed to Aigents server as *slack id* and *slack key* over secure communication channel.
 		1. Your users interacting with Slack will be assigned *slack id* which will be stored on side of the Aigents server and made available to your application over integration protocol over secure communication channel.  
 	
-## 2. TODO
+## 2. Tecnhical aspects - "what can I do" and "how to do"
 
-TODO
+The integration based on user (called **peer** in Aigents) relies on simpler [integration based on channels](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_channel.md) and exteds the latter. The simpler channel-based integration assumes only few users are creating customized channels as a channel owners. The more complex user-based integration discussed here assumes that every individual user may create the channel (called **area** in Aigents) of their own, regardless of whether they like to get news items from the other users or not.  
+
+The user-based integration assumes two categories of users involved: **administrator** user and **regular** user.   
+
+1. Administrator user should be able to use integration channel to configure Aigents server in respect to the following configuration parameters for each of the social communication platforms (social networks ad messengers) as follows.
+	1. The user with administrator role is identified automatically as a first user registered with and logged into the fresh Aigents Server installation.  
+	1. Any of the following parameters can be set updated with the folloiwng statements in AL language.
+		1. Get values of any combination of parameters - example: 
+			1. Say: *what your http threads, http timeout?*
+			1. Get: *My http threads 32, http timeout 60000.*
+		1. Set values for any combination of parameters - example: 
+			1. Say: *Your http threads 32, http timeout 60000.*
+			1. Get: *Ok.*
+	1. System parameters
+		1. Server identification
+			1. *name*
+		1. Storage parameters
+			1. *attention period <days>*
+			1. *retention period <days>*
+			1. *store cycle <seconds> sec*
+		1. Email - generic parameters
+			1. *email login <server email>*
+			1. *email password <server email password>*
+			1. *email cycle <seconds> sec*
+			1. *email retries <number of retries>*
+		1. Email - [Javax Mail](https://javaee.github.io/javamail/) parameters
+			1. *mail.pop3.starttls.enable <true|false*>
+			1. *mail.pop3s.host <host>*
+			1. *mail.pop3s.port <port number>*
+			1. *mail.smtp.auth <true|false>*
+			1. *mail.smtp.host <host>*
+			1. *mail.smtp.port <port number>*
+			1. *mail.smtp.ssl.enable <true|false>*
+			1. *mail.smtp.starttls.enable <true|false>*
+			1. *mail.store.protocol pop3*
+		1. HTTP parameters
+			1. *http origin <url>*
+			1. *http port <port number>*
+			1. *http secure <true|false>*
+			1. *http threads <number of threads>*
+			1. *http timeout <milliseconds>*
+			1. *cookie domain <host>*
+			1. *cookie name <name of the cookie>*
+		1. TCP/IP parameters - used to connect via sockets or telnet client
+			1. *tcp port <port>*
+			1. *tcp timeout <milliseconds>*
+	1. Social communication platform integration parameters **TODO**
+		1. Facebook
+			1. *facebok id* - application id
+			1. *facebook key* - application secret
+			1. *facebook challenge* - needed for Facebook Messeger bot integration only
+		1. Reddit
+			1. *reddit id* - application id
+			1. *reddit key* - application secret
+		1. Telegram
+			1. *telegram token* - obtaied with *Bot Father* bot 
+		1. Slack
+			1. *slack id* - application id
+			1. *slack key* - application secret
+1. Regular user should be able to perform multiple activities as follows.
+	1. **TODO**
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)

@@ -158,6 +158,4 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. et. cetera...
 1. All settings to the **trust** and **new** attributes are specific to context of a given user context, so setting these properties to *true* or *false* for specific user and its respective channel (area) does not affect other users ad their channels (areas).
 
-![https://aigents.com/](https://aigents.com/img/aigents_wrench.png) 
-
-**The End**
+![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
