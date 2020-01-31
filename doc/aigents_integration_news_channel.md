@@ -38,11 +38,11 @@ In order to integrate Aigents news syndication in your applications, two options
 1. Al interactions are being committed in a user context where user may be anonymous or authenticated. Scope of Aigents Server actions directed my means of AL statements for anonymous sessions is restricted while scope of actions for authenticated sessions is extended.
 1. Session contexts are maintained in different ways, like follows.
 	1. HTTP/HTTPS - cookies, so you need to keep cookies on the HTTP/HTTPS client side - see the following examples how to maintain the cookies.
-		1. [Cookies maintained in PHP](https://github.com/aigents/aigents-java/blob/master/php/agent/test_api.php#L69).
+		1. [Cookies maintained in PHP](https://github.com/aigents/aigents-java/blob/master/php/agent/test_api.php#L69) with [example](https://github.com/aigents/aigents-java/blob/master/php/agent/agent_sites.php#L472).
 		1. [Cookies maintained in Java](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/HTTP.java#L218).
 	1. Telegram, Slack and Facebook Messenger - user identifiers and session tokens corresponding to API-s of those messengers.
 	1. TCP/IP sessions - socket connection contexts.
-1. For the authentication purposes, users may be registered with and logged into Aigents in different ways - using email as well as third party systems, such as Facebook, Google, PaPal, Telegram, Slack, Reddit and VKontakte.
+1. For the authentication purposes, users may be registered with and logged into Aigents in different ways - using email as well as third party systems, such as Facebook, Google, PayPal, Telegram, Slack, Reddit and VKontakte.
 	1. For integration purposes, registration and login by email appears more straightforward as it needs just user **email** as account identifier and **secret question** and **secret answer** for authentication purpose.
 	1. Registration and login with third-party systems is based on custom implementations of OAuth2 protocol by respective systems and so it appears more complicated for integration purposes.  
 

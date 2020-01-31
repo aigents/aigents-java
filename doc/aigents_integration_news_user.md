@@ -51,7 +51,7 @@ The user-based integration assumes two categories of users involved: **administr
 	1. The user with administrator role is identified automatically as a first user registered with and logged into the fresh Aigents Server installation.  
 	1. Any of the following parameters can be set updated with the folloiwng statements in AL language.
 		1. Get values of any combination of parameters - example: 
-			1. Say: *what your http threads, http timeout?*
+			1. Say: *What your http threads, http timeout?*
 			1. Get: *My http threads 32, http timeout 60000.*
 		1. Set values for any combination of parameters - example: 
 			1. Say: *Your http threads 32, http timeout 60000.*
@@ -89,20 +89,41 @@ The user-based integration assumes two categories of users involved: **administr
 		1. TCP/IP parameters - used to connect via sockets or telnet client
 			1. *tcp port <port>*
 			1. *tcp timeout <milliseconds>*
-	1. Social communication platform integration parameters **TODO**
-		1. Facebook
+	1. Social communication platform integration parameters, having all *id*, *key* ad token values taken in single quotes (like saying: *Your facebook id '12345', facebook key 'aBcDeFg678900', telegram token '9876wXyZ'*).
+		1. Facebook:
 			1. *facebok id* - application id
 			1. *facebook key* - application secret
 			1. *facebook challenge* - needed for Facebook Messeger bot integration only
-		1. Reddit
+		1. Reddit:
 			1. *reddit id* - application id
 			1. *reddit key* - application secret
-		1. Telegram
+		1. Telegram:
 			1. *telegram token* - obtaied with *Bot Father* bot 
-		1. Slack
+		1. Slack:
 			1. *slack id* - application id
 			1. *slack key* - application secret
+		1. Twitter ([**TBD**](https://github.com/aigents/aigents-java/issues/4)):
+			1. *twitter id* - application id
+			1. *twitter key* - application secret
 1. Regular user should be able to perform multiple activities as follows.
-	1. **TODO**
+	1. Get personalised news feed correspoding to their autheticated account - in the same way as it is [described for chanel/area owners](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_channel.md#51-get-news-from-users-peers-channels), including two kinds of relevance measures:
+		1. *relevance* (personal) relevance based on custom user setup and their personal experience with news items;
+		1. *social relevance* based on personal experiences of the other users in the list of trusts, based on their own levels of reputation, earned in the course other users providing feedback to the news items and comments made by the former ones.
+	1. **TODO
+	1. get reputation levels for the list of those users in the system, who have shared their news feeds to the former ones (see below)   
+	1. create (author) news item to stay in their custom feed (and potentially being shared to others) - for the users impersonating WP content managers  
+	1. comment on any news item (or other comment, as decided on UI/UX perspective) with text 
+	1. provide positive “binary” (0 or 1) rating (like/vote) feedback for any news item or a comment in their feed, including items authored by other users (if any) or comments on these news items.       
+	1. specify a list of users that they like to share their custom news feeds to as public (that is, user A may share their custom news to user B or not, regardless whether B trusts to A or not).
+	1. TODO**
+	1. Specify a list of users that they trust to read their own custom news feeds shared publicly to others (that is, user B may trust to get custom news from user A or not, regardless whether A shares them or not).
+	1. Specify a list of websites (or news sources such as Reddit subreddits or Reddit or Telegram user channels) that user wants to have the news extracted from for their custom feeds, following the [Set up channel (area) configuration](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_channel.md#41-set-up-channel-area-configuration) instructions.
+	1. Specify a list of topics (represented as Aigents [**patterns**](https://medium.com/@aigents/aigents-news-monitoring-tips-and-tricks-ab8d2ede2fa5)) that user wants to have the news extracted from for their custom feeds, following the [Set up channel (area) configuration](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_channel.md#41-set-up-channel-area-configuration) instructions.
+	1. Specify their ids along with access and refresh tokens for the following social platfrom integrations, havig, having all *id*, and token values taken in single quotes (like saying: *My facebook id '12345', facebook token '345aBcDeFg678900', telegram id '78567410'*).
+		1. Facebook: id, long lived token - saying *My facebook id '<id>', facebook token '<token>'.*
+		1. Reddit: id, refresh token - saying *My reddit id '<id>', reddit token '<token>'.*
+		1. Telegram: id - saying *My telegram id '<id>'*
+		1. Slack: id - saying *My slack id '<id>'*
+		1. Twitter [**TBD**](https://github.com/aigents/aigents-java/issues/4): id, long lived or access token
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
