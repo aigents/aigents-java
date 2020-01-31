@@ -282,11 +282,17 @@ public class Peer extends Agent {
 				news.add(t);*/
 			if (!(day.equals(today) || day.equals(yesterday)))
 				continue;
+//TODO: eliminate elimination of shared news
 			if (!trusts.contains(t) && !t.hasThing(AL.sources, origin)) {
 				boolean relevant = false;  
-				if (topics != null) for (Object i : t.getThings(AL.is)) if (topics.contains(i)) {
-					relevant = true; 
-					break;
+				if (topics != null) {
+					Collection classes = t.getThings(AL.is);
+					if (classes != null) for (Object i : classes) {
+						if (topics.contains(i)) {
+							relevant = true; 
+							break;
+						}
+					}
 				}
 				(relevant ? news : dels).add(t);
 			}

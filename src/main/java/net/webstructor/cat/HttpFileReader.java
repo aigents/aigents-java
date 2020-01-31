@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package net.webstructor.cat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -68,6 +69,8 @@ public class HttpFileReader implements Reader
 		//http://www.utf8-chartable.de/
         private static final String urlChars[] = {"©",     "®",   	 "°"    };
         private static final String urlCodes[] = {"%C2%A9","%C2%AE"	,"%C2%B0"};
+        
+        private static Integer pdfLoaded = 0;// -1 - not loadable; 0 - unknown; 1 - loaded
 		
         /*
         //TODO: issues with
@@ -377,23 +380,43 @@ public class HttpFileReader implements Reader
     			conn = openWithRedirect(docName);
     			//try to read pdf
     			if (!AL.empty(content_type) && content_type.endsWith("pdf")){
+    				boolean pdfable = false;
+    				InputStream is = null;
     				String text = "";
-    				try {
-    					Class.forName("org.apache.pdfbox.pdmodel.PDDocument");
-        				PDDocument document = PDDocument.load(conn.getInputStream());
-        				if (!document.isEncrypted()) {
+    				synchronized (pdfLoaded) {
+    					if (pdfLoaded == 1)
+    						pdfable = true;
+    					else if (pdfLoaded.equals(0)) try {
+        					Class.forName("org.apache.pdfbox.pdmodel.PDDocument");
+    						pdfable = true;
+        					pdfLoaded = 1;
+    					} catch (ClassNotFoundException e) {
+        					env.error("HttpFileReader PDF missed "+docName,e);
+        					pdfLoaded = -1;
+    					}
+    				}
+    				if (pdfable) try { 
+    					is = conn.getInputStream();
+    				} catch (IOException e) {
+    					env.error("HttpFileReader PDF no input "+docName,e);
+    				}
+    				if (is != null) try {
+        				PDDocument document = PDDocument.load(is);
+        				if (!document.isEncrypted()) try {
         				    PDFTextStripper stripper = new PDFTextStripper();
         				    text = stripper.getText(document);
 //TODO: fix hack!?
         				    text = text.replaceAll("\n", " ");
         				    text = text.replaceAll("\r", " ");
         				    if (text.indexOf('\n') != -1 || text.indexOf('\r') != -1)
-        				    	env.error("HttpFileReader readDocData encodinf error "+docName, null);
+        				    	env.error("HttpFileReader PDF no encoding "+docName, null);
+        				} catch (IOException e) {
+        					env.error("HttpFileReader PDF no read "+docName,e);
         				}
         				document.close();
-    				} catch( ClassNotFoundException e ) {
-    					env.error("HttpFileReader readDocData "+docName,e);
-    				}
+    				} catch( IOException e ) {
+    					env.error("HttpFileReader PDF no load "+docName,e);
+     				}
     				return text;
     			}
     			//if not a pdf, try to read plain text or html
