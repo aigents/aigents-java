@@ -90,7 +90,7 @@ The user-based integration assumes two categories of users involved: **administr
 			1. *tcp port <port>*
 			1. *tcp timeout <milliseconds>*
 	1. Social communication platform integration parameters, having all *id*, *key* ad token values taken in single quotes (like saying: *Your facebook id '12345', facebook key 'aBcDeFg678900', telegram token '9876wXyZ'*).
-		1. Facebook:
+		1. Fadcebook:
 			1. *facebok id* - application id
 			1. *facebook key* - application secret
 			1. *facebook challenge* - needed for Facebook Messeger bot integration only
@@ -109,14 +109,19 @@ The user-based integration assumes two categories of users involved: **administr
 	1. Get personalised news feed correspoding to their autheticated account - in the same way as it is [described for chanel/area owners](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_channel.md#51-get-news-from-users-peers-channels), including two kinds of relevance measures:
 		1. *relevance* (personal) relevance based on custom user setup and their personal experience with news items;
 		1. *social relevance* based on personal experiences of the other users in the list of trusts, based on their own levels of reputation, earned in the course other users providing feedback to the news items and comments made by the former ones.
-	1. **TODO
-	1. get reputation levels for the list of those users in the system, who have shared their news feeds to the former ones (see below)   
-	1. create (author) news item to stay in their custom feed (and potentially being shared to others) - for the users impersonating WP content managers  
-	1. comment on any news item (or other comment, as decided on UI/UX perspective) with text 
-	1. provide positive “binary” (0 or 1) rating (like/vote) feedback for any news item or a comment in their feed, including items authored by other users (if any) or comments on these news items.       
-	1. specify a list of users that they like to share their custom news feeds to as public (that is, user A may share their custom news to user B or not, regardless whether B trusts to A or not).
-	1. TODO**
-	1. Specify a list of users that they trust to read their own custom news feeds shared publicly to others (that is, user B may trust to get custom news from user A or not, regardless whether A shares them or not).
+	1. Get reputation levels for the list of those users in the system, who have shared their news feeds to the current user, sayig: *What is peer, friend true, trust true email, reputaion?* ([**TBD**](https://github.com/aigents/aigents-java/issues/6)).
+	1. Create (author) news item to stay in their custom feed (and potentially being shared to others) - for the users impersonating WP content managers, saying: *There text '<text>', sources '<link>', times <YYYY-MM-DD>, new true, trust true update.* (example: *There text 'Aigents news feed on Reddit', sources 'https://www.reddit.com/r/aigents', times 2020-01-30, new true, trust true update.*).
+	1. Comment on any news item, authoring commet item saying someth like [*TBD*](https://github.com/aigents/aigents-java/issues/6): *There text <text>, times <YYYY-MM-DD>, parents <reference>.* (example: *There text 'That is great news', times 2020-01-31 parents text text 'Aigents news feed on Reddit'.*).
+	1. Provide positive “binary” (0 or 1) rating (like/vote) feedback for any news item or a comment in their feed, including items authored by other users (if any) or comments on these news items, like follows.
+		1. Trust news item:  *sources '<link>', text '<text>', times <YYYY-MM-DD>, trust true.* (example *sources 'https://www.reddit.com/r/aigents', text 'Aigents news feed on Reddit', times 2020-01-30, trust true.*)
+		1. Untrust news item: *sources '<link>', text '<text>', times <YYYY-MM-DD>, trust false.* (example: *sources 'https://www.reddit.com/r/aigents', text 'Aigents news feed on Reddit', times 2020-01-30, trust false.*)
+	1. Provide ability to remove any news item or a comment from the feed saying: *sources '<link>', text '<text>', times <YYYY-MM-DD>, new false.* (example: *sources 'https://www.reddit.com/r/aigents', text 'Aigents news feed on Reddit', times 2020-01-30, new false.*)
+	1. Specify a list of users that they like to share their custom news feeds to as public (that is, user A may share their custom news to user B or not, regardless whether B trusts to A or not), like follows.
+		1. Make user to receive news from current user: *is peer, name <name>, surname <surname> email <email> share true*. 
+		1. Make user to not receive news from current user: *is peer, name <name>, surname <surname> email <email> share false*. 
+	1. Specify a list of users that they trust to read their own custom news feeds shared publicly to others (that is, user B may trust to get custom news from user A or not, regardless whether A shares them or not), like follows:
+		1. Trust user to be source of news: *is peer, name <name>, surname <surname> email <email> trust true*. 
+		1. Untrust user to be source of news: *is peer, name <name>, surname <surname> email <email> trust false*.
 	1. Specify a list of websites (or news sources such as Reddit subreddits or Reddit or Telegram user channels) that user wants to have the news extracted from for their custom feeds, following the [Set up channel (area) configuration](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_channel.md#41-set-up-channel-area-configuration) instructions.
 	1. Specify a list of topics (represented as Aigents [**patterns**](https://medium.com/@aigents/aigents-news-monitoring-tips-and-tricks-ab8d2ede2fa5)) that user wants to have the news extracted from for their custom feeds, following the [Set up channel (area) configuration](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_channel.md#41-set-up-channel-area-configuration) instructions.
 	1. Specify their ids along with access and refresh tokens for the following social platfrom integrations, havig, having all *id*, and token values taken in single quotes (like saying: *My facebook id '12345', facebook token '345aBcDeFg678900', telegram id '78567410'*).
@@ -124,6 +129,6 @@ The user-based integration assumes two categories of users involved: **administr
 		1. Reddit: id, refresh token - saying *My reddit id '<id>', reddit token '<token>'.*
 		1. Telegram: id - saying *My telegram id '<id>'*
 		1. Slack: id - saying *My slack id '<id>'*
-		1. Twitter [**TBD**](https://github.com/aigents/aigents-java/issues/4): id, long lived or access token
+		1. Twitter ([**TBD**](https://github.com/aigents/aigents-java/issues/4)): id, long lived or access token
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
