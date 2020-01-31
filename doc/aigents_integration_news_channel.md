@@ -52,7 +52,7 @@ In order to integrate Aigents news syndication in your applications, two options
 1. The personal news feed can be turned into named **area** by the user (owner) so the non authorised users can see it. Use verb **areas** to identify the area of your interest name and verb **shares** to make your current area public to others. Below are the examples of AL statements.
 	1. Turn feed of the current user into named area with name "my_area": *my areas my_area*
 	1. Remove named area with name from being associated with feed of the current user "my_area": *my areas not my_area*	
-	1. Make the current user feed associated with correspoding named area as shared to public: *my shares my_area*
+	1. Make the current user feed associated with corresponding named area as shared to public: *my shares my_area*
 1. The shared area (channel) can be obtained as RSS feed as it is shown in the following video. Assuming the Aigents API URL is **https://aigents.com/al** and area name is **ai**, the url *[https://aigents.com/al?rss%20ai](https://aigents.com/al?rss%20ai)* will provide the RSS feed.
 
 [![](http://img.youtube.com/vi/8r_vmlkFKfI/0.jpg)](http://www.youtube.com/watch?v=8r_vmlkFKfI "")
@@ -75,7 +75,7 @@ In order to integrate Aigents news syndication in your applications, two options
 	1. Server - checks for answer on secret question, e.g.: *What your fish?* (or *What your strong password?*)
 	1. Client - answers, e.g.: *my fish "tuna"* (or *my strong password "@ghTyYUU19%*1gpy90tY56"*)
 	1. Server - confirms registration, e.g.: *Ok. Hello Myname Mysurname! My Aigents 2.2.4 Copyright © 2020 Anton Kolonin, Aigents®*
-1. The login attempt for the user should be tried whenever it is not sure if the previous session is still valid (which may be not the case if the server has had interal error losing session context).
+1. The login attempt for the user should be tried whenever it is not sure if the previous session is still valid (which may be not the case if the server has had internal error losing session context).
 1. The login flow is the following.
 	1. Client - current session (if any, just in case) is closed by logout: *logout*
 	1. Server - confirms: *Ok.*
