@@ -50,9 +50,9 @@ class SyncLong {
 }
 
 public class Selfer extends Thread {
-	private static final long DEFAULT_SPIDER_CYCLE_MS = 3 * Period.HOUR;
 	private static final long DEFAULT_STORE_CYCLE_MS = Period.MINUTE;
 	private static final long DEFAULT_FORGET_CYCLE_MS = Period.DAY / 4;
+	public final static long MIN_CHECK_CYCLE_MS = 3 * Period.HOUR;
 
 	Body body;
 	Spider spider;
@@ -192,7 +192,7 @@ public class Selfer extends Thread {
 					//get min user check cycle (along the way with above?)
 					//next reading time += min user check cycle				
 				if (current_time >= next_spider_time.get()) {
-					long cycle = minCheckCycle(DEFAULT_SPIDER_CYCLE_MS);
+					long cycle = minCheckCycle();
 					long next_time = current_time + cycle;
 					//TODO: need to check current tasks to preven over-spidering?
 					if (next_spider_time.get() != 0  /*&& spider.tasks() == 0*/) {
@@ -297,7 +297,7 @@ public class Selfer extends Thread {
 	}
 	
 	//get min user check cycle
-	public long minCheckCycle(long defaultValue) {
+	public long minCheckCycle() {
 		long cycle = 0;
 		String[] cycles = body.storager.getNames(Peer.check_cycle);
 		if (!AL.empty(cycles))
@@ -306,10 +306,12 @@ public class Selfer extends Thread {
 				if (cycle == 0 || cycle > check_cycle)
 					cycle = check_cycle;
 			}
-		if (cycle == 0)
-			cycle = defaultValue;
-		if (cycle < Body.MIN_CHECK_CYCLE_MS)
-			cycle = Body.MIN_CHECK_CYCLE_MS;
+		//enforce absolute minimum
+		long min = new Period(MIN_CHECK_CYCLE_MS).parse(body.self().getString(Peer.check_cycle,String.valueOf(MIN_CHECK_CYCLE_MS / Period.HOUR)));
+		if (min < MIN_CHECK_CYCLE_MS)
+			min = MIN_CHECK_CYCLE_MS;
+		if (cycle < min)
+			cycle = min;
 		return cycle;
 	}
 

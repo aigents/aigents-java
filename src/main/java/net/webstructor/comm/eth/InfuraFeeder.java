@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,7 @@ import javax.json.JsonReader;
 import javax.json.JsonValue;
 
 import net.webstructor.al.AL;
+import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.core.Environment;
@@ -147,6 +148,7 @@ Test contracts:
 	private static final String test_id = "0x8fedf009bd8e250bc3345b4229a55216f129fd7d";
 
 	static void updateGraphs(Environment body, Ethereum api, long start_block, Date since, Date until) {
+		long start = System.currentTimeMillis(); 
 		try {
 			long age = 0;
 			//String date_str = null;
@@ -253,7 +255,8 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 				body.debug("Ethereum crawling graph saving for "+key+", age "+new Date((long)age)+" memory "+body.checkMemory());
 				api.updateGraph(key,graph,age);
 			}
-			body.debug("Ethereum crawling stop");
+			long stop = System.currentTimeMillis(); 
+			body.debug("Ethereum crawling stop, took "+Period.toHours(stop-start));
 		} catch (Exception e) {
 			body.error("Ethereum crawling error",e);
 		}

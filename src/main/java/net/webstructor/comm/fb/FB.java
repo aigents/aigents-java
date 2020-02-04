@@ -147,7 +147,7 @@ public class FB extends Socializer {
 			if (access_token_obj.containsKey("access_token"))
 				accessToken = access_token_obj.getJsonString("access_token").getString();
 			else {
-				body.debug("Can't get Facebook app access_token for " + accessToken);
+				body.debug("Facebook can't get app access_token for " + accessToken);
 				return null;
 			}
 			
@@ -155,7 +155,7 @@ public class FB extends Socializer {
 				
 			return accessToken;
 		} catch (Exception e) {
-			body.error("Can't verify Facebook token", e);
+			body.error("Facebook can't verify token", e);
 			return null;
 		}
 	}

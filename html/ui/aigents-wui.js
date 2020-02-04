@@ -1018,28 +1018,30 @@ function your_properties() {
 var paypal_loaded = false;
 var default_term = '????-??-??';
 function subsciption_paypal_render(button_id,type){
+	function payment(data, actions, type) {
+    	var total = type == 'yearly' ? paypal_yearly_usd : paypal_monthly_usd;
+    	var currency = 'USD';
+    	if ($( "#currency" ).val() == 'RUB'){
+    		total *= rate_usd_rub;
+    		currency = 'RUB';
+    	}
+      // 2. Make a request to your server
+      console.log('create-payment '+type+' '+total+' '+currency+' '+paypal_setup);
+      console.log(data);
+      return actions.request.post(base_url+'/paypal/create-payment/?total='+total+'&currency='+currency+'&type='+type)
+        .then(function(res) {
+          // 3. Return res.id from the response
+          console.log(res);
+          return res.id;
+        });
+    }
 	function render(button_id,type){
 	  paypal.Button.render({
 		    env: paypal_setup, //'sandbox', // Or 'production'
 		    // Set up the payment:
 		    // 1. Add a payment callback
-		    payment: function(data, actions) {
-		    	var total = type == 'yearly' ? paypal_yearly_usd : paypal_monthly_usd;
-		    	var currency = 'USD';
-		    	if ($( "#currency" ).val() == 'RUB'){
-		    		total *= rate_usd_rub;
-		    		currency = 'RUB';
-		    	}
-		      // 2. Make a request to your server
-		      console.log('create-payment '+type+' '+total+' '+currency+' '+paypal_setup);
-		      console.log(data);
-		      return actions.request.post(base_url+'/paypal/create-payment/?total='+total+'&currency='+currency+'&type='+type)
-		        .then(function(res) {
-		          // 3. Return res.id from the response
-		          console.log(res);
-		          return res.id;
-		        });
-		    },
+		    payment: type == 'yearly' ? function (data, actions){return payment(data, actions,'yearly')} 
+		    		: function (data, actions){return payment(data, actions,'monthly')},
 		    // Execute the payment:
 		    // 1. Add an onAuthorize callback
 		    onAuthorize: function(data, actions) {
@@ -1072,10 +1074,10 @@ function subsciption_paypal_render(button_id,type){
 		$.getScript("https://www.paypalobjects.com/api/checkout.js", function(data, textStatus, jqxhr) {
 			paypal_loaded = true;
 			render(button_id,type);
-			console.log('Loaded PayPal.');
+			console.log('Loaded PayPal checkout.');
 		});
 }
-function subscription_open_dialog(term,currency) {
+function subscription_open_dialog(term,currency,paypal_id) {
 	var window_height = $( window ).height();
 	var window_width = $( window ).width();
     var height = 540;
@@ -1122,6 +1124,9 @@ function subscription_open_dialog(term,currency) {
     }
     if (AL.empty(term))
     	term = default_term;
+    dialog.dialog('option', 'title', _('Aigents Subscription'));
+    
+  if (!AL.empty(paypal_id)){
     var src = '<form><fieldset>'
     	+ '<span class="dialog-text" class="ui-widget-content"><b>'+_('Supported till')+' <span id="paid_term">'+term+'</span></b></span>'
     	+ '<span class="dialog-text" class="ui-widget-content">'+_('Extend your support for')+'<img src="/ui/img/aigent32left.png"/></span>'
@@ -1132,26 +1137,53 @@ function subscription_open_dialog(term,currency) {
 		+ '<label class="dialog-label" for="currency">'+_('Currency')+'</label>'
     	+ '<select class="dialog-input" id="currency"><option value="USD" selected="selected">USD</option><option value="RUB">RUB</option></select>'
     	+ '</fieldset></form>';
-    dialog.dialog('option', 'title', _('Aigents Subscription'));
     dialog.append(src);
     dialog.dialog( "open" );
     subsciption_paypal_render('#paypal-button-monthly','monthly');
     subsciption_paypal_render('#paypal-button-yearly','yearly');
     $( "#currency" ).val(currency && currency.toUpperCase() == 'RUB' ? 'RUB' : 'USD');
+  } else {
+	//var src = '<span id="paypal_login_button"></span>';
+	var src = '<div class="menu-button"><a href="/en/paypal.html" target="_self" style="text-decoration:none">'
+    	+ '<span class="dialog-text" class="ui-widget-content" style="white-space:normal">'+_('You can have your account connected with PayPal in order to support us and let us to help you better')+'<img src="/ui/img/aigent32left.png"/></span>'
+		+ '<img src="/ui/img/paypal-connect.png" title="Connect with us on Paypal" style="cursor:pointer"/></a></div>';
+    dialog.append(src);
+    dialog.dialog( "open" );
+//TODO: make it working! Right now is reports JS errors due to apparent conflicts between JQuery ad PayPal JS  
+	/*//$.getScript("https://www.paypalobjects.com/js/external/connect/api.js", function(data, textStatus, jqxhr) {
+		//console.log('Loaded PayPal login.');
+		paypal.use( ['login'], function (login) {
+			  login.render ({
+			    "appid":paypal_app_id,//"AX14cg6ozAF8xi5iNOGcbnwajvsCZ-uR1iZl_EvAMXjttWrQV7Buzp9tOX329J3qcvS0fIIRy9kl-kvr",
+			    "authend":paypal_setup,//"production",
+			    "scopes":"openid email profile https://uri.paypal.com/services/paypalattributes",
+			    "containerid":"paypal_login_button",
+			    "responseType":"code",
+			    "locale":"en-us",
+			    "buttonType":"CWP",
+			    "buttonShape":"pill",
+			    "buttonSize":"lg",
+			    "fullPage":"true",
+			    "returnurl":base_url+"/al/paypal"
+			  });
+			});
+	//});*/
+  }
 }
 
 function subscription_open(){
 	var term = default_term;
 	var currency = 'USD';
-	//subscription_open_dialog('2020-02-20','rub');
- 	ajax_request('What my currency, paid term?',function(response){
+	var paypal_id = null;
+ 	ajax_request('What my currency, paid term, paypal id?',function(response){
 		var data= [];
-		parseToGrid(data,response.substring(5),['currency','paid term'],",");
+		parseToGrid(data,response.substring(5),['currency','paid term','paypal id'],",");
 		if (!AL.empty(data)){
-			term = data[0][1];
 			currency = data[0][0];
+			term = data[0][1];
+			paypal_id = data[0][2];
 		}
-		subscription_open_dialog(term,currency);
+		subscription_open_dialog(term,currency,paypal_id);
     },true);//silent	    
 }
 

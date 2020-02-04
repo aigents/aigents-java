@@ -103,7 +103,9 @@ public class Spider {
 						body.debug("Sites crawling time out");
 						break;
 					}
-					long timePerSite = tillTime == 0 ? 0 : (tillTime - currentTime) / remainingSites;
+					long remaining = tillTime - currentTime;
+					long timePerSite = tillTime == 0 ? 0 : remaining / remainingSites;
+					body.debug("Sites crawling time "+Period.toHours(remaining)+"/"+remainingSites);
 					int siteRange = Siter.DEFAULT_RANGE; //TODO: configure
 					int newsLimit = 0; //TODO: configure
 					boolean scopeStrict = true; //TODO: configure "scope=site"=>strict, "scope=web"=>false 

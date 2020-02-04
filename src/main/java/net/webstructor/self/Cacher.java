@@ -36,6 +36,7 @@ import net.webstructor.al.Seq;
 import net.webstructor.al.Statement;
 import net.webstructor.al.Time;
 import net.webstructor.cat.HtmlStripper;
+import net.webstructor.cat.HttpFileContext;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.core.Query;
 import net.webstructor.core.Storager;
@@ -112,13 +113,14 @@ body.debug("Cacher clearing "+path);
 				images.putAll((Map)cached[3]);
 			return (String)cached[0];
 		}
-		//TODO: find more clever way to check readability instead of such DoS attack - simulation
-		if (reader.allowedForRobots(path) && reader.canReadDoc(path)) { //still, here we need to try it first in order to get encoding	
+//TODO: find more clever way to check readability instead of such DoS attack - simulation, use context.conn
+		HttpFileContext context = new HttpFileContext();
+		if (reader.allowedForRobots(path) && reader.canReadDocContext(path,context)) { //still, here we need to try it first in order to get encoding	
 			try {
 				//TODO: if breaking with blocks
 				//do this intelligently (hierarchically) 
 				//otherwise some (say chinese) things do not work
-				String html = reader.readDocData(path," ");
+				String html = reader.readDocData(path," ",context);
 				String text = AL.empty(html) ? null :
 						HtmlStripper.convert(html,HtmlStripper.block_breaker,links,images,linkPositions,path).toLowerCase();
 				if (text != null) {

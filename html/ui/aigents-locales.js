@@ -233,7 +233,8 @@ var locale_ru = {
 		'Aigents Friends Graph' : 'Aigents - Сеть Друзей',
 		'Supported till' : 'Поддержка до',
 		'Extend your support for' : 'Поддержите на время',
-		'Aigents Subscription' : 'Подписка Aigents'
+		'Aigents Subscription' : 'Подписка Aigents',
+		'You can have your account connected with PayPal in order to support us and let us to help you better' : 'Вы можете связать свой аккаунт с PayPal, чтобы поддержать нас и позволить нам лучше помогать вам'
 	},
 	hints : {
 		'name': 'имя (человека, темы или сайта)',

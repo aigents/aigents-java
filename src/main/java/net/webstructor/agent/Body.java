@@ -50,6 +50,7 @@ import net.webstructor.data.CacherHolder;
 import net.webstructor.data.Translator;
 import net.webstructor.main.Logger;
 import net.webstructor.peer.Conversationer;
+import net.webstructor.peer.Peer;
 import net.webstructor.peer.Sessioner;
 import net.webstructor.data.LangPack;
 import net.webstructor.self.Thinker;
@@ -58,7 +59,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.4.1";
+	public final static String VERSION = "2.4.4";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -71,7 +72,6 @@ public abstract class Body extends Anything implements Environment, Updater
 	public final static int RETROSPECTION_PERIOD_DAYS = 31;//365;//TODO: make configurable
 	public final static int RETROSPECTION_RETRIES = 12 * 3;//3;//TODO: make configurable
 	public final static long MAX_CHECK_CYCLE_MS = Period.DAY;//TODO: make configurable
-	public final static long MIN_CHECK_CYCLE_MS = 3*Period.HOUR;//TODO: make configurable and used in Selfer.minCheckCycle
 	public final static int MIN_RELEVANT_FEATURE_THRESHOLD_PERCENTS = 20;//TODO: make per-peer (custom) and per-self (default) configurable	
 	
 	//public final static String http_user_agent = "Aigents (Automatic intelligent internet agents; +http://www.aigents.com)";
@@ -142,6 +142,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		http_port, http_timeout, http_threads, http_origin, http_secure, cookie_name, cookie_domain,
 		store_path, store_cycle,
 		attention_period, retention_period,
+		Peer.check_cycle,//TODO:fix namespace
 		AL.email, email_login, email_password, email_cycle, email_retries,
 		mail_smtp_host, mail_smtp_auth, mail_smtp_port, mail_smtp_ssl_enable, mail_smtp_starttls_enable, 
 		mail_store_protocol, 

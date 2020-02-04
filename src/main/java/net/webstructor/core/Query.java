@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -84,16 +84,26 @@ public class Query
 		return (chain instanceof All || chain instanceof Any) ? ((Set)chain).toStrings() : null;
 	}
 	
-	private Thing clone(Thing source, String[] args,Thing viewer){
-		Thing clone = source.clone(args,viewer);
-		//obfuscate hidden attributes
+	private void obfuscate(Thing source, Thing clone, String[] args,Thing viewer) {
 		if (!root && !(source.equals(viewer) || source.hasThing(AL.is, viewer)) && Peer.registered(source)) {
 			for (String hidden : Schema.hidden) {
 				if (!AL.empty(clone.getString(hidden)))
 					clone.setString(hidden, "****************");//TODO configure properly
 			}
 		}
-		if (thinker != null)
+	}
+	
+	private Thing clone(Thing source, String[] args,Thing viewer,boolean think){
+		Thing clone = source.clone(args,viewer);
+		/*//obfuscate hidden attributes
+		if (!root && !(source.equals(viewer) || source.hasThing(AL.is, viewer)) && Peer.registered(source)) {
+			for (String hidden : Schema.hidden) {
+				if (!AL.empty(clone.getString(hidden)))
+					clone.setString(hidden, "****************");//TODO configure properly
+			}
+		}*/
+		obfuscate(source, clone, args, viewer);
+		if (think && thinker != null)
 			thinker.think(source, clone, args, viewer);
 		return clone;
 	}
@@ -111,10 +121,7 @@ public class Query
 				current = ((Thing)current).get(args[0]);
 			else {
 				//TODO: enable plain name listing
-				if (thinker != null && !AL.empty(thinker.thinkables(args)))
-					current = clone((Thing)current,args,viewer);
-				else
-					current = ((Thing)current).clone(args,viewer);
+				current = clone((Thing)current,args,viewer,thinker != null && !AL.empty(thinker.thinkables(args)));
 			}
 		} else
 		if (current instanceof Collection) {
@@ -126,7 +133,7 @@ public class Query
 				Thing t = (Thing)it.next();					
 				if (!accessible(t,viewer,args,false))//skipping not accessibles
 					continue;
-				Thing clone = clone(t, args,viewer);
+				Thing clone = clone(t, args,viewer,thinker != null && !AL.empty(thinker.thinkables(args)));
 				if (clone != null)
 					set.add(clone);
 			}

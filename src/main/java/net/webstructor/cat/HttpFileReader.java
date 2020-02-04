@@ -56,14 +56,17 @@ public class HttpFileReader implements Reader
     	final static String disallowPrefix = "disallow:";
     	final static String crawlDelay = "crawl-delay:";
 		protected String userAgent = null; 
-		protected String content_type = null;
-		protected String content_encoding = null;
-		protected String charset = null;
+		//protected String content_type = null;
+		//protected String content_encoding = null;
+		//protected String charset = null;
+		HttpFileContext defaultContext = new HttpFileContext();
 		private HashMap robotsMaps = new HashMap();//map of all sites being read into respective arrays of those robots.txt files
 		private HashMap crawlTimes = new HashMap();//map of all times visiting the particular site
-		private String contentTypes[] = {"text/html","text/plain","application/pdf"};
+//TODO: debug hangup on unrecogized RSS content type
+		//https://stackoverflow.com/questions/595616/what-is-the-correct-mime-type-to-use-for-an-rss-feed
+		private String contentTypes[] = {"text/html","text/plain","application/pdf","text/xml","application/xml","application/rss+xml"};
 		protected Environment env = null;
-		protected String cookies = null;
+		protected String cookies = null;//TODO: move cookies to HttpFileContext?
 		private boolean debug = true;//TODO: false
 		
 		//http://www.utf8-chartable.de/
@@ -114,40 +117,35 @@ public class HttpFileReader implements Reader
 		}
 
 	    public boolean canReadDoc(String docName){
-	    	return canReadDocDate(docName) != -1;
+	    	return canReadDocContext(docName,defaultContext);
 	    }
 	       		
 		//TODO: try to get encoding from HTTP header and DON'T re-open resource twice
 	    //TODO: otherwise, just reuse the connection and reget input stream without of re-opening it
-	    /**
-	     * Returns -1 if can not read, 0 if can read but Last-Modified is not known, datetime in millis if Last-Modified is known 
-	     * @param docName
-	     * @return datetime in millis
-	     */
-        public long canReadDocDate(String docName)
+	    //TODO: add conn to HttpFileContext
+        public boolean canReadDocContext(String docName,HttpFileContext context)
         {
             if (docName!=null && AL.isURL(docName)) {
             	HttpURLConnection conn = null;
         		try {
         			conn = openWithRedirect(docName);
                     String typeString = getContentType(docName,conn);
-                    content_type = Array.prefix(contentTypes, typeString);
-                    if (!AL.empty(typeString) && content_type == null) //unsupported content type
-                    	return -1;
+                    context.content_type = Array.prefix(contentTypes, typeString);
+                    if (!AL.empty(typeString) && context.content_type == null) //unsupported content type
+                    	return false;
                     //https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
-                    content_encoding = conn.getContentEncoding();
-                    long lastmodified = conn.getLastModified();
-                    
+                    context.content_encoding = conn.getContentEncoding();
+                   
                     String setcookies = getCookies(conn);
                     if (!AL.empty(setcookies))
                     	cookies = setcookies;
                     
-                    if (AL.empty(charset) && !AL.empty(content_type)) {
-                    	int i = typeString.indexOf(charsetPrefix, content_type.length());
+                    if (!AL.empty(context.content_type)) {
+                    	int i = typeString.indexOf(charsetPrefix, context.content_type.length());
                     	if (i != -1)
-                    		charset = typeString.substring(i+charsetPrefix.length());
+                    		context.charset = typeString.substring(i+charsetPrefix.length());
                     }
-                    if (AL.empty(charset)) {
+                    if (AL.empty(context.charset)) {
 	                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 	        			String sCurrentLine;
 	        			while ((sCurrentLine = br.readLine()) != null) {
@@ -156,24 +154,23 @@ public class HttpFileReader implements Reader
 	            				i += charsetMetaPrefix.length();
 	        					int j = sCurrentLine.indexOf('\"', i);
 	        					if (j != -1)
-	        						charset = sCurrentLine.substring(i, j);
+	        						context.charset = sCurrentLine.substring(i, j);
 	        					break;
 	        				}
 	        			}
 	        			if (br != null)
 	        				br.close();
                     }
-        			return lastmodified;
+        			return true;
         		} catch (Throwable e) {
         			if (env != null)
         				env.error("HttpFileReader.canReadDocDate reading path "+docName + ": "+e.toString(), null);
-        			return -1;
         		} finally {
         			if (conn != null)
         				conn.disconnect();
         		}
             }
-            return -1;
+            return false;
         }
 
         //Caching robots.txt per site
@@ -372,14 +369,17 @@ public class HttpFileReader implements Reader
         	return conn;
         }
         
-        public String readDocData(String docName, String eol) throws IOException
-        {
+        public String readDocData(String docName, String eol) throws IOException {
+        	return readDocData(docName, eol, defaultContext); 
+        }
+        
+        public String readDocData(String docName, String eol, HttpFileContext context) throws IOException {
         	HttpURLConnection conn = null;
             BufferedReader br = null;
     		try {
     			conn = openWithRedirect(docName);
     			//try to read pdf
-    			if (!AL.empty(content_type) && content_type.endsWith("pdf")){
+    			if (!AL.empty(context.content_type) && context.content_type.endsWith("pdf")){
     				boolean pdfable = false;
     				InputStream is = null;
     				String text = "";
@@ -421,11 +421,11 @@ public class HttpFileReader implements Reader
     			}
     			//if not a pdf, try to read plain text or html
             	StringBuilder sb = new StringBuilder();
-    			br = content_encoding == null ?
+    			br = context.content_encoding == null ?
         			new BufferedReader(new InputStreamReader(conn.getInputStream())) :
-        			"gzip".equals(content_encoding) ?
+        			"gzip".equals(context.content_encoding) ?
         				new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream()))) :
-        				new BufferedReader(new InputStreamReader(conn.getInputStream(), charset));
+        				new BufferedReader(new InputStreamReader(conn.getInputStream(), context.charset));
         		String sCurrentLine;
         		while ((sCurrentLine = br.readLine()) != null) {
     				sb.append(sCurrentLine);

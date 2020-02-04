@@ -25,6 +25,7 @@ package net.webstructor.comm.paypal;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -40,6 +41,8 @@ import net.webstructor.comm.HTTP;
 import net.webstructor.comm.HTTPHandler;
 import net.webstructor.comm.HTTPeer;
 import net.webstructor.comm.SocialBinder;
+import net.webstructor.core.Thing;
+import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
 import net.webstructor.util.Code;
 import net.webstructor.util.Str;
@@ -86,6 +89,10 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 				String currency = Str.parseBetween(request, "currency=", "&",false);
 				if (AL.empty(total) || AL.empty(currency) || AL.empty(type))
 					return false;
+				currency = currency.toUpperCase(); 
+				
+            	net.webstructor.peer.Session session = body.sessioner.getSession(parent == null ? this : parent, cookie);//use parent session type for cookie
+            	String title = session.getStoredPeer().getTitle(Peer.title_email);
 				
 				//https://www.paypal.com/apex/developer/expressCheckout/getAccessToken
 				/*String auth_base64 = HTTP.auth_base64(client_id,client_secret);
@@ -105,7 +112,20 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 				//https://www.paypal.com/apex/developer/expressCheckout/createPayment
 				//https://developer.paypal.com/docs/archive/checkout/how-to/server-integration/#1-set-up-your-client-to-call-your-server
 				String site = body.site();
-				String params = "{\"intent\": \"sale\",\"note_to_payer\":\""+type+"\",\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": [{\"amount\":{ \"total\": \""+total+"\", \"currency\": \""+currency+"\"},\"description\": \""+type+"\"}],\"redirect_urls\":{\"return_url\": \""+site+"\",\"cancel_url\": \""+site+"\"}}";
+				String name = body.name()+" "+type+" payment: "+title;
+				String params = "{\"intent\": \"sale\",\"note_to_payer\":\""+type+"\",\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": [{\"amount\":{ \"total\": \""+total+"\", \"currency\": \""+currency+"\"},\"description\": \""+type+"\""+
+				",\"item_list\":{\"items\":[{" + 
+
+				"\"name\": \""+name+"\"," + 
+				"\"sku\": \""+type+"\"," + 
+				"\"description\": \""+name+"\"," + 
+				"\"price\": \""+total+"\"," + 
+				"\"currency\": \""+currency+"\"," + 
+				"\"tax\": \"0.0\"," + 
+				"\"quantity\": \"1\"" + 
+				
+				"}]}" + 
+				"}],\"redirect_urls\":{\"return_url\": \""+site+"\",\"cancel_url\": \""+site+"\"}}";
 				body.debug("PayPal request create "+params);
 				String response = HTTP.simple(paypal_url+"/v1/payments/payment",params,"POST",timeout,null,new String[][] {
 					{"Accept", "application/json"},
@@ -122,6 +142,20 @@ public class PayPaler extends SocialBinder implements HTTPHandler {
 				String payer_id = Str.parseBetween(request, "payer=", "&",false);
 				if (AL.empty(payment_id) || AL.empty(payer_id))
 					return false;
+
+            	net.webstructor.peer.Session session = body.sessioner.getSession(parent == null ? this : parent, cookie);//use parent session type for cookie
+            	Thing peer = session.getStoredPeer();
+            	String paypal_id = peer.getString(Body.paypal_id);
+            	if (AL.empty(paypal_id)) {
+            		Collection existing = body.storager.getByName(Body.paypal_id, payer_id);
+            		if (AL.empty(existing))
+            			peer.setString(Body.paypal_id, paypal_id = payer_id);//assign papal id to current peer 
+            	}
+            	if (!paypal_id.equals(payer_id)) {
+    				parent.respond("{\"error\": \"PayPal mismatching payer\"}");
+    				return true;
+            	}
+				
 				//https://www.paypal.com/apex/developer/expressCheckout/executeApprovedPayment				
 				String params = "{\"payer_id\": \""+payer_id+"\"}";
 				body.debug("PayPal request execute "+payment_id+" "+payer_id);

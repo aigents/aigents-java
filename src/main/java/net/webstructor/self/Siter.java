@@ -287,7 +287,8 @@ public class Siter {
 	public boolean read() {
 		cacher.clearTodos();
 		Collection topics = !AL.empty(thingname) ? storager.getNamed(thingname) : allThings;
-		body.reply("Site crawling root begin "+rootPath+".");
+		body.debug("Site crawling root begin "+rootPath+".");
+		long start = System.currentTimeMillis(); 
 
 		boolean ok = false;
 		for (Socializer s : body.getSocializers())//try channel-readers first
@@ -300,7 +301,8 @@ public class Siter {
 		if (ok)//send updates on success
 			ok = update() > 0;
 			
-		body.reply("Site crawling root end "+(ok ? "found" : "missed")+" "+rootPath+".");
+			long stop = System.currentTimeMillis(); 
+		body.debug("Site crawling root end "+(ok ? "found" : "missed")+" "+rootPath+", took "+Period.toHours(stop-start));
 		return ok;
 	}
 	
