@@ -64,6 +64,7 @@ public class AL {
 	public final static String sites 	= "sites";
 	public final static String areas 	= "areas";
 	public final static String sources 	= "sources";
+	public final static String categories = "categories";
 	public final static String patterns = "patterns";
 	public final static String responses = "responses";
 	public final static String member 	= "member";
@@ -80,6 +81,7 @@ public class AL {
 	public final static String version  = "version";
 	public final static String format   = "format";
 	public final static String context  = "context";
+	public final static String reputation = "reputation";//global reputaion
 
 	//things
 	public final static String number 	= "number";//integer or floating point

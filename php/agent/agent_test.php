@@ -35,6 +35,7 @@ include_once("agent_web.php");
 include_once("agent_cat.php");
 include_once("agent_chat.php");
 include_once("agent_reputation.php");
+include_once("agent_data.php");
 
 function test_once() {
 	global $version;
@@ -84,6 +85,9 @@ function test_once() {
 	
 	//test web processing and parsing
 	test_agent_web();
+	
+	//test data modeling
+	test_data();
 	
 	test_summary();
 }

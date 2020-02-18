@@ -233,7 +233,7 @@ import net.webstructor.util.Array;
 	                		//flush creation of the link
 	                		if (currentLinkUrl != null && currentLinkBuf != null && currentLinkBuf.length() > 0) {
 	                			currentLinkUrl = stripHtmlAnchor(currentLinkUrl);
-	                			if (currentLinkUrl.length() > 0){
+	                			if (currentLinkUrl.length() > 0 && !currentLinkUrl.startsWith("javascript:")){
 	                				String linkUrl = currentLinkUrl.trim();
 	                				links.add(new String[]{linkUrl,currentLinkBuf.toString().trim()});
 	    	                		if (linksPositions != null)
