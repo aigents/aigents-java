@@ -280,7 +280,7 @@ public class Peer extends Agent {
 			//compact oly the recent news, keep old news hanging?!  			
 			/*if ((day.equals(today) || day.equals(yesterday)) && !trusts.contains(t) && !t.hasThing(AL.sources, origin))
 				news.add(t);*/
-			if (!(day.equals(today) || day.equals(yesterday)))
+			if (day != null && !(day.equals(today) || day.equals(yesterday)))
 				continue;
 //TODO: eliminate elimination of shared news
 			if (!trusts.contains(t) && !t.hasThing(AL.sources, origin)) {
