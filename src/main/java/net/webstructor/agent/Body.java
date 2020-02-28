@@ -59,7 +59,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.4.7";
+	public final static String VERSION = "2.4.8";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -116,6 +116,9 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String paypal_url = "paypal url";
 	public static final String reddit_id = "reddit id";
 	public static final String reddit_key = "reddit key";
+	public static final String discourse_id = "discourse id";
+	public static final String discourse_key = "discourse key";
+	public static final String discourse_url = "discourse url";
 	public static final String reddit_redirect = "reddit redirect";
 	public static final String reddit_token = "reddit token";
 	public static final String google_id = "google id";//client id or user id
@@ -151,6 +154,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		facebook_id, facebook_key, facebook_token, facebook_challenge,
 		slack_id, slack_key, slack_token,
 		paypal_id, paypal_key, paypal_token, paypal_url,
+		discourse_id, discourse_key, discourse_url,
 		reddit_id, reddit_key, reddit_token, reddit_redirect,
 		vkontakte_id, vkontakte_key, vkontakte_token,
 		telegram_token, telegram_offset,
@@ -265,15 +269,6 @@ public abstract class Body extends Anything implements Environment, Updater
 	
 	//TODO: make configurable plugins for each provider
 	public Socializer provider(String name){
-		/*Socializer provider = "facebook".equals(name) ? (Socializer)fb :
-			"vkontakte".equals(name) ? (Socializer)vk :
-			"google".equals(name) ? (Socializer)gapi : 
-			"steemit".equals(name) ? (Socializer)steemit : 
-			"golos".equals(name) ? (Socializer)golos : 
-			"ethereum".equals(name) ? (Socializer)ethereum : 
-			"reddit".equals(name) ? reddit : 
-			null;
-		return provider;*/
 		return getSocializer(name);
 	}
 

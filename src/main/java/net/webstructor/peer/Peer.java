@@ -103,6 +103,7 @@ public class Peer extends Agent {
 		Body.vkontakte_id, Body.vkontakte_token,
 		Body.paypal_id, Body.paypal_token,
 		Body.reddit_id, Body.reddit_token,
+		Body.discourse_id,
 		Body.telegram_id,
 		Body.google_id, Body.google_token,
 		Body.steemit_id, Body.golos_id, Body.ethereum_id,

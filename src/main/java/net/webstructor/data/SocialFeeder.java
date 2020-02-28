@@ -944,4 +944,28 @@ public abstract class SocialFeeder {
 		return null;
 	}
 	
+	public static String parsePost(String title, String body, ArrayList links){
+		//TODO: fix patches in original texts!?
+		boolean isPatch = body.indexOf("@@ ") == 0;
+		if (isPatch)
+			return null;
+		
+		//add title to body
+		StringBuilder sb = new StringBuilder(!AL.empty(title) ? title : "");
+		if (!AL.empty(body))
+			sb.append(sb.length() > 0 ? ". " : "").append(body);
+		body = sb.toString();
+		
+		body = body.replace("\\n", " ");//TODO!?
+		body = body.replace('\n', ' ');
+		
+		ArrayList collectedLinks = new ArrayList();
+		String text = HtmlStripper.convert(body," ",collectedLinks);		
+		text = HtmlStripper.convertMD(text, collectedLinks, collectedLinks);//links and images both
+		//translate url+text pairs to single urls
+		for (int l = 0; l < collectedLinks.size(); l++) 
+			links.add(((String[])collectedLinks.get(l))[0] );
+		return text;
+	}
+		
 }

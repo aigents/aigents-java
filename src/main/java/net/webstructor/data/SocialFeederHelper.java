@@ -21,50 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.comm.steemit;
+package net.webstructor.data;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-
 import net.webstructor.al.AL;
-import net.webstructor.al.Time;
-import net.webstructor.al.Writer;
-import net.webstructor.util.Array;
 import net.webstructor.util.Reporter;
-import net.webstructor.comm.HTTP;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 
-//TODO: extend SocialFeederHelper and remove duplicated methods
-class SteemitFeeder extends SocialFeeder {
+abstract public class SocialFeederHelper extends SocialFeeder {
 	protected HashMap permlinksToPosts = new HashMap();
 	protected HashMap permlinksToVotes = new HashMap();
 	protected HashMap permlinksToComments = new HashMap();
 	protected HashSet permlinksTagged = new HashSet();
-	protected Steemit api;
+	private Socializer api;
 	
-	public static final int BLOCK_SIZE = 1000; 
-	
-	public static final String TIME_FORMAT = "yyyy-MM-dd"; 
-	
-	public SteemitFeeder(Environment body, Steemit api, String user_id, LangPack langPack, Date since, Date until, String[] areas, int period) {
+	public SocialFeederHelper(Environment body, Socializer api, String user_id, LangPack langPack, Date since, Date until, String[] areas, int period) {
 		super(body,user_id,langPack,false,since,until,areas,period);
 		this.api = api;
 	}
 
+	abstract protected String permlink_url(String base_url, String parent_permlink, String author, String permlink);
+	
+	abstract protected String base_url();
+	
+	protected String fix_url(String url) {
+		String base = base_url();//expect ended with slash
+		if (!AL.empty(base) && !AL.empty(url))
+			return url.startsWith("/") ? base + url.substring(1) : base + url;
+		return url; 
+	}
+	
 	protected int countVotes(String permlink,String author,Date time){
 		HashSet voters = (HashSet)permlinksToVotes.get(permlink);
 		if (AL.empty(voters))
@@ -92,20 +88,11 @@ class SteemitFeeder extends SocialFeeder {
 		if (votes == null)
 			permlinksToVotes.put(permlink, votes = new HashSet());
 		votes.add(voter);
-//TODO: this on filter basis
-		/*
-		if (user_id.equals(voter) && !user_id.equals(author))
-			countMyLikes(author,author);
-		else
-		if (user_id.equals(author) && !user_id.equals(voter))
-			countLikes(voter, voter);
-			*/
 	}
 	
-	//TODO: MD parsing for links
 	public String processPost(Date times,String permlink,String author,String parent_permlink,String parent_author,String title, String body){
 		/*
-		//TODO: fix patches in original texts!?
+		//TODO: fix patches in original texts (in Steemit and Golos)!?
 		boolean isPatch = body.indexOf("@@ ") == 0;
 		if (isPatch)
 			return null;
@@ -146,9 +133,15 @@ class SteemitFeeder extends SocialFeeder {
 			}else{
 				//add only the latest entry because news are processed in reverse order
 				Object[] news_item = (Object[]) permlinksToPosts.get(permlink);
+				String[] links_array = (String[])links.toArray(new String[]{});
+				for (int i = 0; i < links_array.length; i++) {
+					String link = links_array[i];
+					if (!AL.isURL(link))
+						links_array[i] = fix_url(link);
+				}
 				if (news_item == null){
 					news_item = new Object[]{like,likes,comments,times,
-							text,(String[])links.toArray(new String[]{}),permlink,author,times,parent_permlink};
+							text,links_array,permlink,author,times,parent_permlink};
 					permlinksToPosts.put(permlink, news_item);
 				}
 			}
@@ -213,7 +206,7 @@ class SteemitFeeder extends SocialFeeder {
 		return othersComments;
 	}
 	
-	void postProcessPosts(){
+	protected void postProcessPosts(String api_url){
 		HashSet nonOrphanedComments = new HashSet();
 		
 		for (Iterator it = permlinksToPosts.values().iterator(); it.hasNext();){
@@ -266,7 +259,7 @@ class SteemitFeeder extends SocialFeeder {
 
 			//build uri from permlink
 			//String uri = (AL.empty(parent_permlink)) ? null : api.base_url + "/" + parent_permlink + "/@" + author + "/" + permlink;
-			String uri = Steemit.permlink_url(api.base_url,parent_permlink,author,permlink);
+			String uri = permlink_url(api_url,parent_permlink,author,permlink);
 			String img = null;
 			String imgsrc = null;
 			if (!AL.empty(sources)) {
@@ -336,135 +329,6 @@ class SteemitFeeder extends SocialFeeder {
 			}
 		}
 
-	}
-	
-	public void getFeed(String token, Date since, Date until, StringBuilder detail) throws IOException {
-		this.detail = detail;
-
-		/*
-		curl --data '{"jsonrpc": "2.0", "method": "call", "params": [0,"get_content",["matrixdweller","trying-to-access-the-steem-blockchain-from-unity-part-1-fail"]], "id": 4}' https://this.piston.rocks
-		curl --data '{"jsonrpc": "2.0", "method": "call", "params": [0,"get_content",["matrixdweller","trying-to-access-the-steem-blockchain-from-unity-part-1-fail"]], "id": 4}' http://node.steem.ws:80/rpc
-		curl --data '{"jsonrpc": "2.0", "id":25,"method":"get_account_history","params":["akolonin","2","1"]}' http://node.steem.ws:80/rpc
-		[<account>,<from>,<count>]
-		 */
-		int from_pos = -1;
-		int block_size = BLOCK_SIZE;
-		boolean days_over = false;
-		while (!days_over){
-			int min_sequence = -1;
-			//TODO: id = 25 change to use id
-			String par = "steemit".equals(api.getName()) ? 
-					"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"get_account_history\",\"params\": [\""
-					+ user_id + "\",\""+String.valueOf(from_pos)+"\",\""+String.valueOf(block_size)+"\"]}"
-					://"golos"
-					"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"call\",\"params\": [\"account_history\",\"get_account_history\",[\""
-					+ user_id + "\",\""+String.valueOf(from_pos)+"\",\""+String.valueOf(block_size)+"\"]]}";
-			
-			String response = null;
-			try {
-				body.debug(Writer.capitalize(api.getName())+" request "+api.getUrl()+" "+par);
-				response = Steemit.retryPost(body,api.getUrl(),par);
-				//body.debug(Writer.capitalize(api.getName())+" response "+response);
-				JsonReader jr = Json.createReader(new StringReader(response));
-				JsonObject result = jr.readObject();
-				JsonArray items = result.getJsonArray("result");
-				if (items == null || items.size() < 1)
-					break;
-				for (int i = items.size() - 1; i >= 0; i--){//from last to previous
-					JsonArray item = items.getJsonArray(i); 
-					if (item == null || item.size() != 2)
-						break;
-					int sequence = item.getInt(0);
-					if (min_sequence == -1 || min_sequence > sequence)
-						min_sequence = sequence;
-					JsonObject data = item.getJsonObject(1);
-					if (data == null)
-						break;
-					String timestamp = data.getString("timestamp");
-					Date date_day = Time.time(timestamp,TIME_FORMAT);
-					if (date_day.compareTo(since) < 0){
-						days_over = true;
-						break;
-					}
-					JsonArray op = data.getJsonArray("op");
-					if (op == null || op.size() != 2)
-						break;
-					String type = op.getString(0);
-					if ("comment".equals(type)){
-						JsonObject post = op.getJsonObject(1);
-						String parent_author = HTTP.getJsonString(post,"parent_author");
-						String parent_permalink = HTTP.getJsonString(post,"parent_permlink");
-						String author = HTTP.getJsonString(post,"author");
-						String permalink = HTTP.getJsonString(post,"permlink");
-						String title = HTTP.getJsonString(post,"title");
-						String body = HTTP.getJsonString(post,"body");
-						
-						String json_metadata = HTTP.getJsonString(post,"json_metadata");
-//TODO: process tags, users, image, links, etc. 
-						//"{"tags":["meme"],
-						//"image":["https://img.youtube.com/vi/ji836ZIzFE0/0.jpg"],
-						//"links":["https://steemit.com/ai/@akolonin/how-to-get-your-personal-analytics-for-steemit-social-network-with-help-of-aigents-bot","https://www.youtube.com/watch?v=ji836ZIzFE0"],
-						//"app":"steemit/0.1",
-						//"users":["aigents","steemit"]}"
-						
-//TODO: process it in postprocessing phase
-						//so far, process metadata for tag filtering only
-						if (!AL.empty(areas) && !AL.empty(json_metadata)){
-							JsonObject md = Json.createReader(new StringReader(json_metadata)).readObject();
-							if (md.containsKey("tags")){
-								JsonArray tags = md.getJsonArray("tags");
-								if (tags != null)
-									for (int j = 0; j < tags.size(); j++)
-										if (Array.contains(areas, tags.getString(j).toLowerCase())){
-											permlinksTagged.add(permalink);
-											break;
-										}
-							}
-						}
-						if (!AL.empty(body))
-							processPost(date_day,permalink,author,parent_permalink,parent_author,title,body);
-					} else
-					if ("vote".equals(type)){
-						JsonObject post = op.getJsonObject(1);
-						String permlink = HTTP.getJsonString(post,"permlink");
-						String voter = HTTP.getJsonString(post,"voter");
-						String author = HTTP.getJsonString(post,"author");
-						processVote(permlink,voter,author);
-					}
-//TODO:reposts
-					//count reposts + analyse reposts in scope of author's feed?
-/*
-        "op": [
-          "custom_json",
-          {
-            "required_auths": [
-              
-            ],
-            "required_posting_auths": [
-              "akolonin"
-            ],
-            "id": "follow",
-            "json": "[\"reblog\",{\"account\":\"akolonin\",\"author\":\"aigents\",\"permlink\":\"personal-social-graph-analysis-for-steemit-and-golos\"}]"
-          }
-        ]
- */
-				}
-				
-			} catch (Exception e) {
-				body.error("Spidering peer Steemit feeder user "+user_id+" request "+par+" response"+response,e);
-				break;
-			}
-		
-			//TODO:get from:<from_pos>,count:<block_size>-1
-			//process
-			//get min_sequence
-			if (min_sequence <= 1)
-				break;
-			from_pos = min_sequence - 1;
-			block_size = Math.min(block_size,from_pos);
-		}//loop through blocks of sequences
-		
-		postProcessPosts();
 	}
 
 }

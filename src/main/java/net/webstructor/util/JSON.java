@@ -32,26 +32,23 @@ public class JSON {
 	
     //http://projects.fivethirtyeight.com/facebook-primary/
     public static String getJsonString(JsonObject data, String name, String def) {
-		if (data.keySet().contains(name))
-			return data.isNull(name) ? def : data.getString(name);
-		else
-			return def;
+		return data.keySet().contains(name) && !data.isNull(name) ? data.getString(name) : def;
 	}
 	
     public static boolean getJsonBoolean(JsonObject data, String name, boolean def) {
-		return data.keySet().contains(name) ? data.getBoolean(name) : def;
+		return data.keySet().contains(name) && !data.isNull(name) ? data.getBoolean(name) : def;
 	}
 	
     public static JsonArray getJsonArray(JsonObject data, String name) {
-		return data.keySet().contains(name) ? data.getJsonArray(name) : null;
+		return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonArray(name) : null;
 	}
     
     public static JsonObject getJsonObject(JsonObject data, String name) {
-		return data.keySet().contains(name) ? data.getJsonObject(name) : null;
+		return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonObject(name) : null;
 	}
     
     public static long getJsonLong(JsonObject data, String name, long def) {
-		return data.keySet().contains(name) ? data.getJsonNumber(name).longValue() : def;
+		return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonNumber(name).longValue() : def;
 	}
 	
 	public static String getJsonString(JsonObject data, String name) {
@@ -59,20 +56,20 @@ public class JSON {
 	}
 
     public static String getJsonNumberString(JsonObject data, String name) {
-		return data.keySet().contains(name) ? data.getJsonNumber(name).toString() : "";
+		return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonNumber(name).toString() : "";
 	}
 	
     public static int getJsonInt(JsonObject data, String name) {
-		return data.keySet().contains(name) ? data.getJsonNumber(name).intValue() : 0;
+    	return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonNumber(name).intValue() : 0;
 	}
 	
     public static long getJsonLong(JsonObject data, String name) {
-		//return data.keySet().contains(name) ? data.getJsonNumber(name).longValueExact() : 0;
-		return data.keySet().contains(name) ? data.getJsonNumber(name).longValue() : 0;
+		//return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonNumber(name).longValueExact() : 0;
+		return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonNumber(name).longValue() : 0;
 	}
 	
     public static Date getJsonDateFromUnixTime(JsonObject data, String name) {
-		return new Date( data.keySet().contains(name) ? data.getJsonNumber(name).longValue() * 1000 : 0 );
+		return new Date( data.keySet().contains(name) && !data.isNull(name) ? data.getJsonNumber(name).longValue() * 1000 : 0 );
 	}
 	
 }

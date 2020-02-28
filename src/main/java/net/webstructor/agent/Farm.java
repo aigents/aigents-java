@@ -43,6 +43,7 @@ import net.webstructor.comm.TCPListener;
 import net.webstructor.comm.HTTPListener;
 import net.webstructor.comm.CmdLiner;
 import net.webstructor.comm.Telegrammer;
+import net.webstructor.comm.discourse.Discourse;
 import net.webstructor.comm.eth.Ethereum;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.fb.Messenger;
@@ -61,6 +62,7 @@ import net.webstructor.self.Selfer;
 import net.webstructor.self.Siter;
 import net.webstructor.util.Array;
 
+//TODO: make it extending Cell and let Cell be re-used by mobile clients
 //This is simple command-line runner 
 public class Farm extends Body {
 
@@ -119,61 +121,73 @@ public class Farm extends Body {
 			new Emailer(this).start();	
 		if (console)
 			new CmdLiner(this).start();
+		
 		if (!AL.empty(self().getString(telegram_token)))
 			new Telegrammer(this).start();//this is polling, so need to start it
 		if (!AL.empty(self().getString(facebook_token)))
 			new Messenger(this);//this is hook-based, so no need to to start it
-		//TODO: Slacker
-		if (social) {
-			
-//TODO: this in other "factory pool" place, changeable online?
-			String fb_id = self().getString(facebook_id);
-			String fb_key = self().getString(facebook_key);
-			if (!AL.empty(fb_id) && !AL.empty(fb_key))
-				socializers.put("facebook", new FB(this,fb_id,fb_key));
-			
-			String goog_id = self().getString(google_id);
-			String goog_key = self().getString(google_key);
-			if (!AL.empty(goog_id) && !AL.empty(goog_key))
-				socializers.put("google", new GApi(this,goog_id,goog_key));
-			else
-				socializers.put("google", new GApi(this,null,null));//fake instance for testing
-			
-			String vk_id = self().getString(vkontakte_id);
-			String vk_key = self().getString(vkontakte_key);
-			if (!AL.empty(vk_id) && !AL.empty(vk_key))
-				socializers.put("vkontakte", new VK(this,vk_id,vk_key));
-			
-			//TODO: merge Reddit+Redditer and FB+Messenger? 
-			String r_id = self().getString(reddit_id);
-			String r_key = self().getString(reddit_key);
-			if (!AL.empty(r_id) && !AL.empty(r_key))
-				socializers.put("reddit", new Reddit(this,r_id,r_key));
-			
-			//TODO: merge PayPal+PayPaler? 
-			String p_id = self().getString(paypal_id);
-			String p_key = self().getString(paypal_key);
-			if (!AL.empty(p_id) && !AL.empty(p_key))
-				socializers.put("paypal", new PayPal(this,p_id,p_key));
-			
-			String st_url = self().getString(steemit_url);
-			if (!AL.empty(st_url))
-				socializers.put("steemit", new Steemit(this,"steemit",st_url));
-			
-			String go_url = self().getString(golos_url);
-			if (!AL.empty(go_url))//Golos.io is clone/fork of Steemit
-				socializers.put("golos", new Steemit(this,"golos",go_url));
+	
+		if (social)
+			socialize();
 
-			String eth_url = self().getString(ethereum_url);
-			String eth_key = self().getString(ethereum_key);
-			if (!AL.empty(eth_url) && !AL.empty(eth_key))
-				socializers.put("ethereum", new Ethereum(this, "ethereum", eth_url, eth_key));
-		}
 		filecacher = new net.webstructor.self.Cacher("pages",this,storager);
 		sitecacher = new GraphCacher("www", this);
 		this.register("update", Siter.getUpdater());
 	}
 
+	//TODO: have this done in fresh new Farm class diverged from old Farm class renamed to Cell 
+	//TODO: this in other "factory pool" place, changeable online?
+	protected void socialize() {
+		String fb_id = self().getString(facebook_id);
+		String fb_key = self().getString(facebook_key);
+		if (!AL.empty(fb_id) && !AL.empty(fb_key))
+			socializers.put("facebook", new FB(this,fb_id,fb_key));
+		
+		String goog_id = self().getString(google_id);
+		String goog_key = self().getString(google_key);
+		if (!AL.empty(goog_id) && !AL.empty(goog_key))
+			socializers.put("google", new GApi(this,goog_id,goog_key));
+		else
+			socializers.put("google", new GApi(this,null,null));//fake instance for testing
+		
+		String vk_id = self().getString(vkontakte_id);
+		String vk_key = self().getString(vkontakte_key);
+		if (!AL.empty(vk_id) && !AL.empty(vk_key))
+			socializers.put("vkontakte", new VK(this,vk_id,vk_key));
+		
+		//TODO: merge Reddit+Redditer and FB+Messenger? 
+		String r_id = self().getString(reddit_id);
+		String r_key = self().getString(reddit_key);
+		if (!AL.empty(r_id) && !AL.empty(r_key))
+			socializers.put("reddit", new Reddit(this,r_id,r_key));
+
+		//TODO: make it possible to have many Discourse instances per farm 
+		String d_id = self().getString(discourse_id);
+		String d_key = self().getString(discourse_key);
+		String d_url = self().getString(discourse_url);
+		if (!AL.empty(d_url))// && !AL.empty(d_id) && !AL.empty(d_key))//TODO:? force key-based discourse authentication?
+			socializers.put("discourse", new Discourse(this,"discourse",d_url,d_id,d_key));
+		
+		//TODO: merge PayPal+PayPaler? 
+		String p_id = self().getString(paypal_id);
+		String p_key = self().getString(paypal_key);
+		if (!AL.empty(p_id) && !AL.empty(p_key))
+			socializers.put("paypal", new PayPal(this,p_id,p_key));
+		
+		String st_url = self().getString(steemit_url);
+		if (!AL.empty(st_url))
+			socializers.put("steemit", new Steemit(this,"steemit",st_url));
+		
+		String go_url = self().getString(golos_url);
+		if (!AL.empty(go_url))//Golos.io is clone/fork of Steemit
+			socializers.put("golos", new Steemit(this,"golos",go_url));
+
+		String eth_url = self().getString(ethereum_url);
+		String eth_key = self().getString(ethereum_key);
+		if (!AL.empty(eth_url) && !AL.empty(eth_key))
+			socializers.put("ethereum", new Ethereum(this, "ethereum", eth_url, eth_key));
+	}
+	
 	public boolean act(String name, Anything argument) {
 		if ("read".equalsIgnoreCase(name) && selfer != null)
 			return selfer.spider((Thing)argument);
@@ -242,13 +256,6 @@ public class Farm extends Body {
 	}
 
 	public void updateStatusRarely() {
-		//TODO forget more systematically and in more uniform way?
-		/*Socializer feeders[] = new Socializer[]{ethereum,fb,gapi,vk,steemit,golos};
-		for (int i = 0; i < feeders.length; i++)
-			if (feeders[i] != null){
-				feeders[i].forget();
-				feeders[i].resync(0);
-			}*/
 		for (Socializer	feeder : socializers.values()) {
 			feeder.forget();
 			feeder.resync(0);
@@ -282,22 +289,7 @@ public class Farm extends Body {
 		}
 	}
 	
-//TODO: use socializers istead of this hack !!!
 	private Profiler[] profilers(Thing peer) {
-		/*if (fb != null || gapi != null || vk != null || reddit != null || steemit != null || golos != null || paypal != null) {
-			Profiler[] profilers = new Profiler[]{
-				new Profiler(this,fb,peer,Body.facebook_id,Body.facebook_token,Body.facebook_key),
-				new Profiler(this,gapi,peer,Body.google_id,Body.google_token,Body.google_key),
-				new Profiler(this,vk,peer,Body.vkontakte_id,Body.vkontakte_token,Body.google_key),
-				new Profiler(this,reddit,peer,Body.reddit_id,Body.reddit_token,Body.reddit_key),
-				new Profiler(this,paypal,peer,Body.paypal_id,Body.paypal_token,Body.paypal_key),
-				new Profiler(this,steemit,peer,Body.steemit_id),
-				new Profiler(this,golos,peer,Body.golos_id)
-			};
-			for (Profiler p : profilers)
-				if (p.applies())
-					return profilers;//if any matches, return all 
-		}*/
 		ArrayList<Profiler> profilers = new ArrayList(socializers.size()); 
 		for (Socializer	feeder : socializers.values()) {
 			Profiler p = feeder.getProfiler(peer);

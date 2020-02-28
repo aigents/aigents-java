@@ -214,7 +214,7 @@ public class Reporter {
 				closingTag = s.indexOf(">",closingTag);
 			if (closingTag != -1)
 				length = closingTag + 1;
-			s = s.substring(0, length) + "...";
+			s = s.substring(0, length) + "<br>...";
 		}
 		return s;
 	}

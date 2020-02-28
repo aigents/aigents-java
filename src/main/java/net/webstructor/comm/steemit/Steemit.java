@@ -605,7 +605,7 @@ if (block % 10 == 0){
 								if (api != null) {//content monitoring
 									if (attention_date.compareTo(new_date) < 0) {
 										OrderedStringSet links = new OrderedStringSet();
-										String text = SteemitFeeder.parsePost(title,body,links);
+										String text = SocialFeeder.parsePost(title,body,links);
 										if (!AL.empty(text)) {//Skip edits//api.body.debug(caps_name+" empty text:"+operation);
 //TODO extractUrls(...)?
 											String imgurl = null;//TODO extract
