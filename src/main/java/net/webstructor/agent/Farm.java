@@ -41,6 +41,7 @@ import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
 import net.webstructor.comm.TCPListener;
 import net.webstructor.comm.HTTPListener;
+import net.webstructor.comm.SocialCacher;
 import net.webstructor.comm.CmdLiner;
 import net.webstructor.comm.Telegrammer;
 import net.webstructor.comm.discourse.Discourse;
@@ -58,6 +59,7 @@ import net.webstructor.data.GraphCacher;
 import net.webstructor.peer.Conversationer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
+import net.webstructor.peer.Reputationer;
 import net.webstructor.self.Selfer;
 import net.webstructor.self.Siter;
 import net.webstructor.util.Array;
@@ -193,6 +195,8 @@ public class Farm extends Body {
 			return selfer.spider((Thing)argument);
 		if ("profile".equalsIgnoreCase(name) && selfer != null)
 			return selfer.profile();
+		if ("reputation update".equalsIgnoreCase(name))
+			return updateReputation();
 		return false;
 	}
 	
@@ -255,14 +259,82 @@ public class Farm extends Body {
 		peerThinker.check(now);
 	}
 
+	//TODO: move to separate "socializer" class?
+	//TODO: re-use it in Conversationer.trytryReputationer 
+	public Reputationer getReputationer(String network) {
+		if (!AL.empty(network)) {
+			Reputationer r = Reputationer.get(network);
+			if (r == null) {
+				Socializer provider = provider(network);
+				if (provider != null && provider instanceof SocialCacher)
+					r = new Reputationer(this,((SocialCacher)provider).getGraphCacher(),network,null,true);
+				else
+					r = new Reputationer(this,network,null,true);
+				return r;
+			}
+		}
+		return null;
+	}
+	
+	public boolean updateReputation() {
+		String network = self().getString(reputation_system);
+		Reputationer r = !AL.empty(network) ? getReputationer(network) : null;
+		if (r != null) {
+			long start_time = System.currentTimeMillis();
+			debug("Reputation crawling start "+new Date(start_time)+".");
+			Date last_day = Time.today(-1);
+			int rs = r.get_ranks(last_day, null, null, null, false, 0, 0, null);
+			if (rs != 0) {
+				// if not present, go back in time till retention period to find the last day when the ranks were present 
+				Date since = last_day;
+				int period = self().getInt(Body.retention_period, 31);
+				int days;
+				for (days = 1; days <= period; days++){
+					since = Time.addDays(last_day, -days);
+					rs = r.get_ranks(since, null, null, null, false, 0, 0, null);
+					if (rs == 0)
+						break;
+				}
+				// go from the last day till today and update ranks incrementally
+				for (Date date = Time.addDays(since,1); date.compareTo(last_day) <= 0; date = Time.addDays(date, 1)){
+					rs = r.update(date, null);
+					debug("Reputation crawling update "+date+" result "+rs);
+				}
+			}
+			ArrayList results = new ArrayList();
+			rs = r.get_ranks(last_day, null, null, null, false, 0, 0, results);
+			if (rs != 0)
+				debug("Reputation crawling update failed "+rs);
+			// set reputations to peers
+			String name_id = network + " id";
+			for (int i = 0; i < results.size(); i++) {
+				Object[] item = (Object[]) results.get(i);
+				try {
+					Collection c;
+					c = this.storager.getByName(name_id, item[0]);
+					if (c != null && c.size() == 1) {
+						((Thing)c.iterator().next()).set(AL.reputation,((Number)item[1]).toString());
+					}
+				} catch (Exception e) {
+					error("Reputation crawling update peer",e);
+				}
+			}
+			long end_time = System.currentTimeMillis();
+			debug("Reputation crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+			return true;
+		}
+		return false;
+	}
+	
 	public void updateStatusRarely() {
 		for (Socializer	feeder : socializers.values()) {
 			feeder.forget();
 			feeder.resync(0);
 		}
+		updateReputation();
 		//update all user profiles on user-specific basis
 		try {
-			long start_time = System.currentTimeMillis();;
+			long start_time = System.currentTimeMillis();
 			debug("Peers crawling start "+new Date(start_time)+".");
 			//TODO: to other place, separate "socializer" class?
 			Collection peers = (Collection)storager.getByName(AL.is,Schema.peer);

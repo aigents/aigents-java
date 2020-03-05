@@ -66,8 +66,8 @@ class DiscourseItem {
 	String target_username;//"target_username":"akolonin",
 	String target_name;//"target_name":"Anton Kolonin",
 	//"target_user_id":24,
-	//"username":"LWFlouisa",
-	//"name":"Sarah Weaver",
+	String username;//"username":"LWFlouisa",
+	String name;//"name":"Sarah Weaver",
 	//"user_id":932,
 	String acting_username;//"acting_username":"LWFlouisa",	- can discourse user change the username? no - this seems persistent
 	String acting_name;//"acting_name":"Sarah Weaver", - full name
@@ -94,6 +94,8 @@ class DiscourseItem {
 		slug = item.containsKey("slug") ? JSON.getJsonString(item,"slug") : JSON.getJsonString(item,"topic_slug");
 		target_username = JSON.getJsonString(item,"target_username");
 		target_name = JSON.getJsonString(item,"target_name");
+		username = JSON.getJsonString(item,"username");
+		name = JSON.getJsonString(item,"name");
 		if (item.containsKey("acting_username")) {
 			acting_username = JSON.getJsonString(item,"acting_username");
 			acting_name = JSON.getJsonString(item,"acting_name");

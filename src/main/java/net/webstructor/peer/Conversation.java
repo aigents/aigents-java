@@ -72,6 +72,7 @@ import net.webstructor.data.LangPack;
 import net.webstructor.data.TextMiner;
 import net.webstructor.self.Self;
 import net.webstructor.util.Array;
+import net.webstructor.util.Str;
 
 class Conversation extends Mode {
 	
@@ -590,38 +591,58 @@ class Conversation extends Mode {
 	//TODO: A MUST - move to other place to avoid concurrent use of files ad redundant memory use
 	HashMap reputationers = new HashMap();
 	boolean tryReputationer(Storager storager,Session session) {
-		boolean ok = false;
+		int rs = -1;
 		Thing arg = new Thing();
 		if (!session.trusted())//for superusers only, so far...
 			return false;
+		
+		if (Str.has(session.args(),"reputation","update")) {
+		//if (session.read(new Seq(new Object[]{"reputation","update"}))) {
+			boolean updated = session.getBody().act("reputation update", null);
+			session.output(updated ? "Ok." : "Not.");
+			return true;
+		}
+			
 		if (!session.read(new Seq(new Object[]{"reputation","network",new Property(arg,"word")})) && 
 			!session.read(new Seq(new Object[]{new Property(arg,"word"),"reputation"})))
 			return false;
+		String format = session.getStoredPeer().getString("format");
+		boolean json = format != null && format.toLowerCase().equals("json");
 		final Charset charset = StandardCharsets.UTF_8;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		PrintStream ps;
 		String result = null;
 		try {
 			String network = arg.getString("word"); 
+			//TODO replace this with Farm.getReputationer(network)
 			Reputationer r = Reputationer.get(network);
-			if (r == null)
-				r = new Reputationer(session.getBody(),network,null,true);
+			if (r == null) {
+				Socializer provider = session.getBody().provider(network);
+				if (provider != null && provider instanceof SocialCacher)
+					r = new Reputationer(session.getBody(),((SocialCacher)provider).getGraphCacher(),network,null,true);
+				else
+					r = new Reputationer(session.getBody(),network,null,true);
+			}
 			ps = new PrintStream(baos, true, charset.name());
-			ps.print("Ok.\n");
 			//TODO: get data as object!?
-			ok = Reputationer.act(session.getBody(), r, ps, session.args());
-			if (ok){
+//TODO return error code in json
+			rs = Reputationer.act(session.getBody(), r, ps, session.args(), json);
+			if (rs == 0){
 				result = new String(baos.toByteArray(), charset);
 				Reputationer.add(network, r);
-				ok = true;
 			}
 			ps.close();
 			baos.close();
 		} catch (Exception e) {
 			session.getBody().error("", e);
 		}
-		session.output(ok ? result : "Not.");
-		return ok;
+		if (rs == -1)//method not matched
+			return false;
+		if (json)
+			session.output("{\"result\" : "+rs+(rs == 0 ? ", \"data\" : "+result : "")+"}");
+		else
+			session.output(rs == 0 ? "Ok.\n" + result : "Not.");
+		return true;
 	}
 
 	boolean tryAlerter(Storager storager,Session session) {

@@ -20,12 +20,13 @@ var logos = {
 	facebook:"/ui/img/fb_logo.png",
 	vkontakte:"/ui/img/vk_logo.png",
 	reddit:"/ui/img/reddit.png",
+	discourse:"/ui/img/singularitynet.png",
 	steemit:"/ui/img/steemit_logo_new.png",
 	golos:"/ui/img/golos_logo.png",
 	ethereum:"/ui/img/eth32.png"
 };
 
-var networks = ['google','facebook','vkontakte','reddit','steemit','golos','ethereum'];//,'aigents'];
+var networks = ['google','facebook','vkontakte','reddit','discourse','steemit','golos','ethereum'];//,'aigents'];
 
 var graph_hashing_names = false;
 var graph_user_name = 'I';
@@ -40,7 +41,7 @@ var graph_connectivity = 0;//0/25/75%
 var graph_period = 1;//0/1/2/3/4/5:day/week/month/quarter/year/5 years 
 var period_texts = { 0: "day", 1: "week", 2: "month", 3: "quarter", 4: "year", 5: "all" };
 var period_days = { 0: 1, 1: 7, 2: 31, 3: 92, 4: 365, 5: 10000 };
-var graphable_networks = ['ethereum','steemit','golos'];
+var graphable_networks = ['discourse','ethereum','steemit','golos'];
 
 var graph_data = {};
 

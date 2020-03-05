@@ -60,6 +60,7 @@ http://www.tesis.lebedev.ru/sun_flares.html
 	test_o("What is sun flare class, endtime, maxtime, times, starttime?");
 	test_i("There class c2.1, endtime 05:36:00, maxtime 05:27:00, starttime 2077, times today.");
 	//TODO peer has format. my format json.
+	//TODO format as peer or session propery
 	say("peer has format.");
 	get("Ok.");
 	say("my format json.");

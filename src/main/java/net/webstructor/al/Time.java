@@ -76,6 +76,10 @@ public abstract class Time extends Date	{
         return cal.getTime();
     }
     
+	public static Date today() {
+		return today(0);
+	}
+	
 	public static Date today(int delta) {
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.HOUR_OF_DAY,0);
@@ -202,6 +206,13 @@ public abstract class Time extends Date	{
 		Calendar c = Calendar.getInstance();
 		c.setTime(d);
 		c.add(Calendar.MONTH, m);
+		return c.getTime();
+	}
+
+	public static Date addDays(Date d, int days) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.add(Calendar.DATE, days);
 		return c.getTime();
 	}
 }

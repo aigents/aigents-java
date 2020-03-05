@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -205,13 +205,13 @@ public class GraphCacher implements Cacher {
 		Graph all = new Graph();
 		for (int r = 0; r < range; r++){//iterate given number of range expansions
 			HashSet next = new HashSet();
-			visited.addAll(todo);
 			for (int daysback = 0; daysback <= period; daysback++){
 				Graph daily = grapher.getGraph(Time.date(date, -daysback));
 				//collect all links for given ids of given types, collect link targets
 //TODO: don't consider done-s here
 				daily.getSubgraphTargets(todo, visited, links, all, next);
 			}
+			visited.addAll(todo);
 			next.removeAll(visited);
 			todo = next;
 		}

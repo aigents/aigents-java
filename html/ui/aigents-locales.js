@@ -41,6 +41,7 @@ var locale_ru = {
 		map_google_logo : 'Показать социальное окружение в сети Google',
 		map_vkontakte_logo : 'Показать социальное окружение в сети ВКонтакте',
 		map_reddit_logo : 'Показать социальное окружение в сети Reddit',
+		map_discourse_logo : 'Показать социальное окружение на форуме Discourse',
 		map_steemit_logo : 'Показать социальное окружение в сети Steemit',
 		map_golos_logo : 'Показать социальное окружение в сети Golos',
 		map_ethereum_logo : 'Показать финансовую среду в блокчейне Ethereum',

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.core.Thing;
+import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
 
@@ -61,7 +62,7 @@ public abstract class SocialCacher extends Socializer {
 	}
 
 	public String getUrl(){
-		return url;
+		return url.endsWith("/") ? url.substring(0, url.length()-1) : url;
 	}
 	
 	//TODO:@Override
@@ -163,5 +164,10 @@ public abstract class SocialCacher extends Socializer {
 			}
 		}
 	}
-	
+
+	public static void write(DataLogger logger, String name, Date time, long block, String type, String from, String to, String value, String unit, String child, String parent, String title, String input, String tags, String format){
+		//network,timestamp,from,to,value,unit,type,input,title,parent,child,tags,format
+		logger.write(name+"/"+name+"_"+Time.day(time,false)+".tsv",
+				new Object[]{name,Time.linux(time),type,from,to,value,unit,child,parent,title,input,tags,format,new Long(block)});
+	}
 }

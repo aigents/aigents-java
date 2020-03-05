@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -153,10 +153,12 @@ public class Graph implements Serializable {
 	}
 	
 	//get subgraph for list of sources given specified links, storing links in collector and collecting targets
-	public Graph getSubgraphTargets(Set sources, Set visited, String[] links, Graph collector, Set targets){
+	public Graph getSubgraphTargets(Set sources, Set globallyVisited, String[] links, Graph collector, Set targets){
 		if (!AL.empty(sources)){
+			HashSet locallyVisited = new HashSet();
 			for (Iterator it = sources.iterator(); it.hasNext();){
 				String id = (String)it.next();
+				locallyVisited.add(id);
 				HashMap linkers = getLinkers(id,false);//get outgoing links
 				if (AL.empty(linkers))
 					continue;
@@ -168,7 +170,7 @@ public class Graph implements Serializable {
 							Object target = tit.next();
 							//ignore reciprocal links assuming all links are bidirectional
 							//if (!sources.contains(target)){
-							if (!visited.contains(target)){
+							if (!locallyVisited.contains(target) && !globallyVisited.contains(target)){
 								targets.add(target);
 								Object o = l.get(target);
 								if (o instanceof ComplexNumber[])

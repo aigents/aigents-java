@@ -27,6 +27,10 @@ include_once("test_api.php");
 
 function test_reputation() {
 	login();
+	//TODO peer has format. my format json.
+	//TODO format as peer or session propery
+	say("peer has format.");
+	get("Ok.");
 	
 	say("reputation network testnet  clear ranks");
 	get("Ok.");
@@ -50,6 +54,12 @@ function test_reputation() {
 	get("Ok.");
 	say("reputation network testnet  get ranks date 2018-10-14");
 	get("Ok.\n2	100\n1	67\n3	63");
+	say("my format json");
+	get("Ok.");
+	say("reputation network testnet  get ranks date 2018-10-14");
+	get('{"result" : 0, "data" : {"2" : 100, "1" : 67, "3" : 63}}');
+	say("my format text");
+	get("Ok.");
 	say("reputation network testnet  get ranks date 2018-10-14 id 1 id 2");
 	get("Ok.\n2	100\n1	67\n");
 	say("reputation network testnet  get ranks date 2018-10-14 id 2 id 3");
@@ -58,9 +68,16 @@ function test_reputation() {
 	get("Ok.\n1	100	67\n2	50	100\n3		63");
 	say("reputation network testnet  get ranks since 2018-10-13 until 2018-10-14 average");
 	get("Ok.\n1	83.5\n2	75.0\n3	63.0");
+	say("my format json");
+	say("reputation network testnet  get ranks since 2018-10-13 until 2018-10-14 average");
+    get('{"result" : 0, "data" : {"1" : 83.5, "2" : 75.0, "3" : 63.0}}');	
+    say("my format text");
 	say("reputation network testnet  get ranks since 2018-10-13 until 2018-10-14 id 2 id 3");
 	get("Ok.\n2	50	100\n3		63");
-
+	say("my format json");
+	say("reputation network testnet  get ranks since 2018-10-13 until 2018-10-14 id 2 id 3");
+	get('{"result" : 0, "data" : {"2" : [50, 100], "3" : [null, 63]}}');
+	say("my format text");
 	//test retention period
 	say("Your retention period?");
 	get();
@@ -75,7 +92,13 @@ function test_reputation() {
 	get("Ok.\n2	50	100\n3		63");
 	say("reputation network testnet  get ratings  date 2018-10-14  ids 2");
 	get("Ok.\n2	rate-d	1	100\n2	rate-s	3	50");
-
+	say("my format json");
+	get("Ok.");
+	say("reputation network testnet  get ratings  date 2018-10-14  ids 2");
+	get('{"result" : 0, "data" : [{"from" : 2, "type" : "rate-d", "to" : 1, "value" : 100}, {"from" : 2, "type" : "rate-s", "to" : 3, "value" : 50}]}');
+	say("my format text");
+	get("Ok.");
+	
 	//check command-line and graph saving
 	cmd("java -cp Aigents.jar:bin/* net.webstructor.peer.Reputationer reputation network testnet get ranks since 2018-10-13 until 2018-10-14 id 2 id 3",$out);
 	get("2	50	100\n3		63");
@@ -93,7 +116,12 @@ function test_reputation() {
 	get("Ok.");
 	say("reputation network testnet  get ratings  date 2018-10-14  ids 2");
 	get("Ok.");
-	
+
+	//TODO add format to schema
+	say("peer has no format.");
+	get("Ok.");
+	say("no name format.");
+	get("Ok.");
 	logout();
 }
 

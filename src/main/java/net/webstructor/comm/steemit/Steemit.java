@@ -325,15 +325,6 @@ public class Steemit extends SocialCacher {
 		return result.getJsonNumber("head_block_number").longValue();
 	}
 
-	static void write(DataLogger logger, String name, Date time, long block, String type, String from, String to, String value, String unit, String child, String parent, String title, String input, String tags, String format){
-		//network,timestamp,from,to,value,unit,type,input,title,parent,child,tags,format
-		logger.write(name+"/"+name+"_"+Time.day(time,false)+".tsv",
-				new Object[]{name,Time.linux(time),type,from,to,value,unit,child,parent,title,input,tags,format,new Long(block)});
-	}
-
-	//static void update(GraphCacher cacher, String forward, String backward, String from, String to, String value){
-	//}
-	
 	static String recode(String body){
 		//TODO: proper re-coding
 		body = body.replace("\n","\\n");

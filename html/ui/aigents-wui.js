@@ -987,7 +987,7 @@ var peer_self_properties = ['email','name','surname',
                        //'birth date',
                        //'secret question','secret answer',
                        //'facebook login',//'vkontakte login',
-                       'check cycle', 'items limit', 'trusts limit', 'news limit', 'email notification', 'steemit id', 'golos id', 'ethereum id'];
+                       'check cycle', 'items limit', 'trusts limit', 'news limit', 'email notification', 'discourse id', 'steemit id', 'golos id', 'ethereum id'];
 var peer_peer_properties = ['name','surname','email','facebook id','google id','reddit id','vkontakte id'];
 var peer_peer_keys = ['name','surname','email']
 

@@ -40,6 +40,7 @@ import net.webstructor.data.SocialFeeder;
 
 abstract public class SocialFeederHelper extends SocialFeeder {
 	protected HashMap permlinksToPosts = new HashMap();
+	protected HashMap<String,String> permlinksToAuthors = new HashMap<String,String>();
 	protected HashMap permlinksToVotes = new HashMap();
 	protected HashMap permlinksToComments = new HashMap();
 	protected HashSet permlinksTagged = new HashSet();
@@ -55,9 +56,9 @@ abstract public class SocialFeederHelper extends SocialFeeder {
 	abstract protected String base_url();
 	
 	protected String fix_url(String url) {
-		String base = base_url();//expect ended with slash
+		String base = base_url();//expect NOT ended with slash
 		if (!AL.empty(base) && !AL.empty(url))
-			return url.startsWith("/") ? base + url.substring(1) : base + url;
+			return url.startsWith("/") ? base + url : base + "/" + url;
 		return url; 
 	}
 	
@@ -88,6 +89,7 @@ abstract public class SocialFeederHelper extends SocialFeeder {
 		if (votes == null)
 			permlinksToVotes.put(permlink, votes = new HashSet());
 		votes.add(voter);
+		permlinksToAuthors.put(permlink, author);//for the case of hanged posts/comments from the older periods
 	}
 	
 	public String processPost(Date times,String permlink,String author,String parent_permlink,String parent_author,String title, String body){
@@ -323,7 +325,7 @@ abstract public class SocialFeederHelper extends SocialFeeder {
 			String permlink = (String)it.next();
 			if (AL.empty(areas) || permlinksTagged.contains(permlink)){
 				//time!
-				int countedVotes = countVotes(permlink,user_id,since);//assume comments go to author of hanged posts for earlier period
+				int countedVotes = countVotes(permlink,permlinksToAuthors.get(permlink),since);//assume comments go to author of hanged posts for earlier period
 				if (countedVotes > 0)//if other user
 					countPeriod(since,countedVotes,0);
 			}

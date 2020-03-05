@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2018-2019 Stichting SingularityNET
+ * Copyright (c) 2018-2020 Stichting SingularityNET
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -278,15 +278,19 @@ public class Reputationer {
 		}
 	}
 	
-	public Reputationer(Environment env, String name, String path, boolean dailyStates){
+	public Reputationer(Environment env, GraphCacher cacher, String name, String path, boolean dailyStates){
 		this.env = env;
-		cacher = new GraphCacher(name,env,path);
+		this.cacher = cacher;
 		if (dailyStates)
 			states = new GraphCacherStater();
 		else 
 			states = new GraphStater();
 		states.init(name,env,path);
 		this.name = name;
+	}
+
+	public Reputationer(Environment env, String name, String path, boolean dailyStates){
+		this(env, new GraphCacher(name,env,path), name, path, dailyStates);
 	}
 
 	/**
@@ -653,6 +657,8 @@ public class Reputationer {
 			} else 
 				return 4;//not available for date
 		}
+		if (results == null)//just checking
+			return 0;
 		//TODO: long from, long length
 		//TODO: String dimensions
 		Set idset = AL.empty(ids) ? null : Array.toSet(ids);
@@ -832,7 +838,7 @@ public class Reputationer {
 			String outputPath = Str.arg(args,"output",null);
 			PrintStream	out = !AL.empty(outputPath) ? (new Filer(m)).openStream(outputPath,false,"Exporting ranks") : System.out;
 			Reputationer r = new Reputationer(m,Str.arg(args,"network","ethereum"),Str.arg(args,"path",""),true);
-			act(m,r,out,args);//daily states
+			act(m,r,out,args,false);//daily states
 			r.save();
 		}
 
@@ -874,10 +880,11 @@ public class Reputationer {
 		add ratings from 001, type pays, to 990, value 0.7; from 002, type calls, to 004, value 0.9.
 		there is rating : from 001, type pays, to 990, value 0.7, time 2018-10-01; from 002, type calls, to 890, value 0.9, time 2018-10-02.
 	 */
-	public static boolean act(final Environment env, final Reputationer r, final PrintStream out, final String[] args){
-		//TODO: multiple elementa parsed by Str.get as array in array!!!
+	public static int act(final Environment env, final Reputationer r, final PrintStream out, final String[] args, boolean json){
+//TODO: multiple elementa parsed by Str.get as array in array!!!
 		String id = Str.arg(args,"ids","");
 		String[] ids = !AL.empty(id) ? id.split(" ") : null;
+		int rs;
 		
 		int at = Integer.valueOf(Str.arg(args,"at","0")).intValue();
 		int size = Integer.valueOf(Str.arg(args,"size","0")).intValue();
@@ -885,23 +892,23 @@ public class Reputationer {
 		//TODO: make any commands handle-able 
 		if (Str.has(args,"save","ratings")){
 			r.save_ratings();
-			return true;
+			return 0;
 		}
 		if (Str.has(args,"save","ranks")){
 			r.save_ranks();
-			return true;
+			return 0;
 		}
 		if (Str.has(args,"clear","ratings")){
 			r.clear_ratings();
-			return true;
+			return 0;
 		}
 		if (Str.has(args,"clear","ranks")){
 			r.clear_ranks();
-			return true;
+			return 0;
 		}
 		if (Str.has(args,"set","parameters")){
 			set_parameters(r,args,false);
-			return true;
+			return 0;
 		}
 		if (Str.has(args,"update","ranks")){
 			//compute time range as date given date==until==since+period (default period = 1)
@@ -911,8 +918,9 @@ public class Reputationer {
 			int period = (int)((r.params.periodMillis + Period.DAY - 1)/ Period.DAY);//need at least one day
 			int computed = 0;
 			env.debug("Updating "+r.name+" since "+Time.day(since,false)+" to "+Time.day(until,false)+" period "+period);
+			rs = 0;
 			for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){ 
-				int rs = r.update(day, null);
+				rs = r.update(day, null);
 				env.debug("Updating "+Time.day(day,false)+" at "+new Date(System.currentTimeMillis()));
 				if (rs == 0)
 					computed++;
@@ -923,29 +931,29 @@ public class Reputationer {
 			}
 			if (computed > 0)
 				r.save_ranks();
-			return true;
+			return rs;
 		}
 		else
 		if (Str.has(args,"set","parent")){
 			String parent = Str.arg(args,"parent",null);
 			Object[][] children = Str.get(args,new String[]{"child"},null);
 			if (AL.empty(parent) || AL.empty(children))
-				return false;
+				return 1;
 			int res = r.set_parents(parent,children);
 			if (res == 0)
 				r.save_ranks();
-			return true;
+			return 0;
 		}
 		else
 		if (Str.has(args,"set","ranks")){
 			Object[][] ranks = Str.get(args,new String[]{"id","rank"},new Class[]{null,Integer.class});
 			if (AL.empty(ranks))
-				return false;
-			r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
+				return 1;//empty input
+			rs = r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
 			int res = r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
 			if (res == 0)
 				r.save_ranks();
-			return true;
+			return rs;
 		}
 		else
 		if (Str.has(args,"get","ranks")){
@@ -960,6 +968,8 @@ public class Reputationer {
 				for (int i=0; i<idss.length; i++)
 					ids[i] = (String)idss[i][0];
 			}
+			if (json)
+				out.print("{");
 			if (Period.daysdiff(since, until) == 0){
 				//get one shot reputation state
 				//TODO: domains
@@ -973,9 +983,12 @@ public class Reputationer {
 					to = at + size;
 				for (int i = at; i < to; i++){
 					Object[] o = (Object[])a.get(i);
-					String s = o[0]+"\t"+o[1];
-					//TODO: return to caller or print to environment
-					out.println(s);//output to console
+					if (json) {
+						if (i > 0)
+							out.print(", ");
+						out.print("\""+o[0]+"\" : "+o[1]);
+					} else
+						out.println(o[0]+"\t"+o[1]);//output to console
 				}
 			}else if (Str.has(args, "average")){
 				TreeMap sums = new TreeMap();
@@ -995,14 +1008,21 @@ public class Reputationer {
 						}
 					}
 				}
+				int i =  0;
 				for (Iterator it = counts.keySet().iterator(); it.hasNext();){
 					Object keyid = it.next();
 					int count = ((Integer)counts.get(keyid)).intValue();
 					double sum = ((Double)sums.get(keyid)).doubleValue();
-					out.print(keyid);//output to console
-					out.print('\t');
-					out.print(sum/count);
-					out.println("");
+					if (json) {
+						if (i++ > 0)
+							out.print(", ");
+						out.print("\""+keyid+"\" : " + sum/count);
+					} else {
+						out.print(keyid);//output to console
+						out.print('\t');
+						out.print(sum/count);
+						out.println("");
+					}
 				}
 			}else{
 				//study temporal dynamics
@@ -1018,32 +1038,50 @@ public class Reputationer {
 						bydate.put(day, o[1]);
 					}
 				}
+				int row = 0;
 				for (Iterator it = byid.keySet().iterator(); it.hasNext();){
 					Object keyid = it.next();
-					out.print(keyid);//output to console
+					if (json) {
+						if (row++ > 0)
+							out.print(", ");
+						out.print("\""+keyid+"\" : [");
+					} else
+						out.print(keyid);//output to console
 					HashMap bydate = (HashMap)byid.get(keyid);
 					{
+						int cell = 0;
 						//print every day
 						for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){
 							Object val = bydate.get(day);
-							out.print('\t');
-							if (val != null)
-								out.print(val);
+							if (json) { 
+								if (cell++ > 0)
+									out.print(", ");
+								out.print(val != null ? val : "null");
+							} else {
+								out.print('\t');
+								if (val != null)
+									out.print(val);
+							}
 						}
 					}
-					out.println("");
+					if (json)
+						out.print("]");
+					else
+						out.println("");
 				}
 			}
-			return true;
+			if (json)
+				out.print("}");
+			return 0;
 		}
 		else
 		if (Str.has(args,"add","ratings")){
 			set_parameters(r,args,true);
 			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,null,"today"});  
 			if (AL.empty(ratings))
-				return false;
-			r.add_ratings(ratings);
-			return true;
+				return 1;
+			rs = r.add_ratings(ratings);
+			return rs;
 		}
 		else
 		if (Str.has(args,"load","ratings")){
@@ -1082,7 +1120,7 @@ public class Reputationer {
 				});
 				if (loaded)
 					r.save_ratings();
-				return true;
+				return 0;
 			}
 		}
 		else
@@ -1097,12 +1135,21 @@ public class Reputationer {
 			int to = a.length;
 			if (size > 0 && to > at + size)
 				to = at + size;
+			if (json)
+				out.print("[");
 			for (int i = at; i < to; i++){
 				Object[] o = (Object[])a[i];
 //TODO: return to caller or print to environment
-				out.println(o[0]+"\t"+o[1]+"\t"+o[2]+"\t"+o[3]);//output to console
+				if (json) {
+					if (i > 0)
+						out.print(", ");
+					out.print("{\"from\" : "+o[0]+", \"type\" : \""+o[1]+"\", \"to\" : "+o[2]+", \"value\" : "+o[3]+(o.length > 4 ? (", \"weight\" : "+o[4]) : "")+"}");
+				} else
+					out.println(o[0]+"\t"+o[1]+"\t"+o[2]+"\t"+o[3]);//output to console
 			}
-			return true;
+			if (json)
+				out.print("]");
+			return 0;
 		}
 		else
 		//TODO: move out from here
@@ -1113,7 +1160,7 @@ public class Reputationer {
 				Summator s1 = new Summator(env,(String)files[1][0]);
 				double p = s0.pearson(s1);
 				out.println(p);
-				return true;
+				return 0;
 			}
 		}
 		else
@@ -1151,10 +1198,10 @@ public class Reputationer {
 							+"acc_g\t"+b[3]+"\nacc_b\t"+b[4]+"\nacc_bal\t"+b[5]+"\n"+
 							"rmsd_g\t"+b[6]+"\nrmsd_b\t"+b[7]+"\nrmsd\t"+b[8]+"\n");
 				}
-				return true;
+				return 0;
 			}
 		}
-		return false;
+		return -1;//invalid method
 	}
 	
 	private static void set_parameters(final Reputationer r, final String[] args, boolean ratings){

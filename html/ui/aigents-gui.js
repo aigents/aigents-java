@@ -409,9 +409,11 @@ function graph_setup(id) {
 			graph_properties,
 			graph_properties,//TODO: prompts
 			new_parameters,false,onOk,null,null,{
-			network:{title:'Network to explore',options:['www','ethereum','steemit','golos']},
-			links:{title:'Links to include in the graph',options:['all','pays','paid','votes','voted','comments','commented']},
-			period:{title:'Period to search',options:[1,2,3,4,5,6,7]}}
+			network:{title:'Network to explore',options:['www','discourse','ethereum','steemit','golos']},
+			links:{title:'Links to include in the graph',options:['all','pays','paid','votes','voted','comments','commented','mentions','mentioned']},
+			period:{title:'Period to search',options:(new_parameters[0] == 'discourse' ? [1,2,3,4,5,6,7,10,30,92,365] : [1,2,3,4,5,6,7])},
+			range:{title:'Range of link hops',options:[1,2,3,4,5,6,7,10]},
+			}
 	);
 }
 
@@ -426,13 +428,14 @@ function graph_launch(id) {
 	//TODO: generate properly
 	//var cmd = 'Ethereum id '+id+' graph period 1, range 2, limit 100';
 	var id = !AL.empty(id) ? id : graph_parameters[1];
-	var cmd = graph_parameters[0] + ' id ' + id +
-		' graph, period ' + graph_parameters[2] + ', range ' + graph_parameters[3] +
+	var cmd = graph_parameters[0] + ' id \'' + id +
+		'\' graph, period ' + graph_parameters[2] + ', range ' + graph_parameters[3] +
 		', limit ' + graph_parameters[4];
 	if (graph_parameters[5] != 'all')
 		cmd += ', links '+ graph_parameters[5];
 	if (loading)
 		loading(true,4);
+	console.log(cmd);
 	ajax_request(cmd,function(text){
 		graph_text(text,graph_parameters[0],id);//network,id
 		if (loading)
@@ -494,7 +497,7 @@ function popup_graph_menu(event) {
 function graph_text(text,network,id){
 	if (!AL.empty(text)){
 		var image = network && logos ? logos[network] : null;
-		var links = parseALToGraph(text,{paid:'pays',called:'calls',voted:'votes',commented:'comments',linked:'links'});
+		var links = parseALToGraph(text,{paid:'pays',called:'calls',voted:'votes',commented:'comments',linked:'links',mentioned:'mentions'});
 		var orders = GraphOrder.directed(links);//directed and iterative
 		var nodes = {};
     	var setup = {
@@ -503,7 +506,7 @@ function graph_text(text,network,id){
     				links:links,
     				config:{
     					menu: popup_graph_menu,
-    					colors:{pays:"#40bf40",votes:"#808080",calls:"#ff471a",comments:'#0066ff'},
+    					colors:{pays:"#40bf40",votes:"#808080",calls:"#ff471a",comments:'#0066ff',mentions:'#009999'},
     					image: image
     					//labeled_links:true
     				}
