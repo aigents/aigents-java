@@ -313,8 +313,12 @@ public class Discourse extends SocialCacher {
 		//Get all posts for much longer period, extract likes from posts, get users from likes
 		//get posts:
 		//curl https://community.singularitynet.io/posts.json?before=1370 posts_1370.json
+		//get post (not needed):
+		//curl 'https://meta.discourse.org/t/139618/posts.json'
 		//get post likes:
 		//curl 'https://community.singularitynet.io/post_action_users?id=1370&post_action_type_id=2' -H 'Accept: application/json' > post_likes_1370.json
+		//curl 'https://meta.discourse.org/post_action_users?id=708412&post_action_type_id=2' -H 'Accept: application/json'
+		//get all users from the list of likers
 	}
 	
 	//start iterate from known offset and iterate till the date is the same and till the age is not reached

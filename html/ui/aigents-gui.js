@@ -411,7 +411,7 @@ function graph_setup(id) {
 			new_parameters,false,onOk,null,null,{
 			network:{title:'Network to explore',options:['www','discourse','ethereum','steemit','golos']},
 			links:{title:'Links to include in the graph',options:['all','pays','paid','votes','voted','comments','commented','mentions','mentioned']},
-			period:{title:'Period to search',options:(new_parameters[0] == 'discourse' ? [1,2,3,4,5,6,7,10,30,92,365] : [1,2,3,4,5,6,7])},
+			period:{title:'Period to search',options:(new_parameters[0] == 'discourse' ? [1,2,3,4,5,6,7,10,30,92,365,730] : [1,2,3,4,5,6,7])},
 			range:{title:'Range of link hops',options:[1,2,3,4,5,6,7,10]},
 			}
 	);

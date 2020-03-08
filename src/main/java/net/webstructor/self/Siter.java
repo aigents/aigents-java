@@ -739,7 +739,7 @@ public class Siter {
 		return peer.getTitle(Peer.title_email)+" at "+body.site();
 	}
 	
-	static Collection getSharesTos(Storager storager, Thing peer){
+	/*static Collection getSharesTos(Storager storager, Thing peer){
 		//TODO: make this more efficient
 		//get list of peers trusted by the peer:
 		//1) get all peers that are marked to share to by this peer
@@ -753,6 +753,24 @@ public class Siter {
 				trustingPeers.retainAll(allSharesTos);
 				return trustingPeers;
 			}
+		}
+		return null;
+	}*/
+	
+	static Collection getSharesTos(Storager storager, Thing peer){
+		Set trustingPeers = storager.get(AL.trusts,peer);//all who trusts us (subscribers)
+		Collection allShares = (Collection)peer.get(AL.shares);//all who we share to plus our shared areas
+		if (!AL.empty(allShares) && !AL.empty(trustingPeers)) {//we need to share something plus should have someone who trusts us
+			trustingPeers = new HashSet(trustingPeers);
+			//check if this peer is public
+			Collection areas = (Collection)peer.get(AL.areas);
+			if (!AL.empty(areas)) {
+				areas = new HashSet(areas);
+				areas.retainAll(allShares);
+			}
+			if (AL.empty(areas))//if have public areas, return all trustees, otherwise:
+				trustingPeers.retainAll(allShares);//leave only the peers who are explicitly shared
+			return trustingPeers;
 		}
 		return null;
 	}

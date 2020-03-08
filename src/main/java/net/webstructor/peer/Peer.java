@@ -269,7 +269,9 @@ public class Peer extends Agent {
 		if (AL.empty(allNews))
 			return;
 		Collection trusts = (Collection)peer.getThings(AL.trusts);
-		Collection topics = Peer.peerTopics(peer);
+//TODO: make sure forgetting does not remove authored news without topics (by 'authors' link) 
+		Collection authors = Peer.peerFriendsTrusts(peer,true);
+		Collection topics = Peer.peerTopics(authors);//topics across peer and all their authorities
 		ArrayList news = new ArrayList();
 		ArrayList dels = new ArrayList();
 		Date today = Time.today(0);
@@ -283,7 +285,6 @@ public class Peer extends Agent {
 				news.add(t);*/
 			if (day != null && !(day.equals(today) || day.equals(yesterday)))
 				continue;
-//TODO: eliminate elimination of shared news
 			if (!trusts.contains(t) && !t.hasThing(AL.sources, origin)) {
 				boolean relevant = false;  
 				if (topics != null) {
@@ -360,6 +361,19 @@ public class Peer extends Agent {
 		}
 	}
 
+	public static Set peerFriendsTrusts(Thing peer, boolean self) {
+		HashSet result = new HashSet();
+		Collection friends = peer.getThings(AL.friends);
+		Collection trusts = peer.getThings(AL.trusts);
+		if (!AL.empty(friends) && !AL.empty(trusts)){//keep trusted topics only
+			result.addAll(friends);
+			result.retainAll(trusts);
+		}
+		if (self)
+			result.add(peer);
+		return result;
+	}
+	
 	public static Set peerTopics(Thing peer) {
 		Collection topics = peer.getThings(AL.topics);
 		Collection trusts = peer.getThings(AL.trusts);

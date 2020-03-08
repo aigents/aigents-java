@@ -2,7 +2,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2014-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2014-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,11 @@ function test_agent_think() {
 	//cleanup STM+LTM
 	say("You forget everything!");
 	get("Ok.");
-
+	say("Your things count?");
+	get("My things count 110.");
+	say("What times today text?");
+	get("There not.");
+	
 	say("My logout.");
 
 	//register 2nd user
@@ -74,6 +78,8 @@ function test_agent_think() {
 	file_put_contents($basePath."html/think.html","there is fried banana. there is bird on the tree. there is fancy stuff.");
 	say("You reading!");
 	sleep($timeout);
+	say("what is http://localtest.com/think.html");
+	get("There is http://localtest.com/think.html, text 'there is fried banana. there is bird on the tree. there is fancy stuff. ', times today.");
 	say("What times today, is 'there is \$something.' text?");
 	get("There text 'there is bird on the tree .'; text 'there is fancy stuff .'; text 'there is fried banana .'.");
 	say("Times today, is 'there is \$something.' trust true.");
@@ -191,13 +197,17 @@ function test_agent_think() {
 	get("There not.");
 	say_thing("there is \$something.",false);
 	say_site("http://localtest.com/think.html",false);
-	say("Your trusts no john.");
-	get("Ok.");
-	say("No email john@doe.com.");
+	say("No email doe@john.com.");
 	get("Ok.");
 	say("No email ali@baba.com.");
 	get("Ok.");
-	say("No email doe@john.com.");
+	say("You forget everything!");
+	get("Ok.");
+	say("Your things count?");
+	get("My things count 110.");
+	say("Your trusts no john.");
+	get("Ok.");
+	say("No email john@doe.com.");
 	get("Ok.");
 	say("You forget everything!");
 	get("Ok.");

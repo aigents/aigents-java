@@ -73,6 +73,8 @@ public class AL {
 	public final static String groups 	= "groups";
 	public final static String network 	= "network";
 	public final static String networks = "networks";
+	public final static String authors  = "authors";
+	public final static String parents  = "parents";
 	public final static String topic 	= "topic";
 	public final static String topics	= "topics";
 	public final static String image 	= "image";
