@@ -20,7 +20,8 @@ var logos = {
 	facebook:"/ui/img/fb_logo.png",
 	vkontakte:"/ui/img/vk_logo.png",
 	reddit:"/ui/img/reddit.png",
-	discourse:"/ui/img/singularitynet.png",
+//	discourse:"/ui/img/singularitynet.png",
+	discourse:"/ui/img/discourse.png",
 	steemit:"/ui/img/steemit_logo_new.png",
 	golos:"/ui/img/golos_logo.png",
 	ethereum:"/ui/img/eth32.png"

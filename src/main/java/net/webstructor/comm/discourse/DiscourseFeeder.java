@@ -34,7 +34,6 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 import net.webstructor.al.AL;
-import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeederHelper;
@@ -60,9 +59,10 @@ class DiscourseFeeder extends SocialFeederHelper {
 			String api_url = api.getUrl();
 			for (boolean days_over = false; !days_over;) {
 				String url = api_url + "/user_actions.json?username="+user_id+"&filter=1,2,3,4,5,6,7&offset=" + offset;
-				//if (debug) body.debug("Spidering peer discourse request "+url);
-				String response = HTTP.simple(url,null,"GET",0,null,null);
-				//if (debug) body.debug("Spidering peer discourse response "+user_id+" "+response);
+				if (debug) body.debug("Discourse crawling peer "+user_id+" request "+url);
+				//String response = HTTP.simple(url,null,"GET",0,null,null);
+				String response = api.simpleRetry(url,null,"GET",null,null);
+				if (debug) body.debug("Discourse crawling peer "+user_id+" response "+response);
 				if (AL.empty(response))
 					break;
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
@@ -128,7 +128,7 @@ class DiscourseFeeder extends SocialFeederHelper {
 				}
 			}
 		} catch (Exception e) {
-			body.error("Spidering peer discourse "+user_id, e);
+			body.error("Discourse crawling peer "+user_id, e);
 		}
 		
 		this.detail = detail;//TODO fix hack needed to details to appear, need to StringBuilder detail from SocialFeeder!
