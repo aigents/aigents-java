@@ -270,8 +270,8 @@ public class Farm extends Body {
 					r = new Reputationer(this,((SocialCacher)provider).getGraphCacher(),network,null,true);
 				else
 					r = new Reputationer(this,network,null,true);
-				return r;
 			}
+			return r;
 		}
 		return null;
 	}

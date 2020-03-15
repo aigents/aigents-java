@@ -237,6 +237,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 							period *= 2;
 					}
 				} catch (Exception e) {		
+					period *= 2;
 					body.error("Telegrammer error:",e);
 				}
 			}

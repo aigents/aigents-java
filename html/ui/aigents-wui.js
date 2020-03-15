@@ -1559,8 +1559,9 @@ function get_expression(text, words) {
 	return findings;
 }
 
-var positive_words = ['super', 'offer', 'free', 'publish', 'good', 'invest', 'excellent', 'set up', 'powered', 'privacy', 'popularised', 'raised', 'released', 'support', 'grown into', 'largest', 'easier', 'generate', 'provided', 'enabled', 'set-up', 'built', 'great', 'include'];
-var negative_words = ['cheat', 'criticize', 'scammer', 'criticizm', 'block', 'defiant', 'disinformation', 'censor', 'ban', 'hacked', 'lose', 'sabotage', 'manipulate', 'outage', 'worse', 'silence', 'mistake', 'worse', 'concerned', 'bad', 'disable', 'violence'];
+//111
+var positive_words = ['agreements', 'accepts', 'addressing', 'addresses', 'addressed', 'better', 'can help', 'consulting', 'create new', 'donate', 'super', 'offer', 'free', 'publish', 'good', 'invest', 'number one', 'excellent', 'encourage', 'set up', 'partner', 'popular', 'power', 'privacy', 'popularised', 'released', 'support', 'signed', 'grown into', 'largest', 'easier', 'generate', 'provided', 'roundtable', 'enabled', 'planning', 'set-up', 'built', 'great', 'include', 'ubiquitous', 'unveiled', 'using'];
+var negative_words = ['accident', 'cheat', 'criticize', 'criticizm', 'block', 'defiant', 'deficit', 'disinformation', 'censor', 'ban', 'emergency', 'false', 'failed', 'fallout', 'fight', 'hacked', 'lose', 'sabotage', 'suspend', 'manipulate', 'outage', 'worse', 'scammer', 'silence', 'mistake', 'worse', 'concern', 'bad',  'pandemic', 'pandemy', 'slammed', 'slamming', 'slighted', 'disable', 'violence', 'war'];
 
 function getEmotions(data,text_pos){
 	emotions = [];
