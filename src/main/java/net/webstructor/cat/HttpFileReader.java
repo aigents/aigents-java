@@ -465,6 +465,26 @@ public class HttpFileReader implements Reader
 			} catch (URISyntaxException e) {}
 			return false;
         }
+
+        public static boolean sameHost(String left, String right) {
+			if (left != null && right != null) try {
+				URL bURL = new URL(left);
+				URL rURL = new URL(bURL,right);
+				String bHost = bURL.getHost();
+				String rHost = rURL.getHost();
+				if (bHost.equals(rHost))
+					return true;
+			} catch (MalformedURLException e) {}
+			return false;
+        }
+
+        public static String getSite(String url) {
+			if (!AL.empty(url)) try {
+				URL u = new URL(url);
+				return u.getProtocol()+"://"+u.getHost();
+			} catch (MalformedURLException e) {}
+			return null;
+        }
         
         //return aligned URL, restricted to same domain of base, if strict==true
         public static String alignURL(String base, String other, boolean strict) {

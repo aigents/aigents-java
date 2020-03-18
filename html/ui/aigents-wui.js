@@ -1201,13 +1201,13 @@ function add_thing() {
 	var text = $('#things_input').val();
 	if (text && text.length > 0) {
 		$('#things_input').val('');
-		text = AL.toString(text,null);
+		text = quote(AL.toString(text,null));
 		requestBase('#things_list',"My topics "+text+', trusts '+text+'.',false,things_refresh);
 	}else{
 		dialog_open(_('Topic'),null,['name'],null,[''],false, function(){
 			var text = $( '#'+name_to_id( 'name' ) ).val();
 			if (!AL.empty(text)){
-				text = AL.toString(text,null);
+				text = quote(AL.toString(text,null));
 				requestBase('#things_list','My topics '+text+', trusts '+text+'.',false,things_refresh);
 			}
 			return true;
@@ -1254,7 +1254,7 @@ function del_thing() {
 				q += ', ';
 				ignores += ', ';
 			}
-			var thing = AL.toString(name,"name");
+			var thing = quote(AL.toString(name,"name"));
 			q += 'no ' + thing;
 			ignores += thing;
 		});
@@ -1560,8 +1560,8 @@ function get_expression(text, words) {
 }
 
 //111
-var positive_words = ['agreements', 'accepts', 'addressing', 'addresses', 'addressed', 'better', 'can help', 'consulting', 'create new', 'donate', 'super', 'offer', 'free', 'publish', 'good', 'invest', 'number one', 'excellent', 'encourage', 'set up', 'partner', 'popular', 'power', 'privacy', 'popularised', 'released', 'support', 'signed', 'grown into', 'largest', 'easier', 'generate', 'provided', 'roundtable', 'enabled', 'planning', 'set-up', 'built', 'great', 'include', 'ubiquitous', 'unveiled', 'using'];
-var negative_words = ['accident', 'cheat', 'criticize', 'criticizm', 'block', 'defiant', 'deficit', 'disinformation', 'censor', 'ban', 'emergency', 'false', 'failed', 'fallout', 'fight', 'hacked', 'lose', 'sabotage', 'suspend', 'manipulate', 'outage', 'worse', 'scammer', 'silence', 'mistake', 'worse', 'concern', 'bad',  'pandemic', 'pandemy', 'slammed', 'slamming', 'slighted', 'disable', 'violence', 'war'];
+var positive_words = ['agreements', 'accepts', 'addressing', 'addresses', 'addressed', 'better', 'can help', 'consulting', 'create new', 'donate', 'enable', 'helping', 'super', 'offer', 'free', 'publish', 'good', 'launch', 'leverage', 'invest', 'interesting', 'number one', 'excellent', 'encourage', 'set up', 'partner', 'popular', 'power', 'privacy', 'popularised', 'released', 'support', 'signed', 'grown into', 'largest', 'easier', 'generate', 'provided', 'roundtable', 'enabled', 'planning', 'set-up', 'built', 'great', 'include', 'ubiquitous', 'unveiled', 'using'];
+var negative_words = ['accident', 'cheat', 'criticize', 'criticizm', 'block', 'bug', 'defiant', 'deficit', 'disinformation', 'censor', 'ban', 'emergency', 'false', 'failed', 'fallout', 'fight', 'hacked', 'lose', 'remove', 'sabotage', 'shut ', 'suspend', 'manipulate', 'outage', 'worse', 'scammer', 'silence', 'mistake', 'worse', 'concern', 'bad',  'pandemic', 'pandemy', 'slammed', 'slamming', 'slighted', 'disable', 'violence', 'war'];
 
 function getEmotions(data,text_pos){
 	emotions = [];

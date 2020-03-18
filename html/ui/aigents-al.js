@@ -300,6 +300,9 @@ function unquote(s) {
 }
 
 function quote(str) {
+	var end = str.length - 1;
+	if ((str.charAt(0) == '\'' && str.charAt(end) == '\'') || (str.charAt(0) == '\"' && str.charAt(end) == '\"'))
+		return str;
 	var one = str.indexOf('\'') != -1;
 	var two = str.indexOf('\"') != -1;
 	var q = one ? '\"' : '\''; 

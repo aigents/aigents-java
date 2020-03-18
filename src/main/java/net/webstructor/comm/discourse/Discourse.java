@@ -46,9 +46,13 @@ import net.webstructor.comm.SocialCacher;
 import net.webstructor.core.Thing;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
+import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
+import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
+import net.webstructor.util.MapMap;
+import net.webstructor.util.Str;
 
 //https://github.com/aigents/aigents-java/issues/7
 //public class Discourse extends Socializer {
@@ -57,15 +61,17 @@ public class Discourse extends SocialCacher {
 	String appSecret;
 	protected HttpFileReader reader;//TODO: move up to HTTP or fix native HTTP
 	boolean debug = true; 
+	
+	public static String json_errors = "{\"errors\":[\""; 
 
 	//TODO: merge the two
 	private transient HashMap<String,String> user_names = new HashMap<String,String>();
 	private transient HashMap<String,Long> user_offsets = new HashMap<String,Long>();
-
+	
 	//TODO: incapsulated cache class/object
 	private transient HashMap<Long,HashMap<Long,DiscourseItem>> topic_posts = new HashMap<Long,HashMap<Long,DiscourseItem>>();
 	private transient Date earliest = null;
-	
+
 	public Discourse(Body body, String name, String url, String appId, String appSecret) {
 		super(body,name,url);
 		this.appId = appId;
@@ -82,90 +88,212 @@ public class Discourse extends SocialCacher {
 		return feeder;
 	}
 	
-	/*public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
-		if (AL.empty(uri) || AL.empty(appId) || AL.empty(appSecret))
+	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
+		if (AL.empty(uri))
+			return -1;
+
+		String base_url = HttpFileReader.getSite(uri);
+		String api_url = body.self().getString(Body.discourse_url);
+		
+		boolean applies = false;
+		if (base_url.equals(api_url))//if same url as discourse url
+			applies = true;
+		else {//if is discourse
+			Collection set = body.storager.getNamed(base_url);
+			if (set != null) for (Object o : set) if (((Thing)o).is(new String[] {"discourse"}))
+				applies = true;
+		}
+		if (!applies)
 			return -1;
 		
-		String subreddit = Str.parseBetween(uri, "reddit.com/r/", "/", false);
-		String user = Str.parseBetween(uri, "reddit.com/user/", "/", false);
+		String user = Str.parseBetween(uri, "/u/", "/", false);//https://community.singularitynet.io/u/akolonin/
+
+		String topic = Str.parseBetween(uri, "/t/", "/", false);//https://community.singularitynet.io/t/can-ai-be-governed-at-all/2833
+		if (topic != null) {//topic_slug e.g. can-ai-be-governed-at-all
+			String topic_id = Str.parseBetween(uri, "/t/"+topic+"/", "/", false);//topic id e.g. 2833
+			if (topic_id != null)
+				topic += "/" + topic_id;
+		}
 		
-		if (AL.empty(subreddit) && AL.empty(user))
-			return -1;
+		String category = Str.parseBetween(uri, "/c/", "/", false);//https://community.singularitynet.io/c/society/
+
+		if (debug) body.debug("Discourse crawling url "+uri);
+		int matches = 0;
+		Date since = Time.today(-1);
+		if (!AL.empty(user))
+			matches = readUser(base_url, user, since, topics, thingPathsCollector);
+		else
+		if (!AL.empty(topic))
+			matches = readTopic(base_url, topic, since, topics, thingPathsCollector);
+		else {
+			//https://community.singularitynet.io/c/qa
+			//https://community.singularitynet.io/c/qa/9
+			long category_id = !AL.empty(category) ? getCategoryId(base_url,category) : -1;
+			matches = readPosts(base_url, category_id,  since, topics,thingPathsCollector);
+		}
 		
-		//https://github.com/reddit-archive/reddit/wiki/OAuth2
-//TODO: mobile/tablet/desktop case
-		//https://oauth.reddit.com/grants/installed_client:
-		//	Installed app types (as these apps are considered "non-confidential", have no secret, and thus, are ineligible for client_credentials grant.
-		//	Other apps acting on behalf of one or more "logged out" users.
-		//web-case
-		//client_credentials:
-		//	Confidential clients (web apps / scripts) not acting on behalf of one or more logged out users.
-		//https://www.reddit.com/api/v1/access_token
-		//For client_credentials grants include the following information in your POST data (NOT as part of the URL)
-		//grant_type=client_credentials
-		//You must supply your OAuth2 client's credentials via HTTP Basic Auth for this request. The "user" is the client_id, the "password" is the client_secret.
-		String params = "grant_type=client_credentials";
-		String auth_base64 = auth_base64(appId,appSecret);
-		String response;
+		if (debug) body.debug("Discourse crawling url "+uri+" found "+matches);
+		return matches;
+	}
+
+	//TODO: move to other place?
+	static String imgUrl(Collection links) {
+		String imgurl = null;//TODO extract
+		for (Object s : links) if (AL.isIMG((String)s)) {
+			imgurl = (String)s;
+			break;
+		}
+		return imgurl;
+	}
+	
+	protected long getCategoryId(String base_url, String categoryName) {
+//TODO: caching categories per base_url 
 		try {
-			body.debug("Reddit read channel "+uri+" request "+params+" "+auth_base64);
-			response = HTTP.simple(Discourse.oauth_url,params,"POST",timeout,null,new String[][] {new String[] {"Authorization",auth_base64}});
-			body.debug("Reddit read channel "+uri+" response "+response);
-			if (!AL.empty(response)) {
-				JsonReader jsonReader = Json.createReader(new StringReader(response));
-				JsonObject json = jsonReader.readObject();
-				if (json.containsKey("access_token")) {
-					String access_token = HTTP.getJsonString(json,"access_token");
-					String[][] hdr = new String[][] {new String[] {"Authorization","bearer "+access_token}};
-					String after = null;
-					//Date since = Time.today(-body.self().getInt(Body.attention_period,14));
-					Date since = Time.today(-1);
-					int matches = 0;
-					for (boolean days_over = false; !days_over;) {
-//TODO: throttling based on header info or invalid replies 
-						//https://www.reddit.com/dev/api#GET_new
-						//https://www.reddit.com/dev/api#GET_user_{username}_{where}
-						String api_url = !AL.empty(subreddit) ? "https://oauth.reddit.com/r/"+subreddit+"/new" : "https://oauth.reddit.com/user/"+user+"/submitted";
-						params = "limit=100" + (after == null ? "" : "&after="+after);
-						if (debug) body.debug("Reddit read channel request "+uri+" "+api_url+" "+params);
-						response = HTTP.simple(api_url+"?"+params,null,"GET",0,null,hdr);
-						if (debug) body.debug("Reddit read channel response "+uri+" "+response);
-						if (AL.empty(response))
-							break;
-						jsonReader = Json.createReader(new StringReader(response));
-						json = jsonReader.readObject();
-						JsonObject data = JSON.getJsonObject(json,"data");
-						if (data == null)
-							break;
-						JsonArray children = JSON.getJsonArray(data, "children");
-						if (children != null) for (int i = 0; i < children.size(); i++) {
-							JsonObject item = children.getJsonObject(i);
-							//String type = JSON.getJsonString(item, "type");//t1_Comment,t2_Account,t3_Link,t4_Message,t5_Subreddit,t6_Award
-							item = JSON.getJsonObject(item,"data");
-							RedditItem ri = new RedditItem(item);
-							if (!ri.is_robot_indexable)// || !"public".equals(ri.subreddit_type))
-								continue;
-							if (ri.date.compareTo(since) < 0){
-								days_over = true;
-								break;
-							}
-							String text = HtmlStripper.convert(ri.text," ",null);
-							text = HtmlStripper.convertMD(text, null, null);
-//TODO: consider if we want to consider links and images same way as we do that for Siter's web pages  
-							matches += Siter.matchThingsText(body,topics,text,ri.date,ri.uri,AL.isURL(ri.thumbnail)?ri.thumbnail:null,thingPathsCollector);
-						}
-						after = JSON.getJsonString(data, "after");
-						if (after == null)
-							break;
-					}
-					return matches;
+			String url = base_url + "/categories.json";
+			if (debug) body.debug("Discourse crawling categories request "+url);
+			String response;
+			response = simpleRetry(url,null,"GET",null,null);
+			if (debug) body.debug("Discourse crawling categories response "+response);
+			JsonReader jsonReader = Json.createReader(new StringReader(response));
+			JsonObject json = jsonReader.readObject();
+			JsonObject category_list = JSON.getJsonObject(json,"category_list");
+			JsonArray categories = category_list != null ? JSON.getJsonArray(category_list,"categories") : null;
+			if (categories != null) {
+				for (int i = 0; i < categories.size(); i++) {
+					JsonObject o = categories.getJsonObject(i);
+					long id = JSON.getJsonLong(o, "id", 0);
+					String slug = JSON.getJsonString(o, "slug");
+					if (categoryName.equals(slug))
+						return id;
 				}
+				return Integer.parseInt(categoryName);
 			}
-		} catch (IOException e) {
-			body.error("Reddit read channel error "+uri,e);
+		} catch (Exception e) {
+			body.error("Discourse crawling categories ", e);
 		}
 		return -1;
-	}*/
+	}
+	
+	protected int readPosts(String base_url, long category_id, Date since, Collection topics, MapMap thingPathsCollector) {
+//TODO: caching posts in time order per base_url
+		long before = 0;
+		int matches = 0;
+		try {
+			for (boolean days_over = false; !days_over;) {
+				String url = base_url + (before == 0 ? "/posts.json" : "/posts.json?before=" + before);
+				if (debug) body.debug("Discourse crawling posts request "+url);
+				String response = simpleRetry(url,null,"GET",null,null);
+				//if (debug) body.debug("Discourse crawling posts response "+response);
+				if (AL.empty(response))
+					break;
+				JsonReader jsonReader = Json.createReader(new StringReader(response));
+				JsonObject json = jsonReader.readObject();
+				JsonArray posts = JSON.getJsonArray(json,"latest_posts");
+				if (posts == null || posts.size() == 0)
+					break;
+				for (int i = 0; i < posts.size(); i++) {
+					JsonObject o = posts.getJsonObject(i);
+					DiscourseItem a = new DiscourseItem(o);
+					before = a.post_id;
+					if (!a.visible)
+						continue;
+					if (a.created_at.compareTo(since) < 0){
+						days_over = true;
+						break;
+					}
+					if (category_id > 0 && a.category_id != category_id)
+						continue;
+					OrderedStringSet links = new OrderedStringSet();
+					String text = SocialFeeder.parsePost(a.post_number < 2 ? a.title : null, a.text, links);
+					if (!AL.empty(text))
+						matches += Siter.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+				}
+				before--;
+			}
+			
+		} catch (Exception e) {
+			body.error("Discourse crawling posts request "+url,e);
+		}
+		return matches;
+	}
+	
+	protected int readTopic(String base_url, String topic, Date since, Collection topics, MapMap thingPathsCollector) {
+		;//TODO with redirect
+		//https://community.singularitynet.io/t/2841.json
+		//https://community.singularitynet.io/t/ai-human-network.json => https://community.singularitynet.io/t/ai-human-network/2841.json
+		try {
+			//https://docs.discourse.org/#tag/Topics/paths/~1t~1{id}.json/get
+			String url = base_url + "/t/"+topic+".json?print=true";
+			if (debug) body.debug("Discourse crawling topic "+topic+" request "+url);
+			String response = simpleRetry(url,null,"GET",null,null);
+			if (response.startsWith(json_errors))//if print=true causes throttling, just ignore more than 20 comments ;-)
+				response = simpleRetry(base_url + "/t/"+topic+".json",null,"GET",null,null);//TODO fix hack
+			if (debug) body.debug("Discourse crawling topic "+topic+" response "+response);
+			if (AL.empty(response))
+				return 0;
+			JsonReader jsonReader = Json.createReader(new StringReader(response));
+			JsonObject json = jsonReader.readObject();
+			JsonObject post_stream = JSON.getJsonObject(json,"post_stream");
+			JsonArray posts = post_stream != null ? JSON.getJsonArray(post_stream,"posts") : null;
+			int matches = 0;
+			if (posts != null && posts.size() > 0) for (int i = posts.size()  - 1; i >= 0; i--) {//ordered from older to newer
+				JsonObject o = posts.getJsonObject(i);
+				DiscourseItem a = new DiscourseItem(o);
+				if (!a.visible)
+					continue;
+				if (a.created_at.compareTo(since) < 0)
+					break;//continue? - if we are not sure about the order!?
+				OrderedStringSet links = new OrderedStringSet();
+				String text = SocialFeeder.parsePost(a.post_number < 2 ? a.title : null, a.text, links);
+				if (!AL.empty(text))
+					matches += Siter.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+			}
+			return matches;
+		} catch (Exception e) {
+			body.error("Discourse crawling topic "+topic, e);
+		}
+		return 0;
+	}
+	
+	protected int readUser(String base_url, String user_id, Date since, Collection topics, MapMap thingPathsCollector) {
+		int matches = 0;
+		try {
+			int offset = 0;//offset - index starting from 0, in chunks by 30	
+			for (boolean days_over = false; !days_over;) {
+				String url = base_url + "/user_actions.json?username="+user_id+"&filter=4,5&offset=" + offset;
+				if (debug) body.debug("Discourse crawling peer "+user_id+" request "+url);
+				String response = simpleRetry(url,null,"GET",null,null);
+				if (debug) body.debug("Discourse crawling peer "+user_id+" response "+response);
+				if (AL.empty(response))
+					break;
+				JsonReader jsonReader = Json.createReader(new StringReader(response));
+				JsonObject json = jsonReader.readObject();
+				JsonArray actions = JSON.getJsonArray(json,"user_actions");
+				if (actions == null || actions.size() == 0)
+					break;
+				offset += actions.size();//increment offset for the next trial
+				for (int i = 0; i < actions.size(); i++) {
+					JsonObject o = actions.getJsonObject(i);
+					DiscourseItem a = new DiscourseItem(o);
+					if (!a.visible)
+						continue;
+					if (a.created_at.compareTo(since) < 0){
+						days_over = true;
+						break;
+					}
+					OrderedStringSet links = new OrderedStringSet();
+					//case 4: //4 - my topic posts
+					//case 5: //5 - my reply posts
+					String text = SocialFeeder.parsePost(a.action_type == 4 ? a.title : null, a.text, links);
+					if (!AL.empty(text))
+						matches += Siter.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+				}
+			}
+		} catch (Exception e) {
+			body.error("Discourse crawling peer "+user_id, e);
+		}
+		return matches;
+	}
 
 	@Override
 	public Profiler getProfiler(Thing peer) {
@@ -199,7 +327,7 @@ public class Discourse extends SocialCacher {
 			if (map == null)
 				topic_posts.put(post.topic_id, map = new HashMap<Long,DiscourseItem>());
 			if (!map.containsKey(post.post_id)) {
-				map.put((long)(post.post_number == 0 ? 1 : post.post_number), post);
+				map.put((long)(post.post_number), post);
 				if (earliest == null || earliest.compareTo(post.created_at) > 0)
 					earliest = post.created_at;
 				return true;
@@ -211,15 +339,15 @@ public class Discourse extends SocialCacher {
 	//TODO: move out and reuse with Reddit
 	public String simpleRetry(String url,String urlParameters,String method,String cType,String[][] props) throws IOException, InterruptedException {
 		String response = null;
-		for (int retry = 1; retry <= 10; retry++){
+		for (int retry = 1; retry <= 30; retry++){
 			try {
 				response = HTTP.simple(url,urlParameters,method,1000,cType,props);
 			} catch (java.net.SocketTimeoutException e) {
 				body.debug("Discourse crawling timeout");
 			}
-			if (AL.empty(response) || !(response.startsWith("{") || response.startsWith("["))){
+			if (AL.empty(response) || !(response.startsWith("{") || response.startsWith("[")) || response.startsWith(json_errors)){
 				body.debug("Discourse crawling throttling "+response);
-				Thread.sleep(1000 * retry);
+				Thread.sleep(2000 * retry);
 			} else 
 				break;
 		}
@@ -244,6 +372,7 @@ public class Discourse extends SocialCacher {
 				for (int i = 0; i < posts.size(); i++) {
 					JsonObject o = posts.getJsonObject(i);
 					DiscourseItem a = new DiscourseItem(o);
+					before = a.post_id;		
 					if (!a.visible)
 						continue;
 					if (a.created_at.compareTo(since) < 0){
@@ -255,7 +384,6 @@ public class Discourse extends SocialCacher {
 						days_over = true;
 						break;
 					}
-					before = a.post_id;		
 				}
 				before--;
 			}

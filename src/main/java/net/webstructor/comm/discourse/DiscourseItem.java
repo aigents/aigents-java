@@ -89,8 +89,9 @@ class DiscourseItem {
 		reply_to_post_number = JSON.getJsonInt(item,"reply_to_post_number");
 		post_type = JSON.getJsonInt(item,"post_type");
 		post_id = item.containsKey("post_id") ? JSON.getJsonLong(item,"post_id") : JSON.getJsonLong(item,"id");
-		text = item.containsKey("raw") ? JSON.getJsonString(item,"raw") : JSON.getJsonString(item,"excerpt");
-		title = JSON.getJsonString(item,"title");
+		//text = item.containsKey("raw") ? JSON.getJsonString(item,"raw") : item.containsKey("excerpt") ? JSON.getJsonString(item,"excerpt") : JSON.getJsonString(item,"cooked");
+		text = item.containsKey("cooked") ? JSON.getJsonString(item,"cooked") : item.containsKey("excerpt") ? JSON.getJsonString(item,"excerpt") : JSON.getJsonString(item,"raw");
+		title = item.containsKey("title") ? JSON.getJsonString(item,"title") : JSON.getJsonString(item,"topic_title");
 		slug = item.containsKey("slug") ? JSON.getJsonString(item,"slug") : JSON.getJsonString(item,"topic_slug");
 		target_username = JSON.getJsonString(item,"target_username");
 		target_name = JSON.getJsonString(item,"target_name");
@@ -106,11 +107,11 @@ class DiscourseItem {
 		
 		visible = !(deleted || hidden || closed || archived);
 		
-if (post_number == 0) 
-	System.out.println(item);//TODO ensure post_number can't be null or skipped
-
 		switch (action_type) {
-		case 4: case 5: case 6: case 7: 
+		case 4: case 5: case 6: case 7:
+			if (post_number == 0)
+				post_number = 1;
+			else
 			if (post_number > 1 && reply_to_post_number == 0)
 				reply_to_post_number = 1;
 		}
