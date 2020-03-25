@@ -55,6 +55,80 @@ function cleanup(){
 	get("Ok.");
 }
 
+
+function test_agent_expereinces() {
+	init();
+	//make sure we can load different categoroes of actions in respect to texts
+	say("there text 'clicked text', click true, new true, times today.");
+	get("Ok.");
+	say("there text 'searched text', query true, new true, times today.");
+	get("Ok.");
+	say("there text 'selected text', selection true, times today.");
+	get("Ok.");
+	say("there text 'copypasted text', copypaste true, times today.");
+	get("Ok.");
+	say("there text 'copypasted and selected text', copypaste true, selection true, times today.");
+	get("Ok.");
+	say("what my news times, click, query, new?");
+	say("what my clicks text, times?");
+	get("Your clicks text clicked text, times today.");
+	say("what my queries text?");
+	get("Your queries text searched text.");
+	say("what my selections text?");
+	get("Your selections text copypasted and selected text; text selected text.");
+	say("what my copypastes text?");
+	get("Your copypastes text copypasted and selected text; text copypasted text.");
+	say("what times today text, new, copypaste, click, query, selection?");
+	get("There click false, copypaste false, new false, query false, selection true, text selected text; click false, copypaste false, new true, query true, selection false, text searched text; click false, copypaste true, new false, query false, selection false, text copypasted text; click false, copypaste true, new false, query false, selection true, text copypasted and selected text; click true, copypaste false, new true, query false, selection false, text clicked text.");
+	say("new true new false");
+	say("click true click false");
+	say("query true query false");
+	say("selection true selection false");
+	say("copypaste true copypaste false");
+	say("no there times today");
+	get("Ok.");
+	say("what times today text, new, copypaste, click, query, selection?");
+	get("There not.");
+	//make sure old things (past the attention period) are forgotten
+	say("there text 'new regular text', new true, trust true, times today.");
+	say("there text 'old regular text', new true, trust true, times 2019-01-01.");
+	say("there text 'new selected text', selection true, trust true, times today.");
+	say("there text 'old selected text', selection true, trust true, times 2019-01-01.");
+	say("what times today or 2019-01-01 times, text?");
+	get("There text new regular text, times today; text new selected text, times today; text old regular text, times 2019-01-01; text old selected text, times 2019-01-01.");
+	say("you forget");//can be run by admin user only, runs behind the scene periodically for all other non-admin users
+	say("what times today or 2019-01-01 times, text?");
+	get("There text new regular text, times today; text new selected text, times today.");
+	say("trust true trust false");
+	say("new true new false");
+	say("selection true selection false");
+	say("no there times today");
+	get("Ok.");
+	say("what times today?");
+	get("There not.");
+	
+	//get patterns from texts without of storing texts in aigents
+	say("You cluster format json texts '[\"germans live in germany\",\"russians live in russia\",\"spaniards live in spain\",\"cars ride on roads\",\"cat is a mammal\",\"trains ride on rails\",\"bikes ride on trails\"]'.");
+	get("{\"categories\":[[\"in\",\"live\"],[\"on\",\"ride\"]],\"category_documents\":{\"in, live\":{\"germans live in germany\":\"2\",\"russians live in russia\":\"2\",\"spaniards live in spain\":\"2\"},\"on, ride\":{\"bikes ride on trails\":\"2\",\"cars ride on roads\":\"2\",\"trains ride on rails\":\"2\"}},\"category_features\":{\"in, live\":{\"germans\":\"2\",\"germany\":\"2\",\"in\":\"6\",\"live\":\"6\",\"russia\":\"2\",\"russians\":\"2\",\"spain\":\"2\",\"spaniards\":\"2\"},\"on, ride\":{\"bikes\":\"2\",\"cars\":\"2\",\"on\":\"6\",\"rails\":\"2\",\"ride\":\"6\",\"roads\":\"2\",\"trails\":\"2\",\"trains\":\"2\"}}}");
+
+	//get patterns from texts with storing texts in aigents
+	say("There text 'germans live in germany', times 2019-01-01, selection true, trust true.");
+	say("There text 'russians live in russia', times 2019-01-01, query true, trust true.");
+	say("There text 'spaniards live in spain', times 2019-01-01, click true, trust true.");
+	say("There text 'cars ride on roads', times 2019-01-01, copypaste true, trust true.");
+	say("There text 'trains ride on rails', times 2019-01-01, trust true.");
+	say("There text 'bikes ride on trails', times 2019-01-01, trust true.");
+	say("You cluster!");
+	get("You topics ({in live} {on ride}).'{in live}' sites germans live in germany, russians live in russia, spaniards live in spain;\n '{on ride}' sites bikes ride on trails, cars ride on roads, trains ride on rails.\n'{in live}' patterns germans, germany, in, live, russia, russians, spain, spaniards;\n '{on ride}' patterns bikes, cars, on, rails, ride, roads, trails, trains.");	
+	say("you forget!"); //cleanup date by attention period
+	
+//TODO pattern mining by profiler API
+//TODO social reporting
+//TODO sentiment mining (with either "there text 'good stuff', is good." or "there text 'good stuff', good true." !?)
+//TODO graph mining
+	cleanup();
+}
+
 function test_agent_cluster() {
 	global $basePath;
 	init();
@@ -304,6 +378,7 @@ function test_agent_cat() {
 }
 
 test_init();
+test_agent_expereinces();
 test_agent_cluster();
 test_agent_cat();
 printtimers();

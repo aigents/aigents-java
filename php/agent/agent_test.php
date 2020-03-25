@@ -46,7 +46,8 @@ function test_once() {
 	//testing site parsing
 	test_basic();
 
-	//test clistering and classification
+	//test clustering, pattern extraction and classification
+	test_agent_expereinces();
 	test_agent_cluster();
 	test_agent_cat();
 	

@@ -116,6 +116,10 @@ public class Peer extends Agent {
 		AL.shares,
 		AL.friend,
 		AL.friends,
+		AL.queries,
+		AL.clicks,
+		AL.selections,
+		AL.copypastes,
 		AL.news
 		};
 	public static final String[] editables = new String[] {

@@ -41,7 +41,7 @@ import net.webstructor.util.Array;
 
 public class Thing extends Anything { // implements ORObject
 
-	private static final String[] names = new String[] {
+	private static final String[] names = new String[] {//TODO have this in Schema, not here and in AL
 		AL.is,
 		AL.id,
 		AL.has,
@@ -51,6 +51,10 @@ public class Thing extends Anything { // implements ORObject
 		AL.sources,
 		AL.patterns,
 		AL.trust,
+		AL.query,//TODO: move this out to configurable schema and/or class properties with class specified in query!?
+		AL.click,
+		AL.selection,
+		AL.copypaste,
 		AL._new,
 		AL.text // TODO: move this out to news or name?
 	};

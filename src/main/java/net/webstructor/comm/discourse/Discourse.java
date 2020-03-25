@@ -346,6 +346,10 @@ public class Discourse extends SocialCacher {
 				body.debug("Discourse crawling timeout");
 			}
 			if (AL.empty(response) || !(response.startsWith("{") || response.startsWith("[")) || response.startsWith(json_errors)){
+				if (!AL.empty(response) && response.contains("not_found")) {
+					body.debug("Discourse crawling not found "+url);
+					return null;
+				}
 				body.debug("Discourse crawling throttling "+response);
 				Thread.sleep(2000 * retry);
 			} else 

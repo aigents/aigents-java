@@ -30,6 +30,7 @@ function test_agent_think() {
 	global $version;
 	global $copyright;
 	global $timeout;
+	global $base_things_count;
 	
 	//register 1st user
 	say("My login.");
@@ -43,7 +44,7 @@ function test_agent_think() {
 	say("You forget everything!");
 	get("Ok.");
 	say("Your things count?");
-	get("My things count 110.");
+	get("My things count ".($base_things_count).".");
 	say("What times today text?");
 	get("There not.");
 	
@@ -204,7 +205,7 @@ function test_agent_think() {
 	say("You forget everything!");
 	get("Ok.");
 	say("Your things count?");
-	get("My things count 110.");
+	get("My things count ".($base_things_count).".");
 	say("Your trusts no john.");
 	get("Ok.");
 	say("No email john@doe.com.");
@@ -221,7 +222,8 @@ function test_agent_think_ex() {
 	global $version;
 	global $copyright;
 	global $timeout;
-
+	global $base_things_count;
+	
 	//register 1st user
 	say("My login.");
 	get("What your email, name, surname?");

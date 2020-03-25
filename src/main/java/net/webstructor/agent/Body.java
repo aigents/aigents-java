@@ -59,7 +59,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.5.4";
+	public final static String VERSION = "2.5.6";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -167,7 +167,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String[] things = new String[] {
 		Storager.things_count, AL.things
 	};
-	
+
 	public static final String[] properties = Array.merge(strings, things);
 	
 	public Sessioner sessioner;

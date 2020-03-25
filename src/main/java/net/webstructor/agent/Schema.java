@@ -52,6 +52,10 @@ public class Schema {
 		AL.ignores,
 		AL.shares,
 		AL.friends,
+		AL.queries,
+		AL.clicks,
+		AL.selections,
+		AL.copypastes,
 		AL.news,
 		AL.things,
 		AL.patterns,
@@ -106,6 +110,14 @@ public class Schema {
 			return AL.friends;
 		if (name.equals(AL._new))
 			return AL.news;
+		if (name.equals(AL.query))
+			return AL.queries;
+		if (name.equals(AL.click))
+			return AL.clicks;
+		if (name.equals(AL.selection))
+			return AL.selections;
+		if (name.equals(AL.copypaste))
+			return AL.copypastes;
 		return null;
 	}
 	

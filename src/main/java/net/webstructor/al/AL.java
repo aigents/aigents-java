@@ -77,6 +77,14 @@ public class AL {
 	public final static String parents  = "parents";
 	public final static String topic 	= "topic";
 	public final static String topics	= "topics";
+	public final static String query	= "query";
+	public final static String queries	= "queries";
+	public final static String click	= "click";
+	public final static String clicks	= "clicks";
+	public final static String selection = "selection";
+	public final static String selections = "selections";
+	public final static String copypaste = "copypaste";
+	public final static String copypastes = "copypastes";
 	public final static String image 	= "image";
 	public final static String path 	= "path";
 	public final static String text 	= "text"; // TODO: move this out to name?
@@ -96,8 +104,9 @@ public class AL {
 	public final static String word 	= "word";//single token
 	public final static String email 	= "email";//email address
 	
-	public final static String[] foundation = new String[]{
+	public final static String[] foundation = new String[]{	//TODO have this in Schema, not here and in Thing
 		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,topics,sites,areas,sources,patterns,responses,text
+		,query,queries,click,clicks,selection,selections,copypaste,copypastes
 		,members,groups
 	};
 
