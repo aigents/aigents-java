@@ -46,6 +46,7 @@ var locale_ru = {
 		map_golos_logo : 'Показать социальное окружение в сети Golos',
 		map_ethereum_logo : 'Показать финансовую среду в блокчейне Ethereum',
 		vkontakte_report : 'Отчет об активности во ВКонтакте',
+		aigents_report : 'Отчет об активности в Aigents',
 		reddit_report : 'Отчет об активности в Reddit',
 		vkontakte_logout : 'Выход из всех сетей',
 		facebook_report : 'Отчет об активности в Facebook',

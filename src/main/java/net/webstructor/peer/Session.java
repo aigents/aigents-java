@@ -345,7 +345,7 @@ public class Session  {
 		
 		communicator.login(this, peer);//set session context to peer if needed
 
-		sessioner.body.updateStatus(peer);//spawn status update process here asynchronously
+		sessioner.body.updateStatus(peer,null);//spawn status update process here asynchronously
 		authenticated = true;
 
 		return "Ok. Hello "+peer.getTitle(Peer.title)+"!"+"\nMy "+Body.notice();
@@ -355,7 +355,7 @@ public class Session  {
 		//update user registration time
 		Thing peer = getStoredPeer();
 		peer.set(Peer.registration_time,Time.day(Time.today));
-		sessioner.body.updateStatus(peer);//spawn status update process here asynchronously
+		sessioner.body.updateStatus(peer,null);//spawn status update process here asynchronously
 	}
 
 	public boolean trusted() {

@@ -62,6 +62,7 @@ import net.webstructor.peer.Profiler;
 import net.webstructor.peer.Reputationer;
 import net.webstructor.self.Selfer;
 import net.webstructor.self.Siter;
+import net.webstructor.self.Aigents;
 import net.webstructor.util.Array;
 
 //TODO: make it extending Cell and let Cell be re-used by mobile clients
@@ -140,6 +141,8 @@ public class Farm extends Body {
 	//TODO: have this done in fresh new Farm class diverged from old Farm class renamed to Cell 
 	//TODO: this in other "factory pool" place, changeable online?
 	protected void socialize() {
+		socializers.put(name(), new Aigents(this));
+		
 		String fb_id = self().getString(facebook_id);
 		String fb_key = self().getString(facebook_key);
 		if (!AL.empty(fb_id) && !AL.empty(fb_key))
@@ -193,8 +196,17 @@ public class Farm extends Body {
 	public boolean act(String name, Anything argument) {
 		if ("read".equalsIgnoreCase(name) && selfer != null)
 			return selfer.spider((Thing)argument);
-		if ("profile".equalsIgnoreCase(name) && selfer != null)
+		if ("profile".equalsIgnoreCase(name) && selfer != null) {
+			Collection peers;
+			if (argument != null && argument instanceof Thing && (peers = ((Thing)argument).getThings("peers")) !=null) {
+				String network = argument.getString("network");
+				for (Object peer : peers)
+					updateStatus((Thing)peer,network);//update individual peer asynchronously
+				return true;
+			}
+			//TODO: profile ALL peers for specified "network" ONLY
 			return selfer.profile();
+		}
 		if ("reputation update".equalsIgnoreCase(name))
 			return updateReputation();
 		return false;
@@ -347,7 +359,7 @@ public class Farm extends Body {
 					Date activityTime = (Date)peer.get(Peer.activity_time);
 					if (activityTime != null && activityTime.compareTo(since) >= 0){
 						//TODO: this is separate "socializer" class
-						updateStatus(peer,profilers(peer),false);//may be not fresh because of cleanup up front
+						updateStatus(peer,profilers(peer,null),false);//may be not fresh because of cleanup up front
 						debug("Spidering peer "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" completed "+new Date(System.currentTimeMillis())+".");
 					} else 
 						debug("Spidering peer "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" skipped.");
@@ -361,10 +373,12 @@ public class Farm extends Body {
 		}
 	}
 	
-	private Profiler[] profilers(Thing peer) {
+	private Profiler[] profilers(Thing peer,String network) {
 		ArrayList<Profiler> profilers = new ArrayList(socializers.size()); 
-		for (Socializer	feeder : socializers.values()) {
-			Profiler p = feeder.getProfiler(peer);
+		for (Socializer	s : socializers.values()) {
+			if (!AL.empty(network) && !s.provider().equalsIgnoreCase(network))
+				continue;
+			Profiler p = s.getProfiler(peer);
 			if (p != null)
 				profilers.add(p);
 		}
@@ -391,13 +405,14 @@ public class Farm extends Body {
     	}
 	}
 	
-	public void updateStatus(final Thing peer) {
+	@Override
+	public void updateStatus(final Thing peer,String network) {
 		//TODO: do this all in better and specific place
 		//TODO: do this in the same thread pooling framework as spidering etc.
 		//TODO: the same but in better way
 		//TODO: handle exceptions consistently
 		//TODO: do this for all profilers possible (FB, VK, G+, Twitter, etc.)
-		final Profiler[] profilers = profilers(peer);
+		final Profiler[] profilers = profilers(peer,network);
 		if (profilers != null) {
 			Timer timer = new Timer();
 			final Runnable task = new TimerTask() {

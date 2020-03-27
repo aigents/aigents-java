@@ -606,7 +606,7 @@ public class Discourse extends SocialCacher {
 			@Override
 			public void updateStatus(boolean now) {}
 			@Override
-			public void updateStatus(Thing peer) {}
+			public void updateStatus(Thing peer,String network) {}
 			@Override
 			public void updateStatusRarely() {}
 		};

@@ -87,6 +87,10 @@ public abstract class Socializer extends HTTP {
 	static private final int reportingPeriods[] = {1,7,31,92,365,1461,5844};//day,week,month,quarter,year,4 years,16 years
 	private HashSet cachedRequests = new HashSet(); 
 
+	public String getPeerIdName(){
+		return provider()+" id";
+	}
+	
 	//virtual
 	public int getPeriod(){
 		return 5844;//16 years

@@ -59,7 +59,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.5.6";
+	public final static String VERSION = "2.5.7";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -437,7 +437,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	}
 	
 	abstract public void updateStatus(boolean now);
-	abstract public void updateStatus(Thing peer);
+	abstract public void updateStatus(Thing peer, String network);
 	abstract public void updateStatusRarely();
 	
 	//TODO: move out somewhere or remove as not used 20190224 

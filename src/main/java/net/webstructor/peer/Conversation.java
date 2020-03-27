@@ -352,8 +352,21 @@ class Conversation extends Mode {
 		} else	
 		if ((session.mood == AL.direction || session.mood == AL.declaration) 
 			&& session.read(Reader.pattern(AL.you,Self.profiling))) {
-			//TODO: make network input as parameter
-			boolean started = session.getBody().act("profile", null);
+			//you profile|profiling [<network> [, email <email>] [, name <name>] [, surname <surname>]]
+			Thing task = new Thing();
+			session.read(new Seq(new Object[]{new Any(1,AL.you),new Any(1,Self.profiling),new Property(task,"network")}));//optional network id
+			if (session.sessioner.body.provider(task.getString("network")) == null)//TODO Property-level domain validation
+				task.setString("network", null);
+			if (!session.trusted())
+				task.addThing("peers",curPeer);//profile itself only 
+			else {
+				Collection peers; 
+				if (session.read(task,new String[]{"email","name","surname"}) >= 1 &&
+					!AL.empty(peers = storager.get(new Thing(task,Login.login_context),null))) 
+					for (Object p : peers)
+						task.addThing("peers", (Thing)p);
+			}
+			boolean started = session.getBody().act("profile", task);
 			String output = "My "+Self.profiling[0]+".";
 			session.output(started ? "Ok. " : "Not. " + output); 
 			return false;			
@@ -579,7 +592,7 @@ class Conversation extends Mode {
 			   	String language = peer.getString(Peer.language);
 				boolean fresh = session.input().contains("fresh");
 			   	Socializer provider = session.sessioner.body.provider(arg.getString("network"));
-			   	String id = peer.getString(provider.provider()+" id");
+			   	String id = peer.getString(provider.getPeerIdName());
 			   	String token = peer.getString(provider.provider()+" token");
 				String report = provider.cachedReport(id,token,null,name,surname,language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");
