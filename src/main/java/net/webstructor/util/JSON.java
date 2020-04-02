@@ -51,6 +51,18 @@ public class JSON {
 		return data.keySet().contains(name) && !data.isNull(name) ? data.getJsonNumber(name).longValue() : def;
 	}
 	
+    public static String getJsonLongString(JsonObject data, String name, String def) {
+		if (data.keySet().contains(name) && !data.isNull(name)) {
+			try {
+				long val = data.getJsonNumber(name).longValue();
+				if (val != 0)
+					return String.valueOf(val);
+			} catch (Exception e) {}
+			
+		}
+		return def;
+	}
+	
 	public static String getJsonString(JsonObject data, String name) {
 		return getJsonString(data, name, null);
 	}

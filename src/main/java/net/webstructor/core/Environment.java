@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,4 +36,5 @@ public interface Environment {
 	public void register(String action, Actioner actioner);//TODO: add class/name, add option to unregister
 	public Actioner getActioner(String action);//TODO: actually act as an Actioner?
 	public String[] getActions();//TODO: set instead of String[]
+	public Anything getSelf();//properties
 }

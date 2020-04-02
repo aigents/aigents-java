@@ -55,6 +55,7 @@ class SteemitFeeder extends SocialFeeder {
 	protected HashMap permlinksToComments = new HashMap();
 	protected HashSet permlinksTagged = new HashSet();
 	protected Steemit api;
+	protected boolean debug = false;
 	
 	public static final int BLOCK_SIZE = 1000; 
 	
@@ -362,9 +363,9 @@ class SteemitFeeder extends SocialFeeder {
 			
 			String response = null;
 			try {
-				body.debug(Writer.capitalize(api.getName())+" request "+api.getUrl()+" "+par);
+				if (debug) body.debug(Writer.capitalize(api.getName())+" request "+api.getUrl()+" "+par);
 				response = Steemit.retryPost(body,api.getUrl(),par);
-				//body.debug(Writer.capitalize(api.getName())+" response "+response);
+				if (debug) body.debug(Writer.capitalize(api.getName())+" response "+response);
 				JsonReader jr = Json.createReader(new StringReader(response));
 				JsonObject result = jr.readObject();
 				JsonArray items = result.getJsonArray("result");

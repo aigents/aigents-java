@@ -206,7 +206,8 @@ public abstract class Socializer extends HTTP {
 	public SocialFeeder getFeeder(String id, String token, String key, int daysPeriod, String[] areas, boolean fresh, HashMap feeds) throws IOException {
 		if (daysPeriod > 0) {//explicitly specified reporting period
 			SocialFeeder feeder = getCachedFeeders(id, token, key, Time.today(-daysPeriod), Time.today(+1), areas, fresh, feeds);
-			feeder.setDays(daysPeriod);
+			if (feeder != null)
+				feeder.setDays(daysPeriod);
 			return feeder;
 		}
 		//dynamically find non-empty period or report on empty longest period

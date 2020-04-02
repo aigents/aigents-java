@@ -89,40 +89,6 @@ public class Ethereum extends SocialCacher {
 				new Object[]{name,Time.linux(time),type,from,to,value,null,null,null,null,input,null,null,new Long(block)});
 	}
 	
-	/*
-	void alert(Date time, long block, String type, String from, String to, String value, String source){
-		String key = name+" id";
-		Collection froms = body.storager.get(new Thing(key,from));
-		Collection tos = body.storager.get(new Thing(key,to));
-		if (!AL.empty(froms) || !AL.empty(tos)){
-			Thing alert = new Thing();
-			//alert.set(AL.text, from + (value == null ? " calls " : " pays "+value+" to ")+to);
-			alert.set(AL.text, from + " " + type + " " + (value == null ? "" : value + " to ") + to);
-			alert.set(AL.times, Time.date(time));
-			Collection alls = body.storager.get(alert);
-			if (!AL.empty(alls))
-				alert = (Thing)alls.iterator().next();
-			else {
-				alert.store(body.storager);
-				alert.addThing(AL.is, body.storager.getThing(name));
-				alert.addThing(AL.sources, body.storager.getThing(source));
-			}
-			if (!AL.empty(froms))
-			for (Iterator it = froms.iterator(); it.hasNext();){
-				Thing p = (Thing)it.next();
-				if (!p.hasThing(AL.news, alert))
-					p.addThing(AL.news, alert);
-			}
-			if (!AL.empty(tos))
-			for (Iterator it = tos.iterator(); it.hasNext();){
-				Thing p = (Thing)it.next();
-				if (!p.hasThing(AL.news, alert))
-					p.addThing(AL.news, alert);
-			}
-		}
-	}
-	*/
-	
 	//for test only
 	public static void main(String[] args) {
 		

@@ -439,7 +439,7 @@ class Conversation extends Mode {
 			//TODO: clustering via adapter
 			{
 				if (!AL.empty(texts)){
-					TextMiner m = new TextMiner(session.getBody(),null,true).setDocuments(texts).cluster();
+					TextMiner m = new TextMiner(session.getBody(),null,false).setDocuments(texts).cluster();
 					if (json != null) {
 						Thing data = new Thing();
 						data.set("categories", m.getCategoryNames());

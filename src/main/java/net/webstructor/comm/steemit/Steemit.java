@@ -124,7 +124,7 @@ wss://api.golos.blckchnd.com/ws
 wss://denisgolub.name/ws
 wss://api-full.golos.id/ws
 wss://lindsay-golos.cf/ws
-https://api-full.golos.id (OK)
+https://api-full.golos.id (OK) - expired certificate!?
 https://api.golos.blckchnd.com (OK)
 Тут же и размеры блоков можно посмотреть на разных нодах.
 
@@ -136,6 +136,7 @@ http://ropox.tools/steemjs/api/
 https://docs.google.com/document/d/1kms6fmzcUg18-SemUyJU9tRKt-853orXcdb16m1NGTE/mobilebasic#id.pw2zkoufcr2z
 https://golos.io/ru--golos/@goloscore/novosti-golos-core-status-razrabotki-na-05-02-2018-tekhnicheskie-izmeneniya-informaciya-o-bounty-programme
 Golos API Hosts:
+https://golos.id/nodes
 https://api.golos.blckchnd.com - public, working with new API on 2015-05-15
 this.goloscore.org - Could not resolve host: this.goloscore.org
 https://ws.golos.io - worked in curl (with cert) - not working on 2015-05-15
@@ -145,6 +146,7 @@ https://api.golos.cf - ask @vikxx on Telegram
 wss://ws17.golos.io/ - not working on 2015-05-15
 Golos Working:
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api.golos.blckchnd.com
+curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api-full.golos.id
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["33119661"]]}' https://api.golos.blckchnd.com/
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["33119661"]]}' https://api-full.golos.id
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_dynamic_global_properties",[]]}' https://api-full.golos.id
@@ -176,12 +178,12 @@ public class Steemit extends SocialCacher {
 		base_url = base_url(provider());
 	}
 
-	//TODO:@Override
+	@Override
 	public String provider(){
 		return name;
 	}
 	
-	//TODO:@Override
+	@Override
 	public boolean opendata() {
 		return true;
 	}

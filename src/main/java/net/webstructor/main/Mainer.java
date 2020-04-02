@@ -31,6 +31,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import net.webstructor.core.Actioner;
+import net.webstructor.core.Anything;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Cacher;
 
@@ -145,6 +146,11 @@ public class Mainer implements Environment {
 
 	@Override
 	public String[] getActions() {
+		return null;//TODO ?
+	}
+
+	@Override
+	public Anything getSelf() {
 		return null;//TODO ?
 	}
 }

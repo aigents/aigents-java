@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Period;
@@ -41,11 +42,13 @@ import net.webstructor.al.Time;
 import net.webstructor.util.Array;
 import net.webstructor.util.ArrayPositionComparator;
 import net.webstructor.cat.HtmlStripper;
+import net.webstructor.cat.StringUtil;
+import net.webstructor.core.Anything;
 import net.webstructor.core.Environment;
 import net.webstructor.util.Reporter;
 
 public abstract class SocialFeeder {
-	public static final long MAX_CLUSTER_TIME = Period.MINUTE*5;//TODO: make configurable
+	public static final long MAX_CLUSTER_TIME = Period.MINUTE*1;//TODO: make configurable
 	public static final String anonymous = "anonymous";
 	public static final String Anonymous = "Anonymous";
 	
@@ -69,6 +72,7 @@ public abstract class SocialFeeder {
 	protected TextMiner textsMiner = null;
 	protected TextMiner peersMiner = null;
 	protected HashMap newsLinks = null;
+	protected long cluster_timeout;
 	protected int days;
 	private int period = 31;//breakdown period: 1-days,7-week,31-month,92-quarter,365-year
 
@@ -83,6 +87,9 @@ public abstract class SocialFeeder {
 		this.since = since;
 		this.until = until;
 		this.areas = Array.toLower(areas);
+		Anything self = body.getSelf();
+		this.cluster_timeout = self == null? MAX_CLUSTER_TIME : StringUtil.toLongOrDefault(self.getString(Body.cluster_timeout), 10, MAX_CLUSTER_TIME);
+		
 		if (period < 1 && until != null && since != null){//if period is not passed as explicit parameter
 			int period_days = new Period(until.getTime() - since.getTime()).getDays();
 			if (period_days < 28)

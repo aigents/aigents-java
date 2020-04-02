@@ -157,6 +157,19 @@ function test_agent_expereinces() {
 
 function test_agent_cluster() {
 	global $basePath;
+
+	//extremal cases
+	init();
+	//say("There new true, text 'aa bb cc dd ee ff gg hh', times today, trust true.");
+	//say("There new true, text 'hh ii jj kk ll mm nn oo', times today, trust true.");
+	say("There new true, text 'lion cat puma tiger', times today, trust true.");
+	say("There new true, text 'lion elephant zebra hippopotamus', times today, trust true.");
+	say("You cluster!");
+//TODO this and other extremal cases
+	get("You topics ({cat puma tiger} {elephant hippopotamus zebra} lion).'{cat puma tiger}' sites lion cat puma tiger;\n '{elephant hippopotamus zebra}' sites lion elephant zebra hippopotamus;\n 'lion' sites lion cat puma tiger, lion elephant zebra hippopotamus.\n'{cat puma tiger}' patterns cat, lion, puma, tiger;\n '{elephant hippopotamus zebra}' patterns elephant, hippopotamus, lion, zebra;\n 'lion' patterns cat, elephant, hippopotamus, lion, puma, tiger, zebra.");
+	cleanup();
+	
+	//basic clustering
 	init();
 	
 	/*
@@ -404,8 +417,8 @@ function test_agent_cat() {
 }
 
 test_init();
-test_agent_expereinces();
 test_agent_cluster();
+test_agent_expereinces();
 test_agent_cat();
 printtimers();
 test_summary();

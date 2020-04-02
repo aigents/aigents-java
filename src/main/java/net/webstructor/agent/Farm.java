@@ -52,6 +52,7 @@ import net.webstructor.comm.goog.GApi;
 import net.webstructor.comm.paypal.PayPal;
 import net.webstructor.comm.reddit.Reddit;
 import net.webstructor.comm.steemit.Steemit;
+import net.webstructor.comm.telegram.Telegram;
 import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
@@ -142,6 +143,10 @@ public class Farm extends Body {
 	//TODO: this in other "factory pool" place, changeable online?
 	protected void socialize() {
 		socializers.put(name(), new Aigents(this));
+		
+		String tg_id = self().getString(telegram_token);
+		if (!AL.empty(tg_id))
+			socializers.put("telegram", new Telegram(this));
 		
 		String fb_id = self().getString(facebook_id);
 		String fb_key = self().getString(facebook_key);

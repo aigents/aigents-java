@@ -246,6 +246,7 @@ public class Miner {
 		//Object[][] toRanked = total.toRanked();
 		Object[][] toRanked = total.toRanked(sourceTargets.size());
 			
+//TODO: - Do feature selection based on (Count*(MAX(Count)-Count+MIN(Count))), selecting the top buckets in TreeMap till featureVolume is not exceeded 		
 		int[] bounds = Counter.getBounds(toRanked,featureVolume,maxCategories);
 		if (bounds == null){
 			//TODO: how can that be possible!?
@@ -288,7 +289,7 @@ public class Miner {
 				break;
 			}
 			if (debug)
-				env.debug("Iteration "+(++iteration));
+				env.debug("Iteration "+(++iteration)+" clusters "+targetSources.size());
 			
 			//TODO: sort out data structure
 			//HashMap sourceSources = new HashMap();
@@ -405,6 +406,7 @@ public class Miner {
 			
 			//TODO:perform merges in targetSources
 			HashMap targetSourcesNew = new HashMap();
+			HashSet mergedToRemove = new HashSet();
 			for (Iterator it = mergeSets.iterator(); it.hasNext();) {
 				HashSet mergees = (HashSet)it.next();
 				Counter merged = new Counter();
@@ -418,11 +420,14 @@ if (mergee == null)//TODO:remove???
 						Number weight = mergee.value(source);
 						merged.count(source, weight.intValue());
 					}
-					targetSources.remove(target);//remove merged items
+					//targetSources.remove(target);//remove merged items
+					mergedToRemove.add(target);//mark for removal
 				}
 				//targetSourcesNew.put(mergees.toString(), merged);
 				targetSourcesNew.put(OrderedStringSet.mergeAllSorted(mergees), merged);
-			}		
+			}
+			for (Object target : mergedToRemove)
+				targetSources.remove(target);
 			//TODO: merge remaining unmerged items into new
 			targetSourcesNew.putAll(targetSources);
 			targetSources = targetSourcesNew;

@@ -105,6 +105,7 @@ public class Peer extends Agent {
 		Body.reddit_id, Body.reddit_token,
 		Body.discourse_id,
 		Body.telegram_id,
+		Body.telegram_name,
 		Body.google_id, Body.google_token,
 		Body.steemit_id, Body.golos_id, Body.ethereum_id,
 		AL.sites,

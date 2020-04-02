@@ -59,7 +59,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.5.7";
+	public final static String VERSION = "2.5.9";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -124,11 +124,14 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String google_id = "google id";//client id or user id
 	public static final String google_key = "google key";//client secret
 	public static final String google_token = "google token";//access_token or temporary code
+	public static final String googlesearch_key = "googlesearch key";//https://www.googleapis.com/customsearch/v1
+	public static final String serpapi_key = "serpapi key";//https://serpapi.com/
 	public static final String vkontakte_id = "vkontakte id";
 	public static final String vkontakte_key = "vkontakte key";
 	public static final String vkontakte_token = "vkontakte token";
 	public static final String telegram_id = "telegram id";
 	public static final String telegram_token = "telegram token";
+	public static final String telegram_name = "telegram name";
 	public static final String telegram_offset = "telegram offset";
 	public static final String steemit_id = "steemit id";
 	public static final String steemit_url = "steemit url";
@@ -139,6 +142,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String ethereum_key = "ethereum key";
 	public static final String ethereum_period = "ethereum period";
 	public static final String reputation_system = "reputation system";
+	public static final String cluster_timeout = "cluster timeout";
     
 	public static final String[] strings = new String[] {
 		AL.name,
@@ -151,7 +155,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		mail_smtp_host, mail_smtp_auth, mail_smtp_port, mail_smtp_ssl_enable, mail_smtp_starttls_enable, 
 		mail_store_protocol, 
 		mail_pop3s_host, mail_pop3s_port, mail_pop3_starttls_enable,
-		google_id, google_key, //google_token,
+		google_id, google_key, googlesearch_key, serpapi_key, //google_token,
 		facebook_id, facebook_key, facebook_token, facebook_challenge,
 		slack_id, slack_key, slack_token,
 		paypal_id, paypal_key, paypal_token, paypal_url,
@@ -160,7 +164,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		vkontakte_id, vkontakte_key, vkontakte_token,
 		telegram_token, telegram_offset,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
-		reputation_system,
+		reputation_system, cluster_timeout,
 		AL.version
 	};
 
@@ -282,6 +286,8 @@ public abstract class Body extends Anything implements Environment, Updater
 		return Translator.get(language);
 	}
 	
+	@Override
+	public Anything getSelf(){return self();}
 	public Thing self()
 	{
 		try {

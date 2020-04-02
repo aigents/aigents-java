@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -255,13 +255,20 @@ public final class StringUtil
         	return toIntOrDefault(str,radix,0);
         }
         
-        public static int toIntOrDefault(String str,int radix,int defaultValue)
-        {
+        public static int toIntOrDefault(String str,int radix,int defaultValue) {
         	try {
-        		return Integer.parseInt(str, radix);
-        	} catch (Exception e) {
-        		return defaultValue;
-        	}
+        		if (str != null)
+        			return Integer.parseInt(str, radix);
+        	} catch (Exception e) {}
+    		return defaultValue;
+        }
+        
+        public static long toLongOrDefault(String str,int radix,long defaultValue) {
+        	try {
+        		if (str != null)
+        			return Long.parseLong(str, radix);
+        	} catch (Exception e) {}
+    		return defaultValue;
         }
         
         public static String toHexString(int i,int len)

@@ -98,7 +98,7 @@ class Searcher extends Intenter {
 				String[] cluster_texts = Thing.toStrings(filtered, cluster );
 				if (!AL.empty(texts))
 //TODO configure clustering
-					miner = new TextMiner(session.getBody(),session.getBody().languages,true).setDocuments(texts,cluster_texts).cluster(50,50,10);
+					miner = new TextMiner(session.getBody(),session.getBody().languages,false).setDocuments(texts,cluster_texts).cluster(50,50,10);
 				
 				StringWriter writer = new StringWriter();
 				Translator t = session.getBody().translator(language);
