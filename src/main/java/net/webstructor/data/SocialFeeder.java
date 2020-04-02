@@ -48,7 +48,7 @@ import net.webstructor.core.Environment;
 import net.webstructor.util.Reporter;
 
 public abstract class SocialFeeder {
-	public static final long MAX_CLUSTER_TIME = Period.MINUTE*1;//TODO: make configurable
+	private static final long MAX_CLUSTER_TIME = Period.MINUTE*1;
 	public static final String anonymous = "anonymous";
 	public static final String Anonymous = "Anonymous";
 	
@@ -72,7 +72,7 @@ public abstract class SocialFeeder {
 	protected TextMiner textsMiner = null;
 	protected TextMiner peersMiner = null;
 	protected HashMap newsLinks = null;
-	protected long cluster_timeout;
+	protected long clustering_timeout;
 	protected int days;
 	private int period = 31;//breakdown period: 1-days,7-week,31-month,92-quarter,365-year
 
@@ -88,7 +88,7 @@ public abstract class SocialFeeder {
 		this.until = until;
 		this.areas = Array.toLower(areas);
 		Anything self = body.getSelf();
-		this.cluster_timeout = self == null? MAX_CLUSTER_TIME : StringUtil.toLongOrDefault(self.getString(Body.cluster_timeout), 10, MAX_CLUSTER_TIME);
+		this.clustering_timeout = self == null? MAX_CLUSTER_TIME : StringUtil.toLongOrDefault(self.getString(Body.clustering_timeout), 10, MAX_CLUSTER_TIME);
 		
 		if (period < 1 && until != null && since != null){//if period is not passed as explicit parameter
 			int period_days = new Period(until.getTime() - since.getTime()).getDays();
@@ -790,7 +790,7 @@ public abstract class SocialFeeder {
 			peersMiner = null;
 			return;
 		}
-		peersMiner = new TextMiner(body,this.langPack,System.currentTimeMillis()+MAX_CLUSTER_TIME,false)
+		peersMiner = new TextMiner(body,this.langPack,System.currentTimeMillis()+clustering_timeout,false)
 			.setDocuments((String[])names.toArray(new String[]{}),(String[])texts.toArray(new String[]{}),vocabulary)
 			.cluster();
 	}
@@ -829,7 +829,7 @@ public abstract class SocialFeeder {
 			texts[i] = (String)newsItem[4];
 			newsLinks.put(newsItem[4], newsItem[5]);
 		}
-		textsMiner = new TextMiner(body,this.langPack,System.currentTimeMillis()+MAX_CLUSTER_TIME,false)
+		textsMiner = new TextMiner(body,this.langPack,System.currentTimeMillis()+clustering_timeout,false)
 			.setDocuments(texts,words)
 			.cluster();
 	}

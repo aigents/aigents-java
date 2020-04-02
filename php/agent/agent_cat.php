@@ -160,6 +160,18 @@ function test_agent_cluster() {
 
 	//extremal cases
 	init();
+	
+	say("Your clustering timeout 60000.");
+	say("what your http timeout, clustering timeout?");
+	get("My clustering timeout 60000, http timeout 60000.");
+	say("your clustering timeout 1100.");
+	get("Ok.");
+	say("what your clustering timeout?");
+	get("My clustering timeout 1100.");
+	say("your clustering timeout 60000.");
+	say("what your clustering timeout?");
+	get("My clustering timeout 60000.");
+	
 	//say("There new true, text 'aa bb cc dd ee ff gg hh', times today, trust true.");
 	//say("There new true, text 'hh ii jj kk ll mm nn oo', times today, trust true.");
 	say("There new true, text 'lion cat puma tiger', times today, trust true.");

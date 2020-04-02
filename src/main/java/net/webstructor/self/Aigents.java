@@ -52,7 +52,7 @@ class AigentsFeeder extends SocialFeeder {
 			if (!AL.empty(peers)) for (Object p : peers) {
 				Thing peer = (Thing)p;
 				Collection news = peer.getThings(AL.trusts);
-				for (Object n : news) {
+				if (!AL.empty(news)) for (Object n : news) {
 					Thing t = (Thing)n;
 					Date date = t.getDate(AL.times, null);
 					String newstext = t.getString(AL.text);

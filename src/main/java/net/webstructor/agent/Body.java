@@ -59,7 +59,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.5.9";
+	public final static String VERSION = "2.6.0";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -142,7 +142,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String ethereum_key = "ethereum key";
 	public static final String ethereum_period = "ethereum period";
 	public static final String reputation_system = "reputation system";
-	public static final String cluster_timeout = "cluster timeout";
+	public static final String clustering_timeout = "clustering timeout";
     
 	public static final String[] strings = new String[] {
 		AL.name,
@@ -164,7 +164,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		vkontakte_id, vkontakte_key, vkontakte_token,
 		telegram_token, telegram_offset,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
-		reputation_system, cluster_timeout,
+		reputation_system, clustering_timeout,
 		AL.version
 	};
 

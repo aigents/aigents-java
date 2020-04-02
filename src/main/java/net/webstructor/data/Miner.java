@@ -282,6 +282,8 @@ public class Miner {
 		//-- If there is similarity measure greater than Y% (X%), merge the clusters
 		//- Until no similarity measure greater than Y% (X%)
 		int iteration = 0;
+		HashSet mergeSets = new HashSet();
+		HashSet mergedToRemove = new HashSet();
 		for (;;) {
 			//break on timeout and left clusters in targetSources as is
 			if (tillTime > 0 && System.currentTimeMillis() > tillTime){
@@ -294,8 +296,7 @@ public class Miner {
 			//TODO: sort out data structure
 			//HashMap sourceSources = new HashMap();
 			
-			//ArrayList mergeSets = new ArrayList();
-			HashSet mergeSets = new HashSet();
+			mergeSets.clear();
 
 			//TODO: avoid double count!?
 			//calculate all similarity measures
@@ -406,7 +407,7 @@ public class Miner {
 			
 			//TODO:perform merges in targetSources
 			HashMap targetSourcesNew = new HashMap();
-			HashSet mergedToRemove = new HashSet();
+			mergedToRemove.clear();
 			for (Iterator it = mergeSets.iterator(); it.hasNext();) {
 				HashSet mergees = (HashSet)it.next();
 				Counter merged = new Counter();
