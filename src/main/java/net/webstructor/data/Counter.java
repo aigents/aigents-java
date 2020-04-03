@@ -32,13 +32,21 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import net.webstructor.al.AL;
 import net.webstructor.core.Environment;
 import net.webstructor.util.ArrayPositionComparator;
+
+class CountedBucket {
+	int count;
+	int rank;
+	double importance;
+}
 
 public class Counter extends HashMap implements Linker { 
 
@@ -242,6 +250,65 @@ public class Counter extends HashMap implements Linker {
 		}
 		return new int[]{upperThreshold,lowerThreshold};
 	}
+	
+	public static int[] getThresholds(Object[][] toRanked,int percentageNeeded){
+		if (AL.empty(toRanked))
+			return null;//TODO: exception!?
+		//get min and max
+		int min = Integer.MAX_VALUE;
+		int max = Integer.MIN_VALUE;
+		for (Object[] r : toRanked) {
+			int rank = ((Number)r[1]).intValue();
+			if (min > rank)
+				min = rank;
+			if (max < rank)
+				max = rank;
+		}
+		if (min >= max)
+			return null;//TODO: exception!?
+		//compute importances
+		TreeMap<Integer,CountedBucket> importances = new TreeMap<Integer,CountedBucket>();
+		for (Object[] r : toRanked) {
+			int rank = ((Number)r[1]).intValue();
+			double importance = rank*rank*(max-rank+min);
+			CountedBucket cb;
+			if ((cb = importances.get(rank)) == null)
+				importances.put(rank, cb = new CountedBucket()); 
+			cb.count += 1;
+			cb.rank = rank;
+			cb.importance = importance;
+		}
+		CountedBucket[] buckets = importances.values().toArray(new CountedBucket[] {});
+		//for (CountedBucket cb : buckets)
+		//	System.out.println(cb.rank+" "+cb.count+" "+cb.importance);
+		Arrays.sort(buckets,new Comparator() {
+			@Override
+			public int compare(Object o1, Object o2) {
+				CountedBucket b1 = (CountedBucket)o1;
+				CountedBucket b2 = (CountedBucket)o2;
+				double d = b2.importance - b1.importance;
+				return d < 0 ? -1 : d > 0 ? 1 : 0;
+			}});
+		for (CountedBucket cb : buckets)
+			System.out.println(cb.rank+" "+cb.count+" "+cb.importance);
+		//find enough feature buckets
+		int featuresNeeded = toRanked.length * percentageNeeded / 100;
+		int featuresFound = 0;
+		int from = Integer.MAX_VALUE;
+		int to = Integer.MIN_VALUE;
+		for (CountedBucket cb : buckets) {
+			if (featuresFound > 0 && featuresFound + cb.count > featuresNeeded)
+				break;
+			featuresFound += cb.count;
+			if (from > cb.rank)
+				from = cb.rank;
+			if (to < cb.rank)
+				to = cb.rank;
+		}
+		if (from > to)
+			return null;//TODO: exception!?
+		return new int[] {from,to};
+	}
 
 	public final Counter normalizeBy(Counter denominator, float defaultValue){
 		Counter counter = this;
@@ -441,5 +508,22 @@ public class Counter extends HashMap implements Linker {
 	}
 	public static Integer mul(Integer a, Integer b){
 		return new Integer(a.intValue() * b.intValue());
+	}
+
+	public static void main(String[] args) {
+		Object[][] r = new Object[][] {
+				{"0",new Long(100)},
+				{"1",new Long( 60)},
+				{"2",new Long( 40)},
+				{"3",new Long( 30)},
+				{"4",new Long( 25)},
+				{"5",new Long( 21)},
+				{"6",new Long( 18)},
+				{"7",new Long( 13)},
+				{"8",new Long( 11)},
+				{"9",new Long( 10)}
+		};
+		int[] t = getThresholds(r,50);
+		System.out.println(t);
 	}
 }

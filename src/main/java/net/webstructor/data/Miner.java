@@ -245,18 +245,23 @@ public class Miner {
 		//total.normalizeBy(languages.words(), 1);
 		//Object[][] toRanked = total.toRanked();
 		Object[][] toRanked = total.toRanked(sourceTargets.size());
-			
-//TODO: - Do feature selection based on (Count*(MAX(Count)-Count+MIN(Count))), selecting the top buckets in TreeMap till featureVolume is not exceeded 		
+		/*	
 		int[] bounds = Counter.getBounds(toRanked,featureVolume,maxCategories);
 		if (bounds == null){
 			//TODO: how can that be possible!?
 			env.error("Clustering with no bounds " + sourceTargets.toString(), new Exception());
 			return new HashMap[]{targetSources,new HashMap()};
 		}
-		
 		int upperThreshold = bounds[0];
 		int lowerThreshold = bounds[1];
+		*/
 
+		//Do feature selection based on (Count*Count*(MAX(Count)-Count+MIN(Count))), selecting the top buckets in TreeMap till featureVolume is not exceeded 		
+		int[] thesholds = Counter.getThresholds(toRanked,featureVolume);
+		int upperThreshold = thesholds[1];
+		int lowerThreshold = thesholds[0];
+		
+		//debug=true;
 		if (debug ){
 			for (int i = 0; i < toRanked.length; i++)
 				env.debug(toRanked[i][0]+":"+toRanked[i][1]);
@@ -281,17 +286,16 @@ public class Miner {
 		//-- Create cluster-to cluster similarity measures
 		//-- If there is similarity measure greater than Y% (X%), merge the clusters
 		//- Until no similarity measure greater than Y% (X%)
-		int iteration = 0;
 		HashSet mergeSets = new HashSet();
 		HashSet mergedToRemove = new HashSet();
-		for (;;) {
+		for (int iteration = 1; ; iteration++) {
 			//break on timeout and left clusters in targetSources as is
 			if (tillTime > 0 && System.currentTimeMillis() > tillTime){
 				env.debug("Clustering timeout "+System.currentTimeMillis());
 				break;
 			}
 			if (debug)
-				env.debug("Iteration "+(++iteration)+" clusters "+targetSources.size());
+				env.debug("Iteration "+iteration+" clusters "+targetSources.size());
 			
 			//TODO: sort out data structure
 			//HashMap sourceSources = new HashMap();
