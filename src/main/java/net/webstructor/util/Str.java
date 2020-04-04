@@ -47,6 +47,19 @@ public class Str {
 	}
 	
 	/**
+	 * Get next string element past found one or null, converted to lowercase if not null
+	 * @param args - list of strings
+	 * @param name - target element before returned one
+	 * @return
+	 */
+	public static String argLower(String[] args, String name, String def){
+		String arg = arg(args,name,def);
+		if (arg != null)
+			arg = arg.toLowerCase();
+		return arg;
+	}
+	
+	/**
 	 * Get next string element past found one or null
 	 * @param args - list of strings
 	 * @param names - list of alterative target elements before returned one

@@ -58,6 +58,7 @@ import net.webstructor.data.ThingComparator;
 import net.webstructor.data.TextMiner;
 import net.webstructor.data.Translator;
 import net.webstructor.self.Siter;
+import net.webstructor.serp.Serper;
 import net.webstructor.util.ArrayPositionComparator;
 import net.webstructor.util.Reporter;
 import net.webstructor.util.Str;
@@ -276,12 +277,13 @@ class Searcher extends Intenter {
 		final String site = Str.arg(args,Conversation.in_site, null);
 		arg.set("thingname", topic);
 		arg.set("url", site);
-		final String format = Str.arg(args,"format", "text").toLowerCase();
+		final String engine = Str.argLower(args,"engine", null);
+		final String format = Str.argLower(args,"format", "text");
 		final String cluster = Str.arg(args,"cluster", AL.text);
 		final String[] graphs = Str.get(args,"graph");
-		final String time = Str.arg(args,"time", "today").toLowerCase();
-		final String novelty = Str.arg(args,"novelty", "all").toLowerCase();//new|all
-		final String scope = Str.arg(session.args(),"scope", "site").toLowerCase();//site|web|domain pattern?
+		final String time = Str.argLower(args,"time", "today");
+		final String novelty = Str.argLower(args,"novelty", "all");//new|all
+		final String scope = Str.argLower(args,"scope", "site");//site|web|domain pattern?
 		final Date date = Time.day(time);
 		arg.set(AL.time, time);
 		arg.set("scope", scope);
@@ -300,6 +302,30 @@ class Searcher extends Intenter {
 		
 		session.sessioner.body.debug("Searcher start novelNew="+novelNew+" scopeWeb="+scopeWeb);
 		
+//TODO:consider engine site searh as well: if (!AL.empty(topic) && !AL.empty(site))
+		if (!AL.empty(engine)) {
+			ArrayList res = new ArrayList();
+			Collection<Thing> rs;
+			Serper s = session.sessioner.body.getSerper(engine);
+			if (s != null) {
+				if ((rs = s.search(null, topic, null, limit)) != null)
+					res.addAll(rs);
+			} else if ("any".equals(engine) || "all".equals(engine)) {
+				for (Serper sr : session.sessioner.body.getSerpers()) {
+					if ((rs = sr.search(null, topic, null, limit)) != null)
+						res.addAll(rs);
+					if (!AL.empty(rs) && "any".equals(engine))
+						break;
+				}
+			}
+			if (!AL.empty(res)){
+				session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, arg));
+				return true;
+			}
+			session.output("Not.");
+			return true;
+		}else
+			
 		//search in URL
 		//if (session.read(new Seq(new Object[]{"search",new Property(arg,"thingname"),new Any(1,Conversation.in_site),new Property(arg,"url")}))) {
 		if (!AL.empty(topic) && !AL.empty(site)) {

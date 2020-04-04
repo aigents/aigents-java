@@ -63,6 +63,7 @@ import net.webstructor.peer.Profiler;
 import net.webstructor.peer.Reputationer;
 import net.webstructor.self.Selfer;
 import net.webstructor.self.Siter;
+import net.webstructor.serp.Serper;
 import net.webstructor.self.Aigents;
 import net.webstructor.util.Array;
 
@@ -128,7 +129,7 @@ public class Farm extends Body {
 		
 		if (!AL.empty(self().getString(telegram_token)))
 			new Telegrammer(this).start();//this is polling, so need to start it
-		if (!AL.empty(self().getString(facebook_token)))
+		if (!AL.empty(self().getString(facebook_token)))//TODO: remove this because it is initialized in Listener already!?
 			new Messenger(this);//this is hook-based, so no need to to start it
 	
 		if (social)
@@ -137,6 +138,9 @@ public class Farm extends Body {
 		filecacher = new net.webstructor.self.Cacher("pages",this,storager);
 		sitecacher = new GraphCacher("www", this);
 		this.register("update", Siter.getUpdater());
+		
+		for (Serper s : Serper.getDefaultSerpers(this))
+			searchers.put(s.name(), s);
 	}
 
 	//TODO: have this done in fresh new Farm class diverged from old Farm class renamed to Cell 

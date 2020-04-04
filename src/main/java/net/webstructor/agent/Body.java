@@ -54,12 +54,13 @@ import net.webstructor.peer.Peer;
 import net.webstructor.peer.Sessioner;
 import net.webstructor.data.LangPack;
 import net.webstructor.self.Thinker;
+import net.webstructor.serp.Serper;
 import net.webstructor.util.Array;
 
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.6.1";
+	public final static String VERSION = "2.6.2";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -125,6 +126,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String google_key = "google key";//client secret
 	public static final String google_token = "google token";//access_token or temporary code
 	public static final String googlesearch_key = "googlesearch key";//https://www.googleapis.com/customsearch/v1
+	//public static final String googlesearch_code = "googlesearch code";//https://www.googleapis.com/customsearch/v1&cx=...
 	public static final String serpapi_key = "serpapi key";//https://serpapi.com/
 	public static final String vkontakte_id = "vkontakte id";
 	public static final String vkontakte_key = "vkontakte key";
@@ -156,6 +158,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		mail_store_protocol, 
 		mail_pop3s_host, mail_pop3s_port, mail_pop3_starttls_enable,
 		google_id, google_key, googlesearch_key, serpapi_key, //google_token,
+		//googlesearch_code, 
 		facebook_id, facebook_key, facebook_token, facebook_challenge,
 		slack_id, slack_key, slack_token,
 		paypal_id, paypal_key, paypal_token, paypal_url,
@@ -196,6 +199,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public GraphCacher sitecacher = null;
 	public CacherHolder grapher = new CacherHolder();
 	protected HashMap actioners = new HashMap();
+	protected HashMap<String,Serper> searchers = new HashMap<String,Serper>();
 	protected HashMap<String,Socializer> socializers = new HashMap<String,Socializer>();
 	
 	//TODO:configuration on-line
@@ -269,11 +273,24 @@ public abstract class Body extends Anything implements Environment, Updater
 		}
 	}
 	
+	public Serper getSerper(String name){
+		synchronized (searchers) {
+			return searchers.get(name);
+		}
+	}
+	
+	public Collection<Serper> getSerpers(){
+		synchronized (searchers) {
+			return searchers.values();
+		}
+	}
+	
 	public void start() {
 		languages = new LangPack(this);
 	}
 	
 	//TODO: make configurable plugins for each provider
+	@Deprecated
 	public Socializer provider(String name){
 		return getSocializer(name);
 	}
