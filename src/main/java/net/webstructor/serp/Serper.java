@@ -223,7 +223,7 @@ public abstract class Serper {
 	public static Serper[] getDefaultSerpers(Environment e) {
 		return new Serper[]{new GoogleSearch(e),new SerpAPI(e)};
 	}
-	
+
 	public static void main(String args[]) {
 		if (args.length > 0) {
 			final Thing context = new Thing();

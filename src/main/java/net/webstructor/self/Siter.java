@@ -55,6 +55,7 @@ import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
 import net.webstructor.peer.Peer;
+import net.webstructor.serp.Serper;
 import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
@@ -662,7 +663,7 @@ public class Siter {
 	 * @param news
 	 * @return
 	 */
-	static String[] digest(Thing thing, String path, Collection news, boolean verbose){
+	static String[] digest(Body body, Thing thing, String path, Collection news, boolean verbose){
 		if (AL.empty(news))//no news - no digest
 			return null;
 		//StringBuilder subject = new StringBuilder();
@@ -678,6 +679,9 @@ public class Siter {
 			Thing t = (Thing)it.next();
 			String nl_text = t.getString(AL.text);
 			//TODO:more intelligent approach for subject formation?
+
+//TODO: hack it in the other way and in the other place?
+			getImage(body,t);
 			
 			//real path
 			Collection sources = t.getThings(AL.sources);
@@ -702,6 +706,18 @@ public class Siter {
 		return new String[]{thing.getName(),content.toString()};
 	}
 	
+	protected static void getImage(Body body, Thing thing) {
+		if (AL.empty(thing.getString(AL.image))) {
+			for (Serper sr : body.getSerpers()) {
+				Collection<Thing> ts = sr.search("image", thing.getString(AL.text), null, 1);
+				if (ts != null) for (Thing t : ts) {
+					thing.setString(AL.image, t.getString(AL.image));
+					return;
+				}
+			}
+		}
+	}
+	
 	//TODO: if forcer is given, don't update others
 	//- send updates (push notifications)
 	//-- Selfer: for a news for thing, send email for all its users (not logged in?) 
@@ -723,7 +739,7 @@ public class Siter {
 	}
 
 	public static void update(Body body, Storager storager, Thing thing,Collection news,String path,Collection peers,boolean verbose) throws IOException {
-		String[] digest = digest(thing,path,news,verbose);
+		String[] digest = digest(body,thing,path,news,verbose);
 		if (AL.empty(digest))
 			return;
 		for (Iterator it = peers.iterator(); it.hasNext();) {
