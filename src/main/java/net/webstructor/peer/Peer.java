@@ -44,6 +44,7 @@ import net.webstructor.comm.Emailer;
 import net.webstructor.core.Agent;
 import net.webstructor.core.Query;
 import net.webstructor.core.Thing;
+import net.webstructor.serp.Serper;
 import net.webstructor.util.Array;
 
 public class Peer extends Agent {
@@ -364,6 +365,9 @@ public class Peer extends Agent {
 					peer.delThing(AL.news, n);
 			}
 		}
+		
+		//assing images fo imageless news items for paid users
+		assignImages(body,peer);//TODO: in other place, make sure how it works on mobiles
 	}
 
 	public static Set peerFriendsTrusts(Thing peer, boolean self) {
@@ -400,4 +404,30 @@ public class Peer extends Agent {
 		return allTopics;
 	}
 
+	public static boolean paid(Thing peer) {
+		Date term = peer.getDate(Peer.paid_term, null);
+		return term == null || term.compareTo(Time.today()) < 0 ? false : true;
+	}
+	
+	public static void assignImages(Body body, Thing peer) {
+		if (!paid(peer))
+			return;
+		Collection news = (Collection)peer.getThings(AL.news);
+		if (news != null) for (Object t : news)
+			assignImage(body, (Thing) t);
+	}
+	
+	public static void assignImage(Body body, Thing thing) {
+		if (AL.empty(thing.getString(AL.image))) {
+			String text = thing.getString(AL.text);
+			if (!AL.empty(text)) for (Serper sr : body.getSerpers()) {
+				Collection<Thing> ts = sr.search("image", text, null, 1);
+				if (ts != null) for (Thing t : ts) {
+					thing.setString(AL.image, t.getString(AL.image));
+					return;
+				}
+			}
+		}
+	}
+	
 }

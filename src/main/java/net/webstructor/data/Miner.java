@@ -257,15 +257,19 @@ public class Miner {
 		*/
 
 		//Do feature selection based on (Count*Count*(MAX(Count)-Count+MIN(Count))), selecting the top buckets in TreeMap till featureVolume is not exceeded 		
-		int[] thesholds = Counter.getThresholds(toRanked,featureVolume);
-		int upperThreshold = thesholds[1];
-		int lowerThreshold = thesholds[0];
+		int[] thresholds = Counter.getThresholds(toRanked,featureVolume);
+		if (thresholds == null) {
+			env.error("Clustering with no bounds " + sourceTargets.toString(), new Exception());
+			return new HashMap[]{targetSources,new HashMap()};
+		}
+		int upperThreshold = thresholds[1];
+		int lowerThreshold = thresholds[0];
 		
 		//debug=true;
 		if (debug ){
 			for (int i = 0; i < toRanked.length; i++)
 				env.debug(toRanked[i][0]+":"+toRanked[i][1]);
-			env.debug("Range : "+upperThreshold+" - "+lowerThreshold);
+			;
 		}
 		
 		for (int i = 0; i < toRanked.length; i++) {

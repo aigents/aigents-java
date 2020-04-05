@@ -83,6 +83,11 @@ public class Session  {
 		persist();
 	}
 	
+	public void clone(Session origin) {
+		this.peer = origin.peer;
+		this.authenticated = origin.authenticated;
+	}
+	
 	public boolean authenticated(){
 		return this.authenticated;
 	}

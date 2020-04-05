@@ -26,9 +26,10 @@ package net.webstructor.comm;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -87,7 +88,13 @@ public class Telegrammer extends Mediator {
 		synchronized (username_ids) {
 			id = username_ids.get(username);
 		}
-		//if (AL.empty(id))
+		if (AL.empty(id)) {
+			try {
+				Collection c = body.storager.getByName(Body.telegram_name,username);
+				for (Object o : c)
+					return ((Thing)o).getString(Body.telegram_id);
+			} catch (Exception e) {}
+		}
 		//https://ru.stackoverflow.com/questions/906172/%D0%9A%D0%B0%D0%BA-%D0%B2-telegram-%D1%83%D0%B7%D0%BD%D0%B0%D1%82%D1%8C-username-%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F-%D0%B8%D0%BC%D0%B5%D1%8F-id
 		//https://stackoverflow.com/questions/37644603/is-it-possible-to-get-userid-using-user-nickname
 		//users.getFullUser ?
@@ -154,6 +161,7 @@ public class Telegrammer extends Mediator {
 	}
 	
 	private long handle(String response) throws IOException{
+		String botname = body.getSelf().getString(Body.telegram_name);
 		Socializer socializer = body.getSocializer(name);
 		Telegram telegram =  socializer != null && socializer instanceof Telegram? (Telegram)socializer : null;
 		
@@ -201,19 +209,6 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				String from_username = HTTP.getJsonString(from, "username", null);
 				putIdByUsername(from_username,from_id);
 				
-				String reply_to_from_id = null;
-				if (reply_to != null) {
-					JsonObject reply_to_from = HTTP.getJsonObject(reply_to, "from");
-					if (reply_to_from != null) {
-						reply_to_from_id = JSON.getJsonLongString(reply_to_from, "id", null);
-						String reply_to_from_username = HTTP.getJsonString(reply_to_from, "username");
-						if (AL.empty(reply_to_from_id))
-							reply_to_from_id = getIdByUsername(reply_to_from_username);
-						else
-							putIdByUsername(reply_to_from_username,reply_to_from_id);
-					}
-				}				
-
 //TODO: use for auth/registration and account binding
 				//String from_name = HTTP.getJsonString(from, "first_name", null);
 				//String from_surname = HTTP.getJsonString(from, "last_name", null);
@@ -224,15 +219,33 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				//String chat_type = HTTP.getJsonString(chat, "type", "private");//TODO:private by default!?
 				if (AL.empty(from_username) || AL.empty(from_id) || from_bot)
 					continue;
+				
+				String reply_to_from_id = null;
+				String reply_to_from_username = null;
+				if (reply_to != null) {
+					JsonObject reply_to_from = HTTP.getJsonObject(reply_to, "from");
+					if (reply_to_from != null) {
+						reply_to_from_id = JSON.getJsonLongString(reply_to_from, "id", null);
+						reply_to_from_username = HTTP.getJsonString(reply_to_from, "username");
+						if (AL.empty(reply_to_from_id))
+							reply_to_from_id = getIdByUsername(reply_to_from_username);
+						else
+							putIdByUsername(reply_to_from_username,reply_to_from_id);
+					}
+				}				
+				
 //TODO: autoregister:
 				//telegram id = from_id
 				//name, surname, username@telegram.org
 				body.debug("Telegram date "+date+" from_username "+from_username+" text "+text);			
 				
+				HashSet<String> mention_usernames = getMentions(text);//get mentions
+				if (mention_usernames != null && !AL.empty(botname) && mention_usernames.contains(botname))//remove mention to bot self from text
+					text = text.replace("@"+botname, "");
+
 				if (!from_id.equals(chat_id)){
 					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false; 
 					updateGroup(chat_id, chat_title, from_id, from_username, true, is_bot, text);
-//TODO: be able to do unauthorized group conversations and enable chat message handling!
 					
 					//process group interactions
 					if (telegram != null) {
@@ -240,7 +253,6 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 						if (!AL.empty(reply_to_from_id))
 							telegram.updateInteraction(date,"comments",from_id,reply_to_from_id,logvalue);//update from->reply_to_from
 						
-						ArrayList <String> mention_usernames = getMentions(text);//get mentions
 						if (mention_usernames != null) for (String username : mention_usernames) {
 							String mention_id = getIdByUsername(username);
 							if (!AL.empty(mention_id))
@@ -248,16 +260,30 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 						}
 					}
 					
-					//TODO: update from->text
+//TODO: update from->text for profiling and reporting
 					
-					continue;
+					if (botname.equals(reply_to_from_username) || (mention_usernames != null && mention_usernames.contains(botname)))
+						;//address group message to bot
+					else
+						continue;//skip message
 				} 
 				
-				//TODO: use for session id either
 				//from_id - for private authenticated sessions
 				//chat_id - for public anonymous sessions
-				//TODO: don't try to authenticate other users in public anonymous sessions
-            	net.webstructor.peer.Session session = body.sessioner.getSession(this,key(chat_id,from_id));
+            	Session session = body.sessioner.getSession(this,key(chat_id,from_id));
+
+            	if (!from_id.equals(chat_id)) {//group chat
+                	if (!session.authenticated()) {//first user encounter
+                		Session privateSession = body.sessioner.getSession(this,key(from_id,from_id));
+                		if (!privateSession.authenticated())
+                			session = privateSession;//force authentication privately, don't try to authenticate other users in public anonymous sessions
+                		else
+                			session.clone(privateSession);
+                	}
+            	}
+            	if (session.authenticated())
+            		session.getStoredPeer().set(Body.telegram_name, from_username);
+
             	body.conversationer.handle(this, session, text);
 			}
 		}
@@ -267,8 +293,8 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 		return offset;
 	}
 	
-	protected static ArrayList <String> getMentions(String text) {
-		ArrayList<String> found = null;
+	protected static HashSet<String> getMentions(String text) {
+		HashSet<String> found = null;
 		int len = text.length();
 		int fromIndex = 0;
 		for (;;) {
@@ -285,9 +311,9 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 			}
 			if ((end - pos) > 1) {
 				if (found == null)
-					found = new ArrayList<String>();
+					found = new HashSet<String>();
 				
-				found.add(text.substring(pos, end));
+				found.add(text.substring(pos+1, end));
 			}
 			fromIndex = ++end;
 		}
@@ -366,7 +392,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 		return false;
 	}
 	
-	//public static void main(String args[]) {
-	//	System.out.println(getMentions("@A1 @A2,@a3ъ@a4 @a_5;@a06      @a_____7-@a8"));
-	//}
+	/*public static void main(String args[]) {
+		System.out.println(getMentions("@A1 @A2,@a3ъ@a4 @a_5;@a06      @a_____7-@a8"));
+	}*/
 }

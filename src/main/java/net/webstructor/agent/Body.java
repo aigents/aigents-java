@@ -60,7 +60,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.6.2";
+	public final static String VERSION = "2.6.4";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -165,7 +165,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		discourse_id, discourse_key, discourse_url,
 		reddit_id, reddit_key, reddit_token, reddit_redirect,
 		vkontakte_id, vkontakte_key, vkontakte_token,
-		telegram_token, telegram_offset,
+		telegram_token, telegram_offset, telegram_name,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
 		reputation_system, clustering_timeout,
 		AL.version

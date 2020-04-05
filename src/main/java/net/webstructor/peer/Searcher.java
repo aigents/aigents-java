@@ -304,6 +304,9 @@ class Searcher extends Intenter {
 		
 //TODO:consider engine site searh as well: if (!AL.empty(topic) && !AL.empty(site))
 		if (!AL.empty(engine)) {
+		  if (!Peer.paid(peer))
+				session.output("Not subscribed.");
+		  else {
 			ArrayList res = new ArrayList();
 			Collection<Thing> rs;
 			Serper s = session.sessioner.body.getSerper(engine);
@@ -323,7 +326,8 @@ class Searcher extends Intenter {
 				return true;
 			}
 			session.output("Not.");
-			return true;
+		  }
+		  return true;
 		}else
 			
 		//search in URL
