@@ -176,16 +176,39 @@ class SerpAPI extends Serper {
 			if (!AL.empty(response)) {
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
 				JsonObject json = jsonReader.readObject();
-				JsonArray results = JSON.getJsonArray(json,"organic_results");
+				JsonArray results = "isch".equals(tbm) ? JSON.getJsonArray(json,"images_results")
+						: "vid".equals(tbm) ? JSON.getJsonArray(json,"video_results")
+						: JSON.getJsonArray(json,"organic_results");
 				if (results != null) {
 					ArrayList<Thing> things = new ArrayList<Thing>();
 					for (int i = 0; i < results.size(); i++) {
 						JsonObject item = results.getJsonObject(i);
 						Thing t = new Thing();
 						if ("vid".equals(tbm)) {
-							;//TODO video
-						} else if ("isch".equals(tbm)) {
-							;//TODO image
+							String title = JSON.getJsonString(item, "title", null);
+							String link = JSON.getJsonString(item, "link", null);
+							String snippet = JSON.getJsonString(item, "snippet", null);
+							String thumbnail = JSON.getJsonString(item, "thumbnail", null);
+							t.setString("title",title);
+							t.setString("text",snippet);
+							t.setString("sources",link);
+							if (!AL.empty(thumbnail) && AL.isIMG(thumbnail))
+								t.setString(AL.image,thumbnail);
+						} else if ("isch".equals(tbm)) {// image
+							String title = JSON.getJsonString(item, "title", null);
+							String link = JSON.getJsonString(item, "link", null);
+							String snippet = JSON.getJsonString(item, "snippet", null);
+							String thumbnail = JSON.getJsonString(item, "original", null);
+							if (!AL.empty(snippet)) {
+								t.setString("title",title);
+								t.setString("text",snippet);
+							} else {
+								//TODO: surrogate title?
+								t.setString("text",title);
+							}
+							t.setString("sources",link);
+							if (!AL.empty(thumbnail) && AL.isIMG(thumbnail))
+								t.setString(AL.image,thumbnail);
 						} else {
 							;//TODO text
 							String title = JSON.getJsonString(item, "title", null);

@@ -282,6 +282,7 @@ class Searcher extends Intenter {
 		final String cluster = Str.arg(args,"cluster", AL.text);
 		final String[] graphs = Str.get(args,"graph");
 		final String time = Str.argLower(args,"time", "today");
+		final String type = Str.argLower(args,"type", "text");//text|image|video
 		final String novelty = Str.argLower(args,"novelty", "all");//new|all
 		final String scope = Str.argLower(args,"scope", "site");//site|web|domain pattern?
 		final Date date = Time.day(time);
@@ -311,7 +312,7 @@ class Searcher extends Intenter {
 			Collection<Thing> rs;
 			Serper s = session.sessioner.body.getSerper(engine);
 			if (s != null) {
-				if ((rs = s.search(null, topic, null, limit)) != null)
+				if ((rs = s.search(type, topic, null, limit)) != null)
 					res.addAll(rs);
 			} else if ("any".equals(engine) || "all".equals(engine)) {
 				for (Serper sr : session.sessioner.body.getSerpers()) {
