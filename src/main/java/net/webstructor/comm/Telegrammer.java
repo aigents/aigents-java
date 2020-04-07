@@ -36,7 +36,7 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-import net.webstructor.agent.Body; 
+import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.comm.telegram.Telegram;
@@ -81,7 +81,7 @@ public class Telegrammer extends Mediator {
 	protected Thing self;
 	protected String base_url = "https://api.telegram.org/bot";
 	
-	//TODO: keep in peers!?
+	//TODO: remove the map because use we keep in peers!?
 	private static HashMap<String,String> username_ids = new HashMap<String,String>();
 	String getIdByUsername(String username) {
 		String id = null;
@@ -90,8 +90,8 @@ public class Telegrammer extends Mediator {
 		}
 		if (AL.empty(id)) {
 			try {
-				Collection c = body.storager.getByName(Body.telegram_name,username);
-				for (Object o : c)
+				Collection by_name = body.storager.getByName(Body.telegram_name,username);
+				if (AL.single(by_name)) for (Object o : by_name)
 					return ((Thing)o).getString(Body.telegram_id);
 			} catch (Exception e) {}
 		}
@@ -100,10 +100,23 @@ public class Telegrammer extends Mediator {
 		//users.getFullUser ?
 		return id;
 	}
+	
+	//update usernames on the fly because users may change them!!!
 	void putIdByUsername(String username, String id) {
 		if (!AL.empty(username) && !AL.empty(id)) synchronized (username_ids) {
 			username_ids.put(username,id);
 		}
+		try {
+			Collection by_id = body.storager.getByName(Body.telegram_id,id);
+			if (AL.single(by_id)) for (Object o : by_id)
+				((Thing)o).setString(Body.telegram_name,username);
+//TODO: if we do this, how do we register/bind them later?
+			/*else {
+				Thing peer = new Thing(body.storager.getNamed(Schema.peer),null,null);
+				peer.setString(Body.telegram_name, username);
+				peer.setString(Body.telegram_id, id);
+			}*/
+		} catch (Exception e) {}
 	}
 	
 	public Telegrammer(Body env) {
@@ -207,7 +220,6 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				String from_id = JSON.getJsonLongString(from, "id", null);
 				boolean from_bot = HTTP.getJsonBoolean(from, "is_bot", false);
 				String from_username = HTTP.getJsonString(from, "username", null);
-				putIdByUsername(from_username,from_id);
 				
 //TODO: use for auth/registration and account binding
 				//String from_name = HTTP.getJsonString(from, "first_name", null);
@@ -220,6 +232,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				if (AL.empty(from_username) || AL.empty(from_id) || from_bot)
 					continue;
 				
+				putIdByUsername(from_username,from_id);
 				String reply_to_from_id = null;
 				String reply_to_from_username = null;
 				if (reply_to != null) {
@@ -281,8 +294,8 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
                 			session.clone(privateSession);
                 	}
             	}
-            	if (session.authenticated())
-            		session.getStoredPeer().set(Body.telegram_name, from_username);
+//            	if (session.authenticated())
+//            		session.getStoredPeer().set(Body.telegram_name, from_username);
 
             	body.conversationer.handle(this, session, text);
 			}

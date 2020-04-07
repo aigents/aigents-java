@@ -249,7 +249,7 @@ public class Miner {
 		int[] bounds = Counter.getBounds(toRanked,featureVolume,maxCategories);
 		if (bounds == null){
 			//TODO: how can that be possible!?
-			env.error("Clustering with no bounds " + sourceTargets.toString(), new Exception());
+			env.error("Clustering with no bounds " + sourceTargets.toString(),null);
 			return new HashMap[]{targetSources,new HashMap()};
 		}
 		int upperThreshold = bounds[0];
@@ -259,7 +259,7 @@ public class Miner {
 		//Do feature selection based on (Count*Count*(MAX(Count)-Count+MIN(Count))), selecting the top buckets in TreeMap till featureVolume is not exceeded 		
 		int[] thresholds = Counter.getThresholds(toRanked,featureVolume);
 		if (thresholds == null) {
-			env.error("Clustering with no bounds " + sourceTargets.toString(), new Exception());
+			env.error("Clustering with no bounds " + sourceTargets.toString(),null);
 			return new HashMap[]{targetSources,new HashMap()};
 		}
 		int upperThreshold = thresholds[1];

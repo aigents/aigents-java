@@ -155,20 +155,23 @@ class SerpAPI extends Serper {
 		//String gl = "us";//TODO country
 		//String location = "Novosibirsk";//TODO location
 
-		ArrayList<String[]> hdr = new ArrayList<String[]>();
-		hdr.add(new String[] {"api_key",api_key});
-		hdr.add(new String[] {"q",text});
-		hdr.add(new String[] {"google_domain","google.com"});//https://serpapi.com/google-domains
-		if (limit > 0)
-			hdr.add(new String[] {"num",String.valueOf(limit)});
-		if (!AL.empty(tbm))
-			hdr.add(new String[] {"tbm",tbm});
-		if (!AL.empty(hl))
-			hdr.add(new String[] {"hl",hl});
-		
 		try {
-			if (debug) env.debug("Serpapi crawling request "+text);
-			String response = HTTP.simple("https://serpapi.com/search",null,"GET",0,null,hdr.toArray(new String[][] {}));
+			StringBuilder url = new StringBuilder("https://serpapi.com/search");
+			url.append("?api_key=").append(api_key);
+			url.append("&q=").append(URLEncoder.encode(text,"UTF-8"));
+			url.append("&google_domain=").append("google.com");//https://serpapi.com/google-domains
+			if (limit > 0)
+				url.append("&num=").append(String.valueOf(limit));
+			if (!AL.empty(tbm))
+				url.append("&tbm=").append(tbm);
+			if (!AL.empty(hl))
+				url.append("&hl=").append(hl);
+			url.append("&source").append("java");
+			url.append("&output").append("json");
+			url.append("&engine").append("google");
+			String request = url.toString();
+			if (debug) env.debug("Serpapi crawling request "+request);
+			String response = HTTP.simple(request,null,"GET",0,"application/json",null);
 			if (debug) env.debug("Serpapi crawling response "+response);
 			if (!AL.empty(response)) {
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
@@ -201,7 +204,7 @@ class SerpAPI extends Serper {
 				}
 			}
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			if (debug) env.error("Serpapi crawling "+text,e);
 		}
 		
@@ -236,8 +239,10 @@ public abstract class Serper {
 					return context;
 				}
 			};
-			Serper[] serpers = getDefaultSerpers(m);
-			String[] types = new String[] {"text","image"};
+			//Serper[] serpers = getDefaultSerpers(m);
+			//String[] types = new String[] {"text","image"};
+			Serper[] serpers = new Serper[] {new SerpAPI(m)};
+			String[] types = new String[] {"text"};
 			for (Serper s : serpers) {
 				for (String type : types) {
 					Collection<Thing> results = s.search(type, "Aigents", null, 1);
