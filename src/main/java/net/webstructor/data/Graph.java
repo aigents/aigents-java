@@ -409,6 +409,9 @@ public class Graph implements Serializable {
 	}
 	
 	public String toString(){
+		return toString(null);
+	}
+	public String toString(Transcoder coder){
 		final char termBreaker = ' ';
 		final String statementBreaker = ".\n";
 		StringBuilder sb = new StringBuilder();
@@ -416,6 +419,7 @@ public class Graph implements Serializable {
 		ArrayList<String> res = new ArrayList<String>();
 		for (Iterator c = contexts.iterator(); c.hasNext();){
 			Object context = c.next();
+			Object context_transcoded = coder != null ? coder.transcode(context) : context;
 			HashMap linkers = getLinkers(context, false);
 			if (!AL.empty(linkers)){
 				Set properties = linkers.keySet();
@@ -429,9 +433,11 @@ public class Graph implements Serializable {
 								Object target = l.next();
 								//TODO: normalize!!!???
 								Number value = linker.value(target);
+								if (coder != null)
+									target = coder.transcode(target);
 								//tuna is fish 134.
 								sb.setLength(0);
-								Writer.quotequotable(sb, context.toString())
+								Writer.quotequotable(sb, context_transcoded.toString())
 									.append(termBreaker)
 									.append(property).append(termBreaker);
 								Writer.quotequotable(sb, target.toString())

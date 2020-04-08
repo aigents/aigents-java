@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,6 @@ import java.io.StringReader;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.json.Json;
@@ -37,6 +36,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 import net.webstructor.agent.Body;
+import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.comm.telegram.Telegram;
@@ -81,13 +81,15 @@ public class Telegrammer extends Mediator {
 	protected Thing self;
 	protected String base_url = "https://api.telegram.org/bot";
 	
+	protected static final String[] key_names = new String[] {Body.telegram_id,Body.telegram_name};
+	
 	//TODO: remove the map because use we keep in peers!?
-	private static HashMap<String,String> username_ids = new HashMap<String,String>();
+	//private static HashMap<String,String> username_ids = new HashMap<String,String>();
 	String getIdByUsername(String username) {
 		String id = null;
-		synchronized (username_ids) {
+		/*synchronized (username_ids) {
 			id = username_ids.get(username);
-		}
+		}*/
 		if (AL.empty(id)) {
 			try {
 				Collection by_name = body.storager.getByName(Body.telegram_name,username);
@@ -103,19 +105,20 @@ public class Telegrammer extends Mediator {
 	
 	//update usernames on the fly because users may change them!!!
 	void putIdByUsername(String username, String id) {
-		if (!AL.empty(username) && !AL.empty(id)) synchronized (username_ids) {
+		/*if (!AL.empty(username) && !AL.empty(id)) synchronized (username_ids) {
 			username_ids.put(username,id);
-		}
+		}*/
 		try {
 			Collection by_id = body.storager.getByName(Body.telegram_id,id);
 			if (AL.single(by_id)) for (Object o : by_id)
 				((Thing)o).setString(Body.telegram_name,username);
 //TODO: if we do this, how do we register/bind them later?
-			/*else {
+			else {
 				Thing peer = new Thing(body.storager.getNamed(Schema.peer),null,null);
 				peer.setString(Body.telegram_name, username);
 				peer.setString(Body.telegram_id, id);
-			}*/
+				peer.storeNew(body.storager);
+			}
 		} catch (Exception e) {}
 	}
 	
@@ -333,7 +336,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 		return found;
 	}
 	
-	public void run(  ) {
+	public void run() {
 		try {
 			body.debug("Telegrammer started.");
 			long offset = AL.integer(self.getString(Body.telegram_offset,"-1"),-1L);
@@ -376,8 +379,23 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 	}
 
 	//TODO: move to Mediator but make sure about 'facebook_id' clash?
+	@Override
 	public void login(Session session, Anything peer) {
-		peer.setString(Body.telegram_id, ids(session.getKey())[2]);
+		String id = ids(session.getKey())[2];
+		try {
+			Collection peers = body.storager.getByName(Body.telegram_id, id);
+			if (AL.empty(peers))//newly registered peer
+				peer.setString(Body.telegram_id, id);
+			else if (peers.size() > 1)//too many peers
+				body.error("Telegrammer merge duplicate id "+id,null);
+			else {
+				Thing mergee = (Thing)peers.iterator().next();
+				mergePeer(((Thing)peer),mergee,key_names);
+			}
+		} catch (Exception e) {
+			body.error("Telegrammer merge error id "+id,e);
+		}
+		
 	}
 	
 	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler

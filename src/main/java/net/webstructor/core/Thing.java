@@ -114,7 +114,7 @@ public class Thing extends Anything { // implements ORObject
 			if (obj == null)
 				//return null;//TODO: can we return incomplete clones?
 				continue;
-			if (obj instanceof String || obj instanceof Date) // singular
+			if (obj instanceof String || obj instanceof Date || obj instanceof Number) // singular
 				clone.set(names[i], obj);
 			if (obj instanceof Collection) {
 				Collection things = (Collection)obj;

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
@@ -35,6 +36,7 @@ import net.webstructor.comm.SocialCacher;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.data.Transcoder;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.LangPack;
@@ -100,7 +102,7 @@ class TelegramFeeder extends SocialFeeder {
 }
 
 
-public class Telegram extends SocialCacher {
+public class Telegram extends SocialCacher implements Transcoder {
 	protected DataLogger logger;
 	protected boolean debug = true;
 	
@@ -182,6 +184,13 @@ public class Telegram extends SocialCacher {
 	//TODO move to SocialCacher AND unify with Schema.reverse
 	public static String reverse(String type) {
 		return type.equals("comments") ? "commented" : type.equals("mentions") ? "mentioned" : null;
+	}
+
+	@Override
+	public Object transcode(Object source) {
+		Set res = body.storager.get(Body.telegram_id, source);
+		Object out = AL.single(res) ? ((Thing)res.iterator().next()).get(Body.telegram_name) : null;
+		return out != null ? out : source;
 	}
 	
 }//class

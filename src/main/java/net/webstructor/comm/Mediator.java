@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -86,6 +86,23 @@ public abstract class Mediator extends Communicator implements Updater {
 			body.error(Writer.capitalize(name)+" error update peer "+peer.getTitle(Peer.title),e);
 		}
 		return null;
+	}
+
+	
+	protected void mergePeer(Thing merger, Thing mergee, String[] names) {
+		try {
+			Collection groups = body.storager.getByName(AL.members, mergee);
+			if (groups != null) for (Object g : groups) {
+				((Thing)g).delThing(AL.members, mergee);
+				((Thing)g).addThing(AL.members, merger);
+			}
+			mergee.copyTo(merger, names, null, true);
+			boolean deleted = mergee.del();
+			if (!deleted)
+				body.error(Writer.capitalize(name)+" fails deleting "+mergee,null);
+		} catch (Exception e) {
+			body.error(Writer.capitalize(name)+" fails merging "+mergee,e);
+		}
 	}
 	
 //TODO: move to Grouper under Conversation scope for Slack and WeChat unification 

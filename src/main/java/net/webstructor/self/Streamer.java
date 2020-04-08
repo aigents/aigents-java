@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.webstructor.agent.Body;
@@ -71,11 +72,11 @@ public class Streamer {
 			Writer.toString(b,(String)name);//predicate - string
 			b.append(' ');
 		} catch (Exception e) {
-			body.error("Write fails owner: ["+Str.first(owner.toString(),200)+"] "+name+" "+value+" "+b.toString(), e);
+			body.error("Streamer fails write owner: ["+Str.first(owner.toString(),200)+"] "+name+" "+value+" "+b.toString(), e);
 			throw(e);//TODO remove for fail-tolerance!?
 		}
 		try {
-			if (value instanceof String)
+			if (value instanceof String || value instanceof Number)
 				Writer.toString(b,value,name);//object - string
 			else
 			if (value instanceof Date)
@@ -86,7 +87,7 @@ public class Streamer {
 			b.append(".\n");
 			writer.write(b.toString());
 		} catch (Exception e) {
-			body.error("Write fails value: ["+Str.first(owner.toString(),200)+"] "+name+" "+value+" "+b.toString(), e);
+			body.error("Streamer fails write value: ["+Str.first(owner.toString(),200)+"] "+name+" "+value+" "+b.toString(), e);
 		}
 	}
 	
@@ -96,7 +97,12 @@ public class Streamer {
 			for (int i=0; i<values.length; i++) {
 				Collection owners = storager.get(name,values[i]);
 				for (Iterator it=owners.iterator(); it.hasNext();) {
-					write((Thing)it.next(),name,values[i]);
+					Thing owner = (Thing)it.next();
+					Object value = values[i];
+					Object v = owner.get(name);
+					if (!((v instanceof Set && ((Set)v).contains(value)) || (!(v instanceof Set) && v.equals(value))))
+						body.error("Streamer fails write "+name+" as "+value+" in "+owner, null);
+					write(owner,name,value);
 				}
 			}			
 		}
@@ -211,7 +217,7 @@ public class Streamer {
 			}
   		}
 		} catch (Exception e){
-			body.error("Streamer line "+line_no+" "+line, e);
+			body.error("Streamer fails read line "+line_no+" "+line, e);
 		}
 		reader.close();
 		new Merger(body,storager).merge(byId.values());

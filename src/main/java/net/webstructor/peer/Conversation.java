@@ -70,6 +70,7 @@ import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.TextMiner;
+import net.webstructor.data.Transcoder;
 import net.webstructor.self.Self;
 import net.webstructor.util.Array;
 import net.webstructor.util.Str;
@@ -760,6 +761,9 @@ class Conversation extends Mode {
 					session.getBody().act("read", (new Thing()).set("url", id));
 			}
 			
+			Socializer socializer = session.sessioner.body.getSocializer(network);//setup graph-id to grap-label mapping
+			Transcoder labeler = socializer != null && socializer instanceof Transcoder ? (Transcoder)socializer : null;
+			
 			String graph = graphQuery(session,network,new String[]{id},
 					date,
 					Integer.parseInt(period),
@@ -767,7 +771,8 @@ class Conversation extends Mode {
 					Integer.parseInt(threshold),
 					limit,
 					format,
-					AL.empty(links) ? null : new String[]{links});
+					AL.empty(links) ? null : new String[]{links},
+					labeler);
 			session.output(!AL.empty(graph) ? graph : "Not.");
 			return true;			
 		} 
@@ -775,7 +780,7 @@ class Conversation extends Mode {
 	}
 	
 	//TODO: move out to somewhere
-	String graphQuery(Session session, String network, String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links){
+	String graphQuery(Session session, String network, String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links, Transcoder coder){
 		GraphCacher grapher;
 		if (network.equalsIgnoreCase("www")){
 			grapher = session.sessioner.body.sitecacher;
@@ -790,7 +795,7 @@ class Conversation extends Mode {
 		//TODO: revert reciprocal links here before exporting?
 		
 		//translate subgraphs to JSON/AL, accordingly to "format"
-		String out = format.equalsIgnoreCase("json") ? result.toJSON() : result.toString();
+		String out = format.equalsIgnoreCase("json") ? result.toJSON() : result.toString(coder);
 		
 		//save memory
 		result.clear();
