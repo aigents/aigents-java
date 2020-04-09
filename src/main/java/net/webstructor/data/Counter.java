@@ -279,8 +279,6 @@ public class Counter extends HashMap implements Linker {
 			cb.importance = importance;
 		}
 		CountedBucket[] buckets = importances.values().toArray(new CountedBucket[] {});
-		//for (CountedBucket cb : buckets)
-		//	System.out.println(cb.rank+" "+cb.count+" "+cb.importance);
 		Arrays.sort(buckets,new Comparator() {
 			@Override
 			public int compare(Object o1, Object o2) {
@@ -289,8 +287,6 @@ public class Counter extends HashMap implements Linker {
 				double d = b2.importance - b1.importance;
 				return d < 0 ? -1 : d > 0 ? 1 : 0;
 			}});
-		for (CountedBucket cb : buckets)
-			System.out.println(cb.rank+" "+cb.count+" "+cb.importance);
 		//find enough feature buckets
 		int featuresNeeded = toRanked.length * percentageNeeded / 100;
 		int featuresFound = 0;

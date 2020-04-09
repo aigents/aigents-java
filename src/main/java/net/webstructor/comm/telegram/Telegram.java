@@ -148,7 +148,7 @@ public class Telegram extends SocialCacher implements Transcoder {
 	//TODO: move to SocialCacher to handle all messengers
 	public void updateInteraction(Date date, String type, String from_id, String to_id, int value) {
 		if (debug)
-			body.debug("Aigents crawling "+from_id+" "+type+" "+to_id);
+			body.debug("Telegram crawling "+from_id+" "+type+" "+to_id);
 
 		if (logger != null)
 			SocialCacher.write(logger, name, date, date.getTime(), type, from_id, to_id, String.valueOf(value), null, null, null, null, null, null, null);
@@ -173,12 +173,13 @@ public class Telegram extends SocialCacher implements Transcoder {
 	}
 
 	String userName(String id) {
+		String name = null;
 		try {
 			Collection peers = body.storager.getByName(Body.telegram_id, id);
 			if (peers != null) for (Object peer : peers)
-				return ((Thing)peer).getTitle(Peer.title);
+				name = ((Thing)peer).getTitle(Peer.title);
 		} catch (Exception e) {}
-		return id;//if not found
+		return !AL.empty(name) ? name : transcode(id).toString();
 	}
 	
 	//TODO move to SocialCacher AND unify with Schema.reverse

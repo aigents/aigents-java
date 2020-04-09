@@ -314,7 +314,7 @@ public class Graph implements Serializable {
 			double stddev = new_orders.stddev(orders);
 			if (stddev < REPUTATION_STD_DEV)
 				break;
-			System.out.println(pass+ " "+stddev+" "+" "+stddev/(stddev_top));
+			//System.out.println(pass+ " "+stddev+" "+" "+stddev/(stddev_top));
 			if (pass == 0) 
 				stddev_top = stddev;
 			else if (stddev > stddev_prev)//reach first local minimum

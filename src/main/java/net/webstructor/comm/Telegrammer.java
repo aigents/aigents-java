@@ -232,10 +232,14 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				String chat_id = String.valueOf(HTTP.getJsonLong(chat, "id", 0L));
 //TODO: distinguish private and group chats
 				//String chat_type = HTTP.getJsonString(chat, "type", "private");//TODO:private by default!?
-				if (AL.empty(from_username) || AL.empty(from_id) || from_bot)
+				if (AL.empty(from_username) || AL.empty(from_id))
 					continue;
 				
 				putIdByUsername(from_username,from_id);
+				
+				if (from_bot)//skipping replies from bots so far
+					continue;
+				
 				String reply_to_from_id = null;
 				String reply_to_from_username = null;
 				if (reply_to != null) {
