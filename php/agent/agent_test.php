@@ -64,6 +64,7 @@ function test_once() {
 	test_agent_site_graph();
 	
 	//testing random login and registration variations
+	test_login_debug();
 	test_login_new();
 	test_login_old();
 	test_login_areas();

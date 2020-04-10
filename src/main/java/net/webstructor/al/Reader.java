@@ -179,7 +179,6 @@ public class Reader extends AL {
 			int startpos = -1;
 			for (; i<size && read < size; i++) {
 				for (;it.has();) {
-					
 					if (i < size) {
 						int origpos = it.pos;
 						if (read(it,seq.get(i),tempSummary,i > 0 && seq.get(i-1) instanceof Property,terminators)) {
@@ -230,6 +229,9 @@ public class Reader extends AL {
 							//i = 0;
 							//read = 0;
 							//startpos = -1;
+							
+							if (i == size && breaker)
+								break;
 						}
 						else
 						if (i == size && breaker) {//last	variable frame boundary

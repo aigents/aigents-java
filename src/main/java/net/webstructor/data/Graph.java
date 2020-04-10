@@ -284,7 +284,7 @@ public class Graph implements Serializable {
 		if (iterations <= 0 || REPUTATION_MAX_CYCLES < iterations)
 			iterations = REPUTATION_MAX_CYCLES;
 		Summator orders = new Summator();
-		double stddev_top = 0; 
+		//double stddev_top = 0; 
 		double stddev_prev = 0;
 		for (int pass = 0; pass < iterations; pass++){
 			Summator new_orders = new Summator();
@@ -316,7 +316,7 @@ public class Graph implements Serializable {
 				break;
 			//System.out.println(pass+ " "+stddev+" "+" "+stddev/(stddev_top));
 			if (pass == 0) 
-				stddev_top = stddev;
+				;//stddev_top = stddev;
 			else if (stddev > stddev_prev)//reach first local minimum
 				break;
 			stddev_prev = stddev;

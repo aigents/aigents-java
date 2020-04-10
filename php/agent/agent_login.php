@@ -25,6 +25,35 @@
 
 include_once("test_api.php");
 
+function test_login_debug() {
+	global $version;
+	global $copyright;
+	
+	say("My login.");
+	get("What your email, name, surname?");
+	say("john@doe.org, john, doe");
+	get("What your secret question, secret answer?");
+
+	//say("sky color, red");
+	//get("What your sky color?");
+	
+	say("sky color?, red");
+	get("What your 'sky color?'?");
+	
+	say("red");
+	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
+
+	//cleanup
+	say("Your trusts no john.");
+	get("Ok.");
+	say("No email john@doe.org.");
+	get("Ok.");
+	say("You forget!");
+	get("Ok.");
+	say("My logout.");
+	get("Ok.");
+}
+
 function test_login_new() {
 	global $version;
 	global $copyright;
@@ -955,6 +984,7 @@ function test_login_sessions() {
 
 
 test_init();
+test_login_debug();
 test_login_new();
 test_login_old();
 test_login_areas();

@@ -93,7 +93,7 @@ public class Parser {
 		StringTokenizer tok = new StringTokenizer(subject, delimiters);
 		ArrayList list = new ArrayList(subject.length());
 		while(tok.hasMoreTokens()){
-			String token = tok.nextToken();
+			String token = tok.nextToken().trim();
 			if (!AL.empty(skip1chars) && skip1chars.contains(token))
 				continue;
 			list.add(token);

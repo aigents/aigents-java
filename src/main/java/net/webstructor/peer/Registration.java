@@ -30,6 +30,8 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.All;
 import net.webstructor.al.Any;
+import net.webstructor.al.Iter;
+import net.webstructor.al.Parser;
 import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Writer;
@@ -117,12 +119,15 @@ class Registration extends Mode {
 			Property pq = new Property(session.peer,Peer.secret_question);
 			Property pa = new Property(session.peer,Peer.secret_answer);
 			Seq seq = new Seq(new Object[]{new Any(1,AL.i_my),new Any(new Object[]{new Seq(new Object[]{"secret","question",pq}),new Seq(new Object[]{"secret", "answer"  ,pa})})});
+//TODO rewrite this with AL pattern!?
 			if (!Reader.read(session.input(), seq))//well-formed AL for q and a
 				if (session.expected() != null){
 					//free-text like "passport number, 123456 querty"
 					if (!Reader.read(session.input(), Reader.pattern(session.peer, session.expected(),",")))
-						//free-text like "password,123456querty"
-						Reader.read(session.input(),Reader.pattern(session.peer, session.expected()),",");
+						//free-text like "sky color?, blue" (breaker in the middle)
+						if (!Reader.read(new Iter(new Seq(Parser.split(session.input(), ","))),Reader.pattern(session.peer, session.expected()),null,true) || AL.empty(session.peer.getString(Peer.secret_answer)))
+							//free-text like "password,123456querty"
+							Reader.read(session.input(),Reader.pattern(session.peer, session.expected()),",");
 				}
 			check(session);
 			if (q == null){
