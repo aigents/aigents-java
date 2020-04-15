@@ -318,7 +318,7 @@ public class Farm extends Body {
 				}
 				// go from the last day till today and update ranks incrementally
 				for (Date date = Time.addDays(since,1); date.compareTo(last_day) <= 0; date = Time.addDays(date, 1)){
-					rs = r.update(date, null);
+					rs = r.update_ranks(date, null);
 					debug("Reputation crawling update "+date+" result "+rs);
 				}
 			}

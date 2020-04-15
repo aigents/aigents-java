@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.data;
+package net.webstructor.peer;
 
-public interface Transcoder { 
-	public Object transcode(Object source);
-	public Object recovercode(Object source);
+import java.util.Set;
+
+public interface Grouper { 
+	public Set<String> getGroup(String user_id);
 }

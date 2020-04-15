@@ -339,11 +339,13 @@ public class Discourse extends SocialCacher {
 	//TODO: move out and reuse with Reddit
 	public String simpleRetry(String url,String urlParameters,String method,String cType,String[][] props) throws IOException, InterruptedException {
 		String response = null;
+		int timeout = 2000;
 		for (int retry = 1; retry <= 30; retry++){
 			try {
-				response = HTTP.simple(url,urlParameters,method,1000,cType,props);
+				response = HTTP.simple(url,urlParameters,method,timeout,cType,props);
 			} catch (java.net.SocketTimeoutException e) {
-				body.debug("Discourse crawling timeout");
+				body.debug("Discourse crawling timeout "+timeout);
+				timeout *= 2;
 			}
 			if (AL.empty(response) || !(response.startsWith("{") || response.startsWith("[")) || response.startsWith(json_errors)){
 				if (!AL.empty(response) && response.contains("not_found")) {

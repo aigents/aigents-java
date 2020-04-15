@@ -27,9 +27,10 @@ var logos = {
 	ethereum:"/ui/img/eth32.png"
 };
 
-//TODO: network aigents if os_root 
+//TODO: network aigents if is_root 
 var networks = ['google','facebook','vkontakte','reddit','discourse','telegram','ethereum','steemit','golos'];
-function get_graphable_networks() { return is_root ? ['discourse','telegram','ethereum','steemit','golos'] : ['discourse','ethereum','steemit','golos'] };//import is_root from aigents-map.js
+//function get_graphable_networks() { return is_root ? ['discourse','telegram','ethereum','steemit','golos'] : ['discourse','ethereum','steemit','golos'] };//import is_root from aigents-map.js
+function get_graphable_networks() { return ['discourse','telegram','ethereum','steemit','golos'] };
 
 var graph_hashing_names = false;
 var graph_user_name = 'I';

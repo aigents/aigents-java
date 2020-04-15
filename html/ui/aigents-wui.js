@@ -2346,7 +2346,7 @@ function update_redirecting_logins(paypal,reddit){
 	if (!AL.empty(reddit))
 		login("#paypal_logo","/ui/img/paypal_icon_no_border_grayed.png");
 }
-var is_root = false;
+//var is_root = false;
 function loginlowlevel(name,surname,no_refresh){
 	logged_in = true;
 	auto_refreshing = true;
@@ -2365,9 +2365,9 @@ function loginlowlevel(name,surname,no_refresh){
 			parseToGrid(data,response.substring(5),['reddit id','paypal id'],",");
 			if (!AL.empty(data))
 				update_redirecting_logins(data[0][0],data[0][1]);
-	     	ajax_request('What your trusts?',function(response){
-	     		is_root = response.startsWith('My trusts ');
-	     	},true);
+	     	//ajax_request('What your trusts?',function(response){
+	     	//	is_root = response.startsWith('My trusts ');
+	     	//},true);
         },true);//silent	    
 }
 function logoutlowlevel(){

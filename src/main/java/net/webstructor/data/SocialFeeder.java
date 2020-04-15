@@ -232,6 +232,16 @@ public abstract class SocialFeeder {
 		});
 	}
 
+	//overrideable
+	public Object[][] getReputation(Date since, Date until){
+		return null;//not defined by default
+	}
+
+	//overrideable
+	public Graph getGraph(Date since, Date until){
+		return null;//not defined by default
+	}
+
 	//(their_likes + their_comments) / (1 + my_likes)
 	public final Object[][] getFans(){
 		return getRankedPeers(new Ranker(){

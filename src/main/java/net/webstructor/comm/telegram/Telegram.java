@@ -24,25 +24,32 @@
 package net.webstructor.comm.telegram;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
+import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.comm.SocialCacher;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Transcoder;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
+import net.webstructor.data.GraphCacher;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.Linker;
+import net.webstructor.peer.Grouper;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
+import net.webstructor.peer.Reputationer;
 
 class TelegramFeeder extends SocialFeeder {
 	Telegram api;
@@ -99,10 +106,46 @@ class TelegramFeeder extends SocialFeeder {
 		body.debug("Telegram crawling graph completed memory "+body.checkMemory());
 	}
 	
+	@Override
+	public Object[][] getReputation(Date since, Date until){
+		Reputationer r = new Reputationer(body,api.getGraphCacher(),api.provider(),null,true);
+		ArrayList data = new ArrayList();
+		for (Date date = Time.date(until); since.compareTo(date) <= 0; date = Time.addDays(date,-1)) {
+			int res = r.get_ranks(date, null,null,null,false,0,0, data);
+			if (res != 0 && data.size() > 0)
+				break;
+		}
+		//list all peers across all my communtities
+		Set<String> community = api.getGroup(this.user_id);
+		if (data.size() > 0 && community != null) {
+			ArrayList norm = new ArrayList();
+			for (int i = 0; i < data.size(); i++){
+				Object item[] = (Object[])data.get(i);
+				Object id = item[0];
+				if (!community.contains(id))
+					continue;
+				norm.add( new Object[]{new Integer(((Number)item[1]).intValue()),api.transcode(id)} );
+			}
+			return (Object[][])norm.toArray(new Object[][]{});
+		}
+		return null;
+	}
+
+	@Override
+	public Graph getGraph(Date since, Date until){
+		GraphCacher grapher = api.getGraphCacher();
+//TODO: comfig limits
+		int range = 10;
+		int threshold = 0; 
+		int limit = 1000;
+		int period = Period.daysdiff(since, until);
+		return grapher.getSubgraph(new String[] {user_id}, until, period, range, threshold, limit, null, api.getGroup(user_id), Socializer.links);
+	}
+
 }
 
 
-public class Telegram extends SocialCacher implements Transcoder {
+public class Telegram extends SocialCacher implements Transcoder, Grouper {
 	protected DataLogger logger;
 	protected boolean debug = true;
 	
@@ -182,15 +225,39 @@ public class Telegram extends SocialCacher implements Transcoder {
 		return !AL.empty(name) ? name : transcode(id).toString();
 	}
 	
-	//TODO move to SocialCacher AND unify with Schema.reverse
-	public static String reverse(String type) {
-		return type.equals("comments") ? "commented" : type.equals("mentions") ? "mentioned" : null;
+	@Override
+	public Set<String> getGroup(String user_id) {
+		//get all groups of id and get all mambers of all these groups
+		try {
+			HashSet<String> res = new HashSet<String>();
+			Collection users = body.storager.getByName(Body.telegram_id, user_id);
+			if (!AL.empty(users)) for (Object user : users) {
+				Collection groups = ((Thing)user).getThings(AL.groups);
+				if (!AL.empty(groups)) for (Object group : groups) {
+					Collection members = ((Thing)group).getThings(AL.members);
+					if (!AL.empty(members)) for (Object member : members) {
+						String peer_id = ((Thing)member).getString(Body.telegram_id);
+						if (!AL.empty(peer_id))
+							res.add(peer_id);
+					}
+				}
+			}
+			return res;
+		} catch (Exception e) {}
+		return null;
 	}
 
 	@Override
 	public Object transcode(Object source) {
 		Set res = body.storager.get(Body.telegram_id, source);
 		Object out = AL.single(res) ? ((Thing)res.iterator().next()).get(Body.telegram_name) : null;
+		return out != null ? out : source;
+	}
+	
+	@Override
+	public Object recovercode(Object source) {
+		Set res = body.storager.get(Body.telegram_name, source);
+		Object out = AL.single(res) ? ((Thing)res.iterator().next()).get(Body.telegram_id) : null;
 		return out != null ? out : source;
 	}
 	

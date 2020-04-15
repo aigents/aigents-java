@@ -405,13 +405,15 @@ function graph_setup(id) {
 		graph_launch();
 		return true;
 	}
+	var network = new_parameters[0];
+	var period = network == 'discourse' || network == 'telegram' ? [1,2,3,4,5,6,7,10,30,92,365,730] : [1,2,3,4,5,6,7]
 	dialog_open('Render Graph','Specify graph parameters to render',
 			graph_properties,
 			graph_properties,//TODO: prompts
 			new_parameters,false,onOk,null,null,{
 			network:{title:'Network to explore',options:['www'].concat(get_graphable_networks())},//import from aigents-map.js
 			links:{title:'Links to include in the graph',options:['all','pays','paid','votes','voted','comments','commented','mentions','mentioned']},
-			period:{title:'Period to search',options:(new_parameters[0] == 'discourse' ? [1,2,3,4,5,6,7,10,30,92,365,730] : [1,2,3,4,5,6,7])},
+			period:{title:'Period to search',options:period},
 			range:{title:'Range of link hops',options:[1,2,3,4,5,6,7,10]},
 			}
 	);

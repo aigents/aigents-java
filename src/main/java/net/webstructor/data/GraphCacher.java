@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
@@ -198,7 +200,7 @@ public class GraphCacher implements Cacher {
 		}
 	}
 
-	public Graph getSubgraphRaw(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links){
+	public Graph getSubgraphRaw(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links, Set<String> members, Map<String,String> inversions){
 		GraphCacher grapher = this;
 		HashSet todo = Array.toSet(ids);		
 		HashSet visited = new HashSet();
@@ -209,7 +211,7 @@ public class GraphCacher implements Cacher {
 				Graph daily = grapher.getGraph(Time.date(date, -daysback));
 				//collect all links for given ids of given types, collect link targets
 //TODO: don't consider done-s here
-				daily.getSubgraphTargets(todo, visited, links, all, next);
+				daily.getSubgraphTargets(todo, visited, links, r == 0 ? null : members, all, next, inversions);//apply filter on second circle only
 			}
 			visited.addAll(todo);
 			next.removeAll(visited);
@@ -218,8 +220,8 @@ public class GraphCacher implements Cacher {
 		return all;
 	}
 	
-	public Graph getSubgraph(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links){
-		Graph all= getSubgraphRaw(ids, date, period, range, threshold, limit, links);
+	public Graph getSubgraph(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links, Set<String> members, Map<String,String> inversions){
+		Graph all= getSubgraphRaw(ids, date, period, range, threshold, limit, links, members, inversions);
 		all.normalize();
 		Graph candidate = all;
 		Graph result = new Graph();

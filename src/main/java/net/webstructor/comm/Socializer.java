@@ -40,6 +40,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
@@ -52,6 +53,7 @@ import net.webstructor.util.Reporter;
 
 import net.webstructor.data.Graph;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.data.Transcoder;
 import net.webstructor.data.Translator;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
@@ -367,7 +369,9 @@ public abstract class Socializer extends HTTP {
 		my_best_words = "my best words",
 		my_words_liked_and_commented = "my words liked and commented",
 		words_liked_by_me = "words liked by me",
-		my_posts_for_the_period = "my posts for the period";
+		my_posts_for_the_period = "my posts for the period",
+		reputation = "reputation in community",
+		social_graph = "social graph";
 	static final String[] report_options = {
 		my_interests,
 		interests_of_my_friends,
@@ -386,7 +390,9 @@ public abstract class Socializer extends HTTP {
 		my_best_words,
 		my_words_liked_and_commented,
 		words_liked_by_me,
-		my_posts_for_the_period
+		my_posts_for_the_period,
+		reputation,
+		social_graph
 	}; 
 		
 	//TODO: move to utilities 
@@ -622,7 +628,8 @@ public abstract class Socializer extends HTTP {
 		//TODO fix hack
 		if (feeder.errorMessage != null)
 				title = title + " : " + feeder.errorMessage;
-		rep.initReport(title, feeder.since(), feeder.until(), null);
+		//rep.initReport(title, feeder.since(), feeder.until(), null);
+		rep.initReport(title, feeder.since(), feeder.until(), body.site());
 		
 		//adjust reputations and optionally render connections
 		//TODO add connection distance (related on primary feeder)?
@@ -696,6 +703,21 @@ public abstract class Socializer extends HTTP {
 			rep.table(authorities,t.loc(authorities),
 				t.loc(peersHeadings(rep)),
 				feeder.getIdols(),minPercent,minCount);
+		if (options.isEmpty() || options.contains(reputation))
+			rep.table(reputation,t.loc(reputation),
+				t.loc(new String[]{"Rank,%","Friend"}),
+				feeder.getReputation(feeder.since(),feeder.until()),0/*minPercent*/,minCount);
+
+		if (options.isEmpty() || options.contains(social_graph)) {
+//TODO: make sure graphs in reports are not breaking graphs in UI => after then enable graphs for any SocialCacher
+			Graph graph = feeder.getGraph(feeder.since(),feeder.until());
+			if (graph != null) {
+				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
+				String[] links = new String[] {"comments","mentions","votes","pays","calls"};
+				rep.graph(social_graph,t.loc(social_graph),text,links);
+			}
+		}
+
 		if (!options.isEmpty() && options.contains(liked_by_me))
 			rep.table(liked_by_me,t.loc(liked_by_me),
 				t.loc(peersHeadings(rep)),
@@ -752,6 +774,20 @@ public abstract class Socializer extends HTTP {
 				body.error("Siter matchig "+provider()+" "+peer_id+" "+text,e);
 			}
 		}
+	}
+
+	//TODO unify with Schema.reverse
+	public static String reverse(String type) {
+		return type.equals("comments") ? "commented" : type.equals("mentions") ? "mentioned" : type.equals("pays") ? "paid" : type.equals("votes") ? "voted" : type.equals("calls") ? "called" : null;
+	}
+	
+	public static final Map<String,String> links = new HashMap<String,String>();
+	static {
+		links.put("commented", "comments");
+		links.put("mentioned", "mentions");
+		links.put("paid", "pays");
+		links.put("voted", "votes");	
+		links.put("called", "calls");
 	}
 
 }

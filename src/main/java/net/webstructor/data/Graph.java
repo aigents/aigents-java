@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import net.webstructor.al.AL;
@@ -153,7 +154,7 @@ public class Graph implements Serializable {
 	}
 	
 	//get subgraph for list of sources given specified links, storing links in collector and collecting targets
-	public Graph getSubgraphTargets(Set sources, Set globallyVisited, String[] links, Graph collector, Set targets){
+	public Graph getSubgraphTargets(final Set sources, final Set globallyVisited, final String[] links, final Set members, Graph collector, Set targets, Map<String,String> inversions){
 		if (!AL.empty(sources)){
 			HashSet locallyVisited = new HashSet();
 			for (Iterator it = sources.iterator(); it.hasNext();){
@@ -164,19 +165,26 @@ public class Graph implements Serializable {
 					continue;
 				for (Iterator lit = linkers.keySet().iterator(); lit.hasNext();){
 					String property = (String)lit.next();
+					String reversal = inversions == null ? null : inversions.get(property);
 					if (AL.empty(links) || Array.contains(links, property)){//check link property
 						Linker l = (Linker)linkers.get(property);
 						for (Iterator tit = l.keys().iterator(); tit.hasNext();){
 							Object target = tit.next();
 							//ignore reciprocal links assuming all links are bidirectional
 							//if (!sources.contains(target)){
-							if (!locallyVisited.contains(target) && !globallyVisited.contains(target)){
+							if (!locallyVisited.contains(target) && !globallyVisited.contains(target) && (members == null || members.contains(target))){
 								targets.add(target);
 								Object o = l.get(target);
+								Object from, link, to;
+								if (reversal == null) {
+									from = id; link = property; to = target;
+								} else {
+									from = target; link = reversal; to = id;									
+								}
 								if (o instanceof ComplexNumber[])
-									collector.addValue(id, target, property, (ComplexNumber[])o);
+									collector.addValue(from, to, link, (ComplexNumber[])o);
 								else
-									collector.addValue(id, target, property, l.value(target).intValue());
+									collector.addValue(from, to, link, l.value(target).intValue());
 							}
 						}
 					}

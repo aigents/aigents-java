@@ -41,6 +41,9 @@ import net.webstructor.cat.StringUtil;
 import net.webstructor.core.Environment;
 
 public class Reporter {
+	public static final String[] nodecolors = {"#FFFF00","#00FF00","#00FFFF","#FF00FF","#FF0000","#0000FF"};
+	public static final String[] linkcolors = {"#00007F","#007F7F","#007F00","#7F7F00","#7F0000","#7F007F"};
+	
 	int maxLength = 300;
 	protected Writer writer;
 	protected Environment env;
@@ -93,7 +96,7 @@ public class Reporter {
 		return sb.toString();
 	}
 	
-	public void initReport(String title, Date since, Date until, String header){
+	public void initReport(String title, Date since, Date until, String base){
 		try {
 			writer.append("<html><head><title>"+net.webstructor.al.Writer.capitalize(title)+"</title>\n");
 			writer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
@@ -107,8 +110,16 @@ public class Reporter {
 			
 			writer.append("<style> td { vertical-align: top; } body {background:#ffffd8;font-family: Helvetica,Arial,sans-serif} .line0 { background: #ffffc8; } .line1 { background: #ffffE8; } </style>");
 			
-			if (!AL.empty(header))
+			if (!AL.empty(base)) {
+				String header = 
+					"  <link rel=\"stylesheet\" href=\""+base+"/ui/jquery-ui-1.11.4.custom/jquery-ui.css\">\n" + 
+					"  <link rel=\"stylesheet\" href=\""+base+"/ui/aigents-wui.css\">\n" + 
+					"  <script src=\""+base+"/ui/jquery-1.11.1.js\"></script>\n" + 
+					"  <script src=\""+base+"/ui/jquery-ui-1.11.4.custom/jquery-ui.js\"></script>\n" + 
+					"  <script type=\"text/javascript\" src=\""+base+"/ui/aigents-al.js\"></script>\n" + 
+					"  <script type=\"text/javascript\" src=\""+base+"/ui/aigents-graph.js\"></script>\n";
 				writer.append(header);
+			}
 			
 			writer.append("</head><body>\n");
 			
@@ -127,8 +138,39 @@ public class Reporter {
 			writer.append("<br><span style=\"font-size:x-large;\">").append(buildName(id,name,surname)).append("</span>\n");
 			writer.append("<span style=\"font-size:large;\">").append(period).append("</span><br>\n");
 		} catch (IOException e) {
-            env.error(e.toString(),e);
+            env.error("Reporter "+e.toString(),e);
 		}		
+	}
+	
+	public void graph(String id, String graph, String colors) {
+		try {
+			writer.append("<br><div id=\"wrapper_"+id+"\" style=\"width:100%;height:100%\"/>");
+			writer.append("<script>\n");
+			writer.append("var graph_text = \"");
+			writer.append(graph);
+			writer.append("\";\n");
+			writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text, builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
+			writer.append("</script><br>");
+		} catch (IOException e) {
+            env.error("Reporter "+e.toString(),e);
+		}
+	}
+
+	public void graph(String id,String title, String graph, String[] links) {
+		if (graph == null)
+			return;
+		if (AL.empty(graph))
+			return;
+		subtitle(title);
+		graph = graph.replace(".\n", "\\n\\\n ");//encode JavaScrip in-string linebreaks wtih extra separating space
+		//text = "a likes b 100\\n\\\n"+"b loves d 100\\n\\\n";
+		StringBuilder colors = new StringBuilder();
+		if (links != null )for (int i = 0; i < links.length; i++) {
+			if (i > 0)
+				colors.append(',');
+			colors.append("\""+links[i]+"\":\""+linkcolors[i % linkcolors.length]+"\"");
+		}
+		graph(String.valueOf(System.currentTimeMillis()), graph, colors.toString());
 	}
 	
 	//0000FF - blue

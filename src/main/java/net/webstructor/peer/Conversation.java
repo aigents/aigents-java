@@ -61,6 +61,7 @@ import net.webstructor.comm.Socializer;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.vk.VK;
 import net.webstructor.comm.goog.GApi;
+import net.webstructor.core.Environment;
 import net.webstructor.core.Mistake;
 import net.webstructor.core.Property;
 import net.webstructor.core.Query;
@@ -601,6 +602,19 @@ class Conversation extends Mode {
 		}
 		return false;
 	}
+
+	//TODO replace this with Farm.getReputationer(network) for the purpose of Body-controlled memory management
+	public static Reputationer getReputationer(Environment env, String network){
+		Reputationer r = Reputationer.get(network);
+		if (r == null) {
+			Socializer grpaher = env instanceof Body ? ((Body)env).getSocializer(network) : null;
+			if (grpaher != null && grpaher instanceof SocialCacher)
+				r = new Reputationer(env,((SocialCacher)grpaher).getGraphCacher(),network,null,true);
+			else
+				r = new Reputationer(env,network,null,true);
+		}
+		return r;
+	}
 	
 	//TODO: A MUST - move to other place to avoid concurrent use of files ad redundant memory use
 	HashMap reputationers = new HashMap();
@@ -629,14 +643,7 @@ class Conversation extends Mode {
 		try {
 			String network = arg.getString("word"); 
 			//TODO replace this with Farm.getReputationer(network)
-			Reputationer r = Reputationer.get(network);
-			if (r == null) {
-				Socializer provider = session.getBody().provider(network);
-				if (provider != null && provider instanceof SocialCacher)
-					r = new Reputationer(session.getBody(),((SocialCacher)provider).getGraphCacher(),network,null,true);
-				else
-					r = new Reputationer(session.getBody(),network,null,true);
-			}
+			Reputationer r = getReputationer(session.getBody(), network);
 			ps = new PrintStream(baos, true, charset.name());
 			//TODO: get data as object!?
 //TODO return error code in json
@@ -764,7 +771,12 @@ class Conversation extends Mode {
 			Socializer socializer = session.sessioner.body.getSocializer(network);//setup graph-id to grap-label mapping
 			Transcoder labeler = socializer != null && socializer instanceof Transcoder ? (Transcoder)socializer : null;
 			
-			String graph = graphQuery(session,network,new String[]{id},
+			//apply group filter to non-admin sessions if not open data and group filtering is supported
+			//java.util.Set<String> members = !session.trusted() && socializer != null && !socializer.opendata() && socializer instanceof Grouper 
+			java.util.Set<String> members = !session.trusted() && socializer != null && socializer instanceof Grouper 
+					? ((Grouper)socializer).getGroup(id) : null;
+			
+			String graph = graphQuery(session,network,new String[]{labeler != null ? (String)labeler.recovercode(id) : id},
 					date,
 					Integer.parseInt(period),
 					Integer.parseInt(range),
@@ -772,7 +784,8 @@ class Conversation extends Mode {
 					limit,
 					format,
 					AL.empty(links) ? null : new String[]{links},
-					labeler);
+					labeler,
+					members);
 			session.output(!AL.empty(graph) ? graph : "Not.");
 			return true;			
 		} 
@@ -780,7 +793,7 @@ class Conversation extends Mode {
 	}
 	
 	//TODO: move out to somewhere
-	String graphQuery(Session session, String network, String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links, Transcoder coder){
+	String graphQuery(Session session, String network, String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links, Transcoder coder, java.util.Set<String> members){
 		GraphCacher grapher;
 		if (network.equalsIgnoreCase("www")){
 			grapher = session.sessioner.body.sitecacher;
@@ -790,7 +803,8 @@ class Conversation extends Mode {
 		}
 		if (grapher == null)
 			return null;
-		Graph result = grapher.getSubgraph(ids, date, period, range, threshold, limit, links);
+		
+		Graph result = grapher.getSubgraph(ids, date, period, range, threshold, limit, links, members, null);
 
 		//TODO: revert reciprocal links here before exporting?
 		

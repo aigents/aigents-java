@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -72,9 +72,6 @@ class Searcher extends Intenter {
 
 	public static final String name = "search";
 
-	static final String[] nodecolors = {"#FFFF00","#00FF00","#00FFFF","#FF00FF","#FF0000","#0000FF"};
-	static final String[] linkcolors = {"#00007F","#007F7F","#007F00","#7F7F00","#7F0000","#7F007F"};
-	
 //TODO: abastract reporter for xlsx/html/pdf!?
 	String format(Conversation conversation, Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs, Thing arg) {
 		Thing peer = conversation.getSessionAreaPeer(session);
@@ -105,16 +102,16 @@ class Searcher extends Intenter {
 				Translator t = session.getBody().translator(language);
 				Reporter rep = Reporter.reporter(session.getBody(),format,writer);
 				//prepare graph headers optionally
-				String base = session.sessioner.body.site();
+				/*String base = session.sessioner.body.site();
 				String header = AL.empty(graphs) || graphs.length < 2 ? null : 
 						"  <link rel=\"stylesheet\" href=\""+base+"/ui/jquery-ui-1.11.4.custom/jquery-ui.css\">\n" + 
 						"  <link rel=\"stylesheet\" href=\""+base+"/ui/aigents-wui.css\">\n" + 
 						"  <script src=\""+base+"/ui/jquery-1.11.1.js\"></script>\n" + 
 						"  <script src=\""+base+"/ui/jquery-ui-1.11.4.custom/jquery-ui.js\"></script>\n" + 
 						"  <script type=\"text/javascript\" src=\""+base+"/ui/aigents-al.js\"></script>\n" + 
-						"  <script type=\"text/javascript\" src=\""+base+"/ui/aigents-graph.js\"></script>\n";
+						"  <script type=\"text/javascript\" src=\""+base+"/ui/aigents-graph.js\"></script>\n";*/
 //TODO: since, until 
-				rep.initReport("Aigents Search Report: "+topic,Time.today(0),Time.today(0),header);
+				rep.initReport("Aigents Search Report: "+topic,Time.today(0),Time.today(0),session.sessioner.body.site());
 				if (miner != null) {
 //TODO: localize reports
 					Linker cats = miner.getCategoryCounts();
@@ -185,10 +182,7 @@ class Searcher extends Intenter {
 						}
 
 						//graph to real graph
-						long stamp = System.currentTimeMillis();//temp id
-						writer.append("<br><div id=\"wrapper_"+stamp+"\" style=\"width:100%;height:100%\"/>");
-						writer.append("<script>\n");
-						writer.append("var graph_text = \"\\\n");
+						StringBuilder graph_text = new StringBuilder(); 
 						for (int i = 0; i < graphs.length; i++) for (int j = 0; j < graphs.length; j++) if (i != j) {
 							String gi = graphs[i];
 							String gj = graphs[j];
@@ -201,22 +195,20 @@ class Searcher extends Intenter {
 								if (!AL.empty(ranked)) for (int r = 0; r < ranked.length; r++) {
 									Object item[] = ranked[r];
 									String target = item[0].toString().replace("\'", "\\\\\\\'");
-									writer.append("\'"+source+"\' "+gij+" \'"+target+"\' "+item[1]+"\\n\\\n");
+									graph_text.append("\'"+source+"\' "+gij+" \'"+target+"\' "+item[1]+"\\n\\\n");
 								}
-								writer.append("\'"+source+"\' is '"+gi+"'\\n\\\n");
+								graph_text.append("\'"+source+"\' is '"+gi+"'\\n\\\n");
 							}
 						}
-						writer.append("	\";\n");
 						StringBuilder colors = new StringBuilder();
 						int linkcount = 0;
 						for (int i = 0; i < graphs.length; i++) {
 							if (i > 0) colors.append(",");
-							colors.append(graphs[i]+":\""+nodecolors[i % nodecolors.length]+"\"");
+							colors.append(graphs[i]+":\""+Reporter.nodecolors[i % Reporter.nodecolors.length]+"\"");
 							for (int j = 0; j < graphs.length; j++) if (i != j)
-								colors.append(",\""+graphs[i]+"-"+graphs[j]+"\":\""+linkcolors[linkcount++ % linkcolors.length]+"\"");
+								colors.append(",\""+graphs[i]+"-"+graphs[j]+"\":\""+Reporter.linkcolors[linkcount++ % Reporter.linkcolors.length]+"\"");
 						}
-						writer.append("GraphUI.request_graph_inline(\"svg_inline_"+stamp+"\", {text : graph_text, builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+stamp+"\", document.getElementById(\"wrapper_"+stamp+"\"));\n"); 
-						writer.append("</script><br>");
+						rep.graph(String.valueOf(System.currentTimeMillis()),graph_text.toString(), colors.toString());
 
 						//graph to tables
 						for (int i = 0; i < graphs.length; i++) for (int j = 0; j < graphs.length; j++) if (i != j) {

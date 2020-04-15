@@ -44,6 +44,7 @@ import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.Linker;
+import net.webstructor.data.ReputationSystem;
 import net.webstructor.data.Summator;
 import net.webstructor.al.Time;
 import net.webstructor.al.Period;
@@ -244,7 +245,7 @@ class TreeGraph {
 }
 
 //TODO: synchroizaion
-public class Reputationer {
+public class Reputationer implements ReputationSystem {
 	protected Environment env;
 
 	//system context properties
@@ -296,6 +297,7 @@ public class Reputationer {
 	/**
 	 * Delete entire contents of the ratings database
 	 */
+	@Override
 	public void clear_ratings(){
 		cacher.clear(true);
 		latest_graph = null;
@@ -306,7 +308,8 @@ public class Reputationer {
 	/**
 	 * Delete entire contents of the ranks database
 	 */
-	protected void clear_ranks(){
+	@Override
+	public void clear_ranks(){
 		states.clear();
 		ranks_modified = false;
 	}
@@ -344,7 +347,7 @@ public class Reputationer {
 	 * @param state array of tuples: id, value, optional array of per-dimension pairs of dimension and value: 
 	 * @return
 	 */
-	public int set_ranks(Date datetime, Object[][] state){
+	public int put_ranks(Date datetime, Object[][] state){
 		//TODO: handle dimensions?
 		if (datetime == null)
 			return 1;
@@ -366,7 +369,6 @@ public class Reputationer {
 		return 0;
 	}
 	
-	//TODO:update
 	/**
 	Update - to spawn/trigger background reputation update process, if needed to force externally
 		Input (object)
@@ -375,7 +377,8 @@ public class Reputationer {
 		Output (object)
 			Result code (0 - success, 1 - in progress, 2 - consensus pending, error code otherwise)
 	*/
-	public int update(Date datetime, String[] domains){
+	@Override
+	public int update_ranks(Date datetime, String[] domains){
 		if (datetime == null)
 			return 3;//no input datetime
 		Date date = Time.date(datetime);
@@ -619,7 +622,6 @@ public class Reputationer {
 		return 0;
 	}
 	
-	//TODO:retrieve
 	/**
 	Retrieve (extracts current reputation computed by Update API or in background)
 		Input (object)
@@ -639,8 +641,9 @@ public class Reputationer {
 				Dimension
 				Value
 	 */
-	//TODO: input is array
+	@Override
 	public int get_ranks(Date datetime, String[] ids, String[] domains, String[] dimensions, boolean force, long at, long size, List results){
+		//TODO: input ids array
 		//TODO: sorting results for stability!?
 		//TODO: Retrieve By Date/Time (all domains and accounts)
 		//TODO: Retrieve By Date/Time and Accounts (all domains)
@@ -696,10 +699,11 @@ public class Reputationer {
 	 * @return array of tuples of ratings [from type to value]
 	 */
 	//TODO: return weight and time
-	protected Object[][] get_ratings(String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links){
+	@Override
+	public Object[][] get_ratings(String[] ids, Date date, int period, int range, int threshold, int limit, String format, String[] links){
 		//TODO: sorting results for stability!?
-		Graph result = params.complexRatings ? cacher.getSubgraphRaw(ids, date, period, range, threshold, limit, links)
-				: cacher.getSubgraph(ids, date, period, range, threshold, limit, links);
+		Graph result = params.complexRatings ? cacher.getSubgraphRaw(ids, date, period, range, threshold, limit, links, null, null)
+				: cacher.getSubgraph(ids, date, period, range, threshold, limit, links, null, null);
 		Object[][] o = (Object[][]) result.toList(params.complexRatings,special_relationships,false).toArray(new Object[][]{});
 		//TODO: sort
 		Arrays.sort(o,new ArrayPositionComparator(0,2));//asc id order!?
@@ -771,7 +775,8 @@ public class Reputationer {
 			Result code (0 - success, error code otherwise)
 	 * @param args
 	 */
-	public int add_ratings(Object[][] ratings){
+	@Override
+	public int put_ratings(Object[][] ratings){
 		if (AL.empty(ratings))
 			return 1;
 		//TODO: add Source/System/Network as a parameter!?
@@ -920,7 +925,7 @@ public class Reputationer {
 			env.debug("Updating "+r.name+" since "+Time.day(since,false)+" to "+Time.day(until,false)+" period "+period);
 			rs = 0;
 			for (Date day = since; day.compareTo(until) <= 0; day = Time.date(day, +period)){ 
-				rs = r.update(day, null);
+				rs = r.update_ranks(day, null);
 				env.debug("Updating "+Time.day(day,false)+" at "+new Date(System.currentTimeMillis()));
 				if (rs == 0)
 					computed++;
@@ -949,11 +954,10 @@ public class Reputationer {
 			Object[][] ranks = Str.get(args,new String[]{"id","rank"},new Class[]{null,Integer.class});
 			if (AL.empty(ranks))
 				return 1;//empty input
-			rs = r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
-			int res = r.set_ranks(Time.day(Str.arg(args,"date","today")),ranks);
+			int res = r.put_ranks(Time.day(Str.arg(args,"date","today")),ranks);
 			if (res == 0)
 				r.save_ranks();
-			return rs;
+			return res;
 		}
 		else
 		if (Str.has(args,"get","ranks")){
@@ -1080,7 +1084,7 @@ public class Reputationer {
 			Object[][] ratings = Str.get(args,new String[]{"from","type","to","value","weight","time"},new Class[]{null,null,null,Double.class,Integer.class,Date.class},new String[]{null,null,null,null,null,"today"});  
 			if (AL.empty(ratings))
 				return 1;
-			rs = r.add_ratings(ratings);
+			rs = r.put_ratings(ratings);
 			return rs;
 		}
 		else
@@ -1114,7 +1118,7 @@ public class Reputationer {
 						Object[][] ratings = new Object[][]{new Object[]{
 								tokens[3],tokens[2],tokens[4],value,weight,time
 						}}; 
-						r.add_ratings(ratings);
+						r.put_ratings(ratings);
 						return true;
 					}
 				});
@@ -1261,9 +1265,9 @@ public class Reputationer {
 		r.clear_ratings();
 	
 		//test state API
-		t.assume(r.set_ranks(Time.today(0),new Object[][]{new Object[]{"1",new Integer(1)},new Object[]{"2",new Integer(5)},new Object[]{"3",new Integer(10)}}), 0);
-		t.assume(r.set_ranks(Time.today(-1),new Object[][]{new Object[]{"1",new Integer(2)},new Object[]{"10",new Integer(10)},new Object[]{"3",new Integer(50)}}), 0);
-		t.assume(r.set_ranks(Time.today(-1),new Object[][]{new Object[]{"1",new Integer(10)},new Object[]{"10",new Integer(20)},new Object[]{"3",new Integer(100)}}), 3);
+		t.assume(r.put_ranks(Time.today(0),new Object[][]{new Object[]{"1",new Integer(1)},new Object[]{"2",new Integer(5)},new Object[]{"3",new Integer(10)}}), 0);
+		t.assume(r.put_ranks(Time.today(-1),new Object[][]{new Object[]{"1",new Integer(2)},new Object[]{"10",new Integer(10)},new Object[]{"3",new Integer(50)}}), 0);
+		t.assume(r.put_ranks(Time.today(-1),new Object[][]{new Object[]{"1",new Integer(10)},new Object[]{"10",new Integer(20)},new Object[]{"3",new Integer(100)}}), 3);
 		
 		ArrayList a;//placeholder for results
 		
@@ -1280,7 +1284,7 @@ public class Reputationer {
 		//2 rates 4 100
 		//4 rates 5 100
 		Date date10 = Time.today(-10);
-		t.assume(r.add_ratings(new Object[][]{
+		t.assume(r.put_ratings(new Object[][]{
 				new Object[]{"1","rate","3",new Integer(100),null,date10},
 				new Object[]{"1","rate","4",new Integer(100),null,date10},
 				new Object[]{"2","rate","4",new Integer(100),null,date10},
@@ -1295,7 +1299,7 @@ public class Reputationer {
 		t.assume(Writer.toString(r.get_ratings(new String[]{"5"}, date10, 1, 3, 0, 10, null, new String[]{"rate-d","rate-s"})),"((1 rate-s 3 100) (4 rate-d 1 100) (4 rate-d 2 100) (5 rate-d 4 100))");
 		
 		//test update API
-		t.assume(""+r.update(date10, null),"0");
+		t.assume(""+r.update_ranks(date10, null),"0");
 				
 		//test retrieve API after after rank and update
 		r.get_ranks(date10,null,null,null,false,0,0,a = new ArrayList());
@@ -1305,13 +1309,13 @@ public class Reputationer {
 		//3 rates 1 100 (power 50)
 		//4 rates 2 100 (power 100)
 		Date date9 = Time.today(-9);
-		t.assume(r.add_ratings(new Object[][]{
+		t.assume(r.put_ratings(new Object[][]{
 				new Object[]{"3","rate","1",new Integer(100),null,date9},
 				new Object[]{"4","rate","2",new Integer(100),null,date9}
 				}), 0);
 
 		//test update API
-		t.assume(""+r.update(date9, null),"0");
+		t.assume(""+r.update_ranks(date9, null),"0");
 				
 		//test retrieve API after after rank and update
 		r.get_ranks(date9,null,null,null,false,0,0,a = new ArrayList());

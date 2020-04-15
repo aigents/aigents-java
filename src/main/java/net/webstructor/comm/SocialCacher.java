@@ -79,7 +79,7 @@ public abstract class SocialCacher extends Socializer {
 		return name;
 	}
 	
-	//TODO:@Override
+	@Override
 	public boolean opendata() {
 		return true;
 	}
@@ -88,9 +88,9 @@ public abstract class SocialCacher extends Socializer {
 		cacher.updateGraph(date, graph, age);
 	}
 
-	//TODO:@Override
 	//TODO:synchronize!?
 	//TODO:eliminate in favor of getGraphCacher
+	@Override
 	public Graph getGraph(Date date){
 		return cacher.getGraph(date);
 	}
@@ -100,7 +100,7 @@ public abstract class SocialCacher extends Socializer {
 	}
 
 	//API method forcing forgetting
-	//TODO:@Override
+	@Override
 	public void forget() {
 		super.forget();
 		try {
@@ -170,4 +170,5 @@ public abstract class SocialCacher extends Socializer {
 		logger.write(name+"/"+name+"_"+Time.day(time,false)+".tsv",
 				new Object[]{name,Time.linux(time),type,from,to,value,unit,child,parent,title,input,tags,format,new Long(block)});
 	}
+	
 }
