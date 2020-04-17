@@ -45,6 +45,7 @@ import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.Linker;
 import net.webstructor.data.ReputationSystem;
+import net.webstructor.data.Stater;
 import net.webstructor.data.Summator;
 import net.webstructor.al.Time;
 import net.webstructor.al.Period;
@@ -79,7 +80,7 @@ class ReputationParameters {
 	double parents = 0.0; //to which extent reputation of the "child" (product) is affected by the reputation of the "parent" (vendor)
 	double predictiveness = 0.0; //to which extent account rank is based on consensus between social consensus and ratings provided by the account
 	boolean pessimism = false; //whether to weigth ratings based on pessimism of the prior ratings
-	boolean verbose = true; //if need full debugging log
+	boolean verbose = false; //if need full debugging log
 	/*
 			Dimensions and their weighting factors for blending — timeliness, accuracy, etc.;
 			T&P — Time and period of reputation recalculation/update;
@@ -104,18 +105,6 @@ class ReputationTypes {
 	public static final String preferences = "preferences";//who prefers who to what extent
 	public static final String predictiveness = "predictiveness";//level of one's predictiveness
 	public static final String optimism = "optimism";//level of one's optimism (average ratings)
-}
-
-interface Stater {
-	void init(String name, Environment env, String path);
-	void save();
-	void clear();
-	boolean hasState(Object date, String[] domains);//TODO: domains/dimensions!?
-	Map getLinkers(Object date);
-	Map getLinkers(Object date, String[] domains);//TODO: domains/dimensions!?
-	//TODO: put
-	void add(Object date, Object account, Object domain, Object dimension, int intvalue);
-	void add(Object date, Object domain, Object dimension, Linker byaccount);
 }
 
 class GraphStater implements Stater {
@@ -279,15 +268,16 @@ public class Reputationer implements ReputationSystem {
 		}
 	}
 	
-	public Reputationer(Environment env, GraphCacher cacher, String name, String path, boolean dailyStates){
+	public Reputationer(Environment env, String name, String path, GraphCacher cacher, Stater stater){
 		this.env = env;
 		this.cacher = cacher;
-		if (dailyStates)
-			states = new GraphCacherStater();
-		else 
-			states = new GraphStater();
-		states.init(name,env,path);
+		this.states = stater;
+		this.states.init(name,env,path);
 		this.name = name;
+	}
+
+	public Reputationer(Environment env, GraphCacher cacher, String name, String path, boolean dailyStates){
+		this(env,name,path,cacher,dailyStates ? new GraphCacherStater() : new GraphStater());
 	}
 
 	public Reputationer(Environment env, String name, String path, boolean dailyStates){

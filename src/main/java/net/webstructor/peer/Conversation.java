@@ -603,6 +603,7 @@ class Conversation extends Mode {
 		return false;
 	}
 
+	//TODO SocialCacher.getReputationer!!!!
 	//TODO replace this with Farm.getReputationer(network) for the purpose of Body-controlled memory management
 	public static Reputationer getReputationer(Environment env, String network){
 		Reputationer r = Reputationer.get(network);

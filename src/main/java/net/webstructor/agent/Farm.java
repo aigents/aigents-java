@@ -280,8 +280,9 @@ public class Farm extends Body {
 		peerThinker.check(now);
 	}
 
+	//TODO SocialCacher.getReputationer!!!!
 	//TODO: move to separate "socializer" class?
-	//TODO: re-use it in Conversationer.trytryReputationer 
+	//TODO: re-use it in Conversationer.tryReputationer 
 	public Reputationer getReputationer(String network) {
 		if (!AL.empty(network)) {
 			Reputationer r = Reputationer.get(network);
@@ -299,16 +300,27 @@ public class Farm extends Body {
 	
 	public boolean updateReputation() {
 		String network = self().getString(reputation_system);
+		boolean res = updateReputation(network);
+		// update all social cachers which have reputationers, except the default one updated right above 
+		for (Socializer s : this.getSocializers()) if (s instanceof SocialCacher) {
+			String name = s.provider();
+			if (!name.equals(network))
+				updateReputation(name);
+		}
+		return res;
+	}
+	
+	public boolean updateReputation(String network) {
 		Reputationer r = !AL.empty(network) ? getReputationer(network) : null;
 		if (r != null) {
 			long start_time = System.currentTimeMillis();
-			debug("Reputation crawling start "+new Date(start_time)+".");
+			debug("Reputation crawling start "+network+" "+new Date(start_time)+".");
 			Date last_day = Time.today(-1);
 			int rs = r.get_ranks(last_day, null, null, null, false, 0, 0, null);
 			if (rs != 0) {
 				// if not present, go back in time till retention period to find the last day when the ranks were present 
 				Date since = last_day;
-				int period = self().getInt(Body.retention_period, 31);
+				int period = self().getInt(Body.attention_period, 31);//TODO: rewtnetion period!?
 				int days;
 				for (days = 1; days <= period; days++){
 					since = Time.addDays(last_day, -days);
@@ -318,14 +330,15 @@ public class Farm extends Body {
 				}
 				// go from the last day till today and update ranks incrementally
 				for (Date date = Time.addDays(since,1); date.compareTo(last_day) <= 0; date = Time.addDays(date, 1)){
+					debug("Reputation crawling updating "+network+" "+date);
 					rs = r.update_ranks(date, null);
-					debug("Reputation crawling update "+date+" result "+rs);
+					debug("Reputation crawling updated "+network+" "+date+" result "+rs);
 				}
 			}
 			ArrayList results = new ArrayList();
 			rs = r.get_ranks(last_day, null, null, null, false, 0, 0, results);
 			if (rs != 0)
-				debug("Reputation crawling update failed "+rs);
+				debug("Reputation crawling update "+network+" failed "+rs);
 			// set reputations to peers
 			String name_id = network + " id";
 			for (int i = 0; i < results.size(); i++) {
@@ -337,11 +350,11 @@ public class Farm extends Body {
 						((Thing)c.iterator().next()).set(AL.reputation,((Number)item[1]).toString());
 					}
 				} catch (Exception e) {
-					error("Reputation crawling update peer",e);
+					error("Reputation crawling update "+network+" peer",e);
 				}
 			}
 			long end_time = System.currentTimeMillis();
-			debug("Reputation crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+			debug("Reputation crawling stop "+network+" "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 			return true;
 		}
 		return false;

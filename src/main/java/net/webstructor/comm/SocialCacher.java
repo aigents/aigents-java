@@ -65,7 +65,7 @@ public abstract class SocialCacher extends Socializer {
 		return url.endsWith("/") ? url.substring(0, url.length()-1) : url;
 	}
 	
-	//TODO:@Override
+	@Override
 	public int getPeriod(){
 		return period;
 	}

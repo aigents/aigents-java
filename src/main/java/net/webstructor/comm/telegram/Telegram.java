@@ -106,8 +106,10 @@ class TelegramFeeder extends SocialFeeder {
 		body.debug("Telegram crawling graph completed memory "+body.checkMemory());
 	}
 	
+	//TODO SocialCacher.getReputation!!!!
 	@Override
 	public Object[][] getReputation(Date since, Date until){
+		//TODO SocialCacher.getReputationer!!!!
 		Reputationer r = new Reputationer(body,api.getGraphCacher(),api.provider(),null,true);
 		ArrayList data = new ArrayList();
 		for (Date date = Time.date(until); since.compareTo(date) <= 0; date = Time.addDays(date,-1)) {
