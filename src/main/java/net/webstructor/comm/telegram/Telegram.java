@@ -24,7 +24,6 @@
 package net.webstructor.comm.telegram;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -33,23 +32,19 @@ import java.util.Set;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
-import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.comm.SocialCacher;
-import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Transcoder;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
-import net.webstructor.data.GraphCacher;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.Linker;
 import net.webstructor.peer.Grouper;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
-import net.webstructor.peer.Reputationer;
 
 class TelegramFeeder extends SocialFeeder {
 	Telegram api;
@@ -106,44 +101,6 @@ class TelegramFeeder extends SocialFeeder {
 		body.debug("Telegram crawling graph completed memory "+body.checkMemory());
 	}
 	
-	//TODO SocialCacher.getReputation!!!!
-	@Override
-	public Object[][] getReputation(Date since, Date until){
-		//TODO SocialCacher.getReputationer!!!!
-		Reputationer r = new Reputationer(body,api.getGraphCacher(),api.provider(),null,true);
-		ArrayList data = new ArrayList();
-		for (Date date = Time.date(until); since.compareTo(date) <= 0; date = Time.addDays(date,-1)) {
-			int res = r.get_ranks(date, null,null,null,false,0,0, data);
-			if (res != 0 && data.size() > 0)
-				break;
-		}
-		//list all peers across all my communtities
-		Set<String> community = api.getGroup(this.user_id);
-		if (data.size() > 0 && community != null) {
-			ArrayList norm = new ArrayList();
-			for (int i = 0; i < data.size(); i++){
-				Object item[] = (Object[])data.get(i);
-				Object id = item[0];
-				if (!community.contains(id))
-					continue;
-				norm.add( new Object[]{new Integer(((Number)item[1]).intValue()),api.transcode(id)} );
-			}
-			return (Object[][])norm.toArray(new Object[][]{});
-		}
-		return null;
-	}
-
-	@Override
-	public Graph getGraph(Date since, Date until){
-		GraphCacher grapher = api.getGraphCacher();
-//TODO: comfig limits
-		int range = 10;
-		int threshold = 0; 
-		int limit = 1000;
-		int period = Period.daysdiff(since, until);
-		return grapher.getSubgraph(new String[] {user_id}, until, period, range, threshold, limit, null, api.getGroup(user_id), Socializer.links);
-	}
-
 }
 
 
@@ -230,8 +187,8 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 	@Override
 	public Set<String> getGroup(String user_id) {
 		//get all groups of id and get all mambers of all these groups
+		HashSet<String> res = new HashSet<String>();
 		try {
-			HashSet<String> res = new HashSet<String>();
 			Collection users = body.storager.getByName(Body.telegram_id, user_id);
 			if (!AL.empty(users)) for (Object user : users) {
 				Collection groups = ((Thing)user).getThings(AL.groups);
@@ -244,9 +201,10 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 					}
 				}
 			}
-			return res;
-		} catch (Exception e) {}
-		return null;
+		} catch (Exception e) {
+			body.error("Telegram crawling group for "+user_id,e);
+		}
+		return res;
 	}
 
 	@Override

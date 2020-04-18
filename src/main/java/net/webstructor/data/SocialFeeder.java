@@ -124,6 +124,10 @@ public abstract class SocialFeeder {
 		return detail;
 	}
 	
+	public String userId(){
+		return user_id;
+	}
+	
 	public Date since(){
 		return since;
 	}
@@ -230,16 +234,6 @@ public abstract class SocialFeeder {
 				return ((Integer)item[1]).floatValue() / (((Integer)item[2]).floatValue() + ((Integer)item[3]).floatValue() + 1);
 			}
 		});
-	}
-
-	//overrideable
-	public Object[][] getReputation(Date since, Date until){
-		return null;//not defined by default
-	}
-
-	//overrideable
-	public Graph getGraph(Date since, Date until){
-		return null;//not defined by default
 	}
 
 	//(their_likes + their_comments) / (1 + my_likes)

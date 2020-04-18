@@ -112,6 +112,16 @@ public abstract class Socializer extends HTTP {
 		return null;
 	}
 	
+	//virtual, overrideable
+	public Object[][] getReputation(String user_id, Date since, Date until){
+		return null;//not defined by default
+	}
+
+	//virtual, overrideable
+	public Graph getGraph(String user_id, Date since, Date until){
+		return null;//not defined by default
+	}
+
 	/**
 	 * Read newsfeed/personal channel like subreddit, group or personal feed 
 	 * @param uri of the channel
@@ -706,18 +716,15 @@ public abstract class Socializer extends HTTP {
 		if (options.isEmpty() || options.contains(reputation))
 			rep.table(reputation,t.loc(reputation),
 				t.loc(new String[]{"Rank,%","Friend"}),
-				feeder.getReputation(feeder.since(),feeder.until()),0/*minPercent*/,minCount);
-
+				getReputation(feeder.userId(),feeder.since(),feeder.until()),0/*minPercent*/,minCount);
 		if (options.isEmpty() || options.contains(social_graph)) {
-//TODO: make sure graphs in reports are not breaking graphs in UI => after then enable graphs for any SocialCacher
-			Graph graph = feeder.getGraph(feeder.since(),feeder.until());
+			Graph graph = getGraph(feeder.userId(),feeder.since(),feeder.until());
 			if (graph != null) {
 				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
 				String[] links = new String[] {"comments","mentions","votes","pays","calls"};
 				rep.graph(social_graph,t.loc(social_graph),text,links);
 			}
 		}
-
 		if (!options.isEmpty() && options.contains(liked_by_me))
 			rep.table(liked_by_me,t.loc(liked_by_me),
 				t.loc(peersHeadings(rep)),

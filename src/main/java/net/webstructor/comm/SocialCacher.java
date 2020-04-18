@@ -23,9 +23,11 @@
  */
 package net.webstructor.comm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -38,6 +40,9 @@ import net.webstructor.core.Thing;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
+import net.webstructor.data.Transcoder;
+import net.webstructor.peer.Grouper;
+import net.webstructor.peer.Reputationer;
 
 public abstract class SocialCacher extends Socializer {
 	protected String url;
@@ -165,6 +170,50 @@ public abstract class SocialCacher extends Socializer {
 		}
 	}
 
+	@Override
+	public Object[][] getReputation(String user_id, Date since, Date until){
+		//TODO SocialCacher.getReputationer!!!!
+		//TODO use local stater!!!!
+//TODO MAKE sure the same Reputationer is re-used in multiple requests
+		Reputationer r = new Reputationer(body,getGraphCacher(),provider(),null,true);
+		ArrayList data = new ArrayList();
+//TODO average reputation instead of the latest one!?
+		for (Date date = Time.date(until); since.compareTo(date) <= 0; date = Time.addDays(date,-1)) {
+			int res = r.get_ranks(date, null,null,null,false,0,0, data);
+			if (res == 0 && data.size() > 0)
+				break;
+		}
+		//list all peers across all my communtities
+		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroup(user_id) : null;
+		Transcoder transcoder = this instanceof Transcoder ? (Transcoder)this : null;
+		if (data.size() > 0) {
+			ArrayList norm = new ArrayList();
+			for (int i = 0; i < data.size(); i++){
+				Object item[] = (Object[])data.get(i);
+				Object id = item[0];
+				if (community != null && !community.contains(id))//don't restrict to community if no group defined
+					continue;
+				if (transcoder != null)
+					id = transcoder.transcode(id);
+				norm.add( new Object[]{new Integer(((Number)item[1]).intValue()),id} );
+			}
+			return (Object[][])norm.toArray(new Object[][]{});
+		}
+		return null;
+	}
+
+	@Override
+	public Graph getGraph(String user_id, Date since, Date until){
+		GraphCacher grapher = getGraphCacher();
+//TODO: comfig limits
+		int range = 10;
+		int threshold = 0; 
+		int limit = 1000;
+		int period = Period.daysdiff(since, until);
+		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroup(user_id) : null;
+		return grapher.getSubgraph(new String[] {user_id}, until, period, range, threshold, limit, null, community, Socializer.links);
+	}
+	
 	public static void write(DataLogger logger, String name, Date time, long block, String type, String from, String to, String value, String unit, String child, String parent, String title, String input, String tags, String format){
 		//network,timestamp,from,to,value,unit,type,input,title,parent,child,tags,format
 		logger.write(name+"/"+name+"_"+Time.day(time,false)+".tsv",
