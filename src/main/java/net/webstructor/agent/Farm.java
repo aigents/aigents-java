@@ -315,6 +315,11 @@ public class Farm extends Body {
 		if (r != null) {
 			long start_time = System.currentTimeMillis();
 			debug("Reputation crawling start "+network+" "+new Date(start_time)+".");
+			String p[] = new String[] {
+					"conservatism", this.getSelf().getString(Body.reputation_conservatism,"0.9"),
+					"decayed", this.getSelf().getString(Body.reputation_decayed,"0.5"),
+					"default", this.getSelf().getString(Body.reputation_default,"0.5")};
+			r.set_parameters(p); 
 			Date last_day = Time.today(-1);
 			int rs = r.get_ranks(last_day, null, null, null, false, 0, 0, null);
 			if (rs != 0) {

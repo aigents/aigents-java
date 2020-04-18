@@ -1198,6 +1198,25 @@ public class Reputationer implements ReputationSystem {
 		return -1;//invalid method
 	}
 	
+	@Override
+	public int set_parameters(Map<String,String> parameters){
+		if (parameters != null || !AL.empty(parameters)) {
+			String p[] = new String[parameters.size() * 2];
+			int i = 0;
+			for (String key : parameters.keySet()) {
+				p[i++] = key;
+				p[i++] = parameters.get(key);
+			}
+			set_parameters(this, p, false);
+			return 0;
+		}
+		return 1;//TODO more meaningful error codes 
+	}
+	
+	public void set_parameters(final String[] args){
+		set_parameters(this, args, false);
+	}
+	
 	private static void set_parameters(final Reputationer r, final String[] args, boolean ratings){
 		//TODO: boolean logarithmicRanks = true; // whether or not apply log10(1+x) to ranks;
 		//TODO: double defaultRating = 0.25; // default rating value for “overall rating” and “per-dimension” ratings;

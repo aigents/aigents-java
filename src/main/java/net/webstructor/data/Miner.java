@@ -256,6 +256,7 @@ public class Miner {
 		int lowerThreshold = bounds[1];
 		*/
 
+//TODO: hangup case with Discourse report clustering with 4 peers and multiple texts
 		//Do feature selection based on (Count*Count*(MAX(Count)-Count+MIN(Count))), selecting the top buckets in TreeMap till featureVolume is not exceeded 		
 		int[] thresholds = Counter.getThresholds(toRanked,featureVolume);
 		if (thresholds == null) {

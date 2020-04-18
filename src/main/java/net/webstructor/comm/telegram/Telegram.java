@@ -33,6 +33,7 @@ import java.util.Set;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
+import net.webstructor.al.Writer;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
@@ -113,7 +114,7 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 	
 	public Telegram(Body body) {
 		super(body,"telegram",null);
-		logger = null;//new DataLogger(body,Writer.capitalize(name)+" crawling");//TODO: do we need data logger for Telegram?
+		logger = new DataLogger(body,Writer.capitalize(name)+" crawling");//TODO: do we need data logger for Telegram?
 	}
 
 	public DataLogger getLogger() {
@@ -210,14 +211,14 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 	@Override
 	public Object transcode(Object source) {
 		Set res = body.storager.get(Body.telegram_id, source);
-		Object out = AL.single(res) ? ((Thing)res.iterator().next()).get(Body.telegram_name) : null;
+		Object out = !AL.empty(res) ? ((Thing)res.iterator().next()).get(Body.telegram_name) : null;
 		return out != null ? out : source;
 	}
 	
 	@Override
 	public Object recovercode(Object source) {
 		Set res = body.storager.get(Body.telegram_name, source);
-		Object out = AL.single(res) ? ((Thing)res.iterator().next()).get(Body.telegram_id) : null;
+		Object out = !AL.empty(res) ? ((Thing)res.iterator().next()).get(Body.telegram_id) : null;
 		return out != null ? out : source;
 	}
 	

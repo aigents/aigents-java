@@ -418,15 +418,20 @@ public class Peer extends Agent {
 	}
 	
 	public static void assignImage(Body body, Thing thing) {
-		if (AL.empty(thing.getString(AL.image))) {
+		//if (AL.empty(thing.getString(AL.image))) {
+		if (thing.getString(AL.image) == null) {//do repeated image searches only for non-searched missed images
 			String text = thing.getString(AL.text);
 			if (!AL.empty(text)) for (Serper sr : body.getSerpers()) {
 				Collection<Thing> ts = sr.search("image", text, null, 1);
 				if (ts != null) for (Thing t : ts) {
-					thing.setString(AL.image, t.getString(AL.image));
-					return;
+					String image = t.getString(AL.image);
+					if (!AL.empty(image)) {
+						thing.setString(AL.image, image);
+						return;
+					}
 				}
 			}
+			thing.setString(AL.image, "");//mark image as searched but not found
 		}
 	}
 	

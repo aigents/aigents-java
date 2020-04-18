@@ -207,7 +207,8 @@ class SerpAPI extends Serper {
 								t.setString("text",title);
 							}
 							t.setString("sources",link);
-							if (!AL.empty(thumbnail) && AL.isIMG(thumbnail))
+							//if (!AL.empty(thumbnail) && AL.isIMG(thumbnail))//this does not pass URL-s like https://i0.wp.com/blocksplain.com/wp-content/uploads/2018/02/Screen-Shot-2018-02-21-at-5.19.43-PM.png?resize=1280%2C816&ssl=1
+							if (!AL.empty(thumbnail) && AL.isURL(thumbnail))
 								t.setString(AL.image,thumbnail);
 						} else {
 							;//TODO text

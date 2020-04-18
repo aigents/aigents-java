@@ -25,12 +25,21 @@ package net.webstructor.data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * https://github.com/singnet/reputation/blob/master/reputation/reputation_api.py
  * @author akolonin
  */
-public interface ReputationSystem { 
+public interface ReputationSystem {
+	
+	/**
+	 * Set parameters for Reputation System 
+	 * @param dict of all parameters that needs to be set (not listed parameters are not affected)
+	 * @return 0 on success, integer error code on error
+	 */
+	public int set_parameters(Map<String,String> parameters);
+	
 	/**
 	 * Delete entire contents of the ratings database
 	 */

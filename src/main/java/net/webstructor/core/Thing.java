@@ -425,7 +425,7 @@ public class Thing extends Anything { // implements ORObject
 			}
 			return sb.toString();
 		}
-		return null;//o.toString();//TODO:what?
+		return o.toString();
 	}
 
 	public final Object getFirst(String name) {
