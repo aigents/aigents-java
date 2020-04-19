@@ -51,8 +51,9 @@ public class CacherHolder {
 
 	public boolean put(String name, Cacher o){
 		synchronized (cachers){
-			if (cachers.containsKey(name))
-				return false;
+			//NOTE - control is on the upper layer, just overwrite here
+			//if (cachers.containsKey(name))
+			//	return false;
 			cachers.put(name, o);
 			return true;
 		}

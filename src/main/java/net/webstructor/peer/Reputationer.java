@@ -255,13 +255,13 @@ public class Reputationer implements ReputationSystem {
 	private static final String[] special_relationships = new String[]{ReputationTypes.preferences};
 	
 	private static HashMap reputationers = new HashMap();
-	public static Reputationer get(String network){
+	public static ReputationSystem get(String network){
 		synchronized (reputationers) {
 			return (Reputationer)reputationers.get(network);
 		}
 	}
 
-	public static void add(String network,Reputationer reputationer){
+	public static void add(String network,ReputationSystem reputationer){
 		synchronized (reputationers) {
 			if (reputationers.get(network) == null)
 				reputationers.put(network,reputationer);
@@ -276,12 +276,12 @@ public class Reputationer implements ReputationSystem {
 		this.name = name;
 	}
 
-	public Reputationer(Environment env, GraphCacher cacher, String name, String path, boolean dailyStates){
-		this(env,name,path,cacher,dailyStates ? new GraphCacherStater() : new GraphStater());
+	public Reputationer(Environment env, String name, String path, GraphCacher cacher){
+		this(env, name, path, cacher, new GraphCacherStater());
 	}
 
 	public Reputationer(Environment env, String name, String path, boolean dailyStates){
-		this(env, new GraphCacher(name,env,path), name, path, dailyStates);
+		this(env, name, path, new GraphCacher(name,env,path), dailyStates ? new GraphCacherStater() : new GraphStater());
 	}
 
 	/**
@@ -875,7 +875,13 @@ public class Reputationer implements ReputationSystem {
 		add ratings from 001, type pays, to 990, value 0.7; from 002, type calls, to 004, value 0.9.
 		there is rating : from 001, type pays, to 990, value 0.7, time 2018-10-01; from 002, type calls, to 890, value 0.9, time 2018-10-02.
 	 */
-	public static int act(final Environment env, final Reputationer r, final PrintStream out, final String[] args, boolean json){
+	public static int act(final Environment env, final ReputationSystem RS, final PrintStream out, final String[] args, boolean json){
+//TODO: fix typing system!?
+//TODO: fix error codes!?
+		if (!(RS instanceof Reputationer))
+			return -2; //invalid system
+		final Reputationer r = (Reputationer)RS;
+		
 //TODO: multiple elementa parsed by Str.get as array in array!!!
 		String id = Str.arg(args,"ids","");
 		String[] ids = !AL.empty(id) ? id.split(" ") : null;
@@ -1212,9 +1218,11 @@ public class Reputationer implements ReputationSystem {
 		}
 		return 1;//TODO more meaningful error codes 
 	}
-	
-	public void set_parameters(final String[] args){
+
+	@Override
+	public int set_parameters(final String[] args){
 		set_parameters(this, args, false);
+		return 0;//TODO validation
 	}
 	
 	private static void set_parameters(final Reputationer r, final String[] args, boolean ratings){

@@ -60,7 +60,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.3.3";
+	public final static String VERSION = "2.3.4";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -240,7 +240,12 @@ public abstract class Body extends Anything implements Environment, Updater
 
 	@Override
 	public void register(String path, net.webstructor.data.Cacher cacher) {
-		grapher.put(path, cacher);
+		synchronized (grapher) {//TODO eliminate redundant recurrently enclosed syncing!?
+			net.webstructor.data.Cacher existing = grapher.get(path);
+			if (existing != null)
+				error("Cacher duplication "+path,null);
+			grapher.put(path, cacher);//overwrite
+		}
 	}
 	
 	@Override

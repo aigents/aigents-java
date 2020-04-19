@@ -36,10 +36,12 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
+import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
+import net.webstructor.data.ReputationSystem;
 import net.webstructor.data.Transcoder;
 import net.webstructor.peer.Grouper;
 import net.webstructor.peer.Reputationer;
@@ -175,7 +177,7 @@ public abstract class SocialCacher extends Socializer {
 		//TODO SocialCacher.getReputationer!!!!
 		//TODO use local stater!!!!
 //TODO MAKE sure the same Reputationer is re-used in multiple requests
-		Reputationer r = new Reputationer(body,getGraphCacher(),provider(),null,true);
+		ReputationSystem r = getReputationSystem(body, provider());
 		ArrayList data = new ArrayList();
 //TODO average reputation instead of the latest one!?
 		for (Date date = Time.date(until); since.compareTo(date) <= 0; date = Time.addDays(date,-1)) {
@@ -218,6 +220,22 @@ public abstract class SocialCacher extends Socializer {
 		//network,timestamp,from,to,value,unit,type,input,title,parent,child,tags,format
 		logger.write(name+"/"+name+"_"+Time.day(time,false)+".tsv",
 				new Object[]{name,Time.linux(time),type,from,to,value,unit,child,parent,title,input,tags,format,new Long(block)});
+	}
+	
+	//TODO replace this with Farm.getReputationer(network) for the purpose of Body-controlled memory management!?
+	public static ReputationSystem getReputationSystem(Environment env, String network){
+		synchronized (Reputationer.class) {
+			ReputationSystem r = Reputationer.get(network);
+			if (r == null) {
+				Socializer grpaher = env instanceof Body ? ((Body)env).getSocializer(network) : null;
+				if (grpaher != null && grpaher instanceof SocialCacher)
+					r = new Reputationer(env,network,null,((SocialCacher)grpaher).getGraphCacher());
+				else
+					r = new Reputationer(env,network,null,true);
+				Reputationer.add(network, r);
+			}
+			return r;
+		}
 	}
 	
 }

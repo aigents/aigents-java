@@ -57,10 +57,10 @@ import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
 import net.webstructor.data.GraphCacher;
+import net.webstructor.data.ReputationSystem;
 import net.webstructor.peer.Conversationer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
-import net.webstructor.peer.Reputationer;
 import net.webstructor.self.Selfer;
 import net.webstructor.self.Siter;
 import net.webstructor.serp.Serper;
@@ -280,24 +280,6 @@ public class Farm extends Body {
 		peerThinker.check(now);
 	}
 
-	//TODO SocialCacher.getReputationer!!!!
-	//TODO: move to separate "socializer" class?
-	//TODO: re-use it in Conversationer.tryReputationer 
-	public Reputationer getReputationer(String network) {
-		if (!AL.empty(network)) {
-			Reputationer r = Reputationer.get(network);
-			if (r == null) {
-				Socializer provider = provider(network);
-				if (provider != null && provider instanceof SocialCacher)
-					r = new Reputationer(this,((SocialCacher)provider).getGraphCacher(),network,null,true);
-				else
-					r = new Reputationer(this,network,null,true);
-			}
-			return r;
-		}
-		return null;
-	}
-	
 	public boolean updateReputation() {
 		String network = self().getString(reputation_system);
 		boolean res = updateReputation(network);
@@ -311,7 +293,7 @@ public class Farm extends Body {
 	}
 	
 	public boolean updateReputation(String network) {
-		Reputationer r = !AL.empty(network) ? getReputationer(network) : null;
+		ReputationSystem r = !AL.empty(network) ? SocialCacher.getReputationSystem(this,network) : null;
 		if (r != null) {
 			long start_time = System.currentTimeMillis();
 			debug("Reputation crawling start "+network+" "+new Date(start_time)+".");

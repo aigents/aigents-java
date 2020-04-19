@@ -61,7 +61,6 @@ import net.webstructor.comm.Socializer;
 import net.webstructor.comm.fb.FB;
 import net.webstructor.comm.vk.VK;
 import net.webstructor.comm.goog.GApi;
-import net.webstructor.core.Environment;
 import net.webstructor.core.Mistake;
 import net.webstructor.core.Property;
 import net.webstructor.core.Query;
@@ -70,6 +69,7 @@ import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.LangPack;
+import net.webstructor.data.ReputationSystem;
 import net.webstructor.data.TextMiner;
 import net.webstructor.data.Transcoder;
 import net.webstructor.self.Self;
@@ -603,20 +603,6 @@ class Conversation extends Mode {
 		return false;
 	}
 
-	//TODO SocialCacher.getReputationer!!!!
-	//TODO replace this with Farm.getReputationer(network) for the purpose of Body-controlled memory management
-	public static Reputationer getReputationer(Environment env, String network){
-		Reputationer r = Reputationer.get(network);
-		if (r == null) {
-			Socializer grpaher = env instanceof Body ? ((Body)env).getSocializer(network) : null;
-			if (grpaher != null && grpaher instanceof SocialCacher)
-				r = new Reputationer(env,((SocialCacher)grpaher).getGraphCacher(),network,null,true);
-			else
-				r = new Reputationer(env,network,null,true);
-		}
-		return r;
-	}
-	
 	//TODO: A MUST - move to other place to avoid concurrent use of files ad redundant memory use
 	HashMap reputationers = new HashMap();
 	boolean tryReputationer(Storager storager,Session session) {
@@ -643,16 +629,13 @@ class Conversation extends Mode {
 		String result = null;
 		try {
 			String network = arg.getString("word"); 
-			//TODO replace this with Farm.getReputationer(network)
-			Reputationer r = getReputationer(session.getBody(), network);
+			ReputationSystem r = SocialCacher.getReputationSystem(session.getBody(), network);
 			ps = new PrintStream(baos, true, charset.name());
 			//TODO: get data as object!?
 //TODO return error code in json
 			rs = Reputationer.act(session.getBody(), r, ps, session.args(), json);
-			if (rs == 0){
+			if (rs == 0)
 				result = new String(baos.toByteArray(), charset);
-				Reputationer.add(network, r);
-			}
 			ps.close();
 			baos.close();
 		} catch (Exception e) {

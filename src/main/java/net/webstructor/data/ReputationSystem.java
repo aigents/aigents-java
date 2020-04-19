@@ -39,6 +39,7 @@ public interface ReputationSystem {
 	 * @return 0 on success, integer error code on error
 	 */
 	public int set_parameters(Map<String,String> parameters);
+	public int set_parameters(final String[] args);
 	
 	/**
 	 * Delete entire contents of the ratings database
