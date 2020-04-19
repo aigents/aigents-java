@@ -146,10 +146,10 @@ public class Reporter {
 		try {
 			writer.append("<br><div id=\"wrapper_"+id+"\" style=\"width:100%;height:100%\"/>");
 			writer.append("<script>\n");
-			writer.append("var graph_text = \"");
+			writer.append("var graph_text_data = \"");
 			writer.append(graph);
 			writer.append("\";\n");
-			writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text, builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
+			writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text_data, builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
 			writer.append("</script><br>");
 		} catch (IOException e) {
             env.error("Reporter "+e.toString(),e);
@@ -387,7 +387,7 @@ public class Reporter {
 	
 	public void closeReport(){
 		try {
-			writer.append("<body><html>");
+			writer.append("</body></html>");
 			writer.close();
 		} catch (IOException e) {
             env.error(e.toString(),e);

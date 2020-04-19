@@ -2173,9 +2173,10 @@ function talks_say_out(text) {
 function talks_say_in(text) {
 	if (text.substr(0,6) == "<html>") {
 		var title = AL.parseBetween(text,"<title>","</title>",true);
+		var body = AL.parseBetween(text,"<body>","</body>",true);
 		if (!title)
 			title = "Aigents Search Report";
-		popUpReport(title,text,true);//true - use jquery
+		popUpReport(title,body,true);//true - use jquery
 		text = "Ok.";//return;
 	}
 	displayStatus(text);
