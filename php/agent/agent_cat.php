@@ -171,6 +171,21 @@ function test_agent_cluster() {
 
 	//extremal cases
 	init();
+//TODO:make more reasonable features!?
+	/*
+	say("There new true, text 'http://localtest.com/test/debug_d0.txt', times today, trust true.");
+	say("There new true, text 'http://localtest.com/test/debug_ro.txt', times today, trust true.");
+	say("There new true, text 'http://localtest.com/test/debug_da.txt', times today, trust true.");
+	say("There new true, text 'http://localtest.com/test/debug_ja.txt', times today, trust true.");
+	say("You cluster!");
+	get();
+	brk();
+	*/
+	cleanup();
+	
+	
+	//extremal cases
+	init();
 	
 	say("Your clustering timeout 60000.");
 	say("what your http timeout, clustering timeout?");

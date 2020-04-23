@@ -217,7 +217,7 @@ public class Miner {
 		//- Have set of documents with features
 		//- Create clusters of feature sets, linking documents to them
 		//- Have top features across documents, exceeding theshold X%
-		
+//debug=true;		
 		//TODO: sort out data structure
 		HashMap allTargetSources = new HashMap();//all original features to be merged 
 		HashMap targetSources = new HashMap();//currently merged features
@@ -302,60 +302,7 @@ public class Miner {
 			if (debug)
 				env.debug("Iteration "+iteration+" clusters "+targetSources.size());
 			
-			//TODO: sort out data structure
-			//HashMap sourceSources = new HashMap();
-			
-			mergeSets.clear();
-
-			//TODO: avoid double count!?
-			//calculate all similarity measures
-			int max = -1;
-			//for (Iterator i1 = new HashSet(targetSources.keySet()).iterator(); i1.hasNext();) {
-			//	Object k1 = i1.next();
-			Object[] targetSourcesKeys = targetSources.keySet().toArray();
-			if (!AL.empty(targetSourcesKeys))
-			for (int i1 = 0 ; i1 < targetSourcesKeys.length; i1++){
-				Object k1 = targetSourcesKeys[i1];
-				Linker l1 = (Linker)targetSources.get(k1);
-
-				if (debug)
-					env.debug(k1.toString());
-				for (Iterator il = l1.keys().iterator(); il.hasNext();) {
-					Object source = il.next();
-					if (debug)
-						env.debug("   "+source+":"+l1.value(source));
-				}
-				
-				//for (Iterator i2 = new HashSet(targetSources.keySet()).iterator(); i2.hasNext();) {
-				//	Object k2 = i2.next();
-				for (int i2 = i1 + 1; i2 < targetSourcesKeys.length; i2++){
-					Object k2 = targetSourcesKeys[i2];
-					Linker l2 = (Linker)targetSources.get(k2);
-					if (!k1.equals(k2)) {
-
-						//Linker mutual = (Linker)sourceSources.get(k1);
-						//if (mutual == null)
-						//	sourceSources.put(k1, mutual = new Counter());
-						int closeness = (int)Math.round(crossOverlap(l1,l2)*100);
-						if (closeness > similarityThreshold) {
-							if (debug)
-								env.debug("    "+k2+":"+closeness);
-							//mutual.count(k2,closeness);//TODO: not needed?
-							if (max <= closeness) {
-								if (max < closeness) {
-									max = closeness;
-									mergeSets.clear();//start over
-								}
-								HashSet mergees = new HashSet();
-								mergees.add(k1);
-								mergees.add(k2);
-								mergeSets.add(mergees);
-							} 
-						}
-					}
-				}				
-			}
-			
+			buildMergeSets(mergeSets, targetSources, similarityThreshold);//merge siimilar features in the top-rated feature buckets
 			if (mergeSets.isEmpty()){
 				//TODO:magic
 				if (targetSources.size() <= maxCategories || similarityThreshold == 0)
@@ -377,14 +324,6 @@ public class Miner {
 			boolean repeat;
 			do {
 				repeat = false;
-/*				
-				for (Iterator i1 = mergeSets.iterator(); i1.hasNext();) {
-					HashSet m1 = (HashSet)i1.next();
-					for (Iterator i2 = mergeSets.iterator(); i2.hasNext();) {
-						HashSet m2 = (HashSet)i2.next();
-						if (!m2.equals(m1) && Array.intersect(m1, m2)) {
-*/
-/**/
 				Object[] mergeSetsArray = mergeSets.toArray();
 				if (AL.empty(mergeSetsArray))
 				for (int i1 = 0; i1 < mergeSetsArray.length; i1++){
@@ -392,7 +331,6 @@ public class Miner {
 					for (int i2 = i1 + 1; i2 < mergeSetsArray.length; i2++){
 						HashSet m2 = (HashSet)mergeSetsArray[i2];
 						if (Array.intersect(m1, m2)) {
-/**/
 							mergeSets.remove(m1);
 							mergeSets.remove(m2);
 							m1.addAll(m2);
@@ -483,31 +421,6 @@ if (mergee == null)//TODO:remove???
 				env.debug("  "+category);
 			if (debug)
 				env.debug("      "+linker.toString());
-			/*
-			HashSet uniqueTargets = new HashSet();
-			//keep adding features gradually from most unique to least unique till have something
-			//for (int uniqueness = 1; uniqueTargets.isEmpty(); uniqueness++){
-			//	for (Iterator tit = linker.keys().iterator(); tit.hasNext();){
-			//		Object target = tit.next();
-			//		if (linker.value(target).intValue() == uniqueness)
-			//			uniqueTargets.add(target);
-			//	}
-			//}
-			Object[][] selfRank = linker.toRanked();
-			//Object[][] totalRank = total.toRanked();
-			//linker = linker.normalizeBy(total);
-			//Object[][] normRank = linker.toRanked(); 
-			java.util.Set uniqueTargets = linker.getBest(); 
-			if (debug){
-				env.debug("    "+selfRank.toString());
-				//env.debug("    "+totalRank.toString());
-				//env.debug("    "+normRank.toString());
-				//env.debug("    "+uniqueTargets);
-			}
-			if (uniqueTargets.size() != linker.size()){
-				renames.put(category, new OrderedStringSet(uniqueTargets).sort());
-			}
-			*/
 			if (category.size() > 7){//magic number
 				java.util.Set best = linker.cloneFor(category).getBest(7);				
 				if (best.size() != linker.size()){
@@ -533,6 +446,72 @@ if (mergee == null)//TODO:remove???
 		return new HashMap[]{targetSources,categoryTargets};
 	}
 	
+	void buildMergeSets(HashSet mergeSets, HashMap targetSources, int similarityThreshold) {
+		mergeSets.clear();
+		HashMap<Object,HashSet> mergeeToCluster = new HashMap();//TODO: move out to reuse?
+
+		//TODO: avoid double count!?
+		//calculate all similarity measures
+		int max = -1;
+		//for (Iterator i1 = new HashSet(targetSources.keySet()).iterator(); i1.hasNext();) {
+		//	Object k1 = i1.next();
+		Object[] targetSourcesKeys = targetSources.keySet().toArray();
+		if (!AL.empty(targetSourcesKeys))
+		for (int i1 = 0 ; i1 < targetSourcesKeys.length; i1++){
+			Object k1 = targetSourcesKeys[i1];
+			Linker l1 = (Linker)targetSources.get(k1);
+
+			if (debug)
+				env.debug(k1.toString());
+			for (Iterator il = l1.keys().iterator(); il.hasNext();) {
+				Object source = il.next();
+				if (debug)
+					env.debug("   "+source+":"+l1.value(source));
+			}
+			
+			//for (Iterator i2 = new HashSet(targetSources.keySet()).iterator(); i2.hasNext();) {
+			//	Object k2 = i2.next();
+			for (int i2 = i1 + 1; i2 < targetSourcesKeys.length; i2++){
+				Object k2 = targetSourcesKeys[i2];
+				Linker l2 = (Linker)targetSources.get(k2);
+				if (!k1.equals(k2)) {
+
+					//Linker mutual = (Linker)sourceSources.get(k1);
+					//if (mutual == null)
+					//	sourceSources.put(k1, mutual = new Counter());
+					int closeness = (int)Math.round(crossOverlap(l1,l2)*100);
+					if (closeness > similarityThreshold) {
+						if (debug)
+							env.debug("    "+k2+":"+closeness);
+						//mutual.count(k2,closeness);//TODO: not needed?
+						if (max <= closeness) {
+							if (max < closeness) {//start over
+								max = closeness;
+								mergeSets.clear();
+								mergeeToCluster.clear();
+							}
+							/*
+							HashSet mergees = new HashSet();
+							mergees.add(k1);
+							mergees.add(k2);
+							mergeSets.add(mergees);
+							*/
+//TODO: optimization - eliminate extra puts and adds!
+							HashSet mergees;
+							if ((mergees = mergeeToCluster.get(k1)) == null)
+								if ((mergees = mergeeToCluster.get(k2)) == null)
+									mergeSets.add(mergees = new HashSet());//new multi-item feature cluster
+							mergees.add(k1);
+							mergees.add(k2);
+							mergeeToCluster.put(k1, mergees);
+							mergeeToCluster.put(k2, mergees);
+						} 
+					}
+				}
+			}				
+		}
+	}
+
 	/**
 	 * Infer connection between sources and targets using, induction, decuction or abduction
 	 * Example: infer(userDocuments,documentFeatures) => userFeatures

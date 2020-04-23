@@ -196,7 +196,7 @@ public class Steemit extends SocialCacher {
 	}
 
 	static String base_url(String name) {
-		return name.equals("steemit") ? "https://steemit.com" : "https://golos.id";
+		return name.equals("steemit") ? "https://steemit.com" : "https://golos.in";
 	}
 	
 	static String permlink_url(String base_url, String parent_permlink, String author, String permlink) {

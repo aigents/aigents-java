@@ -794,10 +794,25 @@ public abstract class SocialFeeder {
 			peersMiner = null;
 			return;
 		}
+//debugTexts(names,texts);
 		peersMiner = new TextMiner(body,this.langPack,System.currentTimeMillis()+clustering_timeout,false)
 			.setDocuments((String[])names.toArray(new String[]{}),(String[])texts.toArray(new String[]{}),vocabulary)
 			.cluster();
 	}
+	
+	/*private void debugTexts(ArrayList names,ArrayList texts) {
+		for (int i = 0; i < names.size(); i++) {
+			try {
+				File temp = body.getFile("debug_"+names.get(i)+".txt");
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"));
+				writer.write(texts.get(i).toString());
+				writer.close();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				body.error("SocialFeeder debugTexts",e);
+			}
+		}
+	}*/
 	
 	public final Object[][] getPeerCats(){
 		if (peersMiner == null)
@@ -909,8 +924,18 @@ public abstract class SocialFeeder {
 			HashSet words = new HashSet();
 			for (int i = 0; i < bestWords.length; i++)
 				words.add((String)bestWords[i][1]);
+
+			long start_time = System.currentTimeMillis();
+			body.debug("Words clustering start");
 			clusterNewsCats(words);
+			long end_time = System.currentTimeMillis();
+			body.debug("Words clustering stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+
+			start_time = end_time;
+			body.debug("Peers clustering start");
 			clusterPeerCats(null);
+			end_time = System.currentTimeMillis();
+			body.debug("Peers clustering stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 		}
 	}
 	
