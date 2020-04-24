@@ -128,7 +128,7 @@ public class Profiler {
 	}
 	
 	public boolean skipWord(String text){
-		return text == null || text.length() < 3 || Array.contains(AL.grammar, text)
+		return text == null || text.length() < 2 || Array.contains(AL.grammar, text)
 				|| Array.contains(bodyStoragerNames,text)
 				|| Array.contains(feederPeerNames,text);
 	}
@@ -171,11 +171,11 @@ public class Profiler {
 			//----- TODO: create patterns of words!?
 			//TODO: get rid of hardcoded limit!?
 			int max = 10;
-			int[] thresholds = new int[]{100, 99, 95, 90, 80, 60, 25, 0};
+			int[] thresholds = new int[]{100, 99, 95, 90, 80, 60, 25};
 			for (int i = 0; i < thresholds.length; i++){
 				//new String[]{"Rank,%","Word","My Likes","Likes","Comments","Posts","Count","(My Likes)/Posts"},
 				//TODO: getBestWords vs. getMyWords
-				Object[][] data = feeder.getBestWordsLikedAndCommentedByAll(max,thresholds[i]);
+				Object[][] data = feeder.getWordsUsedAndLikedByMe(max,thresholds[i]);
 				if (!AL.empty(data)){
 					for (int j = 0; j < data.length; j++){
 						String text = (String)data[j][1];
@@ -210,7 +210,7 @@ public class Profiler {
 					 }
 				}
 			}
-					
+
 			//---- get all liked posts
 			//----- add links to sites, trust if not present
 			//new String[]{"Rank,%","Like","Likes","Comments","Date","Text","Links"},

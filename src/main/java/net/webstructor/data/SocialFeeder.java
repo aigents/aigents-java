@@ -386,16 +386,17 @@ public abstract class SocialFeeder {
 			return norm;
 		Arrays.sort(norm,new ArrayPositionComparator(0,1));
 		float max = ((Float)norm[0][0]).floatValue();
-		int passed = 0;
+		int passed = -1;
 		for (int i = 0; i < norm.length && (limit <= 0 || i < limit); i++){
 			int rank = Math.round( ((Float)norm[i][0]).floatValue() * 100 / max);
 			norm[i][0] = new Integer( rank );
-			if (rank >= threshold)
-				passed = i;
+			if (rank < threshold)
+				break;
+			passed = i;
 		}
 		if (limit > 0 && passed > limit)
 			passed = limit;
-		return (Object[][])Arrays.copyOfRange(norm, 0, passed);
+		return passed >= 0 ? (Object[][])Arrays.copyOfRange(norm, 0, passed + 1) : new Object[][] {};
 	}
 	
 	//TODO: unify all variations below

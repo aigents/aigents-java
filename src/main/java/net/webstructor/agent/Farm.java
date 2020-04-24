@@ -369,9 +369,9 @@ public class Farm extends Body {
 					if (activityTime != null && activityTime.compareTo(since) >= 0){
 						//TODO: this is separate "socializer" class
 						updateStatus(peer,profilers(peer,null),false);//may be not fresh because of cleanup up front
-						debug("Spidering peer "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" completed "+new Date(System.currentTimeMillis())+".");
+						debug("Peer crawling "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" completed "+new Date(System.currentTimeMillis())+".");
 					} else 
-						debug("Spidering peer "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" skipped.");
+						debug("Peer crawling "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" skipped.");
 					i++;
 				}
 			}
