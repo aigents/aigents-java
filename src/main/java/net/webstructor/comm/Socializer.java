@@ -717,7 +717,8 @@ public abstract class Socializer extends HTTP {
 			rep.table(reputation,t.loc(reputation),
 				t.loc(new String[]{"Rank,%","Friend"}),
 				getReputation(feeder.userId(),feeder.since(),feeder.until()),0/*minPercent*/,minCount);
-		if (options.isEmpty() || options.contains(social_graph)) {
+//TODO enable graphs
+		if (options.isEmpty() && options.contains(social_graph)) {
 			Graph graph = getGraph(feeder.userId(),feeder.since(),feeder.until());
 			if (graph != null) {
 				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );

@@ -368,10 +368,13 @@ public class Farm extends Body {
 					Date activityTime = (Date)peer.get(Peer.activity_time);
 					if (activityTime != null && activityTime.compareTo(since) >= 0){
 						//TODO: this is separate "socializer" class
+			    		long start = System.currentTimeMillis();
+			    		debug("Peer crawling start "+peer.getString(AL.email)+" "+i+"/"+peers.size()+".");
 						updateStatus(peer,profilers(peer,null),false);//may be not fresh because of cleanup up front
-						debug("Peer crawling "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" completed "+new Date(System.currentTimeMillis())+".");
+			    		long end = System.currentTimeMillis();
+			    		debug("Peer crawling stop "+peer.getString(AL.email)+" "+i+"/"+peers.size()+", took "+new Period(end-start).toHours()+".");
 					} else 
-						debug("Peer crawling "+peer.getString(AL.email)+" "+i+"/"+peers.size()+" skipped.");
+						debug("Peer crawling skip "+peer.getString(AL.email)+" "+i+"/"+peers.size()+".");
 					i++;
 				}
 			}
@@ -403,13 +406,13 @@ public class Farm extends Body {
     	    try	{
     	    	if (profiler.applies()) {
     	    		long start = System.currentTimeMillis();
-					debug("Spidering peer "+profiler.provider().provider()+" start "+peer.getString(AL.email)+" "+new Date(start)+".");
+					debug("Peer crawling start "+profiler.provider().provider()+" "+peer.getString(AL.email)+".");
     	    		profiler.profile(peer,fresh);
     	    		long end = System.currentTimeMillis();
-					debug("Spidering peer "+profiler.provider().provider()+" end "+peer.getString(AL.email)+" "+new Date(end)+", took "+new Period(end-start).toHours()+".");
+					debug("Peer crawling stop"+profiler.provider().provider()+" "+peer.getString(AL.email)+", took "+new Period(end-start).toHours()+".");
     	    	}
     	    } catch (Exception e) {
-    	    	error("Spidering peer error "+profiler.provider().provider()+" "+peer.getString(AL.email), e);
+    	    	error("Peer crawling error "+profiler.provider().provider()+" "+peer.getString(AL.email), e);
     	   	}
     	}
 	}
