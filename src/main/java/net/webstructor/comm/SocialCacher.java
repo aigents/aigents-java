@@ -207,8 +207,8 @@ public abstract class SocialCacher extends Socializer {
 	@Override
 	public Graph getGraph(String user_id, Date since, Date until){
 		GraphCacher grapher = getGraphCacher();
-//TODO: comfig limits
-		int range = 10;
+//TODO: config limits
+		int range = 2;
 		int threshold = 0; 
 		int limit = 1000;
 		int period = Period.daysdiff(since, until);

@@ -310,12 +310,16 @@ public class Reporter {
 	}
 	
 	public void table(String id, String title,String[] header, Object[][] rows, int minPercent, int minCount){
+		table(id, title, header, rows, minPercent, minCount, 0);
+	}
+
+	public void table(String id, String title,String[] header, Object[][] rows, int minPercent, int minCount, int maxCount){
 		if (AL.empty(rows))
 			return;
 
 		//do we have anythign to render at all?
 		int visible = 0;
-		for (int i = 0; i < rows.length; i++){
+		for (int i = 0; i < rows.length && (maxCount == 0 || i < maxCount); i++){
 			Object[] row = rows[i];
 			if (row == null)
 				return;

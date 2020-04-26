@@ -409,7 +409,7 @@ public class Farm extends Body {
 					debug("Peer crawling start "+profiler.provider().provider()+" "+peer.getString(AL.email)+".");
     	    		profiler.profile(peer,fresh);
     	    		long end = System.currentTimeMillis();
-					debug("Peer crawling stop"+profiler.provider().provider()+" "+peer.getString(AL.email)+", took "+new Period(end-start).toHours()+".");
+					debug("Peer crawling stop "+profiler.provider().provider()+" "+peer.getString(AL.email)+", took "+new Period(end-start).toHours()+".");
     	    	}
     	    } catch (Exception e) {
     	    	error("Peer crawling error "+profiler.provider().provider()+" "+peer.getString(AL.email), e);

@@ -716,9 +716,9 @@ public abstract class Socializer extends HTTP {
 		if (options.isEmpty() || options.contains(reputation))
 			rep.table(reputation,t.loc(reputation),
 				t.loc(new String[]{"Rank,%","Friend"}),
-				getReputation(feeder.userId(),feeder.since(),feeder.until()),0/*minPercent*/,minCount);
-//TODO enable graphs
-		if (options.isEmpty() && options.contains(social_graph)) {
+				getReputation(feeder.userId(),feeder.since(),feeder.until()),0/*minPercent*/,minCount,1000);
+//TODO make range/threshold/limit configurable in getGraph
+		if (options.isEmpty() || options.contains(social_graph)) {
 			Graph graph = getGraph(feeder.userId(),feeder.since(),feeder.until());
 			if (graph != null) {
 				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
