@@ -53,6 +53,7 @@ import net.webstructor.comm.paypal.PayPal;
 import net.webstructor.comm.reddit.Reddit;
 import net.webstructor.comm.steemit.Steemit;
 import net.webstructor.comm.telegram.Telegram;
+import net.webstructor.comm.twitter.Twitter;
 import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
@@ -175,6 +176,11 @@ public class Farm extends Body {
 		if (!AL.empty(r_id) && !AL.empty(r_key))
 			socializers.put("reddit", new Reddit(this,r_id,r_key));
 
+		String t_key = self().getString(twitter_key);
+		String t_secret = self().getString(twitter_key_secret);
+		if (!AL.empty(t_key) && !AL.empty(t_secret))
+			socializers.put("twitter", new Twitter(this,t_key,t_secret));
+		
 		//TODO: make it possible to have many Discourse instances per farm 
 		String d_id = self().getString(discourse_id);
 		String d_key = self().getString(discourse_key);

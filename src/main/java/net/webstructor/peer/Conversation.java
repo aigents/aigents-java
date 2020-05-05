@@ -87,7 +87,7 @@ class Conversation extends Mode {
 	
 	private String spidering(Session session, String name, String id) {
 		String report = null;
-		Socializer provider = session.sessioner.body.provider(name);
+		Socializer provider = session.sessioner.body.getSocializer(name);
 		if (provider != null && (provider.opendata() || session.trusted()))
 		try {
 			Collection peers;
@@ -255,7 +255,7 @@ class Conversation extends Mode {
 			} else
 			if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,spider),new Property(task,"network")}))) {
-				Socializer provider = session.sessioner.body.provider(task.getString("network"));
+				Socializer provider = session.sessioner.body.getSocializer(task.getString("network"));
 				if (provider != null){
 					Thing arg = new Thing();
 					session.read(arg,new String[]{"block"});			
@@ -357,7 +357,7 @@ class Conversation extends Mode {
 			//you profile|profiling [<network> [, email <email>] [, name <name>] [, surname <surname>]]
 			Thing task = new Thing();
 			session.read(new Seq(new Object[]{new Any(1,AL.you),new Any(1,Self.profiling),new Property(task,"network")}));//optional network id
-			if (session.sessioner.body.provider(task.getString("network")) == null)//TODO Property-level domain validation
+			if (session.sessioner.body.getSocializer(task.getString("network")) == null)//TODO Property-level domain validation
 				task.setString("network", null);
 			if (!session.trusted())
 				task.addThing("peers",curPeer);//profile itself only 
@@ -557,10 +557,10 @@ class Conversation extends Mode {
 	boolean tryReport(Storager storager,Session session) {
 		Thing arg = new Thing();
 		if (session.read(new Seq(new Object[]{new Property(arg,"network"),"id",new Property(arg,"id"),"report"}))
-				&& session.sessioner.body.provider(arg.getString("network")) != null 
+				&& session.sessioner.body.getSocializer(arg.getString("network")) != null 
 				&& arg.getString("id") != null && arg.getString("network") != null
 				//if either a) provider is "public" or b) specified id is matching user id or c) we supply the auth token 
-				&& (session.sessioner.body.provider(arg.getString("network")).opendata() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id"))
+				&& (session.sessioner.body.getSocializer(arg.getString("network")).opendata() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id"))
 						|| session.read(new Seq(new Object[]{"token",new Property(arg,"token")}))) ) {
 				String format = session.read(new Seq(new Object[]{"format",new Property(arg,"format")})) ? arg.getString("format") : "html"; 
 				int threshold = session.read(new Seq(new Object[]{"threshold",new Property(arg,"threshold")})) ? Integer.valueOf(arg.getString("threshold")).intValue() : 20;
@@ -570,19 +570,20 @@ class Conversation extends Mode {
 				Thing peer = session.getStoredPeer();
 				String language = peer.getString(Peer.language);
 				boolean fresh = session.input().contains("fresh");
-				Socializer provider = session.sessioner.body.provider(arg.getString("network"));
+				Socializer provider = session.sessioner.body.getSocializer(arg.getString("network"));
 				String id = arg.getString("id");
 				String token = session.read(new Seq(new Object[]{"token",new Property(arg,"token")})) ? arg.getString("token") : null;
 			   	if (AL.empty(token)) //if token is not supplied explicitly
 			   		token = arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.provider()+" token") : null;
 				//TODO: name and language for opendata/steemit?
-				String report = provider.cachedReport(id,token,null,id,"",language,format,fresh,session.input(),threshold,period,areas);
+			   	String secret = provider.getTokenSecret(session.getStoredPeer());
+				String report = provider.cachedReport(id,token,secret,id,"",language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");
 				return true;			
 		} else	
 		if (session.read(new Seq(new Object[]{
 					new Any(1,AL.i_my),new Property(arg,"network"),"report"}))
-					&& session.sessioner.body.provider(arg.getString("network")) != null ) {
+					&& session.sessioner.body.getSocializer(arg.getString("network")) != null ) {
 				String format = session.read(new Seq(new Object[]{"format",new Property(arg,"format")})) ? arg.getString("format") : "html"; 
 				int threshold = session.read(new Seq(new Object[]{"threshold",new Property(arg,"threshold")})) ? Integer.valueOf(arg.getString("threshold")).intValue() : 20;
 				//int range = session.read(new Seq(new Object[]{"range",new Property(arg,"range")})) ? Integer.valueOf(arg.getString("range")).intValue() : 1;
@@ -593,10 +594,11 @@ class Conversation extends Mode {
 			   	String surname = peer.getString(Peer.surname);
 			   	String language = peer.getString(Peer.language);
 				boolean fresh = session.input().contains("fresh");
-			   	Socializer provider = session.sessioner.body.provider(arg.getString("network"));
+			   	Socializer provider = session.sessioner.body.getSocializer(arg.getString("network"));
 			   	String id = peer.getString(provider.getPeerIdName());
 			   	String token = peer.getString(provider.provider()+" token");
-				String report = provider.cachedReport(id,token,null,name,surname,language,format,fresh,session.input(),threshold,period,areas);
+			   	String secret = provider.getTokenSecret(session.getStoredPeer());
+				String report = provider.cachedReport(id,token,secret,name,surname,language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");
 				return true;	
 		}
@@ -728,10 +730,10 @@ class Conversation extends Mode {
 		String network;
 		if (session.read(new Seq(new Object[]{new Property(arg,"network"),"id",new Property(arg,"id"),"graph"}))
 				&& (network = arg.getString("network")) != null
-				&& (session.sessioner.body.provider(network) != null || "www".equalsIgnoreCase(network))
+				&& (session.sessioner.body.getSocializer(network) != null || "www".equalsIgnoreCase(network))
 				&& (id = arg.getString("id")) != null //TODO: sites url
 				//if either or a) provider is "www" or b) provider is "public" or c) specified id is matching user id
-				&& ("www".equalsIgnoreCase(network) || session.sessioner.body.provider(network).opendata() || id.equals(session.getStoredPeer().getString(network+" id"))) ) {
+				&& ("www".equalsIgnoreCase(network) || session.sessioner.body.getSocializer(network).opendata() || id.equals(session.getStoredPeer().getString(network+" id"))) ) {
 			session.read(arg,new String[]{"date","period","range","threshold","links","limit","format"});			
 			Date date = Time.day(arg.getString("date","today"));//target date
 			String period = arg.getString("period","7");//days back
@@ -782,7 +784,7 @@ class Conversation extends Mode {
 		if (network.equalsIgnoreCase("www")){
 			grapher = session.sessioner.body.sitecacher;
 		}else {
-			Socializer provider = session.sessioner.body.provider(network);
+			Socializer provider = session.sessioner.body.getSocializer(network);
 			grapher = provider instanceof SocialCacher ? ((SocialCacher)provider).getGraphCacher() : null;
 		}
 		if (grapher == null)

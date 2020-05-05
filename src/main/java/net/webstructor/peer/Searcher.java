@@ -101,15 +101,6 @@ class Searcher extends Intenter {
 				StringWriter writer = new StringWriter();
 				Translator t = session.getBody().translator(language);
 				Reporter rep = Reporter.reporter(session.getBody(),format,writer);
-				//prepare graph headers optionally
-				/*String base = session.sessioner.body.site();
-				String header = AL.empty(graphs) || graphs.length < 2 ? null : 
-						"  <link rel=\"stylesheet\" href=\""+base+"/ui/jquery-ui-1.11.4.custom/jquery-ui.css\">\n" + 
-						"  <link rel=\"stylesheet\" href=\""+base+"/ui/aigents-wui.css\">\n" + 
-						"  <script src=\""+base+"/ui/jquery-1.11.1.js\"></script>\n" + 
-						"  <script src=\""+base+"/ui/jquery-ui-1.11.4.custom/jquery-ui.js\"></script>\n" + 
-						"  <script type=\"text/javascript\" src=\""+base+"/ui/aigents-al.js\"></script>\n" + 
-						"  <script type=\"text/javascript\" src=\""+base+"/ui/aigents-graph.js\"></script>\n";*/
 //TODO: since, until 
 				rep.initReport("Aigents Search Report: "+topic,Time.today(0),Time.today(0),session.sessioner.body.site());
 				if (miner != null) {
@@ -146,8 +137,20 @@ class Searcher extends Intenter {
 								catdata,1,0);
 					}
 					//build graph
-					if (!AL.empty(graphs) && graphs.length > 1) {
+					if (!AL.empty(graphs)) {
 						Graph g = new Graph();
+						StringBuilder graph_text = new StringBuilder(); 
+					  
+					  if (graphs.length == 1 && "category".equals(graphs[0])) {
+						  Map<Object,Linker> doccats = miner.getDocumentCatNames();
+							for (Linker l : doccats.values()){
+								for (Object c1 : l.keys())
+									for (Object c2 : l.keys())
+										if (c1 != c2)
+											g.addValue(c1, c2, "category-category", 1);
+							}
+					  }else 
+					  if (graphs.length > 1){
 						//use real properties
 						for (Object o : filtered) {
 							Thing thing = (Thing)o;
@@ -180,14 +183,17 @@ class Searcher extends Intenter {
 								}
 							}
 						}
+					  }
 
 						//graph to real graph
-						StringBuilder graph_text = new StringBuilder(); 
+						if (graphs.length == 1 && "category".equals(graphs[0])) {
+							toGraphText(graph_text,g.getPropertyLinkers("category-category"),"category-category","category");
+						} else
 						for (int i = 0; i < graphs.length; i++) for (int j = 0; j < graphs.length; j++) if (i != j) {
 							String gi = graphs[i];
 							String gj = graphs[j];
 							String gij = gi+"-"+gj;
-							HashMap subgraph = g.getPropertyLinkers(gij);
+							/*HashMap subgraph = g.getPropertyLinkers(gij);
 							for (Object k : subgraph.keySet()) {
 								Linker linker = (Linker)subgraph.get(k);
 								String source = k.toString().replace("\'", "\\\\\\\'");//var text = "'x y \\\'z' likes mary 10.0\n\
@@ -198,8 +204,10 @@ class Searcher extends Intenter {
 									graph_text.append("\'"+source+"\' "+gij+" \'"+target+"\' "+item[1]+"\\n\\\n");
 								}
 								graph_text.append("\'"+source+"\' is '"+gi+"'\\n\\\n");
-							}
+							}*/
+							toGraphText(graph_text,g.getPropertyLinkers(gij),gij,gi);
 						}
+
 						StringBuilder colors = new StringBuilder();
 						int linkcount = 0;
 						for (int i = 0; i < graphs.length; i++) {
@@ -240,6 +248,21 @@ class Searcher extends Intenter {
 				out = conversation.format(format, session, peer, q, filtered);
 		}
 		return out;
+	}
+	
+	
+	private static void toGraphText(StringBuilder graph_text, HashMap subgraph, String gij, String gi) {
+		for (Object k : subgraph.keySet()) {
+			Linker linker = (Linker)subgraph.get(k);
+			String source = k.toString().replace("\'", "\\\\\\\'");//var text = "'x y \\\'z' likes mary 10.0\n\
+			Object[][] ranked = linker.toRanked();
+			if (!AL.empty(ranked)) for (int r = 0; r < ranked.length; r++) {
+				Object item[] = ranked[r];
+				String target = item[0].toString().replace("\'", "\\\\\\\'");
+				graph_text.append("\'"+source+"\' "+gij+" \'"+target+"\' "+item[1]+"\\n\\\n");
+			}
+			graph_text.append("\'"+source+"\' is '"+gi+"'\\n\\\n");
+		}
 	}
 	
 	boolean handle(final Conversation conversation,final Storager storager,final Session session) {

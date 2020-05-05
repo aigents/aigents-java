@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -60,7 +61,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.4.1";
+	public final static String VERSION = "2.5.0";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -117,11 +118,19 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String paypal_url = "paypal url";
 	public static final String reddit_id = "reddit id";
 	public static final String reddit_key = "reddit key";
+	public static final String reddit_token = "reddit token";
+	public static final String reddit_image = "reddit image";
+	public static final String reddit_redirect = "reddit redirect";
 	public static final String discourse_id = "discourse id";
 	public static final String discourse_key = "discourse key";
 	public static final String discourse_url = "discourse url";
-	public static final String reddit_redirect = "reddit redirect";
-	public static final String reddit_token = "reddit token";
+	public static final String twitter_id = "twitter id";
+	public static final String twitter_key = "twitter key";
+	public static final String twitter_key_secret = "twitter key secret";
+	public static final String twitter_token = "twitter token";
+	public static final String twitter_token_secret = "twitter token secret";
+	public static final String twitter_redirect = "twitter redirect";
+	public static final String twitter_image = "twitter image";
 	public static final String google_id = "google id";//client id or user id
 	public static final String google_key = "google key";//client secret
 	public static final String google_token = "google token";//access_token or temporary code
@@ -167,6 +176,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		paypal_id, paypal_key, paypal_token, paypal_url,
 		discourse_id, discourse_key, discourse_url,
 		reddit_id, reddit_key, reddit_token, reddit_redirect,
+		twitter_id, twitter_key, twitter_key_secret, twitter_token, twitter_token_secret, twitter_redirect,
 		vkontakte_id, vkontakte_key, vkontakte_token,
 		telegram_token, telegram_offset, telegram_name,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
@@ -188,19 +198,10 @@ public abstract class Body extends Anything implements Environment, Updater
 	public Schema schema;
 	public LangPack languages;
 	private Logger logger = null;
-	/*//TODO: remove - being plugins or configurable list of "providers"!!!
-	protected FB fb = null;
-	protected GApi gapi = null;
-	protected VK vk = null;
-	protected Socializer reddit = null;
-	protected Socializer steemit = null;
-	protected Socializer golos = null;
-	protected Socializer ethereum = null;
-	protected Socializer paypal = null;*/
 	
 	public net.webstructor.self.Cacher filecacher = null;
 	public GraphCacher sitecacher = null;
-	public CacherHolder grapher = new CacherHolder();
+	public CacherHolder cacheholder = null;
 	protected HashMap actioners = new HashMap();
 	protected HashMap<String,Serper> searchers = new HashMap<String,Serper>();
 	protected HashMap<String,Socializer> socializers = new HashMap<String,Socializer>();
@@ -217,6 +218,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		storager = new Storager(this);//TODO:init by db/file access, but not a this body
 		archiver = new Archiver(this);
 		schema = new Schema(storager);
+		cacheholder = new CacherHolder(this);
 
 		Thing self = self();
 		//http://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
@@ -240,11 +242,11 @@ public abstract class Body extends Anything implements Environment, Updater
 
 	@Override
 	public void register(String path, net.webstructor.data.Cacher cacher) {
-		synchronized (grapher) {//TODO eliminate redundant recurrently enclosed syncing!?
-			net.webstructor.data.Cacher existing = grapher.get(path);
+		synchronized (cacheholder) {//TODO eliminate redundant recurrently enclosed syncing!?
+			net.webstructor.data.Cacher existing = cacheholder.get(path);
 			if (existing != null)
 				error("Cacher duplication "+path,null);
-			grapher.put(path, cacher);//overwrite
+			cacheholder.put(path, cacher);//overwrite
 		}
 	}
 	
@@ -297,12 +299,6 @@ public abstract class Body extends Anything implements Environment, Updater
 		languages = new LangPack(this);
 	}
 	
-	//TODO: make configurable plugins for each provider
-	@Deprecated
-	public Socializer provider(String name){
-		return getSocializer(name);
-	}
-
 	public Logger logger() {
 		return logger;
 	}
@@ -401,10 +397,10 @@ public abstract class Body extends Anything implements Environment, Updater
 			errors.flush();
 			str = str+":"+errors.toString();
 			*/
-			str = str+":"+toString(e);
+			str = str + (e instanceof OutOfMemoryError ? ", memory "+checkMemory() : "") + ":" + toString(e);
 		}
 		output("E:"+str);
-		System.err.println(str);
+		System.err.println((new Date()).toString()+":"+str);
 	}
 
 	//@Override

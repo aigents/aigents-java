@@ -34,9 +34,8 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.comm.fb.Messenger;
 import net.webstructor.comm.reddit.Redditer;
+import net.webstructor.comm.twitter.Twitterer;
 import net.webstructor.core.Thing;
-
-import java.util.UUID;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -67,11 +66,11 @@ public class HTTPListener extends TCPListener implements HTTPHandler {
 		http_secure = "true".equalsIgnoreCase(self.getString(Body.http_secure,"false"));
 		
 		//TODO: construct it at body constructor level!?
-		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body),new net.webstructor.comm.paypal.PayPaler(body),new Redditer(body)};
+		handlers = new HTTPHandler[]{new Slacker(body),new Messenger(body),new net.webstructor.comm.paypal.PayPaler(body),new Redditer(body),new Twitterer(body)};
 	}
 	
 	protected synchronized String getCookie() {
-		return UUID.randomUUID().toString().replaceAll("-", "");
+		return HTTP.nonce();
 	}
 
 	//http://stilius.net/java/java_ssl.php

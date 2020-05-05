@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,10 +38,10 @@ public class Schema {
 	public final static String[] roots = {self, peer};
 	//TODO: repalace arrays with static HashTables initialized statically   
 	public final static String[] foundation = {self, peer, AL.time, AL.number, AL.money, AL.word, AL.daytime};
-	public final static String[] keys = {AL.name,AL.email,Peer.surname,Peer.birth_date,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.telegram_name,Body.slack_id,Body.paypal_id,Body.reddit_id,Body.discourse_id}; // key attributed for merging
-	public final static String[] hidden = {Peer.birth_date,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.telegram_name,Body.slack_id,Body.paypal_id,Body.reddit_id,Body.discourse_id}; // key attributed for merging
-	public final static String[] case_sensitive = {Body.email_password,Body.facebook_token,Body.facebook_challenge,Body.telegram_name,Body.slack_token,Body.slack_key,Body.google_key,Body.googlesearch_key,Body.google_token,Body.vkontakte_key,Body.telegram_token,Body.reddit_id,Body.reddit_key,Body.reddit_token,Body.discourse_id};
-	public final static String[] unique = {AL.email,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.telegram_name,Body.slack_id,Body.paypal_id,Body.reddit_id,Body.discourse_id};
+	public final static String[] keys = {AL.name,AL.email,Peer.surname,Peer.birth_date,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.telegram_name,Body.slack_id,Body.paypal_id,Body.reddit_id,Body.discourse_id,Body.twitter_id}; // key attributed for merging
+	public final static String[] hidden = {Peer.birth_date,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.telegram_name,Body.slack_id,Body.paypal_id,Body.reddit_id,Body.discourse_id,Body.twitter_id}; // key attributed for merging
+	public final static String[] case_sensitive = {Body.email_password,Body.facebook_token,Body.facebook_challenge,Body.telegram_name,Body.slack_token,Body.slack_key,Body.google_key,Body.googlesearch_key,Body.google_token,Body.vkontakte_key,Body.telegram_token,Body.reddit_id,Body.reddit_key,Body.reddit_token,Body.discourse_id,Body.twitter_id,Body.twitter_key,Body.twitter_key_secret,Body.twitter_token,Body.twitter_token_secret};
+	public final static String[] unique = {AL.email,Body.google_id,Body.facebook_id,Body.vkontakte_id,Body.telegram_id,Body.telegram_name,Body.slack_id,Body.paypal_id,Body.reddit_id,Body.discourse_id,Body.twitter_id};
 	public final static String[] thinkable = {Peer.social_relevance,Peer.relevance/*,"importance","similarity","authority","closeness","adherence"*/};
 	public final static String[] multiples = new String[]{
 		AL.is, 

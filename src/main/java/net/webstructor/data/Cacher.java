@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2018-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2018-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,4 +27,5 @@ import java.util.Date;
 
 public interface Cacher { 
 	public void clear(boolean everything, Date till);
+	public void free();
 }

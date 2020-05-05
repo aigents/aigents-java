@@ -69,6 +69,12 @@ public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data
 		pathTodos.clear();
 	}
 
+	@Override
+	public void free(){
+		//TODO: if cache is made persistent, clear memory only, not the persistent data  
+		clear(false,null);
+	}
+	
 	public void clear(Date till) {
 		clear(till !=null ? false : true,till);
 	}

@@ -252,6 +252,13 @@ public class GraphCacher implements Cacher {
 		return result;
 	}
 	
+	@Override
+	public void free(){
+		synchronized (graphs){
+			clearUnsync(null);
+		}
+	}
+	
 	public void to(PrintStream out){
 		synchronized (graphs){
 			for (Iterator it = graphs.keySet().iterator(); it.hasNext();){

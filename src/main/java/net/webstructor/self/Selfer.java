@@ -35,6 +35,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.core.Thing;
+import net.webstructor.data.GraphCacher;
 import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
 
@@ -152,10 +153,18 @@ public class Selfer extends Thread {
 	
 	public void forget(long start_time){
 		if (start_time >= next_forget_time) {	
-			body.debug("Forgetting start "+new Date(start_time)+".");
+			body.debug("Selfer forgetting start "+new Date(start_time)+".");
+			
+//TODO make MEMORY_THRESHOLD parameter of body/self
+			int memory = body.checkMemory();
+			if (body.checkMemory() > GraphCacher.MEMORY_THRESHOLD) {
+				body.cacheholder.free();
+				body.debug("Selfer free, memory "+memory+" to "+body.checkMemory());
+			}
+			
 			Self.clear(body,Schema.foundation);
 			long end_time = System.currentTimeMillis();
-			body.debug("Forgetting stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+			body.debug("Selfer forgetting stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 			next_forget_time = start_time + forget_cycle;
 		}
 	}
@@ -178,8 +187,7 @@ public class Selfer extends Thread {
 			try {
 				boolean update = false;
 				long current_time = System.currentTimeMillis();
-				body.debug("Selfing "+new Date(current_time));
-
+				
 				//!!! do forgetting immediately on startup
 				forget(current_time);
 				
@@ -251,8 +259,11 @@ public class Selfer extends Thread {
 					}
 				}
 
-			} catch (Exception e) {		
-				body.error("Self error (" + e.toString() + ")",e);
+			} catch (Exception e) {
+//TODO cleanup
+e.printStackTrace();
+e.printStackTrace(System.err);
+				body.error("Selfer error (" + e.toString() + ")",e);
 			}
 		}//while
 	}

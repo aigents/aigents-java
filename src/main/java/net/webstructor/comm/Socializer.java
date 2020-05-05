@@ -76,6 +76,10 @@ public abstract class Socializer extends HTTP {
 	public abstract String provider();
 	public abstract SocialFeeder getFeeder(String id, String token, String key, Date since, Date until, String[] areas) throws IOException;
 	public abstract Profiler getProfiler(Thing peer);
+
+	public String getTokenSecret(Thing peer) {//most providers don't need token secret, by Twitter is special
+		return null;
+	}
 	
 	//TODO: include reporting days, but then need actial days from Feeder object 
 	//public String reportingPath(String user_id,String format,int period_days){
@@ -717,9 +721,10 @@ public abstract class Socializer extends HTTP {
 			rep.table(reputation,t.loc(reputation),
 				t.loc(new String[]{"Rank,%","Friend"}),
 				getReputation(feeder.userId(),feeder.since(),feeder.until()),0/*minPercent*/,minCount,1000);
-//TODO make range/threshold/limit configurable in getGraph
 		if (options.isEmpty() || options.contains(social_graph)) {
-			Graph graph = getGraph(feeder.userId(),feeder.since(),feeder.until());
+//TODO make range/threshold/limit configurable in getGraph
+//TODO make graph cached in feeder and only rendered here
+			Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(feeder.userId(),feeder.since(),feeder.until());
 			if (graph != null) {
 				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
 				String[] links = new String[] {"comments","mentions","votes","pays","calls"};

@@ -91,6 +91,21 @@ public class TextMiner extends Miner {
 		categoryFeatures = out[1];
 		return this;
 	}
+	public Map<Object,Linker> getDocumentCatNames(){
+		Map<Object,Linker> doccats = new HashMap<Object,Linker>();
+		Map catdocs = getCategoryDocuments();
+		for (Object cat : catdocs.keySet()) {
+			Linker docs_by_cat = (Linker)catdocs.get(cat);
+			String cat_name = cat.toString();
+			for (Object doc : docs_by_cat.keys()) {
+				Linker l = doccats.get(doc);
+				if (l == null)
+					doccats.put(doc, l = new Counter());
+				l.count(cat_name);
+			}
+		}
+		return doccats;
+	}
 	public Map getCategoryDocuments(){
 		return categoryDocuments;
 	}

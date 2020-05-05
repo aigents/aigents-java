@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2018-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2018-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,10 @@ package net.webstructor.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
+
+import net.webstructor.core.Environment;
+
 import java.util.HashMap;
 
 public class CacherHolder {
@@ -41,6 +43,12 @@ public class CacherHolder {
 	*/
 	
 	private Map cachers = new HashMap();
+	
+	protected Environment env = null;
+
+	public CacherHolder(Environment env){
+		this.env = env;
+	}
 	
 	public Cacher get(String name){
 		synchronized (cachers){
@@ -59,14 +67,26 @@ public class CacherHolder {
 		}
 	}
 	
-	public void clear(Date till){
+	public void free(){
 		Collection all;
 		synchronized (cachers){
 			all = new ArrayList(cachers.keySet());
 		}
-		for (Iterator it = all.iterator(); it.hasNext();){
-			Cacher gc = get((String)it.next());
-			gc.clear(false,till);
+//TODO: do this by reverse-LRU, so the recently used ones are released in the last turn
+		for (Object o : all) {
+			env.debug("Selfer free "+o+", memory "+env.checkMemory());
+			((Cacher)cachers.get(o)).free();
+			if (env.checkMemory() < GraphCacher.MEMORY_THRESHOLD)
+				break;
 		}
+	}
+	
+	public void clear(Date till){
+		Collection all;
+		synchronized (cachers){
+			all = new ArrayList(cachers.values());
+		}
+		for (Object o : all)
+			((Cacher)o).clear(false,till);
 	}
 }

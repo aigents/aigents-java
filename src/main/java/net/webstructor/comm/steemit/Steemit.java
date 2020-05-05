@@ -362,7 +362,7 @@ public class Steemit extends SocialCacher {
 		
 	@Override
 	public Profiler getProfiler(Thing peer) {
-		return new Profiler(body,this,peer,Body.steemit_id);
+		return new Profiler(body,this,peer, provider()+" id");
 	}
 
 	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {

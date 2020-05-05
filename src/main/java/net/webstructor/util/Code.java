@@ -62,7 +62,24 @@ public class Code {
 			return null;// TODO what?
 		}
 	}
+
+	public static String str2b64(byte[] ascii,boolean lines) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		    OutputStream encodedStream = MimeUtility.encode(bos, "base64");
+		    encodedStream.write(ascii);
+		    bos.close();
+		    encodedStream.close();
+		    String encoded = bos.toString();
+		    if (!lines)
+		    	encoded = encoded.replaceAll("\r", "").replaceAll("\n", "");
+		    return encoded;
+		} catch (Exception e) {
+			return null;// TODO what?
+		}
+	}
 	 	
+
 	/*
 	private static SecretKey key;
 	

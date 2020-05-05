@@ -205,8 +205,8 @@ public class Self {
 			body.archiver.clear(retention_day);
 
 		//7) clear LTM graph cachers
-		if (body.grapher != null)
-			body.grapher.clear(retention_day);
+		if (body.cacheholder != null)
+			body.cacheholder.clear(retention_day);
 
 		//8) clear STM page/document data cache 
 		if (body.filecacher != null)
