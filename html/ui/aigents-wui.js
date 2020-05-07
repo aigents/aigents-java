@@ -2259,7 +2259,7 @@ function talks_say_out_internal(text) {
 		logout("#vkontakte_logo");
 		logout("#reddit_logo");
 		logout("#paypal_logo");
-		logout("#reddit_logo");
+		logout("#twitter_logo");
 		logoutlowlevel();
 	}
 }

@@ -25,6 +25,7 @@ package net.webstructor.comm.twitter;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.Date;
 
 import javax.json.Json;
@@ -36,6 +37,7 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Time;
+import net.webstructor.cat.HtmlStripper;
 import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
@@ -43,8 +45,11 @@ import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
+import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
+import net.webstructor.util.MapMap;
 import net.webstructor.util.Reporter;
+import net.webstructor.util.Str;
 
 
 class Twit {
@@ -68,6 +73,7 @@ class Twit {
 	boolean scored;
 	OrderedStringSet links = new OrderedStringSet();
 	OrderedStringSet media = new OrderedStringSet();
+	String image = null;
 
 	public Twit(JsonObject tweet) {
 		created_at = Time.time(JSON.getJsonString(tweet,"created_at"),"E MMM dd HH:mm:ss Z yyyy");//Mon May 04 06:06:10 +0000 2020
@@ -75,7 +81,7 @@ class Twit {
 		in_reply_to_status_id_str = JSON.getJsonString(tweet, "in_reply_to_status_id_str");
 		in_reply_to_user_id_str = JSON.getJsonString(tweet, "in_reply_to_user_id_str");
 		in_reply_to_screen_name = JSON.getJsonString(tweet, "in_reply_to_screen_name");
-		text = JSON.getJsonString(tweet, "text");
+		text = tweet.containsKey("full_text") ? JSON.getJsonString(tweet, "full_text") : JSON.getJsonString(tweet, "text");
 		lang = JSON.getJsonString(tweet, "lang");
 		retweet_count = JSON.getJsonInt(tweet, "retweet_count");
 		favorite_count = JSON.getJsonInt(tweet, "favorite_count");
@@ -114,8 +120,16 @@ class Twit {
 			}
 		}
 		url = String.format("https://twitter.com/%s/status/%s", user_screen_name, id_str);//https://twitter.com/aigents/status/1257358818285142018
-		score = favorite_count + retweet_count;
+		score = favorite_count - (favorited ? 1 : 0) + retweet_count - (retweeted ? 1 : 0);
 		scored = favorited | retweeted;
+		OrderedStringSet image_candidates = !AL.empty(media) ? media : links;
+		for (int l = 0; l < image_candidates.size(); l++) {
+			String link = (String)image_candidates.get(l);
+			if (AL.isIMG(link)) {
+				image = link;
+				break;
+			}
+		}
 	}
 }
 
@@ -132,7 +146,7 @@ class TwitterFeeder extends SocialFeeder {
 		//https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-home_timeline
 		//Up to 800 Tweets are obtainable on the home timeline. It is more volatile for users that follow many users or follow users who Tweet frequently.
 		int days = Period.daysdiff(since, until); 
-		int count = days * 10;//assume 10 tweets per day as a default portion
+		int count = days * Twitter.DAILY_NEWS;
 		
 		try {
 //TODO deal with rate limits, if needed
@@ -143,6 +157,7 @@ class TwitterFeeder extends SocialFeeder {
 				new String [] {"count",String.valueOf(count)},
 				//new String [] {"since_id","false"},
 				//new String [] {"max_id","1257053173916659712"},
+				new String [] {"tweet_mode", "extended"},
 				new String [] {"trim_user","false"},
 				new String [] {"exclude_replies","false"},
 				new String [] {"include_rts","true"}
@@ -152,7 +167,8 @@ class TwitterFeeder extends SocialFeeder {
 			JsonReader jsonReader = Json.createReader(new StringReader(result));
 			JsonArray tweets = jsonReader.readArray();
 			for (int i = 0; i < tweets.size(); i++) {
-				Twit t = new Twit(tweets.getJsonObject(i));
+				JsonObject j = tweets.getJsonObject(i);
+				Twit t = new Twit(j);
 				body.debug(String.format("Twitter crawling %s %tc %s %s %s %s %s %s %s %s\n", id, t.created_at, t.id_str, t.user_screen_name, t.in_reply_to_screen_name, t.retweet_count, t.favorite_count, t.retweeted, t.favorited, t.text));
 				if (since.compareTo(t.created_at) > 0)
 					break;
@@ -181,17 +197,8 @@ class TwitterFeeder extends SocialFeeder {
 					t.links.add(t.url);
 				String text = processItem(date,t.user_id_str,t.text,t.links,comments,t.score,t.scored);
 				
-				String imghtml = null;
-				OrderedStringSet image_candidates = !AL.empty(t.media) ? t.media : t.links;
-				for (int l = 0; l < image_candidates.size(); l++) {
-					String link = (String)image_candidates.get(l);
-					if (AL.isIMG(link)) {
-						imghtml = Reporter.img(t.url, "height:auto;width:140px;", link);
-						break;
-					}
-				}
-				if (AL.empty(imghtml) && !AL.empty(t.user_profile_image))
-					imghtml = Reporter.img(t.url, null, t.user_profile_image);
+				String imghtml = t.image != null ? Reporter.img(t.url, "height:auto;width:140px;", t.image) : 
+					!AL.empty(t.user_profile_image) ? Reporter.img(t.url, null, t.user_profile_image) : null;
 				
 				reportDetail(detail,t.user_id_str,t.url,t.id_str,t.text,date,comments,t.links,null,t.score,(t.scored ? 1 : 0),comments_count,imghtml);
 
@@ -207,6 +214,9 @@ class TwitterFeeder extends SocialFeeder {
 }
 
 public class Twitter extends Socializer {
+	protected static final String content_url = "https://twitter.com/";
+	protected static final int DAILY_NEWS = 24;////assume 10 tweets per day as a default portion, TODO configuration
+	
 	String consumer_key;
 	String consumer_key_secret;
 
@@ -236,5 +246,50 @@ public class Twitter extends Socializer {
 	@Override
 	public String getTokenSecret(Thing peer) {
 		return peer.getString(Body.twitter_token_secret);
+	}
+
+	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
+		String screen_name;
+		if (AL.empty(uri) || AL.empty(screen_name = Str.parseBetween(uri, content_url, null, false)) || AL.empty(consumer_key) || AL.empty(consumer_key_secret))
+			return -1;
+		String token = body.getSelf().getString(Body.twitter_token);
+		String token_secret = body.getSelf().getString(Body.twitter_token_secret);
+		if (AL.empty(token) || AL.empty(token_secret))
+			return -1;
+
+		try {
+			Date since = Time.today(-1);
+//TODO iterate till daily data is exhausted or "latest known time" is reached
+			String[][] params = new String[][] {
+				new String [] {"screen_name",screen_name}, 
+				new String [] {"count",String.valueOf(DAILY_NEWS)},
+				//new String [] {"since_id","false"},
+				//new String [] {"max_id","1257053173916659712"},
+				new String [] {"tweet_mode", "extended"},
+				new String [] {"trim_user","false"},
+				new String [] {"exclude_replies","true"},
+				new String [] {"include_rts","true"}
+			};
+			String result = Twitterer.request("https://api.twitter.com/1.1/statuses/user_timeline.json","GET",params,consumer_key,consumer_key_secret,token,token_secret);
+			body.debug("Twitter crawling "+screen_name+" response "+result);
+			JsonReader jsonReader = Json.createReader(new StringReader(result));
+			JsonArray tweets = jsonReader.readArray();
+			int matches = 0;
+			for (int i = 0; i < tweets.size(); i++) {
+				JsonObject j = tweets.getJsonObject(i);
+				Twit t = new Twit(j);
+				body.debug(String.format("Twitter crawling %s %tc %s %s %s %s %s %s %s %s\n", screen_name, t.created_at, t.id_str, t.user_screen_name, t.in_reply_to_screen_name, t.retweet_count, t.favorite_count, t.retweeted, t.favorited, t.text));
+				if (t.created_at.compareTo(since) < 0)
+					break;
+				String text = HtmlStripper.convert(t.text," ",null);
+				text = HtmlStripper.convertMD(text, null, null);
+//TODO: consider if we want to consider links and images same way as we do that for Siter's web pages 
+				matches += Siter.matchThingsText(body,topics,text,Time.date(t.created_at),t.url,t.image,thingPathsCollector);
+			}
+			return matches;
+		} catch (Exception e) {
+			body.error("Twitter crawling "+screen_name+" error",e);
+		}
+		return -1;
 	}
 }
