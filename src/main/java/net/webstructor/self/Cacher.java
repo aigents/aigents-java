@@ -99,7 +99,7 @@ body.debug("Cacher clearing "+path);
 	 * @return
 	 */
 	//TODO: if cached and date in cache is less than current date
-	private String readCached(String path,long time,ArrayList links,Map images,Map linkPositions){
+	private String readCached(String path,long time,ArrayList links,Map images,Map linkPositions, Map titles){
 		Date date = pathTimes.get(path);
 		if (date != null && date.getTime() >= time){//if not expired
 			Object[] cached = (Object[])pathTexts.get(path);
@@ -111,6 +111,8 @@ body.debug("Cacher clearing "+path);
 				linkPositions.putAll((Map)cached[2]);
 			if ((Map)cached[3] != null)
 				images.putAll((Map)cached[3]);
+			if ((Map)cached[3] != null)
+				titles.putAll((Map)cached[4]);
 			return (String)cached[0];
 		}
 //TODO: find more clever way to check readability instead of such DoS attack - simulation, use context.conn
@@ -122,9 +124,9 @@ body.debug("Cacher clearing "+path);
 				//otherwise some (say chinese) things do not work
 				String html = reader.readDocData(path," ",context);
 				String text = AL.empty(html) ? null :
-						HtmlStripper.convert(html,HtmlStripper.block_breaker,links,images,linkPositions,path).toLowerCase();
+						HtmlStripper.convert(html,HtmlStripper.block_breaker,links,images,linkPositions,titles,path).toLowerCase();
 				if (text != null) {
-					pathTexts.put(path, new Object[]{text,links,linkPositions,images});
+					pathTexts.put(path, new Object[]{text,links,linkPositions,images,titles});
 					pathTimes.put(path, new Date());
 				}
 				return text;
@@ -150,14 +152,14 @@ body.debug("Cacher clearing "+path);
 	 * @param time - !!!???
 	 * @return
 	 */
-	protected String readIfUpdated(String path,ArrayList links,Map images,Map linkPositions,boolean forced,Date realTime){
+	protected String readIfUpdated(String path,ArrayList links,Map images,Map linkPositions,Map titles,boolean forced,Date realTime){
 		//pathTodos - means "doable", indicates that file can be processed repeatedly for different things!!!
 		//if known as ignored or not ignored, return from cache
 		Boolean todos = (Boolean)pathTodos.get(path);
 		if (todos != null)
-			return todos.booleanValue() ? readCached(path,realTime.getTime(),links,images,linkPositions) : null;
+			return todos.booleanValue() ? readCached(path,realTime.getTime(),links,images,linkPositions,titles) : null;
 		//if ignorance is unknown, figure it owt
-		String text = readCached(path,realTime.getTime(),links,images,linkPositions);
+		String text = readCached(path,realTime.getTime(),links,images,linkPositions,titles);
 		if (AL.empty(text)) {
 			pathTodos.put(path, new Boolean(true));//ignore as error
 		}else {

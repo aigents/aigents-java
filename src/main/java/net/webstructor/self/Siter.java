@@ -184,6 +184,7 @@ public class Siter {
 	MapMap thingTexts; //thing->text->instance	
 	Imager imager;
 	Imager linker;//using Imager to keep positions of links
+	Imager titler;//using Imager to keep positions of titles
 	Cacher cacher;
 	long tillTime;
 	long newsLimit;
@@ -204,6 +205,7 @@ public class Siter {
 		thingTexts = new MapMap();
 		imager = new Imager();
 		linker = new Imager();
+		titler = new Imager();
 		this.cacher = body.filecacher;
 		this.tillTime = tillTime;
 		this.range = range < 0 ? 0 : range;
@@ -439,7 +441,7 @@ public class Siter {
 			result = match(storager,new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
 		else
 		//TODO: distinguish skipped || failed in readIfUpdated ?
-		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),forced,realTime))) {
+		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),titler.getMap(path),forced,realTime))) {
 			ArrayList positions = new ArrayList();
 			//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
 			Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,punctuation,positions));//build with original text positions preserved for image matching
@@ -474,7 +476,7 @@ public class Siter {
 	
 	//match all Patterns of one Thing for one Site and send updates to subscribed Peers
 	//TODO: Siter extends Matcher (MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker)
-	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker) {
+	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker, Imager titler) {
 		//TODO: re-use iter building it one step above
 		//ArrayList positions = new ArrayList();
 		//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
@@ -484,17 +486,17 @@ public class Siter {
 		//next, if none, create the pattern for the thing name manually
 		if (AL.empty(patterns))
 			//auto-pattern from thing name split apart
-			matches += match(storager,thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker);
+			matches += match(storager,thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 		if (!AL.empty(patterns)) {
 			for (Iterator it = patterns.iterator(); it.hasNext();){				
-				matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker); 
+                matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 			}
 		}
 		return matches;
 	}
 	
 	private int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path) {
-		return match(storager, iter, positions, thing, time, path, thingTexts, thingPaths, imager, linker);
+		return match(storager, iter, positions, thing, time, path, thingTexts, thingPaths, imager, linker, titler);
 	}
 	
 	//TODO: move out?
@@ -592,8 +594,8 @@ public class Siter {
 	}
 
 	//match one Pattern for one Thing for one Site
-	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker) {
-		Date now = Time.date(time);
+	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker, Imager titler) {
+        Date now = Time.date(time);
 		int matches = 0;
 		//TODO:optimization so pattern with properties is not rebuilt every time?
 		iter.pos(0);//reset 
@@ -607,8 +609,10 @@ public class Siter {
 				break;
 			
 			//plain text before "times" and "is" added
-			String nl_text = summary.toString();
-			
+			String nl_text = titler.getMap(path).get(path).toString();
+			if (nl_text.equals(""))
+				nl_text = summary.toString();
+
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
 			if (thingTexts != null && thingTexts.getObject(thing, nl_text, false) != null)//already adding this
@@ -939,7 +943,7 @@ public class Siter {
 			long start = System.currentTimeMillis();  
 			body.debug("Siter matching start "+permlink);
 			for (Object thing: allThings) {
-				int match = Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null);
+				int match = Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null, null);
 				if (match > 0) {
 					body.debug("Siter matching found "+((Thing)thing).getName()+" in "+permlink);
 					matches += match;
