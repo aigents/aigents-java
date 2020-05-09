@@ -62,11 +62,15 @@ public class MapMap {
 	}
 	
 	public String[] getKeyStrings() {
-		return (String[])maps.keySet().toArray(new String[]{});
+		synchronized (maps) {
+			return (String[])maps.keySet().toArray(new String[]{});
+		}
 	}
 	
 	public Object[] getKeyObjects() {
-		return maps.keySet().toArray();
+		synchronized (maps) {
+			return maps.keySet().toArray();
+		}
 	}
 	
 	public String[] getSubKeyStrings(String key) {

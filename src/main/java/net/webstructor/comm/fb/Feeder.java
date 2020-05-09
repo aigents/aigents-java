@@ -45,13 +45,14 @@ class Feeder extends SocialFeeder {
 	public static String api_url = "https://graph.facebook.com/v3.0/";
 	static final int MAX_CALLS_PER_HOUR = 200;
 	
-	HttpFileReader reader = new HttpFileReader();
+	HttpFileReader reader = null;
 	int calls = 0;
 	String token = null;
 	
 	
 	public Feeder(Environment body, String user_id, LangPack langPack, boolean obfuscate, Date since, Date until) {
 		super(body, user_id,langPack,obfuscate,since,until);
+		reader =  new HttpFileReader(body);
 	}
 
 	String callAPI(String url) throws IOException, InterruptedException {
@@ -82,37 +83,18 @@ class Feeder extends SocialFeeder {
 		return false;
 	}
 
-	//TODO: remove as deprecated since API v2.6
-	//TODO: get properly with
-	//https://developers.facebook.com/docs/graph-api/reference/v2.5/object/likes
-	//returns true if liked by current user
-	public Object[] getLikes(JsonObject likes,Date time){
-		boolean user_likes = false;
-		int like_count = 0;
-		if (likes != null){
-			JsonArray data = likes.getJsonArray("data");
-			if (data != null){
-				for (int i = 0; i < data.size(); i++){
-					if (getLike(data.getJsonObject(i),time,1))
-						user_likes = true;
-				}
-				like_count = data.size();
-			}
-		}
-		//JsonObject paging = likes.getJsonObject("paging");
-		return new Object[]{new Boolean(user_likes),new Integer(like_count)};
-	}
-
+	//Amputating on 2020-05-09 as deprecated:
+	//error 400: {"error":{"message":"(#100) Tried accessing nonexisting field (likes) on node type (Post)"...
 	//https://developers.facebook.com/docs/graph-api/reference/v3.0/object/likes
-	//TODO: proper paging for more than 1000 likes?
-	public Object[] getLikes(String id,Date time){
+	/*public Object[] getLikes(String id,Date time){
 		boolean user_likes = false;
 		int like_count = 0;
 		String url, out = "";
 		try {
 			url = api_url + id + "/likes/?limit=1000&summary=true&access_token=" + token;
-			//body.debug("Facebook feeding object likes "+url);
+			body.debug("Facebook feeding object likes "+url);
 			out = callAPI(url);
+			body.debug("Facebook feeding object likes response "+out);
 			JsonReader jsonReader = Json.createReader(new StringReader(out));
 			JsonObject json = jsonReader.readObject();
 			JsonObject summary = json.getJsonObject("summary");
@@ -135,7 +117,7 @@ class Feeder extends SocialFeeder {
 			body.error("Facebook feeding object likes error "+out,e);
 		}
 		return new Object[]{new Boolean(user_likes),new Integer(like_count)};
-	}
+	}*/
 	
 	public void getComment(JsonObject comment,Date time){
 		JsonObject from = comment.getJsonObject("from");
@@ -173,18 +155,18 @@ class Feeder extends SocialFeeder {
 		String description = FB.getJsonString(item,"description");//in the origin of the post
 		String time = FB.getJsonString(item,"created_time");//"created_time": "2015-12-01T18:20:49+0000",
 		Date times = Time.time(time,TIME_FORMAT);
-		String id = FB.getJsonString(item,"id");
+		//String id = FB.getJsonString(item,"id");
 		String url = FB.getJsonString(item,"permalink_url");//link to Facebook post
 		String link = FB.getJsonString(item,"link");//may be facebook link, use if if no link found in the message
 		String text = message != null ? message : description;
 //TODO: if no text, and link is not to FB, get text from URL!?
 
-//TODO: fix getting likes avoiding being blocked out 		
-		Object[] likeInfo = getLikes(id,times);
-		Boolean like = (Boolean)likeInfo[0]; 
-		Integer likes = (Integer)likeInfo[1]; 
-		//Boolean like = new Boolean(false); 
-		//Integer likes = new Integer(0); 
+//TODO: amputated given discontinued support from Facebook; look for workardound?		
+		//Object[] likeInfo = getLikes(id,times);
+		//Boolean like = (Boolean)likeInfo[0]; 
+		//Integer likes = (Integer)likeInfo[1]; 
+		Boolean like = new Boolean(false); 
+		Integer likes = new Integer(0); 
 
 //TODO: remove if not supported anymore or fix!?
 		JsonObject commentsObject = item.getJsonObject("comments");//who commented on this

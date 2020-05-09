@@ -90,7 +90,7 @@ public class VK extends Socializer {
 		super(body);
 		this.appId = appId;
 		this.appSecret = appSecret;
-		this.reader = new HttpFileReader();
+		this.reader = new HttpFileReader(body);
 	}
 
 	//TODO:@Override

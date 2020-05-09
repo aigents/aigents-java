@@ -76,7 +76,7 @@ public class Discourse extends SocialCacher {
 		super(body,name,url);
 		this.appId = appId;
 		this.appSecret = appSecret;
-		this.reader = new HttpFileReader();
+		this.reader = new HttpFileReader(body);
 	}
 
 	@Override

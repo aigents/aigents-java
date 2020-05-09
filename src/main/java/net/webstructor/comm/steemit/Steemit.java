@@ -174,7 +174,7 @@ public class Steemit extends SocialCacher {
 		super(body,name,url);
 		//this.name = name;
 		//this.url = body != null ? body.self().getString(name+" url",url) : url;
-		this.reader = new HttpFileReader();
+		this.reader = new HttpFileReader(body);
 		base_url = base_url(provider());
 	}
 
