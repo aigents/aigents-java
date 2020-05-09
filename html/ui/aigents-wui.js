@@ -1371,7 +1371,7 @@ function sites_update(string) {
 //--- News --- 
 var news_data = [];
 var news_keys = ["sources", "text", "times"];
-var news_names = ["relevance", "social relevance", "sources", "text", "times", "trust","image","is"];
+var news_names = ["relevance", "social relevance", "sources", "text", "times", "trust", "image", "is", "sentiment"];
 
 var loading_bits = 0;
 function loading(start,bit){
@@ -1387,7 +1387,7 @@ function loading(start,bit){
 
 function news_refresh(filter) {
 	loading(true,1);
-	requestBase("#news_list","What new true sources, text, times, trust, relevance, social relevance, image, is?",true,
+	requestBase("#news_list","What new true sources, text, times, trust, relevance, social relevance, image, is, sentiment?",true,
 			function(){loading(false,1)},function(){loading(false,1)});
 	$('#news_input').val(filter ? filter : '');
 }
@@ -1612,6 +1612,7 @@ function news_init(list,data,filter) {
 		var times = data[i][4];
 		var trust = data[i][5];
 		var image = data[i][6];
+		var sentiment = data[i][8];
 		if (filter && !(contains_insensitive(sources,filter) || contains_insensitive(text,filter) || contains_insensitive(times,filter)))
 			continue;
 		check = $('<input class="news_check" type="checkbox" '+(trust ? 'checked' : '')+'/>');
@@ -1653,8 +1654,11 @@ function news_init(list,data,filter) {
 			.append('</div>');
 			*/
 
-		var positive = posneg[i][0];
-		var negative = posneg[i][1];
+		//var positive = posneg[i][0];
+		//var negative = posneg[i][1];
+		var positive = sentiment && sentiment > 0 ? +sentiment : 0;
+		var negative = sentiment && sentiment < 0 ? -sentiment : 0;
+		console.log(relevance + "/"+social_relevance+"/"+positive+"/"+negative+":"+text)
 		
 		var all_relevances = relevance + social_relevance + positive + negative;//full bar size
 		var personal_p = Math.round(100 * relevance / (relevance + social_relevance)); 

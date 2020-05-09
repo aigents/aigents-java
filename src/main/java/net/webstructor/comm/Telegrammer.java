@@ -184,9 +184,9 @@ public class Telegrammer extends Mediator {
 		long offset = -1;
 		JsonReader jr = Json.createReader(new StringReader(response));
 		JsonObject result = jr.readObject();
-		if (HTTP.getJsonBoolean(result, "ok", false)){
-			JsonArray items = HTTP.getJsonArray(result,"result");
-			if (items != null) for (int i = 0; i < items.size(); i++){
+		JsonArray items;
+		if (HTTP.getJsonBoolean(result, "ok", false) && (items = HTTP.getJsonArray(result,"result")) != null && items.size() > 0){
+			for (int i = 0; i < items.size(); i++){
 				JsonObject o = items.getJsonObject(i);
 				long update_id = HTTP.getJsonLong(o,"update_id",-1);
 				if (update_id == -1)
@@ -306,10 +306,9 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 
             	body.conversationer.handle(this, session, text);
 			}
+			if (telegram != null)//auto-save updated graph, if modified
+				telegram.save();
 		}
-		
-		if (telegram != null)//auto-save updated graph, if modified
-			telegram.save();
 		return offset;
 	}
 	
@@ -427,7 +426,4 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 		return false;
 	}
 	
-	/*public static void main(String args[]) {
-		System.out.println(getMentions("@A1 @A2,@a3ъ@a4 @a_5;@a06      @a_____7-@a8"));
-	}*/
 }

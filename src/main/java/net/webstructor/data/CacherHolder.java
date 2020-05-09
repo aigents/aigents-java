@@ -74,10 +74,18 @@ public class CacherHolder {
 		}
 //TODO: do this by reverse-LRU, so the recently used ones are released in the last turn
 		for (Object o : all) {
-			env.debug("Selfer free "+o+", memory "+env.checkMemory());
-			((Cacher)cachers.get(o)).free();
-			if (env.checkMemory() < GraphCacher.MEMORY_THRESHOLD)
-				break;
+			env.debug("Cacher free "+o+", memory "+env.checkMemory());
+			Cacher c;
+			synchronized (cachers){
+				c = (Cacher)cachers.get(o);
+			}
+			if (c == null)
+				env.error("Cacher free "+o+" error",null);
+			else
+				c.free();
+//TODO: use LOWER_MEMORY_THRESHOLD < UPPER_MEMORY_THRESHOLD
+			//if (env.checkMemory() < GraphCacher.MEMORY_THRESHOLD)
+				//break;
 		}
 	}
 	

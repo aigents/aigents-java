@@ -238,7 +238,7 @@ class Conversation extends Mode {
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,new String[] {"think","thinking"}))) {
-			Peer.trashPeerNews(session.sessioner.body,session.getStoredPeer());//this does think along the way!
+			Peer.rethink(session.sessioner.body,session.getStoredPeer());//this does think along the way!
 			session.output("Ok.");
 			return false;			
 		} else

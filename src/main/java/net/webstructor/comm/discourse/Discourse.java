@@ -89,10 +89,10 @@ public class Discourse extends SocialCacher {
 	}
 	
 	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
-		if (AL.empty(uri))
+		String base_url;
+		if (AL.empty(uri) || AL.empty(base_url = HttpFileReader.getSite(uri)))
 			return -1;
 
-		String base_url = HttpFileReader.getSite(uri);
 		String api_url = body.self().getString(Body.discourse_url);
 		
 		boolean applies = false;

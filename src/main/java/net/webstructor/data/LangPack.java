@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,10 @@
 package net.webstructor.data;
 
 import net.webstructor.al.AL;
+import net.webstructor.al.Parser;
+import net.webstructor.al.Seq;
 import net.webstructor.core.Environment;
+import net.webstructor.main.Mainer;
 import net.webstructor.util.Array;
 
 /**
@@ -35,6 +38,8 @@ import net.webstructor.util.Array;
 public class LangPack {
 	Lang[] langs;
 	private Counter words = null; 
+	private Counter positives = null; 
+	private Counter negatives = null; 
 	
 	public LangPack(Environment env){
 		
@@ -88,8 +93,23 @@ public class LangPack {
 		return null;
 	}
 	
+	Counter loadCounter(Environment env, Counter counter, String type, String language){
+		//String path = "lexicon_"+langs[l].name+".txt";
+		String path = type+"_"+language+".txt";
+		Counter c = new Counter(env,path,"[\t]",new Integer(1));//load counter from file
+		if (!AL.empty(c)){
+			c.normalize();//normalize counter to [1..100]
+			if (AL.empty(counter))
+				counter = c;
+			else
+				counter.mergeMax(c);//TODO: mergeSum?
+		}
+		return counter;
+	}
+
 	void loadLexicon(Environment env){
 		for (int l = 0; l < langs.length; l++){
+			/*
 			String path = "lexicon_"+langs[l].name+".txt";
 			Counter c = new Counter(env,path);//load counter from file
 			if (!AL.empty(c)){
@@ -99,6 +119,10 @@ public class LangPack {
 				else
 					words.mergeMax(c);//TODO: mergeSum?
 			}
+			*/
+			words = loadCounter(env, words, "lexicon", langs[l].name);
+			positives = loadCounter(env, positives, "lexicon_positive", langs[l].name);
+			negatives = loadCounter(env, negatives, "lexicon_negative", langs[l].name);
 		}
 	}
 	
@@ -128,6 +152,7 @@ public class LangPack {
 		//TODO: move dash check to parser or replace dashes with scrubsymbols?
 		if (Array.containsOnly(s, AL.dashes))
 			return true;
+//TODO: hashtable
 		for (int l = 0; l < langs.length; l++)
 			if (Array.contains(langs[l].scrubs,s))
 				return true;
@@ -163,6 +188,38 @@ public class LangPack {
 		return trim(sb.toString());
 	}
 	
+	
+//TODO N-grams	
+	double sentiment(Counter base, Seq seq) {
+		if (base == null || AL.empty(seq))
+			return 0;
+		double cnt = 0;
+		double sum = 0;
+		for (int i = 0; i < seq.size(); i++) {
+			String w = (String)seq.get(i);
+			if (scrub(w))
+				continue;
+			cnt++;
+			if (base.get(w) != null)
+				sum++;
+		}
+		return cnt == 0 ? 0 : sum / seq.size();
+	}
+	
+	/*
+	public ComplexNumber sentiment(String input) {
+		Seq seq = Parser.parse(input);
+		return new ComplexNumber(sentiment(positives, seq), sentiment(negatives, seq));
+	}
+	*/
+	public int[] sentiment(String input) {
+		Seq seq = Parser.parse(input);
+		double p = sentiment(positives, seq);
+		double n = sentiment(negatives, seq);
+		double max = Math.max(p, n);
+		return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100/max)};
+	}
+	
 	//TODO: this properly (now it is just a hack)
 	//TODO: use either MapMap from Aigents Core, or Properties from SpaceWork, or Locale Maps from Aigents UI
 	//TODO: ideally, this should be configurable with language-specific self properties (its phraseo-lexicon)
@@ -182,7 +239,21 @@ public class LangPack {
 		System.out.println(trim("aa-"));
 		System.out.println(trim("-a-a-"));
 		System.out.println(trim("--a-a--"));
-		System.out.println(trim("--a-a--"));
+
+		
+		LangPack lp = new LangPack(new Mainer()); 
+		System.out.println(lp.sentiment("you are good man")[2]);
+		System.out.println(lp.sentiment("you are good man in good company")[2]);
+		System.out.println(lp.sentiment("you are bad man")[2]);
+		System.out.println(lp.sentiment("you are bad man in good company")[2]);
+		System.out.println(lp.sentiment("you are nice good man in bad company")[2]);
+		System.out.println(lp.sentiment("you are good man in sadly bad company")[2]);
+		System.out.println(lp.sentiment("ты хороший")[2]);
+		System.out.println(lp.sentiment("ты хороший и милый")[2]);
+		System.out.println(lp.sentiment("ты негодяй")[2]);
+		System.out.println(lp.sentiment("ты милый негодяй")[2]);
+		System.out.println(lp.sentiment("ты хороший и милый негодяй")[2]);
+		System.out.println(lp.sentiment("ты хороший подлец и негодяй")[2]);
 	}
 }
 

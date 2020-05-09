@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,6 +58,9 @@ public class Counter extends HashMap implements Linker {
 		count(other);
 	}
 	public Counter(Environment env, String path) {
+		this(env,path,"[ \t]",null);
+	}
+	public Counter(Environment env, String path, String splitRegExp, Integer def) {
 		File file = env != null ? env.getFile(path) : new File(path);
 		if (!file.exists() || !file.isFile() || !file.canRead())
 			return;
@@ -70,27 +73,24 @@ public class Counter extends HashMap implements Linker {
 					line = reader.readLine();
 					if (line == null)
 						break;
-					String pair[] = line.split("[ \t]");
-					if (!AL.empty(pair) && pair.length == 2 && !AL.empty(pair[0]) && !AL.empty(pair[1])){
+					String pair[] = line.split(splitRegExp);//was [ \t], but lexicon loader will use [\t] to keep phrases
+					if (!AL.empty(pair) && !AL.empty(pair[0]) && ((pair.length > 1 && !AL.empty(pair[1])) || def != null)){
 						String key = pair[0].toLowerCase().trim();
-						Integer val = Integer.valueOf(pair[1].trim());
+						Integer val = pair.length > 1 && !AL.empty(pair[1]) ? Integer.valueOf(pair[1].trim()) : def;
 						put(key,val);
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					env.error("Counter error loading"+path, e);
 					break;
 				}
 			}
 			try {
 				reader.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				env.error("Counter error closing"+path, e);
 			}
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			env.error("Counter error finding "+path, e1);
 		}
 	}
 	//TODO:fix to round properly!!!

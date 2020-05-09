@@ -53,7 +53,7 @@ class SyncLong {
 public class Selfer extends Thread {
 	private static final long DEFAULT_STORE_CYCLE_MS = Period.MINUTE;
 	private static final long DEFAULT_FORGET_CYCLE_MS = Period.DAY / 4;
-	public final static long MIN_CHECK_CYCLE_MS = 3 * Period.HOUR;
+	public final static long MIN_CHECK_CYCLE_MS = 2 * Period.HOUR;
 
 	Body body;
 	Spider spider;
@@ -156,6 +156,7 @@ public class Selfer extends Thread {
 			body.debug("Selfer forgetting start "+new Date(start_time)+".");
 			
 //TODO make MEMORY_THRESHOLD parameter of body/self
+//TODO built-into cacheholder?
 			int memory = body.checkMemory();
 			if (body.checkMemory() > GraphCacher.MEMORY_THRESHOLD) {
 				body.cacheholder.free();
@@ -238,7 +239,7 @@ public class Selfer extends Thread {
 							body.updateStatusRarely();
 							long end_time = System.currentTimeMillis();
 							body.debug("Social crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
-						} catch (Exception e) {
+						} catch (Throwable e) {
 							body.error("Social crawling error :"+e.toString(),e);
 						}
 						next_profile_time.set( current_time + Period.HOUR * 24 );//TODO: make configurable
@@ -260,9 +261,6 @@ public class Selfer extends Thread {
 				}
 
 			} catch (Exception e) {
-//TODO cleanup
-e.printStackTrace();
-e.printStackTrace(System.err);
 				body.error("Selfer error (" + e.toString() + ")",e);
 			}
 		}//while

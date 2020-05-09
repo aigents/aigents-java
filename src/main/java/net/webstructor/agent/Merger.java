@@ -54,16 +54,12 @@ public class Merger {
 			Collection twins = storager.get(thing,Schema.keys);
 			if (AL.empty(twins)) { //must have at least itself
 				//throw new Mistake("no thing for "+Writer.toString(thing));
-//System.out.println(thing+" : 0 - ERROR!");//TODO:clear				
 				continue;//TODO: what if no keys for merging?			
 			} else
 			if (twins.size() == 1) { //itself
-//System.out.println(thing+" : 1 - SAME");//TODO:clear				
 				continue;
 			} else {
 				;
-//if (thing.toString().indexOf("name aigents") != -1)
-//System.out.println(thing+" : "+twins);//TODO:clear				
 			}
 			
 			//TODO:ensure only couple twins can appear and not multiple
@@ -81,7 +77,6 @@ public class Merger {
 			}
 			if (lucky == null) {
 				//TODO: can't happen under normal conditions!
-//System.out.println("NO NATIVE FOR MERGE+"+thing);//TODO:clear	
 				lucky = (Thing)twins.iterator().next();//mere left to the first
 			}
 
@@ -182,8 +177,6 @@ public class Merger {
 					body.debug("NOT DELETED: "+twin);//TODO:clear	
 			}
 		}		
-		//int remains = getThings().size();
-		//System.out.println("FINAL:"+present+"-"+translations+"="+remains);
 	}
 	
 	

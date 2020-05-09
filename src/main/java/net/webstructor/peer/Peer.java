@@ -261,7 +261,7 @@ public class Peer extends Agent {
 	}
 
 	//TODO: do this in same place with Self.clear(body,peer)
-	public static void trashPeerNews(Body body, Thing peer){
+	public static void rethink(Body body, Thing peer){
 		body.debug("Thinking peer "+peer.getString(AL.email)+".");
 		int news_limit = StringUtil.toIntOrDefault(peer.getString(Peer.news_limit),10,10);
 		Collection origins = body.storager.getNamed(Body.ORIGINSITE);
@@ -366,6 +366,8 @@ public class Peer extends Agent {
 					peer.delThing(AL.news, n);
 			}
 		}
+
+		assignSentiments(body,peer);//TODO: in other place, make sure how it works on mobiles
 		
 		//assing images fo imageless news items for paid users
 		assignImages(body,peer);//TODO: in other place, make sure how it works on mobiles
@@ -408,6 +410,23 @@ public class Peer extends Agent {
 	public static boolean paid(Thing peer) {
 		Date term = peer.getDate(Peer.paid_term, null);
 		return term == null || term.compareTo(Time.today()) < 0 ? false : true;
+	}
+	
+	public static void assignSentiments(Body body, Thing peer) {
+		Collection news = (Collection)peer.getThings(AL.news);
+		if (news != null) for (Object t : news)
+			assignSentiment(body, (Thing) t);
+	}
+
+	public static void assignSentiment(Body body, Thing thing) {
+		if (thing.getString(AL.sentiment) == null) {//do repeated image searches only for non-searched missed images
+			String text = thing.getString(AL.text);
+			if (!AL.empty(text)) {
+				int[] pns = body.languages.sentiment(text);
+				int s = pns[2];
+				thing.set(AL.sentiment, String.valueOf(s));
+			}
+		}
 	}
 	
 	public static void assignImages(Body body, Thing peer) {

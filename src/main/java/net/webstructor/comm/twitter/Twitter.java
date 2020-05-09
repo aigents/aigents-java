@@ -42,96 +42,25 @@ import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.data.LangPack;
-import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
-import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Reporter;
 import net.webstructor.util.Str;
 
-
-class Twit {
-	Date created_at;
-	String id_str;
-	String in_reply_to_status_id_str;
-	String in_reply_to_user_id_str;
-	String in_reply_to_screen_name;
-	String text;
-	String lang;
-	int retweet_count;
-	int favorite_count;
-	boolean retweeted;
-	boolean favorited;
-	String user_id_str = null;
-	String user_name = null;
-	String user_screen_name = null;
-	String user_profile_image = null;
-	String url;
-	int score;
-	boolean scored;
-	OrderedStringSet links = new OrderedStringSet();
-	OrderedStringSet media = new OrderedStringSet();
-	String image = null;
-
-	public Twit(JsonObject tweet) {
-		created_at = Time.time(JSON.getJsonString(tweet,"created_at"),"E MMM dd HH:mm:ss Z yyyy");//Mon May 04 06:06:10 +0000 2020
-		id_str = JSON.getJsonString(tweet, "id_str");
-		in_reply_to_status_id_str = JSON.getJsonString(tweet, "in_reply_to_status_id_str");
-		in_reply_to_user_id_str = JSON.getJsonString(tweet, "in_reply_to_user_id_str");
-		in_reply_to_screen_name = JSON.getJsonString(tweet, "in_reply_to_screen_name");
-		text = tweet.containsKey("full_text") ? JSON.getJsonString(tweet, "full_text") : JSON.getJsonString(tweet, "text");
-		lang = JSON.getJsonString(tweet, "lang");
-		retweet_count = JSON.getJsonInt(tweet, "retweet_count");
-		favorite_count = JSON.getJsonInt(tweet, "favorite_count");
-		retweeted = JSON.getJsonBoolean(tweet, "retweeted", false);
-		favorited = JSON.getJsonBoolean(tweet, "favorited", false);
-		JsonObject user = JSON.getJsonObject(tweet, "user");
-		if (user != null) {
-			user_id_str = JSON.getJsonString(user, "id_str");
-			user_name = JSON.getJsonString(user, "name");
-			user_screen_name = JSON.getJsonString(user, "screen_name");
-			user_profile_image = JSON.getJsonString(user, "profile_image_url_https");
-		}
-		JsonObject ent = JSON.getJsonObject(tweet, "entities");
-		if (ent != null) {
-			JsonArray urls = JSON.getJsonArray(ent, "urls");
-			if (urls != null) for (int u = 0; u < urls.size(); u++) {
-				JsonObject o = urls.getJsonObject(u);
-				if (o != null) {
-					String url = JSON.getJsonString(o, "expanded_url");
-					if (AL.empty(url))
-						url = JSON.getJsonString(o, "url");
-					if (!AL.empty(url))
-						this.links.add(url);
-				}
-			}
-			JsonArray media = JSON.getJsonArray(ent, "media");
-			if (media != null) for (int m = 0; m < media.size(); m++) {
-				JsonObject o = media.getJsonObject(m);
-				if (o != null) {
-					String url = JSON.getJsonString(o, "media_url_https");
-					if (AL.empty(url))
-						url = JSON.getJsonString(o, "expanded_url");//TODO media_url?
-					if (!AL.empty(url))
-						this.media.add(url);
-				}
-			}
-		}
-		url = String.format("https://twitter.com/%s/status/%s", user_screen_name, id_str);//https://twitter.com/aigents/status/1257358818285142018
-		score = favorite_count - (favorited ? 1 : 0) + retweet_count - (retweeted ? 1 : 0);
-		scored = favorited | retweeted;
-		OrderedStringSet image_candidates = !AL.empty(media) ? media : links;
-		for (int l = 0; l < image_candidates.size(); l++) {
-			String link = (String)image_candidates.get(l);
-			if (AL.isIMG(link)) {
-				image = link;
-				break;
-			}
-		}
-	}
-}
+/*
+https://developer.twitter.com/en/docs/basics/rate-limiting															Limit per 15 min
+https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline						900-1500
+https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-home_timeline						15
+https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-mentions_timeline					75
+https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-list		15
+https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-list	15
+https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-favorites-list						75
+https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-statuses-retweets_of_me				75
+https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-statuses-retweeters-ids				75-300
+https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-statuses-retweets-id					75-300
+ */
 
 class TwitterFeeder extends SocialFeeder {
 	Twitter api;
@@ -163,6 +92,10 @@ class TwitterFeeder extends SocialFeeder {
 				new String [] {"include_rts","true"}
 			};
 			String result = Twitterer.request("https://api.twitter.com/1.1/statuses/user_timeline.json","GET",params,api.consumer_key,api.consumer_key_secret,token,token_secret);
+			if (AL.empty(result) || !result.startsWith("[")) {
+				body.error("Twitter crawling error "+id+" response "+result,null);
+				return;
+			}
 			body.debug("Twitter crawling "+id+" response "+result);
 			JsonReader jsonReader = Json.createReader(new StringReader(result));
 			JsonArray tweets = jsonReader.readArray();
@@ -176,7 +109,13 @@ class TwitterFeeder extends SocialFeeder {
 				
 				//getUser(t.user_id_str,t.user_name,t.user_screen_name,t.user_profile_image);
 				getUser(t.user_id_str,t.user_screen_name);
-				
+
+//TODO: consider rate limits
+//https://developer.twitter.com/en/docs/basics/rate-limiting
+
+//TODO: count retweets as likes
+//https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-statuses-retweets_of_me
+
 //TODO: count likes/comments cached in graph on the following data being crawlied daily as SocailGrapher
 //- get followers
 //https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-list
@@ -208,7 +147,7 @@ class TwitterFeeder extends SocialFeeder {
 				
 			}
 		} catch (Exception e) {
-			body.error("Twitter crawling "+id+" error",e);
+			body.error("Twitter crawling error "+id,e);
 		}
 	}
 }
@@ -248,9 +187,9 @@ public class Twitter extends Socializer {
 		return peer.getString(Body.twitter_token_secret);
 	}
 
-	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
+	public int readChannel(String url, Collection topics, MapMap thingPathsCollector){
 		String screen_name;
-		if (AL.empty(uri) || AL.empty(screen_name = Str.parseBetween(uri, content_url, null, false)) || AL.empty(consumer_key) || AL.empty(consumer_key_secret))
+		if (AL.empty(url) || AL.empty(screen_name = Str.parseBetween(url, content_url, "/", false)) || AL.empty(consumer_key) || AL.empty(consumer_key_secret))
 			return -1;
 		String token = body.getSelf().getString(Body.twitter_token);
 		String token_secret = body.getSelf().getString(Body.twitter_token_secret);
@@ -271,6 +210,10 @@ public class Twitter extends Socializer {
 				new String [] {"include_rts","true"}
 			};
 			String result = Twitterer.request("https://api.twitter.com/1.1/statuses/user_timeline.json","GET",params,consumer_key,consumer_key_secret,token,token_secret);
+			if (AL.empty(result) || !result.startsWith("[")) {
+				body.error("Twitter crawling error "+screen_name+" response "+result,null);
+				return 0;
+			}
 			body.debug("Twitter crawling "+screen_name+" response "+result);
 			JsonReader jsonReader = Json.createReader(new StringReader(result));
 			JsonArray tweets = jsonReader.readArray();
@@ -288,7 +231,7 @@ public class Twitter extends Socializer {
 			}
 			return matches;
 		} catch (Exception e) {
-			body.error("Twitter crawling "+screen_name+" error",e);
+			body.error("Twitter crawling error "+screen_name,e);
 		}
 		return -1;
 	}

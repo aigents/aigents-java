@@ -268,7 +268,7 @@ public class Farm extends Body {
 						Thing peer = (Thing)it.next();
 						Date activityTime = (Date)peer.get(Peer.activity_time);
 						if (activityTime != null && activityTime.compareTo(since) >= 0){
-							Peer.trashPeerNews(Farm.this,peer);//this does think along the way!
+							Peer.rethink(Farm.this,peer);//this does think along the way!
 						}
 					}
 				}
@@ -292,8 +292,18 @@ public class Farm extends Body {
 		// update all social cachers which have reputationers, except the default one updated right above 
 		for (Socializer s : this.getSocializers()) if (s instanceof SocialCacher) {
 			String name = s.provider();
-			if (!name.equals(network))
+			if (!name.equals(network)) {
+
+//TODO make MEMORY_THRESHOLD parameter of body/self
+//TODO built-into cacheholder?
+				int memory = checkMemory();
+				if (checkMemory() > GraphCacher.MEMORY_THRESHOLD) {
+					cacheholder.free();
+					debug("Selfer free, memory "+memory+" to "+checkMemory());
+				}
+
 				updateReputation(name);
+			}
 		}
 		return res;
 	}
@@ -437,7 +447,7 @@ public class Farm extends Body {
 			    public void run() {
 			    	updateStatus(peer, profilers, true);//have to be fresh
 			    	//thinker.think(peer);
-					Peer.trashPeerNews(Farm.this,peer);//this does think along the way!
+					Peer.rethink(Farm.this,peer);//this does think along the way!
 			    }
 			};
 			//TODO: all threads for profiles and spidereres to be run under the same Executor with given number of threads in the pool 
