@@ -4325,7 +4325,6 @@ wall
 wallop
 wan
 wanness
-want
 wanting
 wanton
 war
