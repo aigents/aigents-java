@@ -36,6 +36,7 @@ import java.util.StringTokenizer;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
+import net.webstructor.cat.StringUtil;
 import net.webstructor.peer.Session;
 import net.webstructor.util.Str;
 
@@ -90,7 +91,6 @@ public class HTTPeer extends Communicator
 	
 	//http://stackoverflow.com/questions/10687358/java-socket-inputstream-read-returns-1-always-just-before-end
 	private String inputHeader(StringBuilder request) throws Exception {
-	      //StringBuilder request = new StringBuilder(input_max);
 	      boolean end = false;
 	      for (;;) {
 	        int c = in.read();
@@ -98,7 +98,7 @@ public class HTTPeer extends Communicator
 	        	break;
 	        if (c == '\r') {
 	        	if (in.read() != '\n')
-	        		throw new Exception("Wrong HTTP request");
+	        		throw new Exception("Wrong HTTP request "+StringUtil.first(request.toString(),100));
 	        	request.append("\r\n");
 	        	if (end)
 	        		break;//end of header - double \r\n emplty line

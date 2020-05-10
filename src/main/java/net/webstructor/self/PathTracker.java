@@ -55,7 +55,6 @@ public class PathTracker extends PathFinder {
 				if (!(set instanceof Seq))
 					set = new Seq(new Object[]{set});
 				//TODO: consider splitting multiple paths in path set into many
-//System.out.println(Writer.toString(new StringBuilder(),set,true));
 				if (run(path,(Seq)set))
 					return true;
 				//check results (wait for spawned threads, if any)

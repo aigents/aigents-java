@@ -254,6 +254,8 @@ public class LangPack {
 		System.out.println(lp.sentiment("ты милый негодяй")[2]);
 		System.out.println(lp.sentiment("ты хороший и милый негодяй")[2]);
 		System.out.println(lp.sentiment("ты хороший подлец и негодяй")[2]);
+		
+		System.out.println(lp.sentiment("now american voters want bernie sanders to be “vice president”")[2]);
 	}
 }
 

@@ -413,7 +413,7 @@ public class Peer extends Agent {
 	}
 	
 	public static void assignSentiments(Body body, Thing peer) {
-		Collection news = (Collection)peer.getThings(AL.news);
+		Collection news = (Collection)peer.getThingsClone(AL.news);
 		if (news != null) for (Object t : news)
 			assignSentiment(body, (Thing) t);
 	}
@@ -432,7 +432,7 @@ public class Peer extends Agent {
 	public static void assignImages(Body body, Thing peer) {
 		if (!paid(peer))
 			return;
-		Collection news = (Collection)peer.getThings(AL.news);
+		Collection news = peer.getThingsClone(AL.news);
 		if (news != null) for (Object t : news)
 			assignImage(body, (Thing) t);
 	}

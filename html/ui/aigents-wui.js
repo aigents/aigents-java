@@ -1566,7 +1566,7 @@ function get_expression(text, words) {
 	return findings;
 }
 
-//111
+/*
 var positive_words = ['agreements', 'accepts', 'addressing', 'addresses', 'addressed', 'better', 'can help', 'consulting', 'create new', 'donate', 'enable', 'helping', 'super', 'offer', 'free', 'publish', 'good', 'launch', 'leverage', 'invest', 'interesting', 'number one', 'excellent', 'encourage', 'set up', 'partner', 'popular', 'power', 'privacy', 'popularised', 'released', 'support', 'signed', 'grown into', 'largest', 'easier', 'generate', 'provided', 'roundtable', 'enabled', 'planning', 'set-up', 'built', 'great', 'include', 'ubiquitous', 'unveiled', 'using'];
 var negative_words = ['accident', 'cheat', 'criticize', 'criticizm', 'block', 'bug', 'defiant', 'deficit', 'disinformation', 'censor', 'ban', 'emergency', 'false', 'failed', 'fallout', 'fight', 'hacked', 'lose', 'remove', 'sabotage', 'shut ', 'suspend', 'manipulate', 'outage', 'worse', 'scammer', 'silence', 'mistake', 'worse', 'concern', 'bad',  'pandemic', 'pandemy', 'slammed', 'slamming', 'slighted', 'disable', 'violence', 'war'];
 
@@ -1590,7 +1590,8 @@ function getEmotions(data,text_pos){
 		emotions[i][1] = emotions[i][1] * 100 / maxneg;
 	return emotions;
 }
-///////////////////////////////////////TODO: move this out: 1) to separate file, 2) to backend using webmine classifier 
+///////////////////////////////////////TODO: move this out: 1) to separate file, 2) to backend using webmine classifier
+*/ 
 
 
 function news_init(list,data,filter) {
@@ -1599,7 +1600,7 @@ function news_init(list,data,filter) {
 		data[i][1] = AL.toNumber(data[i][1]);
 	}
 
-	var posneg = getEmotions(data,3);//TODO: move this to backend!?
+	//var posneg = getEmotions(data,3);//TODO: moved to backend, remove
 	
 	news_data.sort(news_data_sort);//TODO:remove sort from other places?
 	$(list).empty();

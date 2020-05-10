@@ -56,6 +56,7 @@ import net.webstructor.core.Thing;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.SocialCacher;
+import net.webstructor.comm.Socializer;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
@@ -367,7 +368,12 @@ public class Steemit extends SocialCacher {
 
 	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {
 		String caps_name = Writer.capitalize(api_name);
-		GraphCacher grapher = new GraphCacher(api_name,env);
+
+//get cacher from env!!!
+		//GraphCacher grapher = new GraphCacher(api_name,env);
+		Socializer socializer = env instanceof Body ? ((Body)env).getSocializer(api_name) : null;
+		GraphCacher grapher = socializer instanceof SocialCacher ? ((SocialCacher)socializer).getGraphCacher() : new GraphCacher(api_name,env);
+
 		String site = base_url(api_name);
 		DataLogger logger = new DataLogger(env,Writer.capitalize(api_name)+" crawling");
 		long time_start = System.currentTimeMillis();

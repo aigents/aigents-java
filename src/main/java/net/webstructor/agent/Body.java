@@ -61,7 +61,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.5.7";
+	public final static String VERSION = "2.5.9";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -388,17 +388,10 @@ public abstract class Body extends Anything implements Environment, Updater
 	}
 	
 	public synchronized void error(String str,Throwable e) {
-		if (e != null){
-			/*
-			StringWriter errors = new StringWriter();
-			PrintWriter pw = new PrintWriter(errors);
-			print(pw,e);
-			pw.flush();
-			errors.flush();
-			str = str+":"+errors.toString();
-			*/
+		if (e != null)
 			str = str + (e instanceof OutOfMemoryError ? ", memory "+checkMemory() : "") + ":" + toString(e);
-		}
+		else
+			str = str + toString(new Throwable());
 		output("E:"+str);
 		System.err.println((new Date()).toString()+":"+str);
 	}

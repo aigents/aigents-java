@@ -255,7 +255,6 @@ public class Twitterer extends SocialBinder implements HTTPHandler {
 		String signature = sign_request(method,url,forsign,сonsumer_secret,oauth_token_secret);
 		String[][] oauth_data = Array.add(oauth, new String[][] {{"oauth_signature",signature}});
 		String oauth_header = create_oauth_header_string(oauth_data);
-		System.out.println(oauth_header);
 		
 		String params_string = create_params(params);
 		

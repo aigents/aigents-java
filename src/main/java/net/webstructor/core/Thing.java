@@ -440,6 +440,14 @@ public class Thing extends Anything { // implements ORObject
 		return null;
 	}
 
+	public final Collection getThingsClone(String name) {
+		Object o = get(name);
+		if (o != null && o instanceof Collection) synchronized (o) {
+			return new ArrayList((Collection)o);
+		}
+		return null;
+	}
+
 	public final Anything set(String name,Object value) {
 		return set(name, value, null);
 	}
