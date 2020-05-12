@@ -181,13 +181,13 @@ Test contracts:
 				
 				if (key == null || !key.equals(new_key)){ 
 					if (pending_update){
-						body.debug("Ethereum graph saving for "+key+", age "+new Date((long)age)+" memory "+body.checkMemory());
+						body.debug("Ethereum graph saving for "+key+", age "+new Date((long)age)+", memory "+body.checkMemory());
 						api.updateGraph(key,graph,age);
 						pending_update = false;
 					}
 					key = new_key;
 					graph = api.getGraph(key);
-					body.debug("Ethereum graph loaded for "+key+", age "+new Date((long)graph.getAge())+" memory "+body.checkMemory());
+					body.debug("Ethereum graph loaded for "+key+", age "+new Date((long)graph.getAge())+", memory "+body.checkMemory());
 				}
 				if (age == 0)
 					age = timestamp_ms;
@@ -252,7 +252,7 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 				}//graph
 			}//blocks
 			if (graph != null && pending_update){
-				body.debug("Ethereum crawling graph saving for "+key+", age "+new Date((long)age)+" memory "+body.checkMemory());
+				body.debug("Ethereum crawling graph saving for "+key+", age "+new Date((long)age)+", memory "+body.checkMemory());
 				api.updateGraph(key,graph,age);
 			}
 			long stop = System.currentTimeMillis(); 
@@ -271,7 +271,7 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 		body.debug("Ethereum crawling graph for "+user_id);
 		
 		for (Date date = until; date.compareTo(since) >= 0; date = Time.date(date,-1)){
-			body.debug("Ethereum crawling graph at "+date+" memory "+body.checkMemory());
+			body.debug("Ethereum crawling graph at "+date+", memory "+body.checkMemory());
 			Graph graph = api.getGraph(date);
 			
 			if (graph == null)
@@ -312,7 +312,7 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 					}
 			}
 		}
-		body.debug("Ethereum crawling graph completed memory "+body.checkMemory());
+		body.debug("Ethereum crawling graph completed, memory "+body.checkMemory());
 	}
 
 }

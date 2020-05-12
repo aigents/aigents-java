@@ -518,7 +518,7 @@ function trusts_update(selector,string,values) {
 	if (AL.empty(string)) 
 		$(selector).empty();
 	else {
-		parseToGrid(values,string,["name", "trust", "relevance"],",");
+		parseToGrid(values,string,["name", "trust", "relevance", "positive", "negative"],",");
 		values.sort(trusts_data_sort);
 		trusts_init(selector,values);
 	}
@@ -786,7 +786,7 @@ function trusts_init(list,data,filter) {
 			continue;
 		var check = $('<input class="trust" type="checkbox"/ '+ (data[i][1]?'checked':'') +'>');
 		check.change(function(eventObject) {
-			var parent = $(this).parent().parent();
+			var parent = $(this).parent().parent().parent().parent();
 			var id = parent[0].id;
 			data[id][1] = this.checked;
  			//use data instead of element text because it may be escaped incorrectly
@@ -804,18 +804,48 @@ function trusts_init(list,data,filter) {
 	    	event.stopPropagation();
 	    	del_trusts(list,parent);
  		});
-		var relevance = data[i][2] ? data[i][2] : 0;
+		var relevance = data[i][2] ? +data[i][2] : 0; //+ for number
+		//var sentiment = data[i][2] ? +data[i][3] : 0;
+		//var positive = sentiment && sentiment > 0 ? +sentiment : 0;
+		//var negative = sentiment && sentiment < 0 ? -sentiment : 0;
+		var positive = data[i][3] ? +data[i][3] : 0;
+		var negative = data[i][4] ? +data[i][4] : 0;
+//console.log(positive+" "+negative+" "+text);
+//var relevance = i * 100 / (data.length - 1);
+//var positive = 100 - i * 100 / (data.length - 1);
+//var negative = i * 100 / (data.length - 1);
+		
+/*
 		//relevance by bar
 		var html = !AL.isURL(text) ?  '<span class="name">'+text+'</span>'
 				: $('<a class="name" href="'+text+'" target="_blank">').append(text).append('</a>');
 		var relevance = $('<div style="display:inline-block;overfow:visible;background-color:lightblue;width:'+relevance+'%;"/>')
 		.append(check)
 		.append(html);
+*/		
+		//relevance and sentiments by bar
+		var all_relevances = relevance + positive + negative;//full bar size
+		var two_relevances = relevance + positive;
+//TODO: same NaN fix for news relevances
+		var personal_p = two_relevances == 0 ? 0 : Math.round(100 * relevance / (two_relevances)); 
+		var positive_p = all_relevances == 0 ? 0 : Math.round(100 * (two_relevances) / all_relevances); 
+		var negative_p = Math.round(all_relevances / 3);
+		
+		var html = !AL.isURL(text) ?  '<span class="name">'+text+'</span>'
+				: $('<a class="name" href="'+text+'" target="_blank">').append(text).append('</a>');
+		var r1 = $('<div style="display:inline-block;overfow:visible;background-color:lightblue;width:'+personal_p+'%;"/>')
+		.append(check)
+		.append(html);
+		var r2 = $('<div style="display:inline-block;overfow:visible;background-color:lightgreen;width:'+positive_p+'%;"/>')
+		.append(r1);
+		var relevance = $('<div style="display:inline-block;overfow:visible;background-color:lightpink;width:'+negative_p+'%;"/>')
+		.append(r2);
+
 		var trusts_row = $('<li id='+i+' class="ui-widget-content">')
 		.append(del_button)
 		.append(relevance)
 		.append('</li>').appendTo(list);
-
+		
 		init_menu(list,data,1);
 		trusts_row.contextmenu(trusts_menu);
 		trusts_row.on("taphold",trusts_menu);
@@ -1200,7 +1230,7 @@ var things_data = [];
 
 function things_refresh() {
 	selected_thing_index = null;
-	requestBase("#things_list","What my topics name, trust, relevance?",true);
+	requestBase("#things_list","What my topics name, trust, relevance, positive, negative?",true);
 	$('#things_input').val('');
 }
 
@@ -1289,7 +1319,7 @@ var sites_data = [];
 
 function sites_refresh() {
 	selected_site_index = null;
-	requestBase("#sites_list","What my sites name, trust, relevance?",true);
+	requestBase("#sites_list","What my sites name, trust, relevance, positive, negative?",true);
 	$('#sites_input').val('');
 }
 
@@ -1659,7 +1689,7 @@ function news_init(list,data,filter) {
 		//var negative = posneg[i][1];
 		var positive = sentiment && sentiment > 0 ? +sentiment : 0;
 		var negative = sentiment && sentiment < 0 ? -sentiment : 0;
-		console.log(relevance + "/"+social_relevance+"/"+positive+"/"+negative+":"+text)
+		//222
 		
 		var all_relevances = relevance + social_relevance + positive + negative;//full bar size
 		var personal_p = Math.round(100 * relevance / (relevance + social_relevance)); 

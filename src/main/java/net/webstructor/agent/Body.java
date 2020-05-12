@@ -61,7 +61,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.5.9";
+	public final static String VERSION = "2.6.1";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -402,7 +402,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		long heapSize = Runtime.getRuntime().totalMemory();
 		long heapMaxSize = Runtime.getRuntime().maxMemory();
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
-		long remaining = Math.max(heapFreeSize, heapMaxSize - heapSize);
+		long remaining = Math.min(heapFreeSize, heapMaxSize - heapSize);
 		return (int) Math.round(((double)(heapMaxSize-remaining))/heapMaxSize*100);
 	}
 

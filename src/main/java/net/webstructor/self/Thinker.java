@@ -395,6 +395,55 @@ class PeerNewsSocialRelevancer extends PeerNewsRelevancer { // Reasoner {
 	}
 }
 
+class SentimentAggregator extends Reasoner {
+	int sign;
+	java.util.Set news;
+	
+	SentimentAggregator(Thinker thinker, Thing context, int sign) {
+		super(thinker, context);
+		this.sign = sign;
+		news = (java.util.Set)context.getThings(AL.news);
+	}
+
+	@Override
+	Linker getLinker() {
+		Counter relevancesTopics = getCounter(AL.topics,AL.is);
+		Counter relevancesSites = getCounter(AL.sites,AL.sources);
+		relevancesTopics.mergeMax(relevancesSites);
+		return relevancesTopics;
+	}
+
+	Counter getCounter(String userProperyName, String newsPropertyName) {
+		Counter relevances = new Counter();
+		Collection classes = context.getThings(userProperyName);
+		if (!AL.empty(news) && !AL.empty(classes)) for (Object cls : classes){
+			Thing thing = (Thing)cls;
+			//String name = thing.getName();
+			//if ("biden".equals(name) || "appeal".equals(name))
+			//	System.out.println(name);
+			double cnt = 0;
+			double sum = 0;
+			Collection instances = thinker.body.storager.get(AL.is, thing);
+			if (!AL.empty(instances)) for (Object instance : instances){
+				if (!news.contains(instance))
+					continue;
+				Thing t = (Thing)instance;
+				int s = t.getInt(AL.sentiment, 9999999);
+				if (s != 9999999) if (sign == 0 || (sign < 0 && s <= 0) || (sign > 0 && s >= 0)) {
+					cnt++;
+					if (sign < 0)
+						sum -= s;
+					else
+						sum += s;
+				}
+			}
+			if (cnt > 0)
+				relevances.count(thing, sum/cnt);
+		}
+		//relevances.normalize();//don't re-normalize sentiment!?
+		return relevances;
+	}
+}
 
 //TODO: thread-safety
 /**
@@ -415,6 +464,12 @@ public class Thinker {
 			return new PeerNewsSocialRelevancer(this,context);
 		if (Peer.relevance.equals(thinkable))
 			return new PeerNewsRelevancer(this,context);
+		if (AL.positive.equals(thinkable))
+			return new SentimentAggregator(this,context,+1);
+		if (AL.negative.equals(thinkable))
+			return new SentimentAggregator(this,context,-1);
+		//if (AL.sentiment.equals(thinkable))
+		//	return new SentimentAggregator(this,context,0);
 		if ("feature".equals(thinkable))
 			return new TextFeaturer(this,context);
 		return null;
@@ -422,7 +477,7 @@ public class Thinker {
 	
 	//TODO: unify with either Schema.thinkables or this.getReasoner
 	String[] getThinkables(){
-		return new String[]{Peer.relevance,Peer.social_relevance};
+		return new String[]{Peer.relevance,Peer.social_relevance,AL.positive,AL.negative};
 	}
 	
 	//TODO: remove useless thoughts

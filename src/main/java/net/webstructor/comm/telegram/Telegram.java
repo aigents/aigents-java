@@ -57,7 +57,7 @@ class TelegramFeeder extends SocialFeeder {
 		body.debug("Telegram crawling graph for "+user_id);
 		
 		for (Date date = until; date.compareTo(since) >= 0; date = Time.date(date,-1)){
-			body.debug("Telegram crawling graph "+user_id+" at "+date+" memory "+body.checkMemory());
+			body.debug("Telegram crawling graph "+user_id+" at "+date+", memory "+body.checkMemory());
 			Graph graph = api.getGraph(date);
 			if (graph == null)
 				continue;//skip unknown dates
@@ -99,7 +99,7 @@ class TelegramFeeder extends SocialFeeder {
 					}
 			}
 		}
-		body.debug("Telegram crawling graph completed memory "+body.checkMemory());
+		body.debug("Telegram crawling graph completed, memory "+body.checkMemory());
 	}
 	
 }

@@ -153,7 +153,9 @@ public class Selfer extends Thread {
 	
 	public void forget(long start_time){
 		if (start_time >= next_forget_time) {	
-			body.debug("Selfer forgetting start "+new Date(start_time)+".");
+			body.debug("Selfer forgetting start "+new Date(start_time)+", memory "+body.checkMemory()+".");
+
+			Self.clear(body,Schema.foundation);
 			
 //TODO make MEMORY_THRESHOLD parameter of body/self
 //TODO built-into cacheholder?
@@ -163,9 +165,8 @@ public class Selfer extends Thread {
 				body.debug("Selfer free, memory "+memory+" to "+body.checkMemory());
 			}
 			
-			Self.clear(body,Schema.foundation);
 			long end_time = System.currentTimeMillis();
-			body.debug("Selfer forgetting stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+			body.debug("Selfer forgetting stop "+new Date(end_time)+", memory "+body.checkMemory()+", took "+new Period(end_time-start_time).toHours()+".");
 			next_forget_time = start_time + forget_cycle;
 		}
 	}

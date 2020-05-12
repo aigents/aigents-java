@@ -26,6 +26,9 @@ package net.webstructor.data;
 import java.util.Date;
 
 public interface Cacher { 
+	//TODO: make parameter
+	public static final int MEMORY_THRESHOLD = 85;
+	
 	public void clear(boolean everything, Date till);
 	public void free();
 }

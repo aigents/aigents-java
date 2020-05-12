@@ -266,8 +266,11 @@ public class Peer extends Agent {
 		int news_limit = StringUtil.toIntOrDefault(peer.getString(Peer.news_limit),10,10);
 		Collection origins = body.storager.getNamed(Body.ORIGINSITE);
 		Thing origin = AL.empty(origins) ? null : (Thing)origins.iterator().next();
+
+//TODO assigne sentiments as chained (pre-chained in given case in fact) thinking process relying on user custom sentiment models!?
+		assignSentiments(body,peer);//TODO: in other place, make sure how it works on mobiles
 		
- 		body.thinker.think(peer);
+		body.thinker.think(peer);
  		
 		//get unchecked daily news with relevance less than 100
 		//leave only MAX of them with topmost relevance or equal to the least relevance under MAX
@@ -367,8 +370,6 @@ public class Peer extends Agent {
 			}
 		}
 
-		assignSentiments(body,peer);//TODO: in other place, make sure how it works on mobiles
-		
 		//assing images fo imageless news items for paid users
 		assignImages(body,peer);//TODO: in other place, make sure how it works on mobiles
 	}

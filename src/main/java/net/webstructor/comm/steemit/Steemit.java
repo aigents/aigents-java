@@ -50,6 +50,7 @@ import net.webstructor.main.Mainer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
+import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
@@ -419,7 +420,7 @@ public class Steemit extends SocialCacher {
 				response = retryPost(env, api_url, par);
 				JsonReader res = Json.createReader(new StringReader(response));
 				JsonObject obj = res.readObject();
-				JsonObject result = obj.getJsonObject("result");
+				JsonObject result = JSON.getJsonObject(obj, "result");
 				if (result == null){//no result
 					env.debug(caps_name+" crawling block "+block+" no result:"+response);
 					//break;//no blocks anymore!?
