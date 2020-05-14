@@ -27,10 +27,6 @@ include_once("test_api.php");
 
 function test_reputation() {
 	login();
-	//TODO peer has format. my format json.
-	//TODO format as peer or session propery
-	say("peer has format.");
-	get("Ok.");
 	
 	say("reputation network testnet  clear ranks");
 	get("Ok.");
@@ -117,11 +113,6 @@ function test_reputation() {
 	say("reputation network testnet  get ratings  date 2018-10-14  ids 2");
 	get("Ok.");
 
-	//TODO add format to schema
-	say("peer has no format.");
-	get("Ok.");
-	say("no name format.");
-	get("Ok.");
 	logout();
 }
 

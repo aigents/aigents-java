@@ -23,6 +23,8 @@
  */
 package net.webstructor.data;
 
+import java.util.ArrayList;
+
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Seq;
@@ -188,9 +190,7 @@ public class LangPack {
 		return trim(sb.toString());
 	}
 	
-	
-//TODO N-grams	
-	double sentiment(Counter base, Seq seq) {
+	double sentiment0(Counter base, Seq seq, ArrayList collector) {
 		if (base == null || AL.empty(seq))
 			return 0;
 		double cnt = 0;
@@ -200,25 +200,87 @@ public class LangPack {
 			if (scrub(w))
 				continue;
 			cnt++;
-			if (base.get(w) != null)
+			if (base.get(w) != null) {
 				sum++;
+				if (collector != null)
+					collector.add(w);
+			}
 		}
 		return cnt == 0 ? 0 : sum / seq.size();
 	}
-	
-	/*
-	public ComplexNumber sentiment(String input) {
+	public int[] sentiment0(String input, ArrayList pc, ArrayList nc) {
 		Seq seq = Parser.parse(input);
-		return new ComplexNumber(sentiment(positives, seq), sentiment(negatives, seq));
-	}
-	*/
-	public int[] sentiment(String input) {
-		Seq seq = Parser.parse(input);
-		double p = sentiment(positives, seq);
-		double n = sentiment(negatives, seq);
+		double p = sentiment0(positives, seq, pc);
+		double n = sentiment0(negatives, seq, nc);
 		double max = Math.max(p, n);
 		return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100/max)};
 	}
+	public int[] sentiment0(String input) {
+		return sentiment0(input, null, null);
+	}
+	
+//TODO N-grams
+	
+	String buildNGram(Seq seq, int pos, int n) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			if (sb.length() > 0)
+				sb.append(' ');
+			sb.append(seq.get(pos + i));
+		}
+		return sb.toString();
+	}
+	
+	Seq buildNGrams(Seq seq, int N) {
+		if (N < 2)
+			return seq;
+		int size = seq.size() - N + 1;
+		if (size < 1)
+			return null;
+		Object[] items = new Object[size];
+		for (int i = 0; i < size; i++) {
+			items[i] = buildNGram(seq, i, N);
+		}
+		return new Seq(items);
+	}
+	double sentiment(Counter base, Seq seq, ArrayList collector) {
+		if (base == null || AL.empty(seq))
+			return 0;
+		double cnt = 0;
+		double sum = 0;
+		for (int i = 0; i < seq.size(); i++) {
+			String w = (String)seq.get(i);
+			if (scrub(w))
+				continue;
+			cnt++;
+			if (base.get(w) != null) {
+				sum++;
+				if (collector != null)
+					collector.add(w);
+			}
+		}
+		return cnt == 0 ? 0 : sum / seq.size();
+		//return cnt == 0 ? 0 : Math.log10(1 + (100 * sum / seq.size()))/2;
+	}
+	public int[] sentiment(String input, ArrayList pc, ArrayList nc) {
+		Seq seq = Parser.parse(input);
+		double p = 0;
+		double n = 0;
+		for (int N = 3; N >=1; N--) {//iterate N of N-grams
+			Seq seqNgrams = buildNGrams(seq, N);
+			p = sentiment0(positives, seqNgrams, pc);
+			n = sentiment0(negatives, seqNgrams, nc);
+			if (p > 0 || n > 0)
+				break;
+		}
+		double max = Math.max(p, n);
+		return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100/max)};
+		//return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n))};
+	}
+	public int[] sentiment(String input) {
+		return sentiment(input, null, null);
+	}
+	
 	
 	//TODO: this properly (now it is just a hack)
 	//TODO: use either MapMap from Aigents Core, or Properties from SpaceWork, or Locale Maps from Aigents UI
@@ -231,17 +293,9 @@ public class LangPack {
 	}
 	
 	public static void main(String args[]){
-		System.out.println(trim("-a-"));
-		System.out.println(trim("-aa-"));
-		System.out.println(trim("-a"));
-		System.out.println(trim("-aa"));
-		System.out.println(trim("a-"));
-		System.out.println(trim("aa-"));
-		System.out.println(trim("-a-a-"));
-		System.out.println(trim("--a-a--"));
-
-		
 		LangPack lp = new LangPack(new Mainer()); 
+
+		/*
 		System.out.println(lp.sentiment("you are good man")[2]);
 		System.out.println(lp.sentiment("you are good man in good company")[2]);
 		System.out.println(lp.sentiment("you are bad man")[2]);
@@ -254,8 +308,13 @@ public class LangPack {
 		System.out.println(lp.sentiment("ты милый негодяй")[2]);
 		System.out.println(lp.sentiment("ты хороший и милый негодяй")[2]);
 		System.out.println(lp.sentiment("ты хороший подлец и негодяй")[2]);
+		System.out.println(lp.sentiment("going up")[2]);
+		System.out.println(lp.sentiment("going down")[2]);
+		*/
 		
-		System.out.println(lp.sentiment("now american voters want bernie sanders to be “vice president”")[2]);
+		ArrayList p = new ArrayList();
+		ArrayList n = new ArrayList();
+		System.out.format("%s %s %s",lp.sentiment("so we shut up the country cause fauci and birx told trump that up to 2.2 million people will die",p,n)[2],p,n);
 	}
 }
 

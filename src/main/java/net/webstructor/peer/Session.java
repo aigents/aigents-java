@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -150,6 +150,20 @@ public class Session  {
 		peer = null;
 		fails = 0;
 		authenticated = false;
+	}
+	
+	String format(){
+//TODO make format a session property
+		String format = null;
+		if (peer != null)
+			format = peer.getString(AL.format);
+		if (AL.empty(format)) {
+			Thing p = getStoredPeer();
+			if (p != null)
+				format = p.getString(AL.format);
+			//TODO: Mode.getSessionAreaPeer(this)?
+		}
+		return format;
 	}
 	
 	public Thing getPeer() {

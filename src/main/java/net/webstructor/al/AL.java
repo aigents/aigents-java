@@ -193,6 +193,14 @@ public class AL {
 		return set == null || set.isEmpty();
 	}
 
+	public static String unquote(String string) {
+		int len;
+		if (!AL.empty(string) && (len = string.length()) > 2)
+			if ((string.startsWith("\'") && string.endsWith("\'")) || (string.startsWith("\"") && string.endsWith("\"")))
+				return string.substring(1, len - 1);
+		return string;
+	}
+	
 	//TODO: move out somewhere!?
 	//TODO: optimization to avoid extra lowercasing!
     public static boolean isURL(String str) {

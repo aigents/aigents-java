@@ -98,6 +98,8 @@ public class Peer extends Agent {
 		language,
 		login_count,login_token,login_time,registration_time,activity_time,
 		paid_term,
+//TODO: make format per-session property (or make AL clients to understand JSON)!!!
+		AL.format,
 		AL.currency,
 		//AL.format,//TODO: fix unit test in agent_sites.php (not trivial!)?
 		Body.facebook_id, Body.facebook_token,

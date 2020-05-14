@@ -40,7 +40,9 @@ function init(){
 
 function cleanup(){
 	//cleanup and logout
-	say("Times today trust false, new false, trust false.");
+	say("trust true new false, trust false.");
+	get();
+	say("trust true new false, trust false.");
 	get();
 	say("No there times today.");
 	get();
@@ -144,11 +146,27 @@ function test_agent_expereinces() {
 	say("Your topics name live, trust true; name ride, trust true.");
 	say("what my sites name, trust?");
 	get("Your sites name http://localtest.com/people.html, trust true; name http://localtest.com/transport.html, trust true.");
-	
-//TODO social reporting
-//TODO sentiment mining (with either "there text 'good stuff', is good." or "there text 'good stuff', good true." !?)
-//TODO graph mining
+	//cleanup actions
+	say("query true query false");
+	say("selection true selection false");
+	say("click true click false");
+	say("copypaste true copypaste false");
 	cleanup();
+	
+	init();
+	say("Classify sentiment text 'good pleasant nasty guy'!");
+	get("Negative 25, negatives nasty, positives good, pleasant, postivie 50, sentiment 50, text good pleasant nasty guy.");
+	say("my format json");
+	get("Ok.");
+	say("classify sentiment text bad good nasty guy!");
+	get("[{\"negative\":\"50\",\"negatives\":[\"bad\",\"nasty\"],\"positives\":[\"good\"],\"postivie\":\"25\",\"sentiment\":\"-50\",\"text\":\"bad good nasty guy\"}]");
+	say("My format text");
+	get("Ok.");
+	cleanup();
+	
+//TODO trainable sentiment mining (with either "there text 'good stuff', is good." or "there text 'good stuff', good true." !?)
+//TODO social reporting
+//TODO graph mining
 }
 
 function test_agent_cluster() {

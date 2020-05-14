@@ -59,10 +59,6 @@ http://www.tesis.lebedev.ru/sun_flares.html
 	test_i("My reading sun flare in 'Сегодня на Солнце произошла 1 вспышка класса С и выше Вспышка балла C2.1	2077	05:27:00	05:36:00'.");
 	test_o("What is sun flare class, endtime, maxtime, times, starttime?");
 	test_i("There class c2.1, endtime 05:36:00, maxtime 05:27:00, starttime 2077, times today.");
-	//TODO peer has format. my format json.
-	//TODO format as peer or session propery
-	say("peer has format.");
-	get("Ok.");
 	say("my format json.");
 	get("Ok.");
 	say("what my format?");
@@ -73,11 +69,6 @@ http://www.tesis.lebedev.ru/sun_flares.html
 	get("Ok.");
 	say("what my format?");
 	get("Your not.");
-	//TODO add format to schema 
-	say("peer has no format.");
-	get("Ok.");
-	say("no name format.");
-	get("Ok.");
 	test_o("No there is sun flare.");
 	test_i("Ok.");
 	test_o("My topics no sun flare.");

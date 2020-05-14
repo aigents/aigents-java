@@ -151,6 +151,7 @@ class Conversation extends Mode {
 
 	//TODO: move all that stuff to other place - social networks separately, root separately, etc.
 	private boolean doAuthenticated(Storager storager,Session session){
+		Thing reader = new Thing();
 		Thing curPeer = session.getStoredPeer();
 		if (curPeer != null)//TODO:cleanup as it is just in case for post-mortem peer operations in tests
 			curPeer.set(Peer.activity_time,Time.day(Time.today));
@@ -379,7 +380,6 @@ class Conversation extends Mode {
 			//TODO: understand context of 'knows': test_o("You reading 'sun flare' ... - must be test_o("You reading sun flare ...
 			Collection topics = (Collection) session.getStoredPeer().get(AL.topics);
 			if (!AL.empty(topics)) {
-				Thing reader = new Thing();
 				if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,Self.reading),new Property(reader,"thingname",1000),
 						new Any(1,in_site),new Property(reader,"url",1000)
@@ -414,11 +414,39 @@ class Conversation extends Mode {
 			}
 			return false;
 		} else
-			
+
+		if ((session.mood == AL.direction || session.mood == AL.declaration)
+			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",1000)}))) {
+			session.output("Not.");
+			String text = reader.getString("text");
+			if (!AL.empty(text)){
+				String format = session.format();
+				//text = AL.unquote(text);//TODO: unquoting is overkill here?
+				ArrayList pc = new ArrayList();
+				ArrayList nc = new ArrayList();
+				int[] pns = session.sessioner.body.languages.sentiment(text, pc, nc);
+				//"reuse" reader
+				reader.setString("text", text);
+				reader.setString("postivie", String.valueOf(pns[0]));
+				reader.setString("negative", String.valueOf(pns[1]));
+				reader.setString("sentiment", String.valueOf(pns[2]));
+//TODO do format conversion inside format(...) below
+				if ("json".equals(format)) {
+					reader.set("positives", pc.toArray());
+					reader.set("negatives", nc.toArray());
+				} else {
+					reader.set("positives", Array.toSet(pc.toArray()));
+					reader.set("negatives",Array.toSet(nc.toArray()));
+				}
+				Collection rs = new ArrayList();
+				rs.add(reader);
+				session.output(this.format(null, session, curPeer, null, rs));
+			}
+			return false;	
+		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(new Seq(new Object[]{new Any(1,AL.you),"cluster"}))) {
 			session.output("Not.");
-			Thing reader = new Thing();
 			String json = null;
 			String[] texts = null;
 			

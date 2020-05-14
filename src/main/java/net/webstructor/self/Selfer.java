@@ -239,9 +239,9 @@ public class Selfer extends Thread {
 							body.debug("Social crawling start "+new Date(start_time)+".");
 							body.updateStatusRarely();
 							long end_time = System.currentTimeMillis();
-							body.debug("Social crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+							body.debug("Social crawling stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 						} catch (Throwable e) {
-							body.error("Social crawling error :"+e.toString(),e);
+							body.error("Social crawling error "+e.toString(),e);
 						}
 						next_profile_time.set( current_time + Period.HOUR * 24 );//TODO: make configurable
 					}

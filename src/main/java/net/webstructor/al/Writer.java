@@ -306,13 +306,15 @@ public class Writer extends AL {
 	public static String toString(Object[] array,Object context, String before, String middle, String after) {
 		StringBuilder out = new StringBuilder();
 		if (!AL.empty(array)){
-			out.append(before);
+			if (!AL.empty(before))
+				out.append(before);
 			for (int i = 0; i < array.length; i++){
-				if (i > 0)
+				if (i > 0 && !AL.empty(middle))
 					out.append(middle);
 				toString(out,array[i],context);
 			}
-			out.append(after);
+			if (!AL.empty(after))
+				out.append(after);
 		}
 		return out.toString();
 	}
