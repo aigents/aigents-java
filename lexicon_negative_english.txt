@@ -2317,6 +2317,7 @@ erb's palsy
 erb-duchenne paralysis
 ergotism
 erode
+eroded
 erodes
 erosion
 err
@@ -3816,6 +3817,7 @@ insanity
 insatiable
 insecure
 insecurity
+insecurities
 insensate
 insensibility
 insensible
@@ -6185,6 +6187,7 @@ shuddery
 shun
 shunned
 shut
+shut up
 shut-in
 sick
 sick joke
