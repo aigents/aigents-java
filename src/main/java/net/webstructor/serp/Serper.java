@@ -85,7 +85,7 @@ class GoogleSearch extends Serper {
 			if (debug) env.debug("Googlesearch crawling request "+request);
 			String response = HTTP.simple(request,null,"GET",0,null,null);
 			
-			if (debug) env.debug("Googlesearch crawling response "+Str.first(response,100));
+			if (debug) env.debug("Googlesearch crawling response "+Str.first(response,200));
 			if (!AL.empty(response)) {
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
 				JsonObject json = jsonReader.readObject();
@@ -173,7 +173,7 @@ class SerpAPI extends Serper {
 			String request = url.toString();
 			if (debug) env.debug("Serpapi crawling request "+request);
 			String response = HTTP.simple(request,null,"GET",0,"application/json",null);
-			if (debug) env.debug("Serpapi crawling response "+Str.first(response,100));
+			if (debug) env.debug("Serpapi crawling response "+Str.first(response,200));
 			if (!AL.empty(response)) {
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
 				JsonObject json = jsonReader.readObject();

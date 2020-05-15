@@ -45,6 +45,7 @@ import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
+import net.webstructor.util.Str;
 
 class VKFeeder extends SocialFeeder {
 	//private HTTP api;
@@ -306,7 +307,7 @@ if (vkdebug) body.debug("Spidering peer vkontakte from_id "+from_id);
 			}//individual item
 		}//blocks X 100
 		if (news.isEmpty())
-			body.debug("Spidering peer vkontakte "+user_id+" no results, request:"+url+", response:"+out);
+			body.debug("Spidering peer vkontakte "+user_id+" no results, request:"+url+", response:"+Str.first(out,500));
 		else
 			addPerCommentWords();//add per-user-comment word counts to per-post word counts
 		cleanNonReferencedPeers();//clear peer loaded by profile

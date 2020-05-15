@@ -1407,6 +1407,7 @@ cuss
 cussed
 cussedness
 cut across
+cut
 cutthroat
 cyclobenzaprine
 cyclodestructive surgery
@@ -4773,7 +4774,6 @@ neurotically
 neuter
 neutral
 never
-new
 niff
 niffy
 niggle
@@ -4904,6 +4904,7 @@ nosey
 nosiness
 nostalgic
 not
+not good
 not intrusive
 notional
 notoriety

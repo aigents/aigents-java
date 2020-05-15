@@ -222,8 +222,13 @@ public class Farm extends Body {
 			//TODO: profile ALL peers for specified "network" ONLY
 			return selfer.profile();
 		}
-		if ("reputation update".equalsIgnoreCase(name))
-			return updateReputation();
+		if ("reputation update".equalsIgnoreCase(name)) {
+			String network;
+			if (argument != null && argument instanceof Thing && (network = ((Thing)argument).getString("network")) !=null)
+				return updateReputation(network);
+			else
+				return updateReputation();
+		}
 		return false;
 	}
 	

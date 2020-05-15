@@ -425,7 +425,7 @@ class Conversation extends Mode {
 				ArrayList pc = new ArrayList();
 				ArrayList nc = new ArrayList();
 				int[] pns = session.sessioner.body.languages.sentiment(text, pc, nc);
-				//"reuse" reader
+				//HACK: "reuse" reader
 				reader.setString("text", text);
 				reader.setString("postivie", String.valueOf(pns[0]));
 				reader.setString("negative", String.valueOf(pns[1]));
@@ -435,8 +435,10 @@ class Conversation extends Mode {
 					reader.set("positives", pc.toArray());
 					reader.set("negatives", nc.toArray());
 				} else {
-					reader.set("positives", Array.toSet(pc.toArray()));
-					reader.set("negatives",Array.toSet(nc.toArray()));
+					if (pc.size() > 0)
+						reader.set("positives", Array.toSet(pc.toArray()));
+					if (nc.size() > 0)
+						reader.set("negatives",Array.toSet(nc.toArray()));
 				}
 				Collection rs = new ArrayList();
 				rs.add(reader);
@@ -642,8 +644,8 @@ class Conversation extends Mode {
 			return false;
 		
 		if (Str.has(session.args(),"reputation","update")) {
-		//if (session.read(new Seq(new Object[]{"reputation","update"}))) {
-			boolean updated = session.getBody().act("reputation update", null);
+			session.read(new Seq(new Object[]{"update",new Property(arg,"network")}));
+			boolean updated = session.getBody().act("reputation update", arg);
 			session.output(updated ? "Ok." : "Not.");
 			return true;
 		}

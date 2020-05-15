@@ -437,7 +437,7 @@ class SentimentAggregator extends Reasoner {
 						sum += s;
 				}
 			}
-			if (cnt > 0)
+			if (sum != 0)
 				relevances.count(thing, sum/cnt);
 		}
 		//relevances.normalize();//don't re-normalize sentiment!?

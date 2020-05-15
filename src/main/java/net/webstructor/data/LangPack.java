@@ -190,42 +190,14 @@ public class LangPack {
 		return trim(sb.toString());
 	}
 	
-	double sentiment0(Counter base, Seq seq, ArrayList collector) {
-		if (base == null || AL.empty(seq))
-			return 0;
-		double cnt = 0;
-		double sum = 0;
-		for (int i = 0; i < seq.size(); i++) {
-			String w = (String)seq.get(i);
-			if (scrub(w))
-				continue;
-			cnt++;
-			if (base.get(w) != null) {
-				sum++;
-				if (collector != null)
-					collector.add(w);
-			}
-		}
-		return cnt == 0 ? 0 : sum / seq.size();
-	}
-	public int[] sentiment0(String input, ArrayList pc, ArrayList nc) {
-		Seq seq = Parser.parse(input);
-		double p = sentiment0(positives, seq, pc);
-		double n = sentiment0(negatives, seq, nc);
-		double max = Math.max(p, n);
-		return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100/max)};
-	}
-	public int[] sentiment0(String input) {
-		return sentiment0(input, null, null);
-	}
-	
-//TODO N-grams
-	
 	String buildNGram(Seq seq, int pos, int n) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < n; i++) {
 			if (sb.length() > 0)
 				sb.append(' ');
+			Object w = seq.get(pos + i);
+			if (w == null)//faced consumed word
+				return null;
 			sb.append(seq.get(pos + i));
 		}
 		return sb.toString();
@@ -243,39 +215,56 @@ public class LangPack {
 		}
 		return new Seq(items);
 	}
-	double sentiment(Counter base, Seq seq, ArrayList collector) {
-		if (base == null || AL.empty(seq))
-			return 0;
-		double cnt = 0;
-		double sum = 0;
-		for (int i = 0; i < seq.size(); i++) {
-			String w = (String)seq.get(i);
-			if (scrub(w))
-				continue;
-			cnt++;
-			if (base.get(w) != null) {
-				sum++;
-				if (collector != null)
-					collector.add(w);
-			}
-		}
-		return cnt == 0 ? 0 : sum / seq.size();
-		//return cnt == 0 ? 0 : Math.log10(1 + (100 * sum / seq.size()))/2;
-	}
+	boolean sentiment_logarithmic = false;
+	boolean sentiment_maximized = true;
 	public int[] sentiment(String input, ArrayList pc, ArrayList nc) {
 		Seq seq = Parser.parse(input);
 		double p = 0;
 		double n = 0;
+		//double c = 0;
 		for (int N = 3; N >=1; N--) {//iterate N of N-grams
 			Seq seqNgrams = buildNGrams(seq, N);
-			p = sentiment0(positives, seqNgrams, pc);
-			n = sentiment0(negatives, seqNgrams, nc);
-			if (p > 0 || n > 0)
-				break;
+			if (!AL.empty(seqNgrams)) for (int i = 0; i < seqNgrams.size();) {
+				String w = (String)seqNgrams.get(i);//some may be null seing consumed earlier
+				if (w == null || scrub(w)) {
+					i++;
+					continue;
+				}
+				//c += N;//weighted
+				boolean found = false; 
+				if (positives.get(w) != null) {
+					p += N;//weighted
+					if (pc != null)
+						pc.add(w);
+					found = true;
+				} else
+				if (negatives.get(w) != null) {
+					n += N;//weighted
+					if (nc != null)
+						nc.add(w);
+					found = true;
+				}
+				if (found) {
+					for (int Ni = 0; Ni < N; Ni++)
+						seq.set(i + Ni, null);
+					i += N;
+				} else
+					i++;
+			}
 		}
-		double max = Math.max(p, n);
-		return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100/max)};
-		//return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n))};
+		if (sentiment_logarithmic) {
+			p = Math.log10(1 + 100 * p / seq.size())/2;
+			n = Math.log10(1 + 100 * n / seq.size())/2;
+		}else {
+			p = p / seq.size();
+			n = n / seq.size();
+		}
+		if (sentiment_maximized) {
+			double max = Math.max(p, n);
+			return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100/max)};
+		} else {
+			return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100)};
+		}
 	}
 	public int[] sentiment(String input) {
 		return sentiment(input, null, null);
@@ -292,29 +281,38 @@ public class LangPack {
 			return "Welcome to Aigents! Now you can view and edit topics of your interests and text patterns for them in \"Topics\" view, web sites to watch that in \"Sites\" view and monitor your news in \"News\" view. Also, you can manage contacts of your freinds and colleagues in \"Friends\" view and chat (in simplified English) with your Aigent in \"Chat\" view. To register and login via social networks and get your personal reports - use buttons in the top-right corner!";
 	}
 	
+	public static void sentiment_test(LangPack lp,String text){
+		ArrayList p = new ArrayList();
+		ArrayList n = new ArrayList();
+		int[] s = lp.sentiment(text,n,p);
+		System.out.format("%s %s %s %s %s %s\n",s[2],s[0],s[1],text,p,n);
+	}
+
 	public static void main(String args[]){
 		LangPack lp = new LangPack(new Mainer()); 
 
-		/*
-		System.out.println(lp.sentiment("you are good man")[2]);
-		System.out.println(lp.sentiment("you are good man in good company")[2]);
-		System.out.println(lp.sentiment("you are bad man")[2]);
-		System.out.println(lp.sentiment("you are bad man in good company")[2]);
-		System.out.println(lp.sentiment("you are nice good man in bad company")[2]);
-		System.out.println(lp.sentiment("you are good man in sadly bad company")[2]);
-		System.out.println(lp.sentiment("ты хороший")[2]);
-		System.out.println(lp.sentiment("ты хороший и милый")[2]);
-		System.out.println(lp.sentiment("ты негодяй")[2]);
-		System.out.println(lp.sentiment("ты милый негодяй")[2]);
-		System.out.println(lp.sentiment("ты хороший и милый негодяй")[2]);
-		System.out.println(lp.sentiment("ты хороший подлец и негодяй")[2]);
-		System.out.println(lp.sentiment("going up")[2]);
-		System.out.println(lp.sentiment("going down")[2]);
-		*/
-		
-		ArrayList p = new ArrayList();
-		ArrayList n = new ArrayList();
-		System.out.format("%s %s %s",lp.sentiment("so we shut up the country cause fauci and birx told trump that up to 2.2 million people will die",p,n)[2],p,n);
+		for (int i = 0; i < 4; i++) {
+			lp.sentiment_logarithmic = i == 0 || i == 1;
+			lp.sentiment_maximized = i == 0 || i == 2;
+			System.out.format("---- maximised=%s logarithmic=%s -----------\n",lp.sentiment_maximized,lp.sentiment_logarithmic);
+			sentiment_test(lp,"you are good man");
+			sentiment_test(lp,"you are good man in good company");
+			sentiment_test(lp,"you are bad man");
+			sentiment_test(lp,"you are bad man in good company");
+			sentiment_test(lp,"you are nice good man in bad company");
+			sentiment_test(lp,"you are good man in sadly bad company");
+			sentiment_test(lp,"ты хороший");
+			sentiment_test(lp,"ты хороший и милый");
+			sentiment_test(lp,"ты негодяй");
+			sentiment_test(lp,"ты милый негодяй");
+			sentiment_test(lp,"ты хороший и милый негодяй");
+			sentiment_test(lp,"ты хороший подлец и негодяй");
+			sentiment_test(lp,"going up");
+			sentiment_test(lp,"going down");
+			sentiment_test(lp,"good fine excellent");
+			sentiment_test(lp,"bad horrible awful");
+			sentiment_test(lp,"so we shut up the country cause fauci and birx told trump that up to 2.2 million people will die");
+		}
 	}
 }
 
