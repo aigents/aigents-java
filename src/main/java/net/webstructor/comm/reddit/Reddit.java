@@ -82,7 +82,7 @@ public class Reddit extends Socializer {
 		String auth_base64 = auth_base64(client_id,client_secret);
 		body.debug("Reddit refresh request "+params+" "+auth_base64);
 		String response = HTTP.simple(Reddit.oauth_url,params,"POST",timeout,null,new String[][] {new String[] {"Authorization",auth_base64}});
-		body.debug("Reddit refresh response "+response);
+		body.debug("Reddit refresh response "+Str.first(response,200));
 		if (!AL.empty(response)) {
 			JsonReader jsonReader = Json.createReader(new StringReader(response));
 			JsonObject json = jsonReader.readObject();
@@ -124,7 +124,7 @@ public class Reddit extends Socializer {
 		try {
 			body.debug("Reddit read channel "+uri+" request "+params+" "+auth_base64);
 			response = HTTP.simple(Reddit.oauth_url,params,"POST",timeout,null,new String[][] {new String[] {"Authorization",auth_base64}});
-			body.debug("Reddit read channel "+uri+" response "+response);
+			body.debug("Reddit read channel "+uri+" response "+Str.first(response,200));
 			if (!AL.empty(response)) {
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
 				JsonObject json = jsonReader.readObject();
@@ -143,7 +143,7 @@ public class Reddit extends Socializer {
 						params = "limit=100" + (after == null ? "" : "&after="+after);
 						if (debug) body.debug("Reddit read channel request "+uri+" "+api_url+" "+params);
 						response = HTTP.simple(api_url+"?"+params,null,"GET",0,null,hdr);
-						if (debug) body.debug("Reddit read channel response "+uri+" "+response);
+						if (debug) body.debug("Reddit read channel response "+uri+" "+Str.first(response,200));
 						if (AL.empty(response))
 							break;
 						jsonReader = Json.createReader(new StringReader(response));

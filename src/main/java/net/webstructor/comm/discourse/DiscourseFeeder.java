@@ -38,6 +38,7 @@ import net.webstructor.core.Environment;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeederHelper;
 import net.webstructor.util.JSON;
+import net.webstructor.util.Str;
 
 class DiscourseFeeder extends SocialFeederHelper {
 	Discourse api;
@@ -62,7 +63,7 @@ class DiscourseFeeder extends SocialFeederHelper {
 				if (debug) body.debug("Discourse crawling peer "+user_id+" request "+url);
 				//String response = HTTP.simple(url,null,"GET",0,null,null);
 				String response = api.simpleRetry(url,null,"GET",null,null);
-				if (debug) body.debug("Discourse crawling peer "+user_id+" response "+response);
+				if (debug) body.debug("Discourse crawling peer "+user_id+" response "+Str.first(response,200));
 				if (AL.empty(response))
 					break;
 				JsonReader jsonReader = Json.createReader(new StringReader(response));

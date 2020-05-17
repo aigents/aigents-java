@@ -40,6 +40,7 @@ import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.util.JSON;
 import net.webstructor.util.Reporter;
+import net.webstructor.util.Str;
 
 /*
 TODO:
@@ -89,7 +90,7 @@ class RedditFeeder extends SocialFeeder {
 		//String params = "limit=100" + (after == null ? "" : "&after="+after);
 		if (debug) body.debug("Spidering peer reddit "+user_id+" request "+api_url);
 		String response = HTTP.simple(api_url,null,"GET",0,null,hdr);
-		if (debug) body.debug("Spidering peer reddit "+user_id+" response "+response);
+		if (debug) body.debug("Spidering peer reddit "+user_id+" response "+Str.first(response,200));
 //(new Filer(this.body)).save("comments_"+ri.typed_id+".json", response);
 		JsonReader jsonReader = Json.createReader(new StringReader(response));
 		JsonArray jsona = jsonReader.readArray();
@@ -128,7 +129,7 @@ class RedditFeeder extends SocialFeeder {
 				String params = "limit=100" + (after == null ? "" : "&after="+after);
 				if (debug) body.debug("Spidering peer reddit request "+user_id+" "+api_url+" "+params);
 				String response = HTTP.simple(api_url+"?"+params,null,"GET",0,null,hdr);
-				if (debug) body.debug("Spidering peer reddit response "+user_id+" "+response);
+				if (debug) body.debug("Spidering peer reddit response "+user_id+" "+Str.first(response,200));
 				if (AL.empty(response))
 					break;
 //(new Filer(body)).save("reddit.json",response);

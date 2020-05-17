@@ -124,6 +124,7 @@ afflictive
 affront
 afraid
 afterthought
+against
 agamic
 agammaglobulinemia
 agamogenetic
@@ -810,6 +811,7 @@ bull
 bull****
 bull----
 bullies
+bullish
 bullshit
 bullshyt
 bully
@@ -948,6 +950,7 @@ catcall
 cattiness
 cattish
 catty
+caught the
 cauliflower ear
 caustic
 caustically
@@ -962,7 +965,9 @@ celecoxib
 celiac disease
 cellulitis
 censor
+censored
 censorious
+censorship
 censurable
 censure
 cephalitis
@@ -1250,6 +1255,7 @@ corked
 corky
 coronary failure
 coronary insufficiency
+coronavirus
 corporal punishment
 corrected
 corrode
@@ -2930,6 +2936,7 @@ goad
 goading
 god-awful
 godless
+goes down
 gonorrhea
 gonorrhoea
 goof

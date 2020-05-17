@@ -45,6 +45,7 @@ import net.webstructor.core.Thing;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
 import net.webstructor.util.JSON;
+import net.webstructor.util.Str;
 
 /*
 TODO:
@@ -354,7 +355,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 						continue;
 					if (!token.equals(current_token)){
 						String response = HTTP.simple(base_url+token+"/deleteWebhook","","POST",timeout);
-						body.debug("Telegram deleteWebhook "+token+": "+response);
+						body.debug("Telegram deleteWebhook "+token+": "+Str.first(response,200));
 						current_token = token;
 					}
 					String url = base_url+token+"/getUpdates";

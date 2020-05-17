@@ -309,7 +309,7 @@ public class Slacker extends Mediator implements HTTPHandler {
 				String response = HTTP.simple(url, par, "POST", timeout);
 				*/
 				
-				body.debug("Slack report response "+response);
+				body.debug("Slack report response "+Str.first(response,200));
 				JsonReader jr = Json.createReader(new StringReader(response));
 				JsonObject result = jr.readObject();
 				if (!HTTP.getJsonBoolean(result, "ok", false))

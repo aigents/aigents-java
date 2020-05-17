@@ -41,6 +41,7 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.util.Array;
 import net.webstructor.util.Reporter;
+import net.webstructor.util.Str;
 import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Counter;
@@ -365,7 +366,7 @@ class SteemitFeeder extends SocialFeeder {
 			try {
 				if (debug) body.debug(Writer.capitalize(api.getName())+" request "+api.getUrl()+" "+par);
 				response = Steemit.retryPost(body,api.getUrl(),par);
-				if (debug) body.debug(Writer.capitalize(api.getName())+" response "+response);
+				if (debug) body.debug(Writer.capitalize(api.getName())+" response "+Str.first(response,200));
 				JsonReader jr = Json.createReader(new StringReader(response));
 				JsonObject result = jr.readObject();
 				JsonArray items = result.getJsonArray("result");

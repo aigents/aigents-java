@@ -70,6 +70,7 @@ import net.webstructor.util.Array;
         //http://www.degraeve.com/reference/specialcharacters.php
         private static final String[] etokens = {"&times;","&quot;","&ndash;","&mdash;", "&minus;", "&amp;","&lt;","&gt;","&nbsp;","&nbsp","&euro;","&cent;","&pound;","&yen;","&copy;","&#169;","&reg;","&#174;","&deg;","&#8482;","&#39;","&#039;","&rarr;","&sbquo;","&laquo;"  ,"&raquo;"  ,"&lsquo;"  ,"&rsquo;"  ,"&ldquo;"  ,"&rdquo;"  ,"&bdquo;","&ldquor;", "&#x3D;","‘" ,"’" ,"“" ,"”" ,"&hellip;"};
         private static char[] echars =          {'*',		'\"',    '–',	    '—',	   '−',		  '&',	'<'   ,'>'   ,' '     ,' '    ,'€'	   ,'¢'     ,'£'      ,'¥'    ,'©'     ,'©'     ,'®'    ,'®'     ,'°'    ,'™'	,	'\'',	'\'', 	'→'      ,'‚'      ,'\"'/*'«'*/,'\"'/*'»'*/,'\''/*'‘'*/,'\''/*'’'*/,'\"'/*'“'*/,'\"'/*'”'*/,'„' 	 ,'„'       , '='     ,'\'','\'','\"','\"','…'};
+        private static String[] charmappings = {"«»“”‘’","\"\"\"\"\'\'"};
         
         public static String cleanHtmlRegExp(String text)
         {
@@ -329,6 +330,7 @@ import net.webstructor.util.Array;
                                      buf.append(' ');
                                  for(int i=0;i<str.length();i++)
                                  {
+                                	 int ci;
                                      c = str.charAt(i);
                                      if(c == '&')
                                      for (;;) {//repeatedly handle continious encodings like &amp;#x200B;
@@ -361,6 +363,9 @@ import net.webstructor.util.Array;
                                      //http://www.adamkoch.com/2009/07/25/white-space-and-character-160/
                                      if( c == 0x0a || c == 0x0d || c == 160 || WS.indexOf(c) != -1)
                                          c = ' ';
+                                     else if ((ci = charmappings[0].indexOf(c)) != -1)//unification of quotes
+                                    	 c = charmappings[1].charAt(ci);
+                                     
                                      // skip repeated spaces or spec symbols
                                      len = buf.length();
                                      if (c != ' ' || (len > 0 && buf.charAt(len - 1) != ' '))

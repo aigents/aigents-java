@@ -25,6 +25,20 @@
 
 include_once("test_api.php");
 
+function test_matching($pattern, $text, $expect) {
+	say("My topics '".$pattern."'.");
+	get("Ok.");
+	file_put_contents($basePath."html/test.html",$text);
+	say("You reading '".$pattern."' in http://localtest.com/test.html!");
+	get("My reading ".$pattern." in http://localtest.com/test.html.");
+	say("What is '".$pattern."' text?");
+	get($expect);
+	say("No there is '".$pattern."'.");
+	say("My topics no '".$pattern."'.");
+	say("No name '".$pattern."'.");
+}
+	
+
 function test_agent_patterns() {
 	global $basePath;
 	global $version;
@@ -38,6 +52,11 @@ function test_agent_patterns() {
 	say("My x y.");
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 
+	//test synonyms
+	test_matching("{dolphins whales}","There are whales in the ocean. There are dolphins in the sea.","There text there are dolphins in the sea; text there are whales in the ocean.");
+	test_matching("{a b c}","x y b","There text x y b.");
+	test_matching("{коронавирус коронавируса коронавирусом}","x y коронавируса","There text x y коронавируса.");
+	test_matching("{коронавирус коронавируса коронавирусом}","вылечились от коронавируса","There text вылечились от коронавируса.");
 
 	//test two-side variables
 	say("My topics '\$x dolphins \$y'.");

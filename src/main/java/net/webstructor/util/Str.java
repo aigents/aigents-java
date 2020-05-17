@@ -259,6 +259,6 @@ public class Str {
 	}
 
 	public static String first(String s, int n) {
-		return s == null ? s : s.substring(0, Math.min(s.length(), n));
+		return s == null || s.length() <= n  ? s : s.substring(0, n);
 	}
 }

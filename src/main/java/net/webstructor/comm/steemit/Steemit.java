@@ -52,6 +52,7 @@ import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
+import net.webstructor.util.Str;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.cat.HttpFileReader;
@@ -422,7 +423,7 @@ public class Steemit extends SocialCacher {
 				JsonObject obj = res.readObject();
 				JsonObject result = JSON.getJsonObject(obj, "result");
 				if (result == null){//no result
-					env.debug(caps_name+" crawling block "+block+" no result:"+response);
+					env.debug(caps_name+" crawling block "+block+" no result:"+Str.first(response,200));
 					//break;//no blocks anymore!?
 					continue;
 				}

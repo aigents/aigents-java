@@ -92,7 +92,7 @@ public class Redditer extends SocialBinder implements HTTPHandler {
 						String auth_base64 = HTTP.auth_base64(client_id,client_secret);
 						body.debug("Reddit auth request "+params+" "+auth_base64);
 						String response = HTTP.simple(Reddit.oauth_url,params,"POST",timeout,null,new String[][] {new String[] {"Authorization",auth_base64}});
-						body.debug("Reddit auth response "+response);
+						body.debug("Reddit auth response "+Str.first(response,200));
 						if (!AL.empty(response)) {
 							JsonReader jsonReader = Json.createReader(new StringReader(response));
 							JsonObject json = jsonReader.readObject();
@@ -104,7 +104,7 @@ public class Redditer extends SocialBinder implements HTTPHandler {
 								//https://www.reddit.com/dev/api/#GET_api_v1_me
 								String api_url = "https://oauth.reddit.com/api/v1/me";
 								response = HTTP.simple(api_url,null,"GET",timeout,null,new String[][] {new String[] {"Authorization","bearer "+access_token}});
-								body.debug("Reddit response "+response);
+								body.debug("Reddit response "+Str.first(response,200));
 								if (!AL.empty(response)) {
 									jsonReader = Json.createReader(new StringReader(response));
 									json = jsonReader.readObject();
