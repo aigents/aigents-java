@@ -69,6 +69,12 @@ public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data
 		pathTodos.clear();
 	}
 
+	@Override
+	public void free(){
+		//TODO: if cache is made persistent, clear memory only, not the persistent data  
+		clear(false,null);
+	}
+	
 	public void clear(Date till) {
 		clear(till !=null ? false : true,till);
 	}
@@ -82,8 +88,7 @@ body.debug("Cacher clearing everything");
 		} else synchronized(this) {
 			Object[] paths = pathTexts.keySet().toArray(new String[] {});
 			for (Object path : paths) {
-				Date date = pathTimes.get(path);
-				if (date.compareTo(till) < 0) {
+				if (till == null || pathTimes.get(path).compareTo(till) < 0) {
 body.debug("Cacher clearing "+path);
 					pathTexts.remove(path);
 					pathTimes.remove(path);

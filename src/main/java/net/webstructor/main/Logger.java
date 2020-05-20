@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -132,7 +132,10 @@ public class Logger {
 	}
 
 	public void log(String text,String tag) throws IOException {
-		Date now = new Date();
+		log(new Date(),text,tag);
+	}
+	
+	public void log(Date now, String text,String tag) throws IOException {
 		checkReopenFile(now);
 		writeToFile(Thread.currentThread().getId(),now,tag,text);
 	}

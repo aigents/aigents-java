@@ -50,12 +50,15 @@ import net.webstructor.main.Mainer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
+import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
+import net.webstructor.util.Str;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.SocialCacher;
+import net.webstructor.comm.Socializer;
 import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
@@ -174,7 +177,7 @@ public class Steemit extends SocialCacher {
 		super(body,name,url);
 		//this.name = name;
 		//this.url = body != null ? body.self().getString(name+" url",url) : url;
-		this.reader = new HttpFileReader();
+		this.reader = new HttpFileReader(body);
 		base_url = base_url(provider());
 	}
 
@@ -362,12 +365,17 @@ public class Steemit extends SocialCacher {
 		
 	@Override
 	public Profiler getProfiler(Thing peer) {
-		return new Profiler(body,this,peer,Body.steemit_id);
+		return new Profiler(body,this,peer, provider()+" id");
 	}
 
 	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {
 		String caps_name = Writer.capitalize(api_name);
-		GraphCacher grapher = new GraphCacher(api_name,env);
+
+//get cacher from env!!!
+		//GraphCacher grapher = new GraphCacher(api_name,env);
+		Socializer socializer = env instanceof Body ? ((Body)env).getSocializer(api_name) : null;
+		GraphCacher grapher = socializer instanceof SocialCacher ? ((SocialCacher)socializer).getGraphCacher() : new GraphCacher(api_name,env);
+
 		String site = base_url(api_name);
 		DataLogger logger = new DataLogger(env,Writer.capitalize(api_name)+" crawling");
 		long time_start = System.currentTimeMillis();
@@ -413,9 +421,9 @@ public class Steemit extends SocialCacher {
 				response = retryPost(env, api_url, par);
 				JsonReader res = Json.createReader(new StringReader(response));
 				JsonObject obj = res.readObject();
-				JsonObject result = obj.getJsonObject("result");
+				JsonObject result = JSON.getJsonObject(obj, "result");
 				if (result == null){//no result
-					env.debug(caps_name+" crawling block "+block+" no result:"+response);
+					env.debug(caps_name+" crawling block "+block+" no result:"+Str.first(response,200));
 					//break;//no blocks anymore!?
 					continue;
 				}

@@ -98,12 +98,15 @@ public class Peer extends Agent {
 		language,
 		login_count,login_token,login_time,registration_time,activity_time,
 		paid_term,
+//TODO: make format per-session property (or make AL clients to understand JSON)!!!
+		AL.format,
 		AL.currency,
 		//AL.format,//TODO: fix unit test in agent_sites.php (not trivial!)?
 		Body.facebook_id, Body.facebook_token,
 		Body.vkontakte_id, Body.vkontakte_token,
 		Body.paypal_id, Body.paypal_token,
-		Body.reddit_id, Body.reddit_token,
+		Body.reddit_id, Body.reddit_token, Body.reddit_image,
+		Body.twitter_id, Body.twitter_token, Body.twitter_token_secret, Body.twitter_image, 
 		Body.discourse_id,
 		Body.telegram_id,
 		Body.telegram_name,
@@ -260,13 +263,16 @@ public class Peer extends Agent {
 	}
 
 	//TODO: do this in same place with Self.clear(body,peer)
-	public static void trashPeerNews(Body body, Thing peer){
+	public static void rethink(Body body, Thing peer){
 		body.debug("Thinking peer "+peer.getString(AL.email)+".");
 		int news_limit = StringUtil.toIntOrDefault(peer.getString(Peer.news_limit),10,10);
 		Collection origins = body.storager.getNamed(Body.ORIGINSITE);
 		Thing origin = AL.empty(origins) ? null : (Thing)origins.iterator().next();
+
+//TODO assigne sentiments as chained (pre-chained in given case in fact) thinking process relying on user custom sentiment models!?
+		assignSentiments(body,peer);//TODO: in other place, make sure how it works on mobiles
 		
- 		body.thinker.think(peer);
+		body.thinker.think(peer);
  		
 		//get unchecked daily news with relevance less than 100
 		//leave only MAX of them with topmost relevance or equal to the least relevance under MAX
@@ -365,7 +371,7 @@ public class Peer extends Agent {
 					peer.delThing(AL.news, n);
 			}
 		}
-		
+
 		//assing images fo imageless news items for paid users
 		assignImages(body,peer);//TODO: in other place, make sure how it works on mobiles
 	}
@@ -409,10 +415,27 @@ public class Peer extends Agent {
 		return term == null || term.compareTo(Time.today()) < 0 ? false : true;
 	}
 	
+	public static void assignSentiments(Body body, Thing peer) {
+		Collection news = (Collection)peer.getThingsClone(AL.news);
+		if (news != null) for (Object t : news)
+			assignSentiment(body, (Thing) t);
+	}
+
+	public static void assignSentiment(Body body, Thing thing) {
+		if (thing.getString(AL.sentiment) == null) {//do repeated image searches only for non-searched missed images
+			String text = thing.getString(AL.text);
+			if (!AL.empty(text)) {
+				int[] pns = body.languages.sentiment(text);
+				int s = pns[2];
+				thing.set(AL.sentiment, String.valueOf(s));
+			}
+		}
+	}
+	
 	public static void assignImages(Body body, Thing peer) {
 		if (!paid(peer))
 			return;
-		Collection news = (Collection)peer.getThings(AL.news);
+		Collection news = peer.getThingsClone(AL.news);
 		if (news != null) for (Object t : news)
 			assignImage(body, (Thing) t);
 	}

@@ -40,7 +40,9 @@ function init(){
 
 function cleanup(){
 	//cleanup and logout
-	say("Times today trust false, new false, trust false.");
+	say("trust true new false, trust false.");
+	get();
+	say("trust true new false, trust false.");
 	get();
 	say("No there times today.");
 	get();
@@ -132,12 +134,12 @@ function test_agent_expereinces() {
 	say("what my sites name, trust?");//ensure that we have no sites set up
 	get("Your sites not.");
 	//get some content "trusted"
-	say("There text 'germans live in germany', sources 'http://localtest.com/people.html', times today, selection true, trust true.");
-	say("There text 'russians live in russia', sources 'http://localtest.com/people.html', times today, query true, trust true.");
-	say("There text 'spaniards live in spain', sources 'http://localtest.com/people.html', times today, click true, trust true.");
-	say("There text 'cars ride on roads'     , sources 'http://localtest.com/transport.html', times today, copypaste true, trust true.");
-	say("There text 'trains ride on rails'   , sources 'http://localtest.com/transport.html', times today, trust true.");
-	say("There text 'bikes ride on trails'   , sources 'http://localtest.com/transport.html', times today, trust true.");
+	say("There text 'germans live in germany', sources 'http://localtest.com/people.html', times today, selection true, trust true, new true.");
+	say("There text 'russians live in russia', sources 'http://localtest.com/people.html', times today, query true, trust true, new true.");
+	say("There text 'spaniards live in spain', sources 'http://localtest.com/people.html', times today, click true, trust true, new true.");
+	say("There text 'cars ride on roads'     , sources 'http://localtest.com/transport.html', times today, copypaste true, trust true, new true.");
+	say("There text 'trains ride on rails'   , sources 'http://localtest.com/transport.html', times today, trust true, new true.");
+	say("There text 'bikes ride on trails'   , sources 'http://localtest.com/transport.html', times today, trust true, new true.");
 	say("You profile!");//do clustering and pattern mining on the selected content
 	sleep($timeout);
 	say("what my topics name, trust?");
@@ -145,10 +147,40 @@ function test_agent_expereinces() {
 	say("what my sites name, trust?");
 	get("Your sites name http://localtest.com/people.html, trust true; name http://localtest.com/transport.html, trust true.");
 	
-//TODO social reporting
-//TODO sentiment mining (with either "there text 'good stuff', is good." or "there text 'good stuff', good true." !?)
-//TODO graph mining
+	//sentiment propagation
+	say("sources 'http://localtest.com/people.html' is live");
+	get("Ok.");
+	say("sources 'http://localtest.com/transport.html' is ride");
+	get("Ok.");
+	say("what is live sources, text?");
+	get("There sources http://localtest.com/people.html, text germans live in germany; sources http://localtest.com/people.html, text russians live in russia; sources http://localtest.com/people.html, text spaniards live in spain.");
+	say("what is ride sources, text?");
+	get("There sources http://localtest.com/transport.html, text bikes ride on trails; sources http://localtest.com/transport.html, text cars ride on roads; sources http://localtest.com/transport.html, text trains ride on rails.");
+	say("You think!");
+	get("Ok.");
+	say("What new true text, sentiment?");
+	get("There sentiment 0, text bikes ride on trails; sentiment 0, text cars ride on roads; sentiment 0, text trains ride on rails; sentiment 100, text germans live in germany; sentiment 100, text russians live in russia; sentiment 100, text spaniards live in spain.");
+	say("what my topics name, positive, negative?");
+	get("Your topics name live, positive 100.0; name ride.");
+	
+	//cleanup actions
+	say("new true new false, query false, selection false, click false, copypaste false");
 	cleanup();
+	
+	init();
+	say("Classify sentiment text 'good pleasant nasty guy'!");
+	get("Negative 25, negatives nasty, positives good, pleasant, postivie 50, sentiment 50, text good pleasant nasty guy.");
+	say("my format json");
+	get("Ok.");
+	say("classify sentiment text bad good nasty guy!");
+	get("[{\"negative\":\"50\",\"negatives\":[\"bad\",\"nasty\"],\"positives\":[\"good\"],\"postivie\":\"25\",\"sentiment\":\"-50\",\"text\":\"bad good nasty guy\"}]");
+	say("My format text");
+	get("Ok.");
+	cleanup();
+	
+//TODO trainable sentiment mining (with either "there text 'good stuff', is good." or "there text 'good stuff', good true." !?)
+//TODO social reporting
+//TODO graph mining
 }
 
 function test_agent_cluster() {

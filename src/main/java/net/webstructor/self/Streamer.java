@@ -83,11 +83,12 @@ public class Streamer {
 				b.append(Time.day((Date)value,false));
 			else
 			if (value instanceof Thing) 
-					b.append('#').append(((Integer)byId.get(value)).intValue());//object - thing
+				b.append('#').append(((Integer)byId.get(value)).intValue());//object - thing
 			b.append(".\n");
 			writer.write(b.toString());
 		} catch (Exception e) {
 			body.error("Streamer fails write value: ["+Str.first(owner.toString(),200)+"] "+name+" "+value+" "+b.toString(), e);
+			//TODO throw error or prevent happening!?
 		}
 	}
 	
@@ -95,13 +96,19 @@ public class Streamer {
 		Object[] values = storager.getObjects(name);
 		if (!AL.empty(values)) {
 			for (int i=0; i<values.length; i++) {
+				Object value = values[i];
 				Collection owners = storager.get(name,values[i]);
+				if (AL.empty(owners)) {
+					body.error("Streamer fails write no owner "+name+" as "+value, null);
+//TODO throw error or prevent happening!?
+				} else
 				for (Iterator it=owners.iterator(); it.hasNext();) {
 					Thing owner = (Thing)it.next();
-					Object value = values[i];
 					Object v = owner.get(name);
-					if (!((v instanceof Set && ((Set)v).contains(value)) || (!(v instanceof Set) && v.equals(value))))
-						body.error("Streamer fails write "+name+" as "+value+" in "+owner, null);
+					if (!((v instanceof Set && ((Set)v).contains(value)) || (!(v instanceof Set) && v.equals(value)))) {
+						body.error("Streamer fails write "+name+" as "+value+" in ["+Str.first(owner.toString(),200)+"]", null);
+//TODO throw error or prevent happening!?
+					}
 					write(owner,name,value);
 				}
 			}			

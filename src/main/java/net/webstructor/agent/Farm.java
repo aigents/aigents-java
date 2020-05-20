@@ -53,6 +53,7 @@ import net.webstructor.comm.paypal.PayPal;
 import net.webstructor.comm.reddit.Reddit;
 import net.webstructor.comm.steemit.Steemit;
 import net.webstructor.comm.telegram.Telegram;
+import net.webstructor.comm.twitter.Twitter;
 import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
@@ -175,6 +176,11 @@ public class Farm extends Body {
 		if (!AL.empty(r_id) && !AL.empty(r_key))
 			socializers.put("reddit", new Reddit(this,r_id,r_key));
 
+		String t_key = self().getString(twitter_key);
+		String t_secret = self().getString(twitter_key_secret);
+		if (!AL.empty(t_key) && !AL.empty(t_secret))
+			socializers.put("twitter", new Twitter(this,t_key,t_secret));
+		
 		//TODO: make it possible to have many Discourse instances per farm 
 		String d_id = self().getString(discourse_id);
 		String d_key = self().getString(discourse_key);
@@ -216,8 +222,13 @@ public class Farm extends Body {
 			//TODO: profile ALL peers for specified "network" ONLY
 			return selfer.profile();
 		}
-		if ("reputation update".equalsIgnoreCase(name))
-			return updateReputation();
+		if ("reputation update".equalsIgnoreCase(name)) {
+			String network;
+			if (argument != null && argument instanceof Thing && (network = ((Thing)argument).getString("network")) !=null)
+				return updateReputation(network);
+			else
+				return updateReputation();
+		}
 		return false;
 	}
 	
@@ -262,7 +273,7 @@ public class Farm extends Body {
 						Thing peer = (Thing)it.next();
 						Date activityTime = (Date)peer.get(Peer.activity_time);
 						if (activityTime != null && activityTime.compareTo(since) >= 0){
-							Peer.trashPeerNews(Farm.this,peer);//this does think along the way!
+							Peer.rethink(Farm.this,peer);//this does think along the way!
 						}
 					}
 				}
@@ -286,8 +297,18 @@ public class Farm extends Body {
 		// update all social cachers which have reputationers, except the default one updated right above 
 		for (Socializer s : this.getSocializers()) if (s instanceof SocialCacher) {
 			String name = s.provider();
-			if (!name.equals(network))
+			if (!name.equals(network)) {
+
+//TODO make MEMORY_THRESHOLD parameter of body/self
+//TODO built-into cacheholder?
+				int memory = checkMemory();
+				if (checkMemory() > GraphCacher.MEMORY_THRESHOLD) {
+					cacheholder.free();
+					debug("Selfer free, memory "+memory+" to "+checkMemory());
+				}
+
 				updateReputation(name);
+			}
 		}
 		return res;
 	}
@@ -431,7 +452,7 @@ public class Farm extends Body {
 			    public void run() {
 			    	updateStatus(peer, profilers, true);//have to be fresh
 			    	//thinker.think(peer);
-					Peer.trashPeerNews(Farm.this,peer);//this does think along the way!
+					Peer.rethink(Farm.this,peer);//this does think along the way!
 			    }
 			};
 			//TODO: all threads for profiles and spidereres to be run under the same Executor with given number of threads in the pool 

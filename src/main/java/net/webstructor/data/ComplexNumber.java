@@ -66,4 +66,8 @@ public class ComplexNumber implements Serializable {
 			System.arraycopy(b, 0, newa, a.length, b.length);
 		return newa;
 	}
+	@Override
+	public String toString() {
+		return String.format("%s/%s",a,b);
+	}
 }

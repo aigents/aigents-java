@@ -35,6 +35,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.core.Thing;
+import net.webstructor.data.GraphCacher;
 import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
 
@@ -52,7 +53,7 @@ class SyncLong {
 public class Selfer extends Thread {
 	private static final long DEFAULT_STORE_CYCLE_MS = Period.MINUTE;
 	private static final long DEFAULT_FORGET_CYCLE_MS = Period.DAY / 4;
-	public final static long MIN_CHECK_CYCLE_MS = 3 * Period.HOUR;
+	public final static long MIN_CHECK_CYCLE_MS = 2 * Period.HOUR;
 
 	Body body;
 	Spider spider;
@@ -152,10 +153,20 @@ public class Selfer extends Thread {
 	
 	public void forget(long start_time){
 		if (start_time >= next_forget_time) {	
-			body.debug("Forgetting start "+new Date(start_time)+".");
+			body.debug("Selfer forgetting start "+new Date(start_time)+", memory "+body.checkMemory()+".");
+
 			Self.clear(body,Schema.foundation);
+			
+//TODO make MEMORY_THRESHOLD parameter of body/self
+//TODO built-into cacheholder?
+			int memory = body.checkMemory();
+			if (body.checkMemory() > GraphCacher.MEMORY_THRESHOLD) {
+				body.cacheholder.free();
+				body.debug("Selfer free, memory "+memory+" to "+body.checkMemory());
+			}
+			
 			long end_time = System.currentTimeMillis();
-			body.debug("Forgetting stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+			body.debug("Selfer forgetting stop "+new Date(end_time)+", memory "+body.checkMemory()+", took "+new Period(end_time-start_time).toHours()+".");
 			next_forget_time = start_time + forget_cycle;
 		}
 	}
@@ -178,8 +189,7 @@ public class Selfer extends Thread {
 			try {
 				boolean update = false;
 				long current_time = System.currentTimeMillis();
-				body.debug("Selfing "+new Date(current_time));
-
+				
 				//!!! do forgetting immediately on startup
 				forget(current_time);
 				
@@ -229,9 +239,9 @@ public class Selfer extends Thread {
 							body.debug("Social crawling start "+new Date(start_time)+".");
 							body.updateStatusRarely();
 							long end_time = System.currentTimeMillis();
-							body.debug("Social crawling stop  "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
-						} catch (Exception e) {
-							body.error("Social crawling error :"+e.toString(),e);
+							body.debug("Social crawling stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
+						} catch (Throwable e) {
+							body.error("Social crawling error "+e.toString(),e);
 						}
 						next_profile_time.set( current_time + Period.HOUR * 24 );//TODO: make configurable
 					}
@@ -251,8 +261,8 @@ public class Selfer extends Thread {
 					}
 				}
 
-			} catch (Exception e) {		
-				body.error("Self error (" + e.toString() + ")",e);
+			} catch (Exception e) {
+				body.error("Selfer error (" + e.toString() + ")",e);
 			}
 		}//while
 	}

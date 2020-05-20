@@ -87,7 +87,7 @@ class Conversation extends Mode {
 	
 	private String spidering(Session session, String name, String id) {
 		String report = null;
-		Socializer provider = session.sessioner.body.provider(name);
+		Socializer provider = session.sessioner.body.getSocializer(name);
 		if (provider != null && (provider.opendata() || session.trusted()))
 		try {
 			Collection peers;
@@ -151,6 +151,7 @@ class Conversation extends Mode {
 
 	//TODO: move all that stuff to other place - social networks separately, root separately, etc.
 	private boolean doAuthenticated(Storager storager,Session session){
+		Thing reader = new Thing();
 		Thing curPeer = session.getStoredPeer();
 		if (curPeer != null)//TODO:cleanup as it is just in case for post-mortem peer operations in tests
 			curPeer.set(Peer.activity_time,Time.day(Time.today));
@@ -238,7 +239,7 @@ class Conversation extends Mode {
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,new String[] {"think","thinking"}))) {
-			Peer.trashPeerNews(session.sessioner.body,session.getStoredPeer());//this does think along the way!
+			Peer.rethink(session.sessioner.body,session.getStoredPeer());//this does think along the way!
 			session.output("Ok.");
 			return false;			
 		} else
@@ -255,7 +256,7 @@ class Conversation extends Mode {
 			} else
 			if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,spider),new Property(task,"network")}))) {
-				Socializer provider = session.sessioner.body.provider(task.getString("network"));
+				Socializer provider = session.sessioner.body.getSocializer(task.getString("network"));
 				if (provider != null){
 					Thing arg = new Thing();
 					session.read(arg,new String[]{"block"});			
@@ -357,7 +358,7 @@ class Conversation extends Mode {
 			//you profile|profiling [<network> [, email <email>] [, name <name>] [, surname <surname>]]
 			Thing task = new Thing();
 			session.read(new Seq(new Object[]{new Any(1,AL.you),new Any(1,Self.profiling),new Property(task,"network")}));//optional network id
-			if (session.sessioner.body.provider(task.getString("network")) == null)//TODO Property-level domain validation
+			if (session.sessioner.body.getSocializer(task.getString("network")) == null)//TODO Property-level domain validation
 				task.setString("network", null);
 			if (!session.trusted())
 				task.addThing("peers",curPeer);//profile itself only 
@@ -379,7 +380,6 @@ class Conversation extends Mode {
 			//TODO: understand context of 'knows': test_o("You reading 'sun flare' ... - must be test_o("You reading sun flare ...
 			Collection topics = (Collection) session.getStoredPeer().get(AL.topics);
 			if (!AL.empty(topics)) {
-				Thing reader = new Thing();
 				if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,Self.reading),new Property(reader,"thingname",1000),
 						new Any(1,in_site),new Property(reader,"url",1000)
@@ -414,11 +414,41 @@ class Conversation extends Mode {
 			}
 			return false;
 		} else
-			
+
+		if ((session.mood == AL.direction || session.mood == AL.declaration)
+			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",1000)}))) {
+			session.output("Not.");
+			String text = reader.getString("text");
+			if (!AL.empty(text)){
+				String format = session.format();
+				//text = AL.unquote(text);//TODO: unquoting is overkill here?
+				ArrayList pc = new ArrayList();
+				ArrayList nc = new ArrayList();
+				int[] pns = session.sessioner.body.languages.sentiment(text, pc, nc);
+				//HACK: "reuse" reader
+				reader.setString("text", text);
+				reader.setString("postivie", String.valueOf(pns[0]));
+				reader.setString("negative", String.valueOf(pns[1]));
+				reader.setString("sentiment", String.valueOf(pns[2]));
+//TODO do format conversion inside format(...) below
+				if ("json".equals(format)) {
+					reader.set("positives", pc.toArray());
+					reader.set("negatives", nc.toArray());
+				} else {
+					if (pc.size() > 0)
+						reader.set("positives", Array.toSet(pc.toArray()));
+					if (nc.size() > 0)
+						reader.set("negatives",Array.toSet(nc.toArray()));
+				}
+				Collection rs = new ArrayList();
+				rs.add(reader);
+				session.output(this.format(null, session, curPeer, null, rs));
+			}
+			return false;	
+		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(new Seq(new Object[]{new Any(1,AL.you),"cluster"}))) {
 			session.output("Not.");
-			Thing reader = new Thing();
 			String json = null;
 			String[] texts = null;
 			
@@ -557,10 +587,10 @@ class Conversation extends Mode {
 	boolean tryReport(Storager storager,Session session) {
 		Thing arg = new Thing();
 		if (session.read(new Seq(new Object[]{new Property(arg,"network"),"id",new Property(arg,"id"),"report"}))
-				&& session.sessioner.body.provider(arg.getString("network")) != null 
+				&& session.sessioner.body.getSocializer(arg.getString("network")) != null 
 				&& arg.getString("id") != null && arg.getString("network") != null
 				//if either a) provider is "public" or b) specified id is matching user id or c) we supply the auth token 
-				&& (session.sessioner.body.provider(arg.getString("network")).opendata() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id"))
+				&& (session.sessioner.body.getSocializer(arg.getString("network")).opendata() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id"))
 						|| session.read(new Seq(new Object[]{"token",new Property(arg,"token")}))) ) {
 				String format = session.read(new Seq(new Object[]{"format",new Property(arg,"format")})) ? arg.getString("format") : "html"; 
 				int threshold = session.read(new Seq(new Object[]{"threshold",new Property(arg,"threshold")})) ? Integer.valueOf(arg.getString("threshold")).intValue() : 20;
@@ -570,19 +600,20 @@ class Conversation extends Mode {
 				Thing peer = session.getStoredPeer();
 				String language = peer.getString(Peer.language);
 				boolean fresh = session.input().contains("fresh");
-				Socializer provider = session.sessioner.body.provider(arg.getString("network"));
+				Socializer provider = session.sessioner.body.getSocializer(arg.getString("network"));
 				String id = arg.getString("id");
 				String token = session.read(new Seq(new Object[]{"token",new Property(arg,"token")})) ? arg.getString("token") : null;
 			   	if (AL.empty(token)) //if token is not supplied explicitly
 			   		token = arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.provider()+" token") : null;
 				//TODO: name and language for opendata/steemit?
-				String report = provider.cachedReport(id,token,null,id,"",language,format,fresh,session.input(),threshold,period,areas);
+			   	String secret = provider.getTokenSecret(session.getStoredPeer());
+				String report = provider.cachedReport(id,token,secret,id,"",language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");
 				return true;			
 		} else	
 		if (session.read(new Seq(new Object[]{
 					new Any(1,AL.i_my),new Property(arg,"network"),"report"}))
-					&& session.sessioner.body.provider(arg.getString("network")) != null ) {
+					&& session.sessioner.body.getSocializer(arg.getString("network")) != null ) {
 				String format = session.read(new Seq(new Object[]{"format",new Property(arg,"format")})) ? arg.getString("format") : "html"; 
 				int threshold = session.read(new Seq(new Object[]{"threshold",new Property(arg,"threshold")})) ? Integer.valueOf(arg.getString("threshold")).intValue() : 20;
 				//int range = session.read(new Seq(new Object[]{"range",new Property(arg,"range")})) ? Integer.valueOf(arg.getString("range")).intValue() : 1;
@@ -593,10 +624,11 @@ class Conversation extends Mode {
 			   	String surname = peer.getString(Peer.surname);
 			   	String language = peer.getString(Peer.language);
 				boolean fresh = session.input().contains("fresh");
-			   	Socializer provider = session.sessioner.body.provider(arg.getString("network"));
+			   	Socializer provider = session.sessioner.body.getSocializer(arg.getString("network"));
 			   	String id = peer.getString(provider.getPeerIdName());
 			   	String token = peer.getString(provider.provider()+" token");
-				String report = provider.cachedReport(id,token,null,name,surname,language,format,fresh,session.input(),threshold,period,areas);
+			   	String secret = provider.getTokenSecret(session.getStoredPeer());
+				String report = provider.cachedReport(id,token,secret,name,surname,language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");
 				return true;	
 		}
@@ -612,8 +644,8 @@ class Conversation extends Mode {
 			return false;
 		
 		if (Str.has(session.args(),"reputation","update")) {
-		//if (session.read(new Seq(new Object[]{"reputation","update"}))) {
-			boolean updated = session.getBody().act("reputation update", null);
+			session.read(new Seq(new Object[]{"update",new Property(arg,"network")}));
+			boolean updated = session.getBody().act("reputation update", arg);
 			session.output(updated ? "Ok." : "Not.");
 			return true;
 		}
@@ -728,10 +760,10 @@ class Conversation extends Mode {
 		String network;
 		if (session.read(new Seq(new Object[]{new Property(arg,"network"),"id",new Property(arg,"id"),"graph"}))
 				&& (network = arg.getString("network")) != null
-				&& (session.sessioner.body.provider(network) != null || "www".equalsIgnoreCase(network))
+				&& (session.sessioner.body.getSocializer(network) != null || "www".equalsIgnoreCase(network))
 				&& (id = arg.getString("id")) != null //TODO: sites url
 				//if either or a) provider is "www" or b) provider is "public" or c) specified id is matching user id
-				&& ("www".equalsIgnoreCase(network) || session.sessioner.body.provider(network).opendata() || id.equals(session.getStoredPeer().getString(network+" id"))) ) {
+				&& ("www".equalsIgnoreCase(network) || session.sessioner.body.getSocializer(network).opendata() || id.equals(session.getStoredPeer().getString(network+" id"))) ) {
 			session.read(arg,new String[]{"date","period","range","threshold","links","limit","format"});			
 			Date date = Time.day(arg.getString("date","today"));//target date
 			String period = arg.getString("period","7");//days back
@@ -782,7 +814,7 @@ class Conversation extends Mode {
 		if (network.equalsIgnoreCase("www")){
 			grapher = session.sessioner.body.sitecacher;
 		}else {
-			Socializer provider = session.sessioner.body.provider(network);
+			Socializer provider = session.sessioner.body.getSocializer(network);
 			grapher = provider instanceof SocialCacher ? ((SocialCacher)provider).getGraphCacher() : null;
 		}
 		if (grapher == null)

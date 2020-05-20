@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,13 @@
  */
 package net.webstructor.data;
 
+import java.util.ArrayList;
+
 import net.webstructor.al.AL;
+import net.webstructor.al.Parser;
+import net.webstructor.al.Seq;
 import net.webstructor.core.Environment;
+import net.webstructor.main.Mainer;
 import net.webstructor.util.Array;
 
 /**
@@ -35,6 +40,8 @@ import net.webstructor.util.Array;
 public class LangPack {
 	Lang[] langs;
 	private Counter words = null; 
+	private Counter positives = null; 
+	private Counter negatives = null; 
 	
 	public LangPack(Environment env){
 		
@@ -88,8 +95,23 @@ public class LangPack {
 		return null;
 	}
 	
+	Counter loadCounter(Environment env, Counter counter, String type, String language){
+		//String path = "lexicon_"+langs[l].name+".txt";
+		String path = type+"_"+language+".txt";
+		Counter c = new Counter(env,path,"[\t]",new Integer(1));//load counter from file
+		if (!AL.empty(c)){
+			c.normalize();//normalize counter to [1..100]
+			if (AL.empty(counter))
+				counter = c;
+			else
+				counter.mergeMax(c);//TODO: mergeSum?
+		}
+		return counter;
+	}
+
 	void loadLexicon(Environment env){
 		for (int l = 0; l < langs.length; l++){
+			/*
 			String path = "lexicon_"+langs[l].name+".txt";
 			Counter c = new Counter(env,path);//load counter from file
 			if (!AL.empty(c)){
@@ -99,6 +121,10 @@ public class LangPack {
 				else
 					words.mergeMax(c);//TODO: mergeSum?
 			}
+			*/
+			words = loadCounter(env, words, "lexicon", langs[l].name);
+			positives = loadCounter(env, positives, "lexicon_positive", langs[l].name);
+			negatives = loadCounter(env, negatives, "lexicon_negative", langs[l].name);
 		}
 	}
 	
@@ -128,6 +154,7 @@ public class LangPack {
 		//TODO: move dash check to parser or replace dashes with scrubsymbols?
 		if (Array.containsOnly(s, AL.dashes))
 			return true;
+//TODO: hashtable
 		for (int l = 0; l < langs.length; l++)
 			if (Array.contains(langs[l].scrubs,s))
 				return true;
@@ -163,6 +190,87 @@ public class LangPack {
 		return trim(sb.toString());
 	}
 	
+	String buildNGram(Seq seq, int pos, int n) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			if (sb.length() > 0)
+				sb.append(' ');
+			Object w = seq.get(pos + i);
+			if (w == null)//faced consumed word
+				return null;
+			sb.append(seq.get(pos + i));
+		}
+		return sb.toString();
+	}
+	
+	Seq buildNGrams(Seq seq, int N) {
+		if (N < 2)
+			return seq;
+		int size = seq.size() - N + 1;
+		if (size < 1)
+			return null;
+		Object[] items = new Object[size];
+		for (int i = 0; i < size; i++) {
+			items[i] = buildNGram(seq, i, N);
+		}
+		return new Seq(items);
+	}
+	boolean sentiment_logarithmic = false;
+	boolean sentiment_maximized = true;
+	public int[] sentiment(String input, ArrayList pc, ArrayList nc) {
+		Seq seq = Parser.parse(input);
+		double p = 0;
+		double n = 0;
+		//double c = 0;
+		for (int N = 3; N >=1; N--) {//iterate N of N-grams
+			Seq seqNgrams = buildNGrams(seq, N);
+			if (!AL.empty(seqNgrams)) for (int i = 0; i < seqNgrams.size();) {
+				String w = (String)seqNgrams.get(i);//some may be null seing consumed earlier
+				if (w == null || scrub(w)) {
+					i++;
+					continue;
+				}
+				//c += N;//weighted
+				boolean found = false; 
+				if (positives.get(w) != null) {
+					p += N;//weighted
+					if (pc != null)
+						pc.add(w);
+					found = true;
+				} else
+				if (negatives.get(w) != null) {
+					n += N;//weighted
+					if (nc != null)
+						nc.add(w);
+					found = true;
+				}
+				if (found) {
+					for (int Ni = 0; Ni < N; Ni++)
+						seq.set(i + Ni, null);
+					i += N;
+				} else
+					i++;
+			}
+		}
+		if (sentiment_logarithmic) {
+			p = Math.log10(1 + 100 * p / seq.size())/2;
+			n = Math.log10(1 + 100 * n / seq.size())/2;
+		}else {
+			p = p / seq.size();
+			n = n / seq.size();
+		}
+		if (sentiment_maximized) {
+			double max = Math.max(p, n);
+			return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100/max)};
+		} else {
+			return new int[] {(int)Math.round(p*100), (int)Math.round(n*100), (int)Math.round((p - n)*100)};
+		}
+	}
+	public int[] sentiment(String input) {
+		return sentiment(input, null, null);
+	}
+	
+	
 	//TODO: this properly (now it is just a hack)
 	//TODO: use either MapMap from Aigents Core, or Properties from SpaceWork, or Locale Maps from Aigents UI
 	//TODO: ideally, this should be configurable with language-specific self properties (its phraseo-lexicon)
@@ -173,16 +281,38 @@ public class LangPack {
 			return "Welcome to Aigents! Now you can view and edit topics of your interests and text patterns for them in \"Topics\" view, web sites to watch that in \"Sites\" view and monitor your news in \"News\" view. Also, you can manage contacts of your freinds and colleagues in \"Friends\" view and chat (in simplified English) with your Aigent in \"Chat\" view. To register and login via social networks and get your personal reports - use buttons in the top-right corner!";
 	}
 	
+	public static void sentiment_test(LangPack lp,String text){
+		ArrayList p = new ArrayList();
+		ArrayList n = new ArrayList();
+		int[] s = lp.sentiment(text,n,p);
+		System.out.format("%s %s %s %s %s %s\n",s[2],s[0],s[1],text,p,n);
+	}
+
 	public static void main(String args[]){
-		System.out.println(trim("-a-"));
-		System.out.println(trim("-aa-"));
-		System.out.println(trim("-a"));
-		System.out.println(trim("-aa"));
-		System.out.println(trim("a-"));
-		System.out.println(trim("aa-"));
-		System.out.println(trim("-a-a-"));
-		System.out.println(trim("--a-a--"));
-		System.out.println(trim("--a-a--"));
+		LangPack lp = new LangPack(new Mainer()); 
+
+		for (int i = 0; i < 4; i++) {
+			lp.sentiment_logarithmic = i == 0 || i == 1;
+			lp.sentiment_maximized = i == 0 || i == 2;
+			System.out.format("---- maximised=%s logarithmic=%s -----------\n",lp.sentiment_maximized,lp.sentiment_logarithmic);
+			sentiment_test(lp,"you are good man");
+			sentiment_test(lp,"you are good man in good company");
+			sentiment_test(lp,"you are bad man");
+			sentiment_test(lp,"you are bad man in good company");
+			sentiment_test(lp,"you are nice good man in bad company");
+			sentiment_test(lp,"you are good man in sadly bad company");
+			sentiment_test(lp,"ты хороший");
+			sentiment_test(lp,"ты хороший и милый");
+			sentiment_test(lp,"ты негодяй");
+			sentiment_test(lp,"ты милый негодяй");
+			sentiment_test(lp,"ты хороший и милый негодяй");
+			sentiment_test(lp,"ты хороший подлец и негодяй");
+			sentiment_test(lp,"going up");
+			sentiment_test(lp,"going down");
+			sentiment_test(lp,"good fine excellent");
+			sentiment_test(lp,"bad horrible awful");
+			sentiment_test(lp,"so we shut up the country cause fauci and birx told trump that up to 2.2 million people will die");
+		}
 	}
 }
 

@@ -45,6 +45,7 @@ import net.webstructor.core.Thing;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
 import net.webstructor.util.JSON;
+import net.webstructor.util.Str;
 
 /*
 TODO:
@@ -184,9 +185,9 @@ public class Telegrammer extends Mediator {
 		long offset = -1;
 		JsonReader jr = Json.createReader(new StringReader(response));
 		JsonObject result = jr.readObject();
-		if (HTTP.getJsonBoolean(result, "ok", false)){
-			JsonArray items = HTTP.getJsonArray(result,"result");
-			if (items != null) for (int i = 0; i < items.size(); i++){
+		JsonArray items;
+		if (HTTP.getJsonBoolean(result, "ok", false) && (items = HTTP.getJsonArray(result,"result")) != null && items.size() > 0){
+			for (int i = 0; i < items.size(); i++){
 				JsonObject o = items.getJsonObject(i);
 				long update_id = HTTP.getJsonLong(o,"update_id",-1);
 				if (update_id == -1)
@@ -306,10 +307,9 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 
             	body.conversationer.handle(this, session, text);
 			}
+			if (telegram != null)//auto-save updated graph, if modified
+				telegram.save();
 		}
-		
-		if (telegram != null)//auto-save updated graph, if modified
-			telegram.save();
 		return offset;
 	}
 	
@@ -355,7 +355,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 						continue;
 					if (!token.equals(current_token)){
 						String response = HTTP.simple(base_url+token+"/deleteWebhook","","POST",timeout);
-						body.debug("Telegram deleteWebhook "+token+": "+response);
+						body.debug("Telegram deleteWebhook "+token+": "+Str.first(response,200));
 						current_token = token;
 					}
 					String url = base_url+token+"/getUpdates";
@@ -427,7 +427,4 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 		return false;
 	}
 	
-	/*public static void main(String args[]) {
-		System.out.println(getMentions("@A1 @A2,@a3ъ@a4 @a_5;@a06      @a_____7-@a8"));
-	}*/
 }

@@ -68,7 +68,7 @@ public class GApi extends Socializer {
 		super(body);
 		this.appId = appId;
 		this.appSecret = appSecret;
-		this.reader = new HttpFileReader();
+		this.reader = new HttpFileReader(body);
 	}
 
 	public String provider(){

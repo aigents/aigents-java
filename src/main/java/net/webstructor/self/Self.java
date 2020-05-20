@@ -141,7 +141,7 @@ public class Self {
 	}
 	
 	public static void clear(Body body,String[] exceptions) {
-		body.debug("Forgetting start "+body.checkMemory());
+		body.debug("Forgetting start, memory "+body.checkMemory());
 		
 		//0) setup attetion and retention days
 		int attention_days = Integer.valueOf(body.self().getString(Body.attention_period,"14")).intValue();
@@ -189,30 +189,30 @@ public class Self {
 		Collection news = body.storager.get(AL.times,days,true);
 		body.storager.clear(exceptions, peers, AL.empty(news) ? null : new HashSet(news) );
 		
-		//4) if memory is low, do Java GC
-		if (body.checkMemory() > 90)
-			System.gc();
-		
-		//5) clear logs
+		//4) clear logs
 		if (body.logger() != null){
 			//TODO: retention days for logs is attention days for system?
 			body.logger().setRetentionDays(attention_days);
 			body.logger().cleanup();
 		}
 		
-		//6) clear LTM objects
+		//5) clear LTM objects
 		if (body.archiver != null)
 			body.archiver.clear(retention_day);
 
-		//7) clear LTM graph cachers
-		if (body.grapher != null)
-			body.grapher.clear(retention_day);
+		//6) clear LTM graph cachers
+		if (body.cacheholder != null)
+			body.cacheholder.clear(retention_day);
 
-		//8) clear STM page/document data cache 
+		//7) clear STM page/document data cache 
 		if (body.filecacher != null)
 			body.filecacher.clear(Time.today(0));//TODO attention period instead of today!?
 
-		body.debug("Forgetting stop "+body.checkMemory());
+		//8) if memory is low, do Java GC
+		if (body.checkMemory() > net.webstructor.data.Cacher.MEMORY_THRESHOLD)
+			System.gc();
+		
+		body.debug("Forgetting stop, memory "+body.checkMemory());
 	}
 	
 	public static boolean save(Body body,String path) {

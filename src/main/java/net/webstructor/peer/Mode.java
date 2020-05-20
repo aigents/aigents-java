@@ -59,14 +59,19 @@ public abstract class Mode {
 		//String[] disallowed_words = new String[]{AL.you[0],Schema.peer,Schema.self,Schema.self,/*Body.email,*/Body.email_password,Peer.secret_answer};
 		//if (mood == AL.interrogation && Array.containsAnyAsSubstring(disallowed_words,session.input) == null)
 		String[] allowed_questions = new String[]{
+				"What new true sources, text, times, trust, relevance, social relevance, image, is, sentiment?",
 				"What new true sources, text, times, trust, relevance, social relevance, image, is?",
 				"What new true sources, text, times, trust, relevance, social relevance, image?",
 				"What new true sources, text, times, trust, relevance, social relevance?",
 				"What new true sources, text, times, trust, relevance?",
 				"What new true sources, text, times, trust?",
+				"What my sites name, trust, relevance, positive, negative?",
+				"What my sites name, trust, relevance, sentiment?",
 				"What my sites name, trust, relevance?",
 				"What my areas?",
 				"What my sites name, trust?",
+				"What my topics name, trust, relevance, positive, negative?",
+				"What my topics name, trust, relevance, sentiment?",
 				"What my topics name, trust, relevance?",
 				"What my topics name, trust?"}; 
 		if (session.mood == AL.interrogation && Array.containsIgnoreCase(allowed_questions, session.input()))

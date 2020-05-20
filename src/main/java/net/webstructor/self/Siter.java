@@ -221,14 +221,13 @@ public class Siter {
 			//TODO: make sites readable not being listed?
 			java.util.Set sites = storager.get(AL.sites,rootPath);
 			java.util.Set peers = !AL.empty(sites)? new HashSet(sites) : null;
-			if (!forced){//get things from peers only trusting this site
-				Collection peerSiteTrusts = storager.get(AL.trusts,rootPath);
+			java.util.Set peerSiteTrusts = storager.get(AL.trusts,rootPath);
+			if (!AL.empty(peers) && !forced){//get things from peers only trusting this site
 				if (AL.empty(peerSiteTrusts))
 					peers.clear();
 				else
 					peers.retainAll(peerSiteTrusts);
 			}
-			java.util.Set peersSite = storager.get(AL.trusts,rootPath);
 			if (!AL.empty(peers)){
 				Date since = Time.today(-body.attentionDays());
 				for (Iterator it = peers.iterator(); it.hasNext();){
@@ -249,9 +248,9 @@ public class Siter {
 						for (Iterator jt = peerThings.iterator(); jt.hasNext();){
 							Thing thing = (Thing)jt.next();
 //TODO: optimize this							
-							Set peersThing = storager.get(AL.trusts,thing);
-							if (!AL.empty(peersThing))//if there is at least one peer trusting the thing
-								if (forced || Array.intersect(peersThing,peersSite)){
+							Set peerThingTrusts = storager.get(AL.trusts,thing);
+							if (!AL.empty(peerThingTrusts))//if there is at least one peer trusting the thing
+								if (forced || Array.intersect(peerThingTrusts,peerSiteTrusts)){
 									allThings.add(thing);
 								}
 						}
@@ -396,8 +395,12 @@ public class Siter {
 	
 	boolean linkMatch(String text,Seq patseq) {
 		Iter iter = new Iter(Parser.parse(text));
-		if (Reader.read(iter, patseq, null))
-			return true;
+		try {
+			if (Reader.read(iter, patseq, null))
+				return true;
+		} catch (Throwable e) {
+			body.error("Siter linkMatch error pattern "+patseq, e);
+		}
 		return false;
 	}
 

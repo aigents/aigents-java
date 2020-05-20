@@ -96,7 +96,7 @@ public class Messenger extends Mediator implements HTTPHandler {
 			if (!AL.empty(hub_verify_token) && !AL.empty(hub_challenge)){
 				body.debug("Facebook verify "+hub_verify_token+" challenge "+hub_challenge);
 				String response = hub_verify_token.equals(body.self().getString(Body.facebook_challenge)) ? hub_challenge : "Invalid Verify Token";
-				body.debug("Facebook response "+response);
+				body.debug("Facebook response "+Str.first(response,200));
 				parent.respond(response);
 				return true;
 			}

@@ -76,7 +76,7 @@ public class Discourse extends SocialCacher {
 		super(body,name,url);
 		this.appId = appId;
 		this.appSecret = appSecret;
-		this.reader = new HttpFileReader();
+		this.reader = new HttpFileReader(body);
 	}
 
 	@Override
@@ -89,10 +89,10 @@ public class Discourse extends SocialCacher {
 	}
 	
 	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
-		if (AL.empty(uri))
+		String base_url;
+		if (AL.empty(uri) || AL.empty(base_url = HttpFileReader.getSite(uri)))
 			return -1;
 
-		String base_url = HttpFileReader.getSite(uri);
 		String api_url = body.self().getString(Body.discourse_url);
 		
 		boolean applies = false;
@@ -153,7 +153,7 @@ public class Discourse extends SocialCacher {
 			if (debug) body.debug("Discourse crawling categories request "+url);
 			String response;
 			response = simpleRetry(url,null,"GET",null,null);
-			if (debug) body.debug("Discourse crawling categories response "+response);
+			if (debug) body.debug("Discourse crawling categories response "+Str.first(response,200));
 			JsonReader jsonReader = Json.createReader(new StringReader(response));
 			JsonObject json = jsonReader.readObject();
 			JsonObject category_list = JSON.getJsonObject(json,"category_list");
@@ -228,7 +228,7 @@ public class Discourse extends SocialCacher {
 			String response = simpleRetry(url,null,"GET",null,null);
 			if (response.startsWith(json_errors))//if print=true causes throttling, just ignore more than 20 comments ;-)
 				response = simpleRetry(base_url + "/t/"+topic+".json",null,"GET",null,null);//TODO fix hack
-			if (debug) body.debug("Discourse crawling topic "+topic+" response "+response);
+			if (debug) body.debug("Discourse crawling topic "+topic+" response "+Str.first(response,200));
 			if (AL.empty(response))
 				return 0;
 			JsonReader jsonReader = Json.createReader(new StringReader(response));
@@ -263,7 +263,7 @@ public class Discourse extends SocialCacher {
 				String url = base_url + "/user_actions.json?username="+user_id+"&filter=4,5&offset=" + offset;
 				if (debug) body.debug("Discourse crawling peer "+user_id+" request "+url);
 				String response = simpleRetry(url,null,"GET",null,null);
-				if (debug) body.debug("Discourse crawling peer "+user_id+" response "+response);
+				if (debug) body.debug("Discourse crawling peer "+user_id+" response "+Str.first(response,200));
 				if (AL.empty(response))
 					break;
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
@@ -352,7 +352,7 @@ public class Discourse extends SocialCacher {
 					body.debug("Discourse crawling not found "+url);
 					return null;
 				}
-				body.debug("Discourse crawling throttling "+response);
+				body.debug("Discourse crawling throttling "+Str.first(response,200));
 				Thread.sleep(2000 * retry);
 			} else 
 				break;
@@ -466,7 +466,7 @@ public class Discourse extends SocialCacher {
 				String url = api_url + "/user_actions.json?username="+user_id+"&filter=1,5,7&offset=" + offset;
 				if (debug) body.debug("Discourse crawling user request "+url);
 				String response = simpleRetry(url,null,"GET",null,null);
-				if (debug) body.debug("Discourse crawling user response "+user_id+" "+response);
+				if (debug) body.debug("Discourse crawling user response "+user_id+" "+Str.first(response,200));
 				if (AL.empty(response))
 					break;
 				JsonReader jsonReader = Json.createReader(new StringReader(response));

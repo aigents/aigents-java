@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2018-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2018-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,5 +26,9 @@ package net.webstructor.data;
 import java.util.Date;
 
 public interface Cacher { 
+	//TODO: make parameter
+	public static final int MEMORY_THRESHOLD = 85;
+	
 	public void clear(boolean everything, Date till);
+	public void free();
 }

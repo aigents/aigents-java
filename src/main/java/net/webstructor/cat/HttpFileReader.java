@@ -437,7 +437,7 @@ public class HttpFileReader implements Reader
             	conn.disconnect();
         		return sb.toString();
     		} catch (Throwable e) {
-    			String error = "HttpFileReader.readDocData reading path " + docName + ": "+e.toString()+" memory "+env.checkMemory();
+    			String error = "HttpFileReader.readDocData reading path " + docName + ": "+e.toString()+ (env == null ? "" : " memory "+env.checkMemory());
     			if (env != null)
     				env.error(error, e);
     			else

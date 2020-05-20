@@ -26,6 +26,7 @@ package net.webstructor.al;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import net.webstructor.agent.Body;
 import net.webstructor.core.Anything;
@@ -117,8 +118,9 @@ public class Reader extends AL {
 		String s;
 		if (term instanceof String) {
 			s = ((String)it.get());//.toLowerCase();//TODO: assert lowercase & get rid of toLowerCase?
+			Pattern p;
 			if (((String)term).equals(s) || 
-				(Property.isRegexp((String)term)) && Property.isRegexpMatching((String)term, s)) {
+				((p = Property.regexpPattern((String)term)) != null) && Property.isRegexpMatching(p, s)) {
 				append(summary,s);
 				it.next();
 				return true;

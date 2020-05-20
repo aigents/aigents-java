@@ -206,13 +206,15 @@ public abstract class SocialCacher extends Socializer {
 
 	@Override
 	public Graph getGraph(String user_id, Date since, Date until){
-		GraphCacher grapher = getGraphCacher();
-//TODO: config limits
-		int range = 2;
+		if (AL.empty(user_id))
+			return null;
+//TODO: configure limits and pass them as parameters
+		int range = 1;
 		int threshold = 0; 
 		int limit = 1000;
 		int period = Period.daysdiff(since, until);
 		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroup(user_id) : null;
+		GraphCacher grapher = getGraphCacher();
 		return grapher.getSubgraph(new String[] {user_id}, until, period, range, threshold, limit, null, community, Socializer.links);
 	}
 	

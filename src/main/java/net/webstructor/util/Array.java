@@ -419,7 +419,14 @@ public class Array {
     	}
     	return null;
     }
-    
+
+	public static String[][] add(String[][] left, String right[][]) {
+		String[][] res = new String[left.length + right.length][];
+		System.arraycopy(left, 0, res, 0, left.length);
+		System.arraycopy(right, 0, res, left.length, right.length);
+		return res;
+	}
+ 
 	/*
 	 * Removes one (first) "data" element (physical match) from "values" array and returns new array
 	 * or returns original array if element not found.   

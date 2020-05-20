@@ -92,6 +92,10 @@ public class AL {
 	public final static String format   = "format";
 	public final static String context  = "context";
 	public final static String reputation = "reputation";//global reputaion
+	public final static String title  = "title";
+	public final static String positive  = "positive";
+	public final static String negative  = "negative";
+	public final static String sentiment  = "sentiment";//(positive-negative)/max(positive,negative)
 
 	//things
 	public final static String number 	= "number";//integer or floating point
@@ -189,6 +193,14 @@ public class AL {
 		return set == null || set.isEmpty();
 	}
 
+	public static String unquote(String string) {
+		int len;
+		if (!AL.empty(string) && (len = string.length()) > 2)
+			if ((string.startsWith("\'") && string.endsWith("\'")) || (string.startsWith("\"") && string.endsWith("\"")))
+				return string.substring(1, len - 1);
+		return string;
+	}
+	
 	//TODO: move out somewhere!?
 	//TODO: optimization to avoid extra lowercasing!
     public static boolean isURL(String str) {

@@ -337,6 +337,12 @@ $(function() {
         	window.location.href = "https://www.reddit.com/api/v1/authorize?client_id="+reddit_id+"&response_type=code&state="+session+"&redirect_uri="+reddit_redirect+"&duration=permanent&scope=identity,read,history";
     });
     
+    $("#twitter").click(function(event){
+        event.stopPropagation();
+        if (!login_menu("#twitter","Twitter"))
+        	window.location.href = base_url+"/twitter?login";
+    });
+    
 });
 
 function get_locale() {
@@ -431,6 +437,7 @@ $(document).ready(function () {
     $('#aigents').mouseenter(function() {login_menu("#aigents","Aigents");});
     $('#reddit').mouseenter(function() {login_menu("#reddit","Reddit");});
     $('#paypal').mouseenter(function() {login_menu("#paypal","PayPal");});
+    $('#twitter').mouseenter(function() {login_menu("#twitter","Twitter");});
     localize();
 });
 function timerIncrement() {
@@ -511,7 +518,7 @@ function trusts_update(selector,string,values) {
 	if (AL.empty(string)) 
 		$(selector).empty();
 	else {
-		parseToGrid(values,string,["name", "trust", "relevance"],",");
+		parseToGrid(values,string,["name", "trust", "relevance", "positive", "negative"],",");
 		values.sort(trusts_data_sort);
 		trusts_init(selector,values);
 	}
@@ -779,7 +786,7 @@ function trusts_init(list,data,filter) {
 			continue;
 		var check = $('<input class="trust" type="checkbox"/ '+ (data[i][1]?'checked':'') +'>');
 		check.change(function(eventObject) {
-			var parent = $(this).parent().parent();
+			var parent = $(this).parent().parent().parent().parent();
 			var id = parent[0].id;
 			data[id][1] = this.checked;
  			//use data instead of element text because it may be escaped incorrectly
@@ -797,18 +804,48 @@ function trusts_init(list,data,filter) {
 	    	event.stopPropagation();
 	    	del_trusts(list,parent);
  		});
-		var relevance = data[i][2] ? data[i][2] : 0;
+		var relevance = data[i][2] ? +data[i][2] : 0; //+ for number
+		//var sentiment = data[i][2] ? +data[i][3] : 0;
+		//var positive = sentiment && sentiment > 0 ? +sentiment : 0;
+		//var negative = sentiment && sentiment < 0 ? -sentiment : 0;
+		var positive = data[i][3] ? +data[i][3] : 0;
+		var negative = data[i][4] ? +data[i][4] : 0;
+//console.log(positive+" "+negative+" "+text);
+//var relevance = i * 100 / (data.length - 1);
+//var positive = 100 - i * 100 / (data.length - 1);
+//var negative = i * 100 / (data.length - 1);
+		
+/*
 		//relevance by bar
 		var html = !AL.isURL(text) ?  '<span class="name">'+text+'</span>'
 				: $('<a class="name" href="'+text+'" target="_blank">').append(text).append('</a>');
 		var relevance = $('<div style="display:inline-block;overfow:visible;background-color:lightblue;width:'+relevance+'%;"/>')
 		.append(check)
 		.append(html);
+*/		
+		//relevance and sentiments by bar
+		var all_relevances = relevance + positive + negative;//full bar size
+		var two_relevances = relevance + positive;
+//TODO: same NaN fix for news relevances
+		var personal_p = two_relevances == 0 ? 0 : Math.round(100 * relevance / (two_relevances)); 
+		var positive_p = all_relevances == 0 ? 0 : Math.round(100 * (two_relevances) / all_relevances); 
+		var negative_p = Math.round(all_relevances / 3);
+		
+		var html = !AL.isURL(text) ?  '<span class="name">'+text+'</span>'
+				: $('<a class="name" href="'+text+'" target="_blank">').append(text).append('</a>');
+		var r1 = $('<div style="display:inline-block;overfow:visible;background-color:lightblue;width:'+personal_p+'%;"/>')
+		.append(check)
+		.append(html);
+		var r2 = $('<div style="display:inline-block;overfow:visible;background-color:lightgreen;width:'+positive_p+'%;"/>')
+		.append(r1);
+		var relevance = $('<div style="display:inline-block;overfow:visible;background-color:lightpink;width:'+negative_p+'%;"/>')
+		.append(r2);
+
 		var trusts_row = $('<li id='+i+' class="ui-widget-content">')
 		.append(del_button)
 		.append(relevance)
 		.append('</li>').appendTo(list);
-
+		
 		init_menu(list,data,1);
 		trusts_row.contextmenu(trusts_menu);
 		trusts_row.on("taphold",trusts_menu);
@@ -1193,7 +1230,7 @@ var things_data = [];
 
 function things_refresh() {
 	selected_thing_index = null;
-	requestBase("#things_list","What my topics name, trust, relevance?",true);
+	requestBase("#things_list","What my topics name, trust, relevance, positive, negative?",true);
 	$('#things_input').val('');
 }
 
@@ -1282,7 +1319,7 @@ var sites_data = [];
 
 function sites_refresh() {
 	selected_site_index = null;
-	requestBase("#sites_list","What my sites name, trust, relevance?",true);
+	requestBase("#sites_list","What my sites name, trust, relevance, positive, negative?",true);
 	$('#sites_input').val('');
 }
 
@@ -1364,7 +1401,7 @@ function sites_update(string) {
 //--- News --- 
 var news_data = [];
 var news_keys = ["sources", "text", "times"];
-var news_names = ["relevance", "social relevance", "sources", "text", "times", "trust","image","is"];
+var news_names = ["relevance", "social relevance", "sources", "text", "times", "trust", "image", "is", "sentiment"];
 
 var loading_bits = 0;
 function loading(start,bit){
@@ -1380,7 +1417,7 @@ function loading(start,bit){
 
 function news_refresh(filter) {
 	loading(true,1);
-	requestBase("#news_list","What new true sources, text, times, trust, relevance, social relevance, image, is?",true,
+	requestBase("#news_list","What new true sources, text, times, trust, relevance, social relevance, image, is, sentiment?",true,
 			function(){loading(false,1)},function(){loading(false,1)});
 	$('#news_input').val(filter ? filter : '');
 }
@@ -1559,41 +1596,12 @@ function get_expression(text, words) {
 	return findings;
 }
 
-//111
-var positive_words = ['agreements', 'accepts', 'addressing', 'addresses', 'addressed', 'better', 'can help', 'consulting', 'create new', 'donate', 'enable', 'helping', 'super', 'offer', 'free', 'publish', 'good', 'launch', 'leverage', 'invest', 'interesting', 'number one', 'excellent', 'encourage', 'set up', 'partner', 'popular', 'power', 'privacy', 'popularised', 'released', 'support', 'signed', 'grown into', 'largest', 'easier', 'generate', 'provided', 'roundtable', 'enabled', 'planning', 'set-up', 'built', 'great', 'include', 'ubiquitous', 'unveiled', 'using'];
-var negative_words = ['accident', 'cheat', 'criticize', 'criticizm', 'block', 'bug', 'defiant', 'deficit', 'disinformation', 'censor', 'ban', 'emergency', 'false', 'failed', 'fallout', 'fight', 'hacked', 'lose', 'remove', 'sabotage', 'shut ', 'suspend', 'manipulate', 'outage', 'worse', 'scammer', 'silence', 'mistake', 'worse', 'concern', 'bad',  'pandemic', 'pandemy', 'slammed', 'slamming', 'slighted', 'disable', 'violence', 'war'];
-
-function getEmotions(data,text_pos){
-	emotions = [];
-	var maxpos = 0;
-	var maxneg = 0;
-	for (var i = 0; i < data.length; i ++){
-		var text = data[i][text_pos].toLowerCase();
-		var pos = get_expression(text,positive_words);
-		var neg = get_expression(text,negative_words);
-		if (maxpos < pos)
-			maxpos = pos;
-		if (maxneg < neg)
-			maxneg = neg;
-		emotions[i] = [pos,neg];
-	}
-	if (maxpos > 0) for (var i = 0; i < data.length; i ++)
-		emotions[i][0] = emotions[i][0] * 100 / maxpos;
-	if (maxneg > 0) for (var i = 0; i < data.length; i ++)
-		emotions[i][1] = emotions[i][1] * 100 / maxneg;
-	return emotions;
-}
-///////////////////////////////////////TODO: move this out: 1) to separate file, 2) to backend using webmine classifier 
-
-
 function news_init(list,data,filter) {
 	for (i = 0; i < data.length; i ++){
 		data[i][0] = AL.toNumber(data[i][0]);
 		data[i][1] = AL.toNumber(data[i][1]);
 	}
 
-	var posneg = getEmotions(data,3);//TODO: move this to backend!?
-	
 	news_data.sort(news_data_sort);//TODO:remove sort from other places?
 	$(list).empty();
 	filter = AL.empty(filter)? null : filter.toLowerCase();
@@ -1605,6 +1613,7 @@ function news_init(list,data,filter) {
 		var times = data[i][4];
 		var trust = data[i][5];
 		var image = data[i][6];
+		var sentiment = data[i][8];
 		if (filter && !(contains_insensitive(sources,filter) || contains_insensitive(text,filter) || contains_insensitive(times,filter)))
 			continue;
 		check = $('<input class="news_check" type="checkbox" '+(trust ? 'checked' : '')+'/>');
@@ -1632,28 +1641,22 @@ function news_init(list,data,filter) {
 			for (var j = 0; j < sources_data.length; j++)
 				sources_html += '<div><a class="news_source" href="'+sources_data[j]+'" target="_blank">'+sources_data[j]+'</a></div>';
 
-		/*
-		var both_relevances = relevance + social_relevance;//full bar size
-		var first_in_both = Math.round(100 * relevance / both_relevances); 
-		
-		var date = $('<div class="news_date">').append(_(times)).append('</div><br>');
-		var check_and_date = $('<div>').append(check).append(date).append("</div>");
-		var news_bar = $('<div class="news_bar" style="overflow:visible;background-color:lightblue;height:1.2em;width:'+first_in_both+'%;">')
-			.append(check_and_date)
-			.append('</div>');		
-		var social_bar = $('<div class="news_bar" style="background-color:lightgreen;height:1.2em;width:'+both_relevances/2+'%;">')
-			.append(news_bar)
-			.append('</div>');
-			*/
+		var positive = sentiment && sentiment > 0 ? +sentiment : 0;
+		var negative = sentiment && sentiment < 0 ? -sentiment : 0;
 
-		var positive = posneg[i][0];
-		var negative = posneg[i][1];
+		//relevance 		= i * 100 / (data.length - 1);
+		//social_relevance 	= i * 100 / (data.length - 1);
+		//positive 			= i * 100 / (data.length - 1);
+		//negative 			= i * 100 / (data.length - 1);
 		
+		var personal_social = relevance + social_relevance;
+		var personal_social_positive = relevance + social_relevance + positive;  
 		var all_relevances = relevance + social_relevance + positive + negative;//full bar size
-		var personal_p = Math.round(100 * relevance / (relevance + social_relevance)); 
-		var social_p = Math.round(100 * (relevance + social_relevance) / (relevance + social_relevance + positive)); 
-		var positive_p = Math.round(100 * (relevance + social_relevance + positive) / all_relevances); 
+		var personal_p = personal_social == 0 			? 0 : Math.round(100 * relevance / personal_social); 
+		var social_p   = personal_social_positive == 0 	? 0 : Math.round(100 * personal_social / personal_social_positive); 
+		var positive_p = all_relevances == 0 			? 0 : Math.round(100 * personal_social_positive / all_relevances); 
 		var negative_p = Math.round(all_relevances / 4); 
+//console.log(personal_p+" "+social_p+" "+positive_p+" "+negative_p);
 		
 		var date = $('<div class="news_date">').append(_(times)).append('</div><br>');
 		var check_and_date = $('<div>').append(check).append(date).append("</div>");
@@ -2252,6 +2255,7 @@ function talks_say_out_internal(text) {
 		logout("#vkontakte_logo");
 		logout("#reddit_logo");
 		logout("#paypal_logo");
+		logout("#twitter_logo");
 		logoutlowlevel();
 	}
 }
@@ -2341,11 +2345,13 @@ function popUpReport(title,html,jquery){
 	}
 }
 
-function update_redirecting_logins(paypal,reddit){
+function update_redirecting_logins(paypal,reddit,twitter,reddit_image,twitter_image){
 	if (!AL.empty(paypal))
-		login("#reddit_logo","/ui/img/reddit_grayed.png");
-	if (!AL.empty(reddit))
 		login("#paypal_logo","/ui/img/paypal_icon_no_border_grayed.png");
+	if (!AL.empty(reddit))
+		login("#reddit_logo",reddit_image ? reddit_image : "/ui/img/reddit_grayed.png");
+	if (!AL.empty(twitter))
+		login("#twitter_logo",twitter_image ? twitter_image : "/ui/img/twitter_logo_grayed.png");
 }
 //var is_root = false;
 function loginlowlevel(name,surname,no_refresh){
@@ -2361,11 +2367,11 @@ function loginlowlevel(name,surname,no_refresh){
 	document.getElementById("aigents_logo").src = '/ui/img/aigent32left.png';
 	ajax_request('my language '+get_language(),function(){},true);//silent
 	if (!no_refresh)//if no need to refresh redirectig logins 
-     	ajax_request('What my reddit id, paypal id?',function(response){
+     	ajax_request('What my paypal id, reddit id, twitter id, reddit image, twitter image?',function(response){
 			var data= [];
-			parseToGrid(data,response.substring(5),['reddit id','paypal id'],",");
+			parseToGrid(data,response.substring(5),['reddit id','paypal id','twitter id', 'reddit image', 'twitter image'],",");
 			if (!AL.empty(data))
-				update_redirecting_logins(data[0][0],data[0][1]);
+				update_redirecting_logins(data[0][0],data[0][1],data[0][2],data[0][3],data[0][4]);
 	     	//ajax_request('What your trusts?',function(response){
 	     	//	is_root = response.startsWith('My trusts ');
 	     	//},true);
@@ -2566,24 +2572,15 @@ function init() {
 	//check if user is logged in already
 	var current_user = getCookie('username');
 	if (current_user){// user user set by cookie
-		/*
-     	ajax_request('What my reddit id, paypal id?',function(response){
-			var data= [];
-			parseToGrid(data,response.substring(5),['reddit id','paypal id'],",");
-			if (!AL.empty(data))
-				update_redirecting_logins(data[0][0],data[0][1]);
-			loginlowlevel(current_user);
-        },true);//silent
-     	*/
 		loginlowlevel(current_user);
 		post_init();
 	}else{//check if user is known by server after redirect with cookie kept in browser
-		requestBase(null,'What my name, surname, login time, reddit id, paypal id?',true,function(reply){
+		requestBase(null,'What my name, surname, login time, paypal id, reddit id, twitter id, reddit image, twitter image?',true,function(reply){
 			var data= [];
-			parseToGrid(data,reply.substring(5),['login time','name','surname','reddit id','paypal id'],",");
+			parseToGrid(data,reply.substring(5),['login time','name','surname','paypal id','reddit id','twitter id','reddit image','twitter image'],",");
 			if (!AL.empty(data)){//get user upon redirect and use tis context
 				loginlowlevel(capitalize(data[0][1]),capitalize(data[0][2]),true);
-				update_redirecting_logins(data[0][3],data[0][4]);
+				update_redirecting_logins(data[0][3],data[0][4],data[0][5],data[0][6],data[0][7]);
 				post_init();
 			} else {//create new context
 				ajax_request('my language '+lang,function(){

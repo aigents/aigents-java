@@ -224,9 +224,12 @@ public class Profiler {
 					String[] sites = (String[])data[i][6];
 					//dont' add old news
 					if (!AL.empty(sites) && time.compareTo(since) > 0) {
-						for (int j = 0; j < sites.length; j++){
-							boolean trust = like.booleanValue();
-							peerSites = updateLinks(AL.sites,sites[j],trust,peerSites,maxSites);
+						for (int j = 0; j < sites.length; j++) {
+							String site = sites[j];
+							if (AL.isURL(site) && !AL.isIMG(site)) {//TODO may be non-isURL for "search sources" 
+								boolean trust = like.booleanValue();
+								peerSites = updateLinks(AL.sites,site,trust,peerSites,maxSites);
+							}
 						}
 						//update news assuming sites are already added 
 //TODO: this not if liked but if matched thing patterns!!!						

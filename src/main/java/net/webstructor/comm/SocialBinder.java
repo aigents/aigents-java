@@ -31,6 +31,8 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Writer;
 import net.webstructor.core.Thing;
+import net.webstructor.peer.Peer;
+import net.webstructor.peer.Session;
 
 public abstract class SocialBinder extends Communicator {
 	protected String name;
@@ -114,4 +116,40 @@ public abstract class SocialBinder extends Communicator {
 		return null;
 	}
 
+	protected Thing bindPeer(HTTPeer parent, String cookie, String id, String username, String lastname, String email, String token) {
+		String cap_name = Writer.capitalize(name);
+		Session session = body.sessioner.getSession(parent == null ? this : parent,cookie);
+		if (session == null)
+			body.debug(String.format("%s no session for %s %s %s",cap_name,id,username,lastname));
+		else {
+			if (session.getPeer() != null)
+				body.debug(cap_name+" session peer "+session.getPeer().getTitle(Peer.title));
+			if (session.getStoredPeer() != null)
+				body.debug(cap_name+" session stored peer "+session.getStoredPeer().getTitle(Peer.title));
+			if (session.authenticated() && !session.isSecurityLocal()) {
+				String ok = session.bindAuthenticated(name+" id",id,name+" token",token);
+        		body.debug("Reddit bind autheticated id="+id+" name="+username+" token="+token+" result="+ok);
+        		return ok.equals("Ok.") ? session.getStoredPeer() : null;
+			}else{
+				HashSet<String> emails = new HashSet<String>();
+				if (AL.empty(email))
+					email = getEmail(id);  
+				emails.add(email);
+	    		body.debug(cap_name+" binding email id="+id+" name="+username+" surname="+lastname+" email="+email);
+				email = bindUserEmail(name,id,username,lastname,emails);
+	    		body.debug(cap_name+" bound email id="+id+" name="+username+" surname="+lastname+" email="+email);
+				if (!AL.empty(email)) {
+	            	session.bind(name, id, token, email, username, lastname);
+	            	if (!AL.empty(session.output())) {
+	            		body.debug(cap_name+" bind result="+session.output());
+	            		return session.getStoredPeer();
+	            	}
+	            	else
+	            		body.debug(cap_name+" bind failed");
+				}
+			}
+		}
+		return null;
+	}
+	
 }

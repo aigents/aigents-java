@@ -151,8 +151,8 @@ public abstract class SocialFeeder {
 		if (period == 7) { //weekly
 			int days = new Period(until.getTime() - times.getTime()).getDays();
 			int weeks = days / 7;
-			Date dayfrom = Time.today(- weeks * 7);
-			Date dayto = weeks == 0 ? until : Time.today(- (weeks - 1) * 7);
+			Date dayfrom = Time.today(- (weeks + 1) * 7);
+			Date dayto = weeks == 0 ? until : Time.today(- weeks * 7);
 			key = Time.day(dayfrom,false) + " - " + Time.day(dayto,false);
 		} else //monthly 
 			key = Time.month(times);

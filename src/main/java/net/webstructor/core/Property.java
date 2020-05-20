@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -181,9 +182,10 @@ public class Property extends Anything {
 	//	if (name.equals("phrase")) { //TODO: AL.phrase
 	//		String seq[] = Parser.split(value,AL.spaces);
 	//		if (Array.contains(seq, AL.period))
-	//			String[] seq = split(any[i],AL.spaces);//TODO:invent anything better?	
-		if (isRegexp(name))
-			return isRegexpMatching(name,value) ? +1 : -1;
+	//			String[] seq = split(any[i],AL.spaces);//TODO:invent anything better?
+		Pattern p = regexpPattern(name);
+		if (p != null)
+			return isRegexpMatching(p,value) ? +1 : -1;
 		
 		/** TODO if it makes sense at all?
 		 * TODO maybe we should just use property's pattern (own or inherited) in a reader to read it as pattern!!!??? 
@@ -252,17 +254,33 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 	}
 
 	//http://stackoverflow.com/questions/1649435/regular-expression-to-limit-number-of-characters-to-10
-	public static boolean isRegexp(String reg) {
+	//public static boolean isRegexp(String reg) {
+	//	int len = reg.length();
+	//	return len > 3 && reg.charAt(0) == '/' && reg.charAt(len-1) == '/';
+	//}
+	private static HashMap<String,Pattern> compiledPatterns = new HashMap<String,Pattern>();
+	public static Pattern regexpPattern(String reg) {
 		int len = reg.length();
-		return len > 3 && reg.charAt(0) == '/' && reg.charAt(len-1) == '/';
+		if (!(len > 3 && reg.charAt(0) == '/' && reg.charAt(len-1) == '/'))
+			return null;
+		synchronized (compiledPatterns) {
+			if (compiledPatterns.containsKey(reg))
+				return compiledPatterns.get(reg);
+		}
+		Pattern p = Pattern.compile(reg.substring(1,reg.length()-1));
+		synchronized (compiledPatterns) {
+			compiledPatterns.put(reg,p);
+		}
+		return p;
 	}
 	
 	//TODO: pre-compile regexp expressions in the map
 	//https://regexr.com/
 	//https://www.rexegg.com/regex-quickstart.html
-	public static boolean isRegexpMatching(String reg, String val) {
-		String pat = reg.substring(1,reg.length()-1);
-		Pattern p = Pattern.compile(pat);
+	//public static boolean isRegexpMatching(String reg, String val) {
+	public static boolean isRegexpMatching(Pattern p, String val) {
+		//String pat = reg.substring(1,reg.length()-1);
+		//Pattern p = Pattern.compile(pat);
 		Matcher m = p.matcher(val);
 		boolean match = m.matches();//exact match
 //TODO: to eable incremental matching over spaces - fix agent_web.php: get("There text михаил женится на марии.");

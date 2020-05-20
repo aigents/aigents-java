@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
@@ -143,6 +144,8 @@ public abstract class HTTP extends JSON {
 		// Send post request
 		con.setUseCaches(false);
 		con.setDoOutput(true);
+
+//TODO: fix HTTP.simple so it does not write params of GET but adds them to the url
 		if (!AL.empty(urlParameters)){
 			if (cType != null){//Used when POST request is sent by Telegrammer in UTF8
 				//TODO: use same below for other cases!?
@@ -272,6 +275,10 @@ public abstract class HTTP extends JSON {
 		return "Basic "+Code.str2b64(client_id_secret,false)+"=";
 	}
 
+	public static String nonce() {
+		return UUID.randomUUID().toString().replaceAll("-", "");
+	}
+	
 	public static void main(String[] args){
 		if (!AL.empty(args) && !AL.empty(args[0])){
 			System.out.println(args[0]);

@@ -42,9 +42,6 @@ import net.webstructor.util.Array;
 
 public class GraphCacher implements Cacher {
 
-	//TODO: make parameter
-	public static final int MEMORY_THRESHOLD = 75;
-	
 	private HashMap graphs = new HashMap(); //date-based graphs
 	private Filer filer;
 	private Environment env;
@@ -250,6 +247,13 @@ public class GraphCacher implements Cacher {
 		if (candidate != result)
 			candidate.clear();
 		return result;
+	}
+	
+	@Override
+	public void free(){
+		synchronized (graphs){
+			clearUnsync(null);
+		}
 	}
 	
 	public void to(PrintStream out){

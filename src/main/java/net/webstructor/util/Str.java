@@ -203,6 +203,15 @@ public class Str {
 		return null;
 	}
 	    
+	public static String parseTill(String source, String post) {
+		if (source != null && post != null) {
+			int end = source.indexOf(post);
+			if (end != -1)
+				return source.substring(0,end);
+		}
+		return source;
+	}
+	    
 	public static String[] concat(String[] first, String[] second){
 		String[] result = Arrays.copyOf(first, first.length + second.length);
 		System.arraycopy(second, 0, result, first.length, second.length);
@@ -250,7 +259,7 @@ public class Str {
 	}
 
 	public static String first(String s, int n) {
-		return s == null ? s : s.substring(0, Math.min(s.length(), n));
+		return s == null || s.length() <= n  ? s : s.substring(0, n);
 	}
 
 	/**

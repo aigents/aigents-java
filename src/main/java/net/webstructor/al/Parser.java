@@ -455,7 +455,6 @@ public class Parser {
 					Set grams1 = Parser.grams((Seq)sentences.get(i),1);
 					Set grams2 = Parser.grams((Seq)sentences.get(i),2);
 					Set grams3 = Parser.grams((Seq)sentences.get(i),3);
-					//System.out.println(sentences.get(i).toString()+'\t'+grams1+'\t'+grams2+'\t'+grams3);
 					System.out.println(Writer.toString((Set)sentences.get(i)," ")+'\t'
 							+Writer.toString((Set)grams1,"|")+'\t'
 							+Writer.toString((Set)grams2,"|")+'\t'

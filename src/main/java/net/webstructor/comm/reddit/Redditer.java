@@ -41,6 +41,7 @@ import net.webstructor.comm.HTTPeer;
 import net.webstructor.comm.SocialBinder;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
+import net.webstructor.util.Str;
 
 //https://www.reddit.com/prefs/apps
 //https://github.com/reddit-archive/reddit/wiki/OAuth2
@@ -91,7 +92,7 @@ public class Redditer extends SocialBinder implements HTTPHandler {
 						String auth_base64 = HTTP.auth_base64(client_id,client_secret);
 						body.debug("Reddit auth request "+params+" "+auth_base64);
 						String response = HTTP.simple(Reddit.oauth_url,params,"POST",timeout,null,new String[][] {new String[] {"Authorization",auth_base64}});
-						body.debug("Reddit auth response "+response);
+						body.debug("Reddit auth response "+Str.first(response,200));
 						if (!AL.empty(response)) {
 							JsonReader jsonReader = Json.createReader(new StringReader(response));
 							JsonObject json = jsonReader.readObject();
@@ -103,20 +104,23 @@ public class Redditer extends SocialBinder implements HTTPHandler {
 								//https://www.reddit.com/dev/api/#GET_api_v1_me
 								String api_url = "https://oauth.reddit.com/api/v1/me";
 								response = HTTP.simple(api_url,null,"GET",timeout,null,new String[][] {new String[] {"Authorization","bearer "+access_token}});
-								body.debug("Reddit response "+response);
+								body.debug("Reddit response "+Str.first(response,200));
 								if (!AL.empty(response)) {
 									jsonReader = Json.createReader(new StringReader(response));
 									json = jsonReader.readObject();
 									String username = HTTP.getJsonString(json,"name");
 									String oid = HTTP.getJsonString(json, "oauth_client_id");
+									String image = Str.parseTill(HTTP.getJsonString(json,"icon_img"),"?");
 									String title = json.containsKey("subreddit")?
 											HTTP.getJsonString(json.getJsonObject("subreddit"),"title",null) : null;
 				            		body.debug("Reddit oid="+oid+" username="+username+" title="+title);
 									if (!AL.empty(username)) {
 //TODO:make sure aboout id
+										boolean success = false;
 										String id = username;//oid?
 										if (session.authenticated() && !session.isSecurityLocal()) {
 											String ok = session.bindAuthenticated(Body.reddit_id,id,Body.reddit_token,refresh_token);
+											success = ok.equals("Ok.");
 						            		body.debug("Reddit bind autheticated id="+id+" name="+username+" token="+refresh_token+" result="+ok);
 										}else{
 											String lastname = username = username.toLowerCase();//silly defaults
@@ -140,12 +144,15 @@ public class Redditer extends SocialBinder implements HTTPHandler {
 						            		body.debug("Reddit bind non-authenticated oid="+oid+" id="+id+" name="+username+" surname="+lastname+" email="+email);
 											if (!AL.empty(email)) {
 								            	session.bind(name, id, refresh_token, email, username, lastname);
-								            	if (!AL.empty(session.output()))
+								            	if (!AL.empty(session.output())) {
 								            		body.debug("Reddit bind result="+session.output());
-								            	else
+								            		success = true;
+								            	} else
 								            		body.debug("Reddit bind failed");
 											}
 										}
+					            		if (success && !AL.empty(image))
+					            			session.getStoredPeer().set(Body.reddit_image, image);
 									}
 								}
 							}
