@@ -188,7 +188,7 @@ public class Spider {
 		    	Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 		    	boolean ok = false;
 		    	try {
-		    		ok = new Siter(body,body.storager,thingname,site,time,forced,tillTime,range,limit,strict,mode).read();
+		    		ok = new Siter(body,body.storager,site).init(thingname,time,forced,tillTime,range,limit,strict,mode).read();
 		    	} catch (Throwable t){
 					body.error("Site crawling failed unknown "+site+" "+t.toString()+",",t);
 		    	}

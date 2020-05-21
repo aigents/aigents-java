@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "2.7.0";
+$version = "2.7.2";
 $copyright = " Copyright © 2020 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -149,7 +149,8 @@ function test_i($in = null, $alts = null, $partial = false) {
 	if ($in != null && !($in === $t || ($alts !=null && in_array($t, $alts)))) {
 		println("GET:\n".$last_message."\nERROR - MUST BE:\n".$in);
 		$failed = $failed + 1;
-		exit();		
+		debug_print_backtrace();
+		exit();
 	}
 	else
 		println("GET:".$last_message);
