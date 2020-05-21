@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -46,7 +45,6 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.cat.StringUtil;
-import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
 import net.webstructor.core.Actioner;
 import net.webstructor.core.Environment;
@@ -54,113 +52,11 @@ import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
+import net.webstructor.data.ContentLocator;
 import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
-
-//TODO: move out
-class Imager {
-	HashMap pathMaps = new HashMap();
-	TreeMap getMap(String path){
-		TreeMap map = (TreeMap)pathMaps.get(path);
-		if (map == null)
-			pathMaps.put(path,map = new TreeMap());
-		return map;
-	}
-	
-	private Entry getClosest(TreeMap map, Integer pos){
-		if (map == null)
-			return null;
-		//Strategy 1:
-		//Entry e = map.floorEntry(pos);
-		//return e != null ? e : map.ceilingEntry(pos);
-		//Strategy 2:
-		Entry e1 = map.floorEntry(pos);
-		Entry e2 = map.ceilingEntry(pos);
-		if (e1 == null)
-			return e2;
-		if (e2 == null)
-			return e1;
-		Integer v1 = (Integer)e1.getKey();
-		Integer v2 = (Integer)e2.getKey();
-		int d1 = pos.intValue() - v1.intValue();
-		int d2 = v2.intValue() - pos.intValue();
-		return d1 <= d2 ? e1 : e2;
-	}
-	
-	private Entry getClosest(TreeMap map, Integer pos, int range){
-		if (range <= 0)
-			range = Integer.MAX_VALUE;
-		if (map == null)
-			return null;
-		Entry e1 = map.floorEntry(pos);
-		Entry e2 = map.ceilingEntry(pos);
-		if (e1 == null && e2 == null)
-			return null;
-		if (e2 == null)
-			return Math.abs(pos.intValue() - ((Integer)e1.getKey()).intValue()) <= range? e1 : null;
-		if (e1 == null)
-			return Math.abs(pos.intValue() - ((Integer)e2.getKey()).intValue()) <= range? e2 : null;
-		int d1 = Math.abs(pos.intValue() - ((Integer)e1.getKey()).intValue());
-		int d2 = Math.abs(pos.intValue() - ((Integer)e2.getKey()).intValue());
-		return Math.min(d1, d2) > range ? null : d1 <= d2 ? e1 : e2;	
-	}
-		
-	/**
-	 * Returns image source closest to position
-	 * @param pos position of the image
-	 * @return
-	 */
-	String getImage(String path, Integer pos){
-		TreeMap map = (TreeMap)pathMaps.get(path);
-		Entry e = getClosest(map,pos);
-		return e == null ? null : (String)e.getValue();
-	}
-
-	/**
-	 * Returns image source closest to position, with cleanup of unavailable entries along the way
-	 * @param pos position of the image
-	 * @return
-	 */
-	String getAvailableImage(String path, Integer pos){
-		TreeMap map = (TreeMap)pathMaps.get(path);
-		if (map == null)
-			return null;
-		while (map.size() > 0){
-			Entry e = getClosest(map,pos);
-			String value = (String)e.getValue();
-			if (!AL.empty(value) && HTTP.accessible(value))
-				return value;
-			map.remove(e.getKey());
-		}
-		return null;
-	}
-	
-	/**
-	 * Returns image source closest to position ONLY if within specified range, with NO cleanup of unavailable entries
-	 * @param pos position of the image
-	 * @return
-	 */
-	String getAvailableInRange(String path, Integer pos, int range){
-		TreeMap map = (TreeMap)pathMaps.get(path);
-		if (map == null)
-			return null;
-		if (map.size() > 0){
-			Entry e = getClosest(map,pos,range);
-			if (e != null){
-				String value = (String)e.getValue();
-				//TODO: check accessibility unless banned or check robots.txt when trying?
-				//if (!AL.empty(value) && HTTP.accessible(value))
-				if (!AL.empty(value))
-					return value;
-			}
-		}
-		return null;
-	}
-	
-}
-
 
 public class Siter {
 
@@ -182,29 +78,32 @@ public class Siter {
 	Collection allThings;
 	MapMap thingPaths; //thing->path->instance
 	MapMap thingTexts; //thing->text->instance	
-	Imager imager;
-	Imager linker;//using Imager to keep positions of links
+	ContentLocator imager;
+	ContentLocator linker;//using Imager to keep positions of links
 	Cacher cacher;
 	long tillTime;
 	long newsLimit;
 	int range;//TODO unify with PathFinder's hopLimit
 	Mode mode;//mode - [smart|track|find] - whether to use existing path if present only (track) or always explore new paths (find) or track first and go to find if nothing is found (default - smart)
-	
-	public Siter(Body body,Storager storager,String thingname,String path,Date time,boolean forced,long tillTime,int range,int limit,boolean strict,String mode) {
+
+	public Siter(Body body,Storager storager,String path) {
 		this.body = body;
 		this.self = body.self();
-		this.storager = storager;
-		this.thingname = thingname;
 		this.rootPath = path;
+		this.storager = storager;
+		thingPaths = new MapMap();
+		thingTexts = new MapMap();
+		imager = new ContentLocator();
+		linker = new ContentLocator();
+		this.cacher = body.filecacher;
+	}
+	
+	public Siter init(String thingname,Date time,boolean forced,long tillTime,int range,int limit,boolean strict,String mode) {
+		this.thingname = thingname;
 		this.realTime = time;
 		this.timeDate = Time.date(time);
 		this.forced = forced;
 		this.strict = strict;
-		thingPaths = new MapMap();
-		thingTexts = new MapMap();
-		imager = new Imager();
-		linker = new Imager();
-		this.cacher = body.filecacher;
 		this.tillTime = tillTime;
 		this.range = range < 0 ? 0 : range;
 		this.newsLimit = limit;
@@ -256,8 +155,9 @@ public class Siter {
 				}
 			}
 		}
+		return this;
 	}
-
+	
 	boolean expired(){
 		boolean expired = tillTime > 0 && System.currentTimeMillis() > tillTime;
 		if (expired)
@@ -265,6 +165,11 @@ public class Siter {
 		return expired;
 	}
 	
+	//TODO add Crawler interface with readChannel => crawl method
+	//TODO make Redditer, Twitter, Discourse => implement Crawler 
+	//TODO split Siter into Siter framwork and Spider   
+	//TODO make spider to implement Crawler 
+	//TODO Siter.newSpider => Spider.crawl
 	private int newSpider(Collection topics) {
 		int hits = 0;
 		for (Object topic : topics){
@@ -297,10 +202,12 @@ public class Siter {
 			}
 		if (!ok)//use no channel-reader responded, try site-reader as fallback
 			ok = newSpider(topics) > 0;
+			
+
 		if (ok)//send updates on success
 			ok = update() > 0;
 			
-			long stop = System.currentTimeMillis(); 
+		long stop = System.currentTimeMillis(); 
 		body.debug("Site crawling root end "+(ok ? "found" : "missed")+" "+rootPath+", took "+Period.toHours(stop-start));
 		return ok;
 	}
@@ -488,7 +395,7 @@ public class Siter {
 	
 	//match all Patterns of one Thing for one Site and send updates to subscribed Peers
 	//TODO: Siter extends Matcher (MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker)
-	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker) {
+	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker) {
 		//TODO: re-use iter building it one step above
 		//ArrayList positions = new ArrayList();
 		//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
@@ -621,7 +528,7 @@ public class Siter {
 	}
 
 	//match one Pattern for one Thing for one Site
-	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker) {
+	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker) {
 		Date now = Time.date(time);
 		int matches = 0;
 		//TODO:optimization so pattern with properties is not rebuilt every time?
@@ -662,7 +569,7 @@ public class Siter {
 			instance.setString(AL.text,nl_text);
 			Integer textPos = positions == null ? new Integer(0) : (Integer)positions.get(iter.cur() - 1);
 			if (imager != null){
-				String image = imager.getAvailableImage(path,textPos);
+				String image = imager.getAvailable(path,textPos);
 				if (!AL.empty(image))
 					instance.setString(AL.image,image);
 			}
@@ -958,10 +865,10 @@ public class Siter {
 	
 	//TODO: move to other place!?
 	public static int matchThingsText(Body body, Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths){
-			Imager imager = null;
+			ContentLocator imager = null;
 //TODO: actual image positions based on text MD/HTML parsing!? 
 			if (!AL.empty(imgurl)) {
-				imager = new Imager();
+				imager = new ContentLocator();
 				TreeMap tm = imager.getMap(permlink);
        			tm.put(new Integer(0), imgurl);
 			}
