@@ -4926,6 +4926,7 @@ nullipara
 numb
 nystagmus
 obese
+obesity
 object
 objection
 objectionable
@@ -5606,6 +5607,7 @@ ragged
 raging
 ragnarok
 rail
+rain
 rainproof
 raked
 rampage
@@ -6585,6 +6587,7 @@ stone-deaf
 stooge
 stooges
 storm-beaten
+storm
 stormy
 straggle
 straggler
@@ -6900,6 +6903,7 @@ thug
 thumb-down
 thumbs-down
 thunderous
+thunderstorm
 thwart
 thyroid
 thyroiditis
