@@ -155,7 +155,6 @@ import net.webstructor.util.Str;
             if(pos == -1)
                 pos = 0;
             String t = extractTitle(source);
-            titles.put(path, t);
 
             // skip html header
             pos=skipTag(source,0,HEAD);

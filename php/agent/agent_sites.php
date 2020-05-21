@@ -178,7 +178,7 @@ http://www.squarefoot.com.hk/
 	test_o("What is real estate?");
 //TODO: unsplit splited	
 	//test_i("There grossarea 853, is real estate, price $11, priceunit m, saleablearea 685, text kowloon gross area 853 saleable area 685 price: $11 m, times today.");
-	test_i("There grossarea 853, is real estate, price $11, priceunit m, saleablearea 685, text 'kowloon gross area ( sq.ft . ) 853 saleable area ( sq.ft . ) 685 price: $11 m', times today.");
+	test_i("There grossarea 853, is real estate, price $11, priceunit m, saleablearea 685, text 'kowloon gross area ( sq.ft . ) 853 saleable area ( sq.ft . ) 685 price: $11 m', times today, title 'kowloon gross area ( sq.ft . ) 853 saleable area ( sq.ft . ) 685 price: $11 m'.");
 	test_o("No there is real estate.");
 	test_i("Ok.");
 	test_o("My topics no real estate.");
@@ -268,7 +268,7 @@ http://indianexpress.com/elections/
 	//test_o("You read Narendra Modi in 'Narendra Modi quits Vadodara, retains Varanasi. Will deal with outstanding issues: Narendra Modi tells Chinese PM.'!");
 	//test_i("My reading narendra modi in 'Narendra Modi quits Vadodara, retains Varanasi. Will deal with outstanding issues: Narendra Modi tells Chinese PM.'.");	
 	test_o("What is Narendra Modi?");
-	test_i("There action quit vadodara seat despite winning with a near record margin of 5.7 lakh votes, is narendra modi, leave vadodara seat despite winning with a near record margin of 5.7 lakh votes, text narendra modi quit vadodara seat despite winning with a near record margin of 5.7 lakh votes had quit vadodara seat despite winning with a near record margin of 5.7 lakh votes, times today; is narendra modi, keep varanasi, leave vadodara, text narendra modi quits vadodara retains varanasi, times today; is narendra modi, talk chinese pm, text narendra modi tells chinese pm, times today.");
+	test_i("There action quit vadodara seat despite winning with a near record margin of 5.7 lakh votes, is narendra modi, leave vadodara seat despite winning with a near record margin of 5.7 lakh votes, text narendra modi quit vadodara seat despite winning with a near record margin of 5.7 lakh votes had quit vadodara seat despite winning with a near record margin of 5.7 lakh votes, times today, title narendra modi quit vadodara seat despite winning with a near record margin of 5.7 lakh votes had quit vadodara seat despite winning with a near record margin of 5.7 lakh votes; is narendra modi, keep varanasi, leave vadodara, text narendra modi quits vadodara retains varanasi, times today, title narendra modi quits vadodara retains varanasi; is narendra modi, talk chinese pm, text narendra modi tells chinese pm, times today, title narendra modi tells chinese pm.");
 //TODO: eliminate empty things in output	
 	//test_o("What is Narendra Modi talk?");
 	//test_i("There talk chinese pm.");	

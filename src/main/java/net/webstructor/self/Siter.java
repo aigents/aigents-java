@@ -614,7 +614,7 @@ public class Siter {
 			//plain text before "times" and "is" added
 			String nl_text = summary.toString();
 			String title_text = nl_text;
-			if(titler != null && titler.pathMaps.containsKey(path) && !titler.getMap(path).get(path).toString().equals(""))
+			if(titler != null && titler.pathMaps.containsKey(path) && titler.getMap(path).containsKey(path) && !titler.getMap(path).get(path).toString().equals(""))
 				title_text = titler.getMap(path).get(path).toString();
 
 			//TODO check in mapmap by text now!!!
