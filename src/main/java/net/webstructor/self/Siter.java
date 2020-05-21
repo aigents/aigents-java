@@ -612,9 +612,10 @@ public class Siter {
 				break;
 			
 			//plain text before "times" and "is" added
-			String nl_text = titler.getMap(path).get(path).toString();
-			if (nl_text.equals(""))
-				nl_text = summary.toString();
+			String nl_text = summary.toString();
+			String title_text = nl_text;
+			if(titler != null && titler.pathMaps.containsKey(path) && !titler.getMap(path).get(path).toString().equals(""))
+				title_text = titler.getMap(path).get(path).toString();
 
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
@@ -638,6 +639,7 @@ public class Siter {
 			instance.addThing(AL.is, thing);
 			instance.set(AL.times, now);
 			instance.setString(AL.text,nl_text);
+			instance.setString(AL.title, title_text);
 			Integer textPos = positions == null ? new Integer(0) : (Integer)positions.get(iter.cur() - 1);
 			if (imager != null){
 				String image = imager.getAvailableImage(path,textPos);

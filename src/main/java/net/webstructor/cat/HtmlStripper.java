@@ -27,7 +27,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.webstructor.al.AL;
 import net.webstructor.util.Array;
@@ -460,16 +461,17 @@ import net.webstructor.util.Str;
          * @param pos - starting position of search.
          * @return string containing the content of the first tag found. If no tag found, return null
         */
-        static Map<String, Integer> getTagContent(String source, String tag, int pos) {
-            Map<String, Integer> tagCont = new HashMap<String, Integer>();
-            String btag = LT + tag + GT;
-            String etag = LT+"/" + tag + GT;
-            int bpos = source.indexOf(btag, pos);
-            int epos = source.indexOf(etag, pos);
-            while(bpos != -1 && epos != -1) {
-                tagCont.put(source.substring(bpos+btag.length(), epos), epos+etag.length());
-                bpos = source.indexOf(btag,epos+etag.length());
-                epos = source.indexOf(etag,epos+etag.length());
+        static ArrayList<String> getTagContent(String source, String tag) {
+            ArrayList<String> tagCont = new ArrayList<String>();
+            String ftagr = "<\\s*" + tag + "[^>]*>(.*?)<\\s*/\\s*" + tag + ">";
+            String exttagr = "<\\s*[a-z]+[^>]*>(.*?)<\\s*/\\s*[a-z]+>";
+            String btagr = "<\\s*" + tag + "[^>]*>(.*?)";
+            String etagr = "<\\s*/\\s*" + tag + ">";
+            Pattern ftagc = Pattern.compile(ftagr);
+            Matcher ftagcm = ftagc.matcher(source);
+            while(ftagcm.find()) {
+				String fin = ftagcm.group().replaceAll(btagr, "").replaceAll(etagr, "").replaceAll(exttagr, "");
+				tagCont.add(fin);
             }
             return tagCont;
         }
@@ -504,21 +506,20 @@ import net.webstructor.util.Str;
         */
         static String extractTitle(String source) {
             StringBuilder sb = new StringBuilder();
-            Map<String, Integer> tTagC = getTagContent(source, TITLE, 0);
-            Map<String, Integer> hTagC = getTagContent(source, HEADER1, 0);
+            ArrayList<String> tTagC = getTagContent(source, "title");
+            ArrayList<String> hTagC = getTagContent(source, "h[1-6]");
             ArrayList<String> mTitle = getMetaContByProp(source, "og:title");
             String tit = "" , htit = "", mtit = "";
             if (mTitle.size() != 0)
                 mtit = mTitle.get(0);
             if (tTagC.size() != 0) {
-                tit = (String) tTagC.keySet().toArray()[0];
+                tit = tTagC.get(0);
                 sb = new StringBuilder();
                 addText(sb, tit);
                 tit = sb.toString();
             }
-            for (Map.Entry<String, Integer> it: hTagC.entrySet()) {
-                htit = it.getKey();
-                addText(sb, htit);
+            for (String h1 : hTagC) {
+                addText(sb, h1);
                 htit = sb.toString();
                 if (Str.LevenshteinDistance(htit, tit) > 0.75 || Str.LevenshteinDistance(htit, mtit) > 0.75)
                     return htit;
