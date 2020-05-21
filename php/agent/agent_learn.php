@@ -63,7 +63,6 @@ function test_agent_learn() {
 	get();
 	say("What person path?");
 	get("Person path not.");
-	//brk();
 	
 	//aside from learning, test ability to detect really new news only
 	//TODO: fix parsing so 'john doe founder' is parsed out of 'there is john doe founder elected'

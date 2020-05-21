@@ -319,6 +319,7 @@ public class Siter {
 			return 0;
 		int hits = 0;
 		Date now = Time.date(time);
+		HashMap<Thing,Thing> existings = new HashMap<Thing,Thing>(); 
 		//update whatever is novel compared to snapshot in STM or LTM
 		for (int p = 0; p < things.length; p++){
 			Thing thing = (Thing)things[p];
@@ -336,12 +337,17 @@ public class Siter {
 					if (!AL.empty(text)){
 						String thingName = thing.getName();
 					
-//TODO: use "forcer" consistently						
-//TODO:make sure if GLOBAL novelty is required, indeed... 
+//TODO: use "forced" consistently						
+//TODO: make sure if GLOBAL novelty is required, indeed... 
 //TODO: use "newly existing" logic same as used in archiver.exists!?
-						if (existing(body,thing,instance,null,false,text) != null)//new path-less identity
+//TODO: use either existing = existing(... thing or instance to update snapshots on the next round below????
+						Thing existing = existing(body,thing,instance,null,false,text);
+						if (existing != null) {//new path-less identity
+							existings.put(instance,existing);
 							continue;
-						Date date = instance.getDate(AL.times,null);
+						}
+						//checking for existence before today, not just today... 
+						Date date = null;//instance.getDate(AL.times,null);
 						if (!forced && body.archiver.exists(thingName,text,date))//check LTM
 							continue;
 					
@@ -378,11 +384,16 @@ public class Siter {
 						//String thingName = ((Thing)ises.iterator().next()).getName();
 					if (!AL.empty(text)){
 						String thingName = thing.getName();
-						Thing existing;
-//TODO: use "forcer" consistently						
-						//if ((existing = existing(thing,instance,null,false,text)) != null)//new path-less identity
-						if (!forced && (existing = existing(body,thing,instance,null,false,text)) != null)//new path-less identity
+						Thing existing = existings.get(instance);
+//TODO: use "forced" consistently						
+						if (!forced && existing != null)//new path-less identity
 							existing.set(AL.times,now);//update temporal snapshot in-memory
+//TODO don't need not-a-news-item things hanging in memory?
+						//if (existing == null) {
+						//	instance.store(body.storager);
+						//	instance.set(AL.times,now);
+						//}
+						
 						body.archiver.update(thingName,text,now);//update temporal snapshot in LTM
 					}
 				}
@@ -534,6 +545,21 @@ public class Siter {
 		return found;
 	}
 
+	/*static private Thing existingNonPeiodic(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
+		Collection coll;
+		try {
+			All query = new All(new Object[]{
+					new Seq(new Object[] {AL.is,thing}),
+					new Seq(new Object[] {AL.text,text})});
+			coll = body.storager.get(query,(Thing)null);
+			if (!AL.empty(coll))
+				return (Thing)coll.iterator().next();
+		} catch (Exception e) {
+			body.error("Spidering existence check failed ",e);
+		}
+		return null;
+	}*/
+	
 	static Thing existing(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
 		Collection coll = latest(body.storager,thing,path);
 		if (debug) {
@@ -727,6 +753,7 @@ public class Siter {
 	}
 
 	public static void update(Body body, Storager storager, Thing thing,Collection news,String path,Collection peers,boolean verbose) throws IOException {
+//TODO: make digest individual for peers, generated inside the peer-specific update() method
 		String[] digest = digest(body,thing,path,news,verbose);
 		if (AL.empty(digest))
 			return;
@@ -782,6 +809,7 @@ public class Siter {
 	static void update(Body body, Storager storager, Thing peer, Thing thing, Collection news, String subject, String content, String signature) throws IOException {
 		for (Iterator it = news.iterator(); it.hasNext();) {
 			Thing t = (Thing)it.next();
+//TODO: eliminate duplicated !!!untrusted things here on peer-specific basis!!!???
 			t.set(AL._new, AL._true, peer);
 		}
 		body.update(peer, subject, content, signature);

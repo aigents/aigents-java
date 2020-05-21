@@ -68,7 +68,6 @@ function test_agent_web() {
 		
 		say("You forget everything!");
 		get("Ok.");
-		brk();
 	}
 	
 	// Gismeteo - works!
@@ -162,8 +161,6 @@ function test_agent_web() {
 		get();
 		say_thing($patt,false);
 		say("No there times today.");
-		
-		brk();
 	}
 	
 	//Reading Steemit: https://steemit.com/ethereum/@aigents/ethereum-graphs-with-aigents
@@ -250,7 +247,6 @@ function test_agent_web() {
 		say_site($site,false);
 		say("No there times today.");
 	
-		brk();
 	}
 	
 	// Aigents news - works!
@@ -367,7 +363,6 @@ function test_agent_web() {
 		say("what my topics?");
 		get();
 		say_thing("test \$word",false);
-brk();
 		say_site("http://beta.speedtest.net/it/result/5684599470?preferredLocale=it",false);
 		//TODO: cleanup linked sites too!?
 	}
@@ -392,7 +387,6 @@ brk();
 		//"2016 году . владимир кехман . поддельные  . пикет в защиту в деле . спасатели рейтинг: городецкий – плюс 1, толоконский – минус 8");
 		//"владимир кехман . поддельные  . пикет в защиту в деле . спасатели рейтинг: городецкий – плюс 1");
 		"владимир кехман . пикет в защиту . рейтинг: городецкий – плюс 1");
-		brk();
 		
 		say("You reading!");
 		sleep($sleep_seconds);
@@ -410,7 +404,6 @@ brk();
 		//say_site("http://sibkray.ru/",false);
 		//say_site("http://localtest.com/nsk/sibkray1.html",false);
 		say_site("http://localtest.com/test.html",false);
-		brk();
 */		
 		/*
 		- why key is duplicated
@@ -682,8 +675,6 @@ brk();
 		//get("There text в. городецкий написал два.");
 		del_news_today();
 		say_thing($pat,false);
-		
-//brk();
 		
 		/*
 		//TODO:

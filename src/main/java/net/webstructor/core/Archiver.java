@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -110,12 +110,12 @@ public class Archiver {
 		try {
 			if (date == null) {
 				String[] latest = filer.latest(path("is-instances",thing));
-				return Array.contains(latest, instance); 
+				return Array.contains(latest, URLEncoder.encode(instance,"UTF8")); 
 			}else {
 				String[] path = path("is-instances",thing,instance);
 				File file = filer.getFile(path);
 				//assume exists if present and has the same or older date!!! 
-				return file != null && file.lastModified() >= date.getTime() ? true : false;
+				return file != null && (date == null || file.lastModified() >= date.getTime()) ? true : false;
 			}
 		} catch (UnsupportedEncodingException e) {
 			env.error("Archiver encoding "+thing+" "+instance, e);
