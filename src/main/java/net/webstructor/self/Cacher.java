@@ -51,7 +51,7 @@ public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data
 	private Storager storager;
 	private HttpFileReader reader;
 	private HashMap pathTexts; //read and parsed page texts
-	private HashMap pathTodos; //actually read and updated pages
+	private HashMap pathTried; //actually read and updated pages
 	private HashMap<String,Date> pathTimes; //timestamps
 	
 	public Cacher(String name,Body body,Storager storager){
@@ -60,13 +60,13 @@ public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data
 		this.storager = storager;
 		reader = new HttpFileReader(body,Body.http_user_agent);
 		pathTexts = new HashMap();
-		pathTodos = new HashMap();
+		pathTried = new HashMap();
 		pathTimes = new HashMap<String,Date>();
 		body.register(name, this);
 	}
 	
-	synchronized void clearTodos(){
-		pathTodos.clear();
+	synchronized void clearTried(){
+		pathTried.clear();
 	}
 
 	@Override
@@ -158,15 +158,15 @@ body.debug("Cacher clearing "+path);
 	 * @return
 	 */
 	protected String readIfUpdated(String path,ArrayList links,Map images,Map linkPositions,Map titles,boolean forced,Date realTime){
-		//pathTodos - means "doable", indicates that file can be processed repeatedly for different things!!!
+		//pathTried - means "doable", indicates that file can be processed repeatedly for different things!!!
 		//if known as ignored or not ignored, return from cache
-		Boolean todos = (Boolean)pathTodos.get(path);
-		if (todos != null)
-			return todos.booleanValue() ? readCached(path,realTime.getTime(),links,images,linkPositions,titles) : null;
+		Boolean tried = (Boolean)pathTried.get(path);
+		if (tried != null)
+			return tried.booleanValue() ? readCached(path,realTime.getTime(),links,images,linkPositions, titles) : null;
 		//if ignorance is unknown, figure it owt
 		String text = readCached(path,realTime.getTime(),links,images,linkPositions,titles);
 		if (AL.empty(text)) {
-			pathTodos.put(path, new Boolean(true));//ignore as error
+			pathTried.put(path, new Boolean(true));//ignore as error
 		}else {
 			boolean todo = false;
 			//need to determine presence of updates
@@ -204,7 +204,7 @@ body.debug("Cacher clearing "+path);
 			} catch (Exception e) {
 				body.error(e.toString(), e);
 			}	
-			pathTodos.put(path, new Boolean(todo));
+			pathTried.put(path, new Boolean(todo));
 		}
 		return text;
 	}

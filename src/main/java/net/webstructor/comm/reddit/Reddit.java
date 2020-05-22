@@ -96,7 +96,8 @@ public class Reddit extends Socializer {
 		return refresh_token(appId,appSecret,token);
 	}	
 
-	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
+	@Override
+	public int crawl(String uri, Collection topics, MapMap thingPathsCollector){
 		if (AL.empty(uri) || AL.empty(appId) || AL.empty(appSecret))
 			return -1;
 		

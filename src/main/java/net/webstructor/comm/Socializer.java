@@ -133,7 +133,7 @@ public abstract class Socializer extends HTTP {
 	 * @param collector to accumulate findings in triple store: Thing topic, String path, Thing instance
 	 * @return -1 if ot supported, 0 if supported but not read, 1 if read
 	 */
-	public int readChannel(String uri, Collection topics, MapMap collector){
+	public int crawl(String uri, Collection topics, MapMap collector){
 		return -1;
 	}
 	

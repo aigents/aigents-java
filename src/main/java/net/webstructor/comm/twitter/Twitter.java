@@ -187,7 +187,8 @@ public class Twitter extends Socializer {
 		return peer.getString(Body.twitter_token_secret);
 	}
 
-	public int readChannel(String url, Collection topics, MapMap thingPathsCollector){
+	@Override
+	public int crawl(String url, Collection topics, MapMap thingPathsCollector){
 		String screen_name;
 		if (AL.empty(url) || AL.empty(screen_name = Str.parseBetween(url, content_url, "/", false)) || AL.empty(consumer_key) || AL.empty(consumer_key_secret))
 			return -1;

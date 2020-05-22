@@ -36,6 +36,7 @@ import java.util.Set;
 import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
+import net.webstructor.al.Period;
 import net.webstructor.al.Statement;
 import net.webstructor.al.Writer;
 import net.webstructor.al.Time;
@@ -287,15 +288,14 @@ public class Peer extends Agent {
 		ArrayList news = new ArrayList();
 		ArrayList dels = new ArrayList();
 		Date today = Time.today(0);
-		Date yesterday = Time.today(-1);
+		int days = body.attentionDays();
+		//Date yesterday = Time.today(-1);
 		for (Iterator it = allNews.iterator(); it.hasNext();){
 			Thing t = (Thing)it.next();
-			Object day = t.get(AL.times);
-			//consider for removal news for today and yesterday, if not either trusted or originated from our site
-			//compact oly the recent news, keep old news hanging?!  			
-			/*if ((day.equals(today) || day.equals(yesterday)) && !trusts.contains(t) && !t.hasThing(AL.sources, origin))
-				news.add(t);*/
-			if (day != null && !(day.equals(today) || day.equals(yesterday)))
+			Date day = t.getDate(AL.times,null);
+			int daysdiff = Period.daysdiff(day, today);
+			//if (day != null && !(day.equals(today) || day.equals(yesterday)))
+			if (day != null && daysdiff > days)//ignore items with undefined date or out of attention period
 				continue;
 			if (!trusts.contains(t) && !t.hasThing(AL.sources, origin)) {
 				boolean relevant = false;  
