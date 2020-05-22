@@ -88,7 +88,8 @@ public class Discourse extends SocialCacher {
 		return feeder;
 	}
 	
-	public int readChannel(String uri, Collection topics, MapMap thingPathsCollector){
+	@Override
+	public int crawl(String uri, Collection topics, MapMap thingPathsCollector){
 		String base_url;
 		if (AL.empty(uri) || AL.empty(base_url = HttpFileReader.getSite(uri)))
 			return -1;

@@ -58,6 +58,41 @@ import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
+
+//TODO split Siter into Siter framwork and Webber   
+//TODO Siter.newSpider => Webber.crawl
+//TODO add Crawler interface with readChannel => crawl method
+//TODO make Redditer, Twitter, Discourse => implement Crawler 
+//TODO make Webber to implement Crawler
+//TODO move sitecacher = new GraphCacher("www", this); under the umbrella of the Webber
+/*class Webber {
+	Siter siter;
+	Webber(Siter siter){
+		this.siter = siter;
+	}
+	public int crawl(String rootPath, Collection topics, MapMap thingPathsCollector) {
+		if (!AL.isURL(rootPath) || AL.isIMG(rootPath))
+			return -1;
+		int hits = 0;
+		for (Object topic : topics){
+			Thing t = (Thing)topic;
+			if (siter.expired())
+				break;
+			Collection goals = new ArrayList(1);
+			goals.add(t);
+			String name = t.getName();
+			
+			siter.body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
+			boolean found = new PathTracker(siter,goals,siter.range).run(rootPath);
+			siter.body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
+			if (found)
+				hits++;
+		}
+		return hits;
+	}
+}*/
+
+
 public class Siter {
 
 	public static final int DEFAULT_RANGE = 1;//TODO: make configurable
@@ -165,12 +200,7 @@ public class Siter {
 		return expired;
 	}
 	
-	//TODO add Crawler interface with readChannel => crawl method
-	//TODO make Redditer, Twitter, Discourse => implement Crawler 
-	//TODO split Siter into Siter framwork and Spider   
-	//TODO make spider to implement Crawler 
-	//TODO Siter.newSpider => Spider.crawl
-	private int newSpider(Collection topics) {
+	private int crawl(Collection topics) {
 		int hits = 0;
 		for (Object topic : topics){
 			Thing t = (Thing)topic;
@@ -189,19 +219,19 @@ public class Siter {
 	}
 	
 	public boolean read() {
-		cacher.clearTodos();
+		cacher.clearTried();
 		Collection topics = !AL.empty(thingname) ? storager.getNamed(thingname) : allThings;
 		body.debug("Site crawling root begin "+rootPath+".");
 		long start = System.currentTimeMillis(); 
 
 		boolean ok = false;
 		for (Socializer s : body.getSocializers())//try channel-readers first
-			if (s.readChannel(rootPath, topics, thingPaths) >= 0) {
+			if (s.crawl(rootPath, topics, thingPaths) >= 0) {
 				ok = true;
 				break;
 			}
 		if (!ok)//use no channel-reader responded, try site-reader as fallback
-			ok = newSpider(topics) > 0;
+			ok = crawl(topics) > 0;
 			
 
 		if (ok)//send updates on success
@@ -216,7 +246,7 @@ public class Siter {
 		int hits = update(body,rootPath,timeDate,thingPaths,forced,null);
 		thingPaths.clear();//help gc
 		thingTexts.clear();
-		cacher.clearTodos();
+		cacher.clearTried();
 		return hits;
 	}
 	
