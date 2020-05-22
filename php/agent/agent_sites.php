@@ -178,7 +178,7 @@ http://www.squarefoot.com.hk/
 	test_o("What is real estate?");
 //TODO: unsplit splited	
 	//test_i("There grossarea 853, is real estate, price $11, priceunit m, saleablearea 685, text kowloon gross area 853 saleable area 685 price: $11 m, times today.");
-	test_i("There grossarea 853, is real estate, price $11, priceunit m, saleablearea 685, text 'kowloon gross area ( sq.ft . ) 853 saleable area ( sq.ft . ) 685 price: $11 m', times today, title 'kowloon gross area ( sq.ft . ) 853 saleable area ( sq.ft . ) 685 price: $11 m'.");
+	test_i("There grossarea 853, is real estate, price $11, priceunit m, saleablearea 685, text 'kowloon gross area ( sq.ft . ) 853 saleable area ( sq.ft . ) 685 price: $11 m', times today, title kowloon gross area.");
 	test_o("No there is real estate.");
 	test_i("Ok.");
 	test_o("My topics no real estate.");

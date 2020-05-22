@@ -24,7 +24,7 @@
 rm -rf ./al_test.txt *log.txt www is-instances is-text test*.txt
 
 # Run Aigents Server
-java -cp Aigents.jar:lib/* net.webstructor.agent.Farm store path './al_test.txt', cookie domain localtest.com, console off &
+java -Dsun.zip.disableMemoryMapping=true -cp Aigents.jar:lib/* net.webstructor.agent.Farm store path './al_test.txt', cookie domain localtest.com, console off &
 sleep 5
 echo Aigents server started.
 

@@ -56,7 +56,6 @@ import net.webstructor.util.Str;
         static String HEAD="head";
         static String TITLE="title";
         static String BODY="body";
-        static String HEADER1="h1";
         static String META="meta";
         static String BASE="base";
         static String A="a";

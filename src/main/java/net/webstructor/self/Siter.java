@@ -500,7 +500,22 @@ public class Siter {
 			body.debug("novel   :true");
 		return null;
 	}
-	
+
+	public static String shortTitle(String text) {
+		if(text.matches("(?![0-9]).*["+AL.punctuation+"](?![0-9]).*")) {
+			String[] tokens = text.split("["+AL.punctuation+"]");
+			for(String s : tokens) {
+				while(s.endsWith(" "))
+					s = s.substring(0, s.length()-1);
+				while(s.startsWith(" "))
+					s = s.substring(1, s.length());
+				if(s.contains(" "))
+					return s;
+			}
+		}
+		return text;
+	}
+
 	//TODO: move to other place
 	public static Seq relaxPattern(Storager storager, Thing instance, String context, Seq patseq, String about) {
 		if (AL.empty(patseq))
@@ -546,12 +561,14 @@ public class Siter {
 			
 			//plain text before "times" and "is" added
 			String nl_text = summary.toString();
-			String title_text = nl_text;
+			String title_text = "";
 			if(titler != null &&
 			   titler.getMap(path).size() > 0 &&
 			   titler.getMap(path).containsKey(path) &&
 			   !titler.getMap(path).get(path).toString().equals(""))
 					title_text = titler.getMap(path).get(path).toString();
+			if(AL.empty(title_text))
+				title_text = shortTitle(nl_text);
 
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
