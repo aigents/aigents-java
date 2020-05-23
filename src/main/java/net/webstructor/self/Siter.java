@@ -115,6 +115,7 @@ public class Siter {
 	MapMap thingTexts; //thing->text->instance	
 	ContentLocator imager;
 	ContentLocator linker;//using Imager to keep positions of links
+	ContentLocator titler;
 	Cacher cacher;
 	long tillTime;
 	long newsLimit;
@@ -130,6 +131,7 @@ public class Siter {
 		thingTexts = new MapMap();
 		imager = new ContentLocator();
 		linker = new ContentLocator();
+		titler = new ContentLocator();
 		this.cacher = body.filecacher;
 	}
 	
@@ -390,7 +392,7 @@ public class Siter {
 			result = match(storager,new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
 		else
 		//TODO: distinguish skipped || failed in readIfUpdated ?
-		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),forced,realTime))) {
+		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),titler.getMap(path),forced,realTime))) {
 			ArrayList positions = new ArrayList();
 			//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
 			Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,punctuation,positions));//build with original text positions preserved for image matching
@@ -425,7 +427,7 @@ public class Siter {
 	
 	//match all Patterns of one Thing for one Site and send updates to subscribed Peers
 	//TODO: Siter extends Matcher (MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker)
-	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker) {
+	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
 		//TODO: re-use iter building it one step above
 		//ArrayList positions = new ArrayList();
 		//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
@@ -435,17 +437,17 @@ public class Siter {
 		//next, if none, create the pattern for the thing name manually
 		if (AL.empty(patterns))
 			//auto-pattern from thing name split apart
-			matches += match(storager,thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker);
+			matches += match(storager,thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 		if (!AL.empty(patterns)) {
 			for (Iterator it = patterns.iterator(); it.hasNext();){				
-				matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker); 
+                matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 			}
 		}
 		return matches;
 	}
 	
 	private int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path) {
-		return match(storager, iter, positions, thing, time, path, thingTexts, thingPaths, imager, linker);
+		return match(storager, iter, positions, thing, time, path, thingTexts, thingPaths, imager, linker, titler);
 	}
 	
 	//TODO: move out?
@@ -528,7 +530,22 @@ public class Siter {
 			body.debug("novel   :true");
 		return null;
 	}
-	
+
+	public static String shortTitle(String text) {
+		if(text.matches("(?![0-9]).*["+AL.punctuation+"](?![0-9]).*")) {
+			String[] tokens = text.split("["+AL.punctuation+"]");
+			for(String s : tokens) {
+				while(s.endsWith(" "))
+					s = s.substring(0, s.length()-1);
+				while(s.startsWith(" "))
+					s = s.substring(1, s.length());
+				if(s.contains(" "))
+					return s;
+			}
+		}
+		return text;
+	}
+
 	//TODO: move to other place
 	public static Seq relaxPattern(Storager storager, Thing instance, String context, Seq patseq, String about) {
 		if (AL.empty(patseq))
@@ -558,7 +575,7 @@ public class Siter {
 	}
 
 	//match one Pattern for one Thing for one Site
-	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker) {
+	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
 		Date now = Time.date(time);
 		int matches = 0;
 		//TODO:optimization so pattern with properties is not rebuilt every time?
@@ -574,7 +591,15 @@ public class Siter {
 			
 			//plain text before "times" and "is" added
 			String nl_text = summary.toString();
-			
+			String title_text = "";
+			if(titler != null &&
+			   titler.getMap(path).size() > 0 &&
+			   titler.getMap(path).containsKey(path) &&
+			   !titler.getMap(path).get(path).toString().equals(""))
+					title_text = titler.getMap(path).get(path).toString();
+			if(AL.empty(title_text))
+				title_text = shortTitle(nl_text);
+
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
 			if (thingTexts != null && thingTexts.getObject(thing, nl_text, false) != null)//already adding this
@@ -597,6 +622,7 @@ public class Siter {
 			instance.addThing(AL.is, thing);
 			instance.set(AL.times, now);
 			instance.setString(AL.text,nl_text);
+			instance.setString(AL.title, title_text);
 			Integer textPos = positions == null ? new Integer(0) : (Integer)positions.get(iter.cur() - 1);
 			if (imager != null){
 				String image = imager.getAvailable(path,textPos);
@@ -907,7 +933,7 @@ public class Siter {
 			long start = System.currentTimeMillis();  
 			body.debug("Siter matching start "+permlink);
 			for (Object thing: allThings) {
-				int match = Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null);
+				int match = Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null, null);
 				if (match > 0) {
 					body.debug("Siter matching found "+((Thing)thing).getName()+" in "+permlink);
 					matches += match;

@@ -372,7 +372,7 @@ test_i("Your news text temperature 22 c°; text this is a test page.");
 test_o("You reading site http://localtest.com/test/secure!");
 test_i("Not.");
 test_o("What is test?");
-test_i("There about page, context this is a, is test, sources http://localtest.com/test, text this is a test page, times today.");
+test_i("There about page, context this is a, is test, sources http://localtest.com/test, text this is a test page, times today, title 'Aigents Test Page'.");
 test_o("What is http://localtest.com/test?");
 test_i("There is http://localtest.com/test, text 'this is a test page. the outside temperature is 22 c°.', times today.");
 test_o("What is http://localtest.com/test times?");

@@ -161,7 +161,7 @@ body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" group_name "+gr
 				Date today = Time.today(0);
 				Iter parse = new Iter(Parser.parse(text));
 				if (!AL.empty(t)) for (Iterator tit = t.iterator(); tit.hasNext();)
-					Siter.match(body.storager, parse, null, (Thing)tit.next(), today, full_group_name, null, thingPaths, null, null);
+					Siter.match(body.storager, parse, null, (Thing)tit.next(), today, full_group_name, null, thingPaths, null, null, null);
 				//8) send update if topic is matched
 //TODO: exclude sender in the news update
 				Siter.update(body,null,today,thingPaths,true,group);//forced

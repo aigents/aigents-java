@@ -261,4 +261,37 @@ public class Str {
 	public static String first(String s, int n) {
 		return s == null || s.length() <= n  ? s : s.substring(0, n);
 	}
+
+	/**
+	 *
+	 * @param str1
+	 * @param str2
+	 * @return 0-1 range string similarity. 1=same, 0=different.
+	 */
+	public static double LevenshteinDistance(String str1, String str2) {
+		int str1l = str1.length();
+		int str2l = str2.length();
+		int ll = str1l > str2l ? str1l : str2l;
+
+		if (ll == 0)
+			return 1.0;
+
+		str1 = str1.toLowerCase();
+		str2 = str2.toLowerCase();
+		// i == 0
+		int [] costs = new int [str2l + 1];
+		for (int j = 0; j < costs.length; j++)
+		    costs[j] = j;
+		for (int i = 1; i <= str1l; i++) {
+		    costs[0] = i;
+		    int nw = i - 1;
+		    for (int j = 1; j <= str2l; j++) {
+		        int cj = Math.min(1 + Math.min(costs[j], costs[j - 1]), str1.charAt(i - 1) == str2.charAt(j - 1) ? nw : nw + 1);
+		        nw = costs[j];
+		        costs[j] = cj;
+		    }
+		}
+
+		return (ll - costs[str2l]) / (double) ll;
+	  }
 }

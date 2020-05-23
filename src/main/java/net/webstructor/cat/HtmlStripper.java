@@ -27,9 +27,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.webstructor.al.AL;
 import net.webstructor.util.Array;
+import net.webstructor.util.Str;
 
 	public class HtmlStripper
 	{
@@ -51,7 +54,9 @@ import net.webstructor.util.Array;
         static char  GT = '>' ;
         static char[] LTGT = {LT,GT};
         static String HEAD="head";
+        static String TITLE="title";
         static String BODY="body";
+        static String META="meta";
         static String BASE="base";
         static String A="a";
         static String IMG="img";
@@ -99,7 +104,7 @@ import net.webstructor.util.Array;
          */
         public static String attribute(String source, int pos, String name, String baseHref){
 //TODO: lowercase
-        	int till = 1024;
+            int till = 1024;
             int begpos = Array.indexOf(source,pos+1,name+"=",till);
             int tagendpos = Array.indexOf(source,pos+1,">",till);
             if (begpos != -1 && begpos < tagendpos) {//if attribute is found in scope of tag
@@ -122,12 +127,12 @@ import net.webstructor.util.Array;
         }
 
         public static String convert( String  source, String breaker, ArrayList links){
-        	return convert(source, breaker, links, null, null, null);
+            return convert(source, breaker, links, null, null, null, null);
         }
         /**
          * @param images - "postion to string" map of image sources 
         */
-        public static String convert( String  source, String breaker, ArrayList links, Map images, Map linksPositions, String path) 
+        public static String convert( String  source, String breaker, ArrayList links, Map images, Map linksPositions, Map titles, String path)
         {
         	ArrayDeque tagStarts = new ArrayDeque();
         	String tag;
@@ -144,15 +149,21 @@ import net.webstructor.util.Array;
             int startOfText = 0 ;
             int pos = 0;
             
+            // jump to title tag
+            pos=look4Tag(source,pos,TITLE);
+            if(pos == -1)
+                pos = 0;
+            String t = extractTitle(source);
+
             // skip html header
             pos=skipTag(source,0,HEAD);
             if(pos == -1)
-            	pos = 0;
+                pos = 0;
             
             //jump to body
             pos=look4Tag(source,pos,BODY); 
             if(pos == -1)
-            	pos = 0;
+                pos = 0;
 
             startOfText = pos;
             if( source.indexOf(LT,pos) < 0 ){
@@ -245,6 +256,9 @@ import net.webstructor.util.Array;
 	                		currentLinkBuf = null;
 	                	}
                 	}
+                    if (titles != null) {
+                           titles.put(path, t);
+                    }
                 	if (whichTag(source,pos,word_tags,true) != null) {
                 		//buf.append(word_breaker);
                 		addText(buf,word_breaker);
@@ -322,7 +336,7 @@ import net.webstructor.util.Array;
         //http://www.ascii.cl/htmlcodes.htm
         static void addText(StringBuilder buf, String str)
         {		
-        	if (AL.empty(str))
+            if (AL.empty(str))
         		return;
                                  char c=0;
                                  int len = buf.length();
@@ -437,6 +451,81 @@ import net.webstructor.util.Array;
                 }
             }
             return null;
+        }
+
+        /**
+         * @param source - string containing html
+         * @param btag - the name of the tag to look for. eg 'html' instead of '<html>'
+         * @param pos - starting position of search.
+         * @return string containing the content of the first tag found. If no tag found, return null
+        */
+        static ArrayList<String> getTagContent(String source, String tag) {
+            ArrayList<String> tagCont = new ArrayList<String>();
+            String ftagr = "<\\s*" + tag + "[^>]*>(.*?)<\\s*/\\s*" + tag + ">";
+            String exttagr = "<\\s*[a-z]+[^>]*>(.*?)<\\s*/\\s*[a-z]+>";
+            String btagr = "<\\s*" + tag + "[^>]*>(.*?)";
+            String etagr = "<\\s*/\\s*" + tag + ">";
+            Pattern ftagc = Pattern.compile(ftagr);
+            Matcher ftagcm = ftagc.matcher(source);
+            while(ftagcm.find()) {
+				String fin = ftagcm.group().replaceAll(btagr, "").replaceAll(etagr, "").replaceAll(exttagr, "");
+				tagCont.add(fin);
+            }
+            return tagCont;
+        }
+
+        static ArrayList<String> getMetaContByProp(String source, String property) {
+            ArrayList<String> mCont = new ArrayList<String>();
+            String ptoken = "property=\"";
+            String ctoken = "content=\"";
+            int mbpos = source.indexOf(LT+META);
+            int mepos = source.indexOf(GT, mbpos);
+            while(mbpos != -1 && mepos != -1) {
+                String fmc = source.substring(mbpos, mepos);
+                int mpbpos = fmc.indexOf(ptoken);
+                int mpepos = fmc.indexOf("\"", mpbpos+ptoken.length());
+                if(mpbpos != -1 && mpepos != -1) {
+                    if (fmc.substring(mpbpos+ptoken.length(), mpepos).equalsIgnoreCase(property)) {
+                        int mcbpos = fmc.indexOf(ctoken);
+                        int mcepos = fmc.indexOf("\"", mcbpos+ctoken.length());
+                        if(mcbpos != -1 && mcepos != -1)
+                            mCont.add(fmc.substring(mcbpos+ctoken.length(), mcepos));
+                    }
+                }
+                mbpos = source.indexOf(LT+META, mepos+1);
+                mepos = source.indexOf(GT, mbpos);
+            }
+            return mCont;
+        }
+
+        /**
+         * @param source - string containing html
+         * @return string, title for the page
+        */
+        static String extractTitle(String source) {
+            StringBuilder sb = new StringBuilder();
+            ArrayList<String> tTagC = getTagContent(source, "title");
+            ArrayList<String> hTagC = getTagContent(source, "h[1-6]");
+            ArrayList<String> mTitle = getMetaContByProp(source, "og:title");
+            String tit = "" , htit = "", mtit = "";
+            if (mTitle.size() != 0)
+                mtit = mTitle.get(0);
+            if (tTagC.size() != 0) {
+                tit = tTagC.get(0);
+                sb = new StringBuilder();
+                addText(sb, tit);
+                tit = sb.toString();
+            }
+            for (String h1 : hTagC) {
+                addText(sb, h1);
+                htit = sb.toString();
+                if (Str.LevenshteinDistance(htit, tit) > 0.75 || Str.LevenshteinDistance(htit, mtit) > 0.75)
+                    return htit;
+            }
+            if (Str.LevenshteinDistance(mtit, tit) > 0.75)
+                return mtit;
+
+            return tit;
         }
 
         static int skipTag(String source, int pos, String tag){

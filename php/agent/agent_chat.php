@@ -490,13 +490,13 @@ function test_search() {
 	say("search temperature site http://localtest.com/test/");
 	get("There sources http://localtest.com/test/, text the outside temperature is 22 c°.");
 	say("what is temperature");
-	get("There about is 22 c°, context the outside, is temperature, sources http://localtest.com/test/, text the outside temperature is 22 c°, times today.");
+	get("There about is 22 c°, context the outside, is temperature, sources http://localtest.com/test/, text the outside temperature is 22 c°, times today, title 'Aigents Test Page'.");
 	say("what is test");
 	get("There not.");
 	say("search test in http://localtest.com/test/Test.pdf");
 	get("There sources 'http://localtest.com/test/Test.pdf', text this is a test page.");
 	say("what is test");
-	get("There about page, context this is a, is test, sources 'http://localtest.com/test/Test.pdf', text this is a test page, times today.");
+	get("There about page, context this is a, is test, sources 'http://localtest.com/test/Test.pdf', text this is a test page, times today, title this is a test page.");
 
 	say("search products in http://localtest.com/sitea/, range 0, limit 1");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
