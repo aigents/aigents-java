@@ -207,7 +207,7 @@ public abstract class Mode {
 						//get news feed for the peer
 						Seq query;
 						try {
-							query = session.reader.parseStatement(session,"What new true, times today or yesterday is, sources, text, image, times?",peer);
+							query = session.reader.parseStatement(session,"What new true, times today or yesterday is, sources, text, image, times, title?",peer);
 							//execute query: [thing,thing,thing,...,set]
 							Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(query,peer); 
 							//format news feed
@@ -242,6 +242,7 @@ public abstract class Mode {
 				Collection iss = t.getThings(AL.is);
 				Collection sources = t.getThings(AL.sources);
 				String text = t.getString(AL.text);
+				String title = t.getString(AL.title);
 				String image = t.getString(AL.image);
 				Date time = (Date)t.get(AL.times);
 				if (!AL.empty(sources) && !AL.empty(text)){
@@ -249,9 +250,11 @@ public abstract class Mode {
 					String topic = AL.empty(iss) ? null : HtmlStripper.encodeHTML(((Thing)iss.iterator().next()).getName());
 					text = HtmlStripper.encodeHTML(text);
 					link = HtmlStripper.encodeHTML(link);
-					String description = topic == null ? text : topic+" :\n"+text;
+					if (AL.empty(title))
+						title = !AL.empty(topic) ? topic : text;
+					String description = topic == null ? text : text + "\ntopic: " + topic;
 					feed.append("  <item>\n");
-					feed.append("    <title>").append(text).append("</title>\n");
+					feed.append("    <title>").append(title).append("</title>\n");
 					feed.append("    <link>").append(link).append("</link>\n");
 					feed.append("    <description>").append(description).append("</description>\n");
 					if (!AL.empty(image))

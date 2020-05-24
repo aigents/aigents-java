@@ -337,6 +337,94 @@ function test_agent_web() {
 		say("No name '关注的城市 \$info'.");
 	}
 
+	//test rss and titles
+	if (true){
+		file_put_contents($basePath."html/test.html","<html><head><title>about the animals</title></head><body><img src=\"test/stuff.jpg\"/><h1>about the elephants</h1>elephants live in savanna<p><h1>about the tigers</h1>tigers live in jungle<img src=\"test/junk.jpg\"/></body></html>");
+		say_site("http://localtest.com/test.html");
+		say_thing("live");
+		say("You reading in http://localtest.com/test.html!");
+		get("My reading site http://localtest.com/test.html.");
+		say("What is 'http://localtest.com/test.html' text?");
+		get("There text 'about the elephants . elephants live in savanna . about the tigers . tigers live in jungle'.");
+		say("What sources 'http://localtest.com/test.html' text?");
+		get("There text elephants live in savanna; text tigers live in jungle.");
+		say("What new true, times today?");
+		get("There about in jungle, context tigers, image http://localtest.com/test/junk.jpg, is live, sources http://localtest.com/test.html, text tigers live in jungle, times today, title about the tigers; about in savanna, context elephants, image http://localtest.com/test/stuff.jpg, is live, sources http://localtest.com/test.html, text elephants live in savanna, times today, title about the elephants.");
+		say("What new true, times today title, text?");
+		get("There text elephants live in savanna, title about the elephants; text tigers live in jungle, title about the tigers.");
+		say("What new true, times today text, title?");
+		get("There text elephants live in savanna, title about the elephants; text tigers live in jungle, title about the tigers.");
+		say("What new true, times today or yesterday title, is, sources, text, image, times?");
+		get("There image http://localtest.com/test/junk.jpg, is live, sources http://localtest.com/test.html, text tigers live in jungle, times today, title about the tigers; image http://localtest.com/test/stuff.jpg, is live, sources http://localtest.com/test.html, text elephants live in savanna, times today, title about the elephants.");
+		say("What new true, times today or yesterday is, sources, text, image, times, title?");
+		get("There image http://localtest.com/test/junk.jpg, is live, sources http://localtest.com/test.html, text tigers live in jungle, times today, title about the tigers; image http://localtest.com/test/stuff.jpg, is live, sources http://localtest.com/test.html, text elephants live in savanna, times today, title about the elephants.");
+		say("My areas everything, shares everything.");
+		get("Ok.");
+		say("text 'elephants live in savanna' new false");
+		say("rss everything");
+		$expected_rss = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" .
+"<rss version=\"2.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n" .
+"\n" .
+"<channel>\n" .
+"  <title>Aigents on Everything</title>\n" .
+"  <link>https://aigents.com</link>\n" .
+"  <description>Aigents RSS feed about Everything</description>\n" .
+"  <item>\n" .
+"    <title>about the tigers</title>\n" .
+"    <link>http://localtest.com/test.html</link>\n" .
+"    <description>tigers live in jungle\n" .
+"topic: live</description>\n" .
+"    <enclosure url=\"http://localtest.com/test/junk.jpg\" type=\"image\" />\n" .
+/*
+ "    <pubDate>Mon, 25 May 2020 00:00:00" . 
+" +0700</pubDate>\n" .
+"    <category>live</category>\n" .
+"    <dc:creator><![CDATA[Aigents on Everything]]></dc:creator>\n" .
+"  </item>\n" .
+"  <item>\n" .
+"    <title>about the elephants</title>\n" .
+"    <link>http://localtest.com/test.html</link>\n" .
+"    <description>elephants live in savanna\n" .
+"topic: live</description>\n" .
+"    <enclosure url=\"http://localtest.com/test/stuff.jpg\" type=\"image\" />\n" .
+"    <pubDate>Sun, 23 May 2020 00:00:00 +0700</pubDate>\n" .
+"    <category>live</category>\n" .
+"    <dc:creator><![CDATA[Aigents on Everything]]></dc:creator>\n" .
+"  </item>\n" .
+"</channel>\n" .
+"\n" .
+"</rss>" . 
+*/
+"";
+		get($expected_rss,false,true);//partial
+		say("My areas not everything, shares not everything.");
+		del_news_today();
+		say("What times today?");
+		get("There not.");
+		say_thing("live",false);
+		say_site("http://localtest.com/test.html",false);
+	}
+	
+	//test and hierarchy of titles
+	if (true){
+		file_put_contents($basePath."html/test.html","<html><head><title>everything title</title></head><body>old everything<p>new everything<p><h1>man title</h1>old man<p>new man<p><h2>woman title</h2>old woman<p>new woman<p><h3>dog title</h3>old dog<p>new dog<p><h5>wrong title</h6>old everything<p>new everything</body><h6>cat title</h6>old cat<p>new cat</body></html>");
+		say_site("http://localtest.com/test.html");
+		say_thing("new \$word");
+		say("You reading in http://localtest.com/test.html!");
+		get("My reading site http://localtest.com/test.html.");
+		say("What is 'http://localtest.com/test.html' text?");
+		get("There text 'old everything . new everything . man title old man . new man . woman title old woman . new woman . dog title old dog . new dog . wrong title old everything . new everything cat title old cat . new cat'.");
+		say("What sources 'http://localtest.com/test.html' text?");
+		get("There text new cat; text new dog; text new everything; text new man; text new woman.");
+		say("What sources 'http://localtest.com/test.html' title, text?");
+		get("There text new cat, title cat title; text new dog, title dog title; text new everything, title everything title; text new man, title man title; text new woman, title woman title.");
+		del_news_today();
+		say("What times today?");
+		get("There not.");
+		say_thing("new \$word",false);
+		say_site("http://localtest.com/test.html",false);
+	}	
+
 	//TODO: test tags in html
 	/*
 - remove scripts from texts !!!!!!! : 
@@ -421,7 +509,7 @@ function test_agent_web() {
 		http://www.wired.com/2016/01/googles-go-victory-is-just-a-glimpse-of-how-powerful-ai-will-be
 		*/
 	}
-	
+
 	//test images
 	if (true){
 		file_put_contents($basePath."html/test/garbage.jpg","stub");

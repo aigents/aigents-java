@@ -39,6 +39,10 @@ public class ContentLocator {
 		return map;
 	}
 	
+	private Entry getClosestUp(TreeMap map, Integer pos){
+		return map != null ? map.floorEntry(pos) : null;
+	}
+
 	private Entry getClosest(TreeMap map, Integer pos){
 		if (map == null)
 			return null;
@@ -103,6 +107,26 @@ public class ContentLocator {
 			if (!AL.empty(value) && HTTP.accessible(value))
 				return value;
 			map.remove(e.getKey());
+		}
+		return null;
+	}
+
+	/**
+	 * Returns contents closest to position with NO cleanup of unavailable entries
+	 * @param pos position of the image
+	 * @return
+	 */
+	public String getAvailableUp(String path, Integer pos){
+		TreeMap map = (TreeMap)pathMaps.get(path);
+		if (map == null)
+			return null;
+		if (map.size() > 0){
+			Entry e = getClosestUp(map,pos);
+			if (e != null){
+				String value = (String)e.getValue();
+				if (!AL.empty(value))
+					return value;
+			}
 		}
 		return null;
 	}

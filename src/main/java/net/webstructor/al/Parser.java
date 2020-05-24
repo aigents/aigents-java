@@ -100,6 +100,18 @@ public class Parser {
 		}
 		return (String[])list.toArray(new String[]{});
 	}
+
+	public static java.util.Set<String> splitToSet(String subject, String delimiters, String skip1chars) {
+		java.util.Set<String> set = new java.util.HashSet<String>();
+		StringTokenizer tok = new StringTokenizer(subject, delimiters);
+		while(tok.hasMoreTokens()){
+			String token = tok.nextToken().trim();
+			if (!AL.empty(skip1chars) && skip1chars.contains(token))
+				continue;
+			set.add(token);
+		}
+		return set;
+	}
 	
 	public static String[] split(String subject, String delimiters) {
 		return split(subject, delimiters, null);

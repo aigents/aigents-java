@@ -52,11 +52,13 @@ public class Thing extends Anything { // implements ORObject
 		AL.patterns,
 		AL.trust,
 		AL.query,//TODO: move this out to configurable schema and/or class properties with class specified in query!?
-		AL.click,
+		AL.click,//TODO: move all of the following out to news or name?
 		AL.selection,
 		AL.copypaste,
 		AL._new,
-		AL.text // TODO: move this out to news or name?
+		//AL.image,
+		//AL.title,
+		AL.text
 	};
 	
 	private HashMap properties = null;

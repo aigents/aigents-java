@@ -45,7 +45,10 @@ import net.webstructor.util.Str;
 				"p","tr","ul","h1","h2","h3","h4","h5","li","ul",
 				//http://www.w3schools.com/html/html5_new_elements.asp
 				"aside","bdi","ficaption","header","main","section","summary","article"};
+		static final String[] header_tags = {"h1","h2","h3","h4","h5","h6"};
 		static final String[] skip_tags = { "style", "script", "svg", "head", "noscript" };
+		
+		static final int BLOCK_PHRASE_LENGTH = 16;//32;
 		
     	//http://www.fileformat.info/info/unicode/char/feff/index.htm
     	static final String WS = " \t\n\r\uFEFF";
@@ -138,6 +141,7 @@ import net.webstructor.util.Str;
         	String tag;
     		String currentLinkUrl = null;
     		StringBuilder currentLinkBuf = null;
+    		StringBuilder headerContentBuf = null;
     		int currentLinkBeg = 0;
         	//int[] depths = new int[100];
         	//int depth = 0;
@@ -153,7 +157,9 @@ import net.webstructor.util.Str;
             pos=look4Tag(source,pos,TITLE);
             if(pos == -1)
                 pos = 0;
-            String t = extractTitle(source);
+            String title = extractTitle(source);
+            if (titles != null && !AL.empty(title))
+            	titles.put(new Integer(0), title);
 
             // skip html header
             pos=skipTag(source,0,HEAD);
@@ -181,10 +187,12 @@ import net.webstructor.util.Str;
                 {
                 	StringBuilder chunk = new StringBuilder(); 
                     addText(chunk,source.substring(startOfText,pos));
-                    //buf.append(chunk);
-                    addText(buf,chunk.toString());//suppress spaces that way!?
+                    String chunkStr = chunk.toString();
+                    addText(buf,chunkStr);//suppress spaces that way!?
                     if (currentLinkBuf != null)
-                    	currentLinkBuf.append(chunk);
+                    	currentLinkBuf.append(chunkStr);
+                    if (headerContentBuf != null)
+                    	headerContentBuf.append(chunkStr);
                     startOfText = -1;
                 }
                 pos++;
@@ -200,6 +208,14 @@ import net.webstructor.util.Str;
                 } 
                 else 
                 {
+                	if (titles != null && (tag = whichTag(source,pos,header_tags,true)) != null) {
+                		if (source.charAt(pos) != '/')
+                			headerContentBuf = new StringBuilder();
+                		else {
+                			titles.put(new Integer(buf.length()), headerContentBuf.toString());
+                			headerContentBuf = null;
+                		}
+                	}
                 	if (images != null) {
 	                	if(isTag(source,pos,IMG)) {
 	                		//data-original is jQuery hack: http://tokmakov.msk.ru/blog/psts/30/
@@ -256,14 +272,13 @@ import net.webstructor.util.Str;
 	                		currentLinkBuf = null;
 	                	}
                 	}
-                    if (titles != null) {
-                           titles.put(path, t);
-                    }
                 	if (whichTag(source,pos,word_tags,true) != null) {
                 		//buf.append(word_breaker);
                 		addText(buf,word_breaker);
                         if (currentLinkBuf != null)
                         	currentLinkBuf.append(word_breaker);
+                        if (headerContentBuf != null)
+                        	headerContentBuf.append(word_breaker);
                 	}
                     //skip tag
                 	int oldpos = pos;
@@ -282,12 +297,12 @@ import net.webstructor.util.Str;
                         	//TODO: intelligent phrase breaking
                     		boolean closing = source.charAt(oldpos) == '/';
                     		String name = source.substring(oldpos + (closing ? 1 : 0), pos);
-                        	if (Array.startsWith(name,block_tags) != null) {
-                        		if (!closing)
+                        	if (Array.startsWith(name,block_tags) != null) {//TODO case insensitive
+                        		if (!closing && !name.equalsIgnoreCase("p"))//<p> does not need closing
                         			tagStarts.push(new Integer(pos));
                         		else {
                         			int start = tagStarts.isEmpty() ? 0 : ((Integer)tagStarts.pop()).intValue();
-                        			if (oldpos - start > 32)//TODO:somethig with this "magic" phrase length
+                        			if (oldpos - start > BLOCK_PHRASE_LENGTH)//TODO:somethig with this "magic" phrase length - build the "depth map of every token and break sentences based on the depth!!!"
                     					addText(buf,breaker);
                         		}
                         		
@@ -505,26 +520,30 @@ import net.webstructor.util.Str;
         static String extractTitle(String source) {
             StringBuilder sb = new StringBuilder();
             ArrayList<String> tTagC = getTagContent(source, "title");
-            ArrayList<String> hTagC = getTagContent(source, "h[1-6]");
             ArrayList<String> mTitle = getMetaContByProp(source, "og:title");
-            String tit = "" , htit = "", mtit = "";
+            String tit = "", mtit = "";
             if (mTitle.size() != 0)
                 mtit = mTitle.get(0);
             if (tTagC.size() != 0) {
                 tit = tTagC.get(0);
-                sb = new StringBuilder();
                 addText(sb, tit);
                 tit = sb.toString();
             }
+//TODO if there is netiher title not og:title, the tit will be == "" and code will return "", right?
+//TODO what is the point assigning contents of h1-h6 tags to the entire document if it can be applied to texts appearing before these tags?
+//TODO the only point to use LevenshteinDistance is to compare it to news item itself
+            /*
+            ArrayList<String> hTagC = getTagContent(source, "h[1-6]");
             for (String h1 : hTagC) {
                 addText(sb, h1);
-                htit = sb.toString();
-                if (Str.LevenshteinDistance(htit, tit) > 0.75 || Str.LevenshteinDistance(htit, mtit) > 0.75)
+                String htit = sb.toString();
+                if (Str.levenshteinDistance(htit, tit) > 0.75 || Str.levenshteinDistance(htit, mtit) > 0.75)
                     return htit;
             }
-            if (Str.LevenshteinDistance(mtit, tit) > 0.75)
+            */
+//TODO consider use if Str.simpleTokenizedProximity instead of Str.levenshteinDistance ?
+            if (Str.levenshteinDistance(mtit, tit) > 0.75)
                 return mtit;
-
             return tit;
         }
 

@@ -531,6 +531,23 @@ public class Siter {
 		return null;
 	}
 
+	public static String title(String path, String nl_text, int pos, ContentLocator titler) {
+		if (titler == null)
+			return shortTitle(nl_text);
+		String title_text = titler.getAvailableUp(path,0);
+		String header_text = titler.getAvailableUp(path,pos);
+		if (AL.empty(title_text) && AL.empty(header_text))
+			return shortTitle(nl_text);
+		if (title_text.contentEquals(header_text))
+			return title_text;
+		if (!AL.empty(title_text) && !AL.empty(header_text)) {
+			double t = Str.simpleTokenizedProximity(nl_text,title_text,AL.punctuation+AL.spaces);
+			double h = Str.simpleTokenizedProximity(nl_text,header_text,AL.punctuation+AL.spaces);
+			return h > t ? header_text : title_text;
+		}
+		return AL.empty(header_text) ? title_text : header_text;
+	}
+	
 	public static String shortTitle(String text) {
 		if(text.matches("(?![0-9]).*["+AL.punctuation+"](?![0-9]).*")) {
 			String[] tokens = text.split("["+AL.punctuation+"]");
@@ -591,14 +608,6 @@ public class Siter {
 			
 			//plain text before "times" and "is" added
 			String nl_text = summary.toString();
-			String title_text = "";
-			if(titler != null &&
-			   titler.getMap(path).size() > 0 &&
-			   titler.getMap(path).containsKey(path) &&
-			   !titler.getMap(path).get(path).toString().equals(""))
-					title_text = titler.getMap(path).get(path).toString();
-			if(AL.empty(title_text))
-				title_text = shortTitle(nl_text);
 
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
@@ -622,8 +631,11 @@ public class Siter {
 			instance.addThing(AL.is, thing);
 			instance.set(AL.times, now);
 			instance.setString(AL.text,nl_text);
-			instance.setString(AL.title, title_text);
 			Integer textPos = positions == null ? new Integer(0) : (Integer)positions.get(iter.cur() - 1);
+			//try to get title from the structure or generate it from the text
+			String title_text = title(path, nl_text, textPos, titler);
+			if (!AL.empty(title_text))
+				instance.setString(AL.title,title_text);
 			if (imager != null){
 				String image = imager.getAvailable(path,textPos);
 				if (!AL.empty(image))

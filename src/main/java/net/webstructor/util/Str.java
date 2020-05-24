@@ -28,8 +28,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 import net.webstructor.al.AL;
+import net.webstructor.al.Parser;
 import net.webstructor.al.Time;
 
 public class Str {
@@ -263,12 +265,29 @@ public class Str {
 	}
 
 	/**
-	 *
+	 * Quick surrogate for "cosine distance" based similariy
 	 * @param str1
 	 * @param str2
 	 * @return 0-1 range string similarity. 1=same, 0=different.
 	 */
-	public static double LevenshteinDistance(String str1, String str2) {
+	public static double simpleTokenizedProximity(String a, String b, String deliminters) {
+		Set<String> sa = Parser.splitToSet(a, deliminters, null);
+		Set<String> sb = Parser.splitToSet(b, deliminters, null);
+		if (AL.empty(sa) || AL.empty(sb))
+			return 0;
+		int la = sa.size();
+		int lb = sb.size();
+		sa.retainAll(sb);
+		return(((double)sa.size())/Math.max(la, lb));
+	}
+	
+	/**
+	 * Levenshtein Distance
+	 * @param str1
+	 * @param str2
+	 * @return 0-1 range string similarity. 1=same, 0=different.
+	 */
+	public static double levenshteinDistance(String str1, String str2) {
 		int str1l = str1.length();
 		int str2l = str2.length();
 		int ll = str1l > str2l ? str1l : str2l;
