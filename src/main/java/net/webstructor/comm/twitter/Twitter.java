@@ -228,7 +228,7 @@ public class Twitter extends Socializer implements Crawler {
 				String text = HtmlStripper.convert(t.text," ",null);
 				text = HtmlStripper.convertMD(text, null, null);
 //TODO: consider if we want to consider links and images same way as we do that for Siter's web pages 
-				matches += matcher.matchThingsText(body,topics,text,Time.date(t.created_at),t.url,t.image,thingPathsCollector);
+				matches += matcher.matchThingsText(topics,text,Time.date(t.created_at),t.url,t.image,thingPathsCollector);
 			}
 			return matches;
 		} catch (Exception e) {

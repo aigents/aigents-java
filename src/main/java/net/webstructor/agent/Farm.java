@@ -59,14 +59,14 @@ import net.webstructor.comm.twitter.Twitter;
 import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
+import net.webstructor.core.Scheduler;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.ReputationSystem;
 import net.webstructor.peer.Conversationer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
-import net.webstructor.self.Selfer;
-import net.webstructor.self.Siter;
 import net.webstructor.serp.Serper;
+import net.webstructor.self.Selfer;
 import net.webstructor.self.Aigents;
 import net.webstructor.util.Array;
 
@@ -75,7 +75,7 @@ import net.webstructor.util.Array;
 public class Farm extends Body {
 
 	Selfer selfer = null;
-	Updater peerThinker = new PeerThinker();
+	Scheduler peerThinker = new PeerThinker();
 	
 	//TODO:configuration on-line
 	private boolean email;
@@ -143,7 +143,7 @@ public class Farm extends Body {
 
 		filecacher = new net.webstructor.self.Cacher("pages",this,storager);
 		sitecacher = new GraphCacher("www", this);
-		this.register("update", Siter.getUpdater());
+		this.register("update", getPublisher().getUpdater());
 		
 		for (Serper s : Serper.getDefaultSerpers(this))
 			searchers.put(s.name(), s);
@@ -244,29 +244,9 @@ public class Farm extends Body {
 			selfer.save(System.currentTimeMillis());
 	}
 	
-	//TODO: make the Updater generic class for all Spidereres, Saver, etc.
-	abstract class Updater {
-		long period = Period.HOUR;
-		long scheduled = 0;
-		void setPeriod(long period){
-			this.period = period;
-		}
-		//TODO: make synchronized
-		void schedule(){
-			scheduled = 0;
-		}
-		abstract protected void update();
-		void check(boolean force) {
-			long time = System.currentTimeMillis();
-			if (force || scheduled < time){
-				update();
-				scheduled = (scheduled == 0 ? time : scheduled) + period;
-			}
-		}
-	}
-	
-	class PeerThinker extends Updater {
-		protected void update() {
+	class PeerThinker extends Scheduler {
+		@Override
+		protected void run() {
 			//re-think every active user - after spidering their news and social networks
 			long start = System.currentTimeMillis();
 			debug("Thinking peers start "+new Date(start)+".");

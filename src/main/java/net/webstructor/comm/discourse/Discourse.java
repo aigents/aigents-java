@@ -207,7 +207,7 @@ public class Discourse extends SocialCacher implements Crawler {
 					OrderedStringSet links = new OrderedStringSet();
 					String text = SocialFeeder.parsePost(a.post_number < 2 ? a.title : null, a.text, links);
 					if (!AL.empty(text))
-						matches += matcher.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+						matches += matcher.matchThingsText(topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
 				}
 				before--;
 			}
@@ -247,7 +247,7 @@ public class Discourse extends SocialCacher implements Crawler {
 				OrderedStringSet links = new OrderedStringSet();
 				String text = SocialFeeder.parsePost(a.post_number < 2 ? a.title : null, a.text, links);
 				if (!AL.empty(text))
-					matches += matcher.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+					matches += matcher.matchThingsText(topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
 			}
 			return matches;
 		} catch (Exception e) {
@@ -287,7 +287,7 @@ public class Discourse extends SocialCacher implements Crawler {
 					//case 5: //5 - my reply posts
 					String text = SocialFeeder.parsePost(a.action_type == 4 ? a.title : null, a.text, links);
 					if (!AL.empty(text))
-						matches += matcher.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+						matches += matcher.matchThingsText(topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
 				}
 			}
 		} catch (Exception e) {

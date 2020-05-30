@@ -57,6 +57,7 @@ import net.webstructor.peer.Sessioner;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedMap;
 import net.webstructor.self.Matcher;
+import net.webstructor.self.Publisher;
 import net.webstructor.self.Siter;
 import net.webstructor.self.Thinker;
 import net.webstructor.serp.Serper;
@@ -65,7 +66,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.7.7";
+	public final static String VERSION = "2.7.8";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -201,6 +202,9 @@ public abstract class Body extends Anything implements Environment, Updater
 	public Archiver archiver;
 	public Schema schema;
 	public LangPack languages;
+	
+	private Matcher matcher = null;
+	private Publisher publisher = null;
 	private Logger logger = null;
 	
 	public net.webstructor.self.Cacher filecacher = null;
@@ -310,7 +314,19 @@ public abstract class Body extends Anything implements Environment, Updater
 	 * @return Matcher instance
 	 */
 	public Matcher getMatcher(){
-		return new Matcher(this);
+		if (matcher == null)
+			matcher = new Matcher(this); 
+		return matcher;
+	}
+	
+	/**
+	 * Creates or returns Publisher instance to do the content publishing
+	 * @return Publisher instance
+	 */
+	public Publisher getPublisher(){
+		if (publisher == null)
+			publisher = new Publisher(this); 
+		return publisher;
 	}
 	
 	public Collection<Serper> getSerpers(){

@@ -54,7 +54,7 @@ public class Matcher {
 	}
 	
 	//TODO: move to other place
-	public Seq relaxPattern(Storager storager, Thing instance, String context, Seq patseq, String about) {
+	public Seq relaxPattern(Thing instance, String context, Seq patseq, String about) {
 		if (AL.empty(patseq))
 			return patseq;
 		Object pat[] = new Object[patseq.size() + (context == null ? 0 : 1) + (about == null ? 0 : 1)];
@@ -69,33 +69,30 @@ public class Matcher {
 	}
 
 	//TODO: make smarter patterns like "[?prefix patseq ?postfix]" and make them supported by matcher!?
-	public boolean readAutoPatterns(Storager storager, Iter iter, Seq patseq, Thing instance, StringBuilder summary) {
+	public boolean readAutoPatterns(Iter iter, Seq patseq, Thing instance, StringBuilder summary) {
 		if (!Property.containedIn(patseq)){
-			if (Reader.read(iter, relaxPattern(storager, instance,"context",patseq,"about"), summary))
+			if (Reader.read(iter, relaxPattern(instance,"context",patseq,"about"), summary))
 				return true;
-			if (Reader.read(iter, relaxPattern(storager, instance,null,patseq,"about"), summary))
+			if (Reader.read(iter, relaxPattern(instance,null,patseq,"about"), summary))
 				return true;
-			if (Reader.read(iter, relaxPattern(storager, instance,"context",patseq,null), summary))
+			if (Reader.read(iter, relaxPattern(instance,"context",patseq,null), summary))
 				return true;
 		}
 		return Reader.read(iter, patseq, summary);
 	}
 
-	public void matchPeersText(Body body, Collection things, String text, Date time, String permlink, String imgurl){
+	public void matchPeersText(Collection things, String text, Date time, String permlink, String imgurl){
 		MapMap thingPaths = new MapMap();//collector
-		int matches = matchThingsText(body,things,text,time,permlink,imgurl,thingPaths);
+		int matches = matchThingsText(things,text,time,permlink,imgurl,thingPaths);
 		if (matches > 0)
 			Siter.update(body,null,time,thingPaths,false,null);//forced=false, because may be retrospective
 	}
 	
 	//TODO: move to other place!?
-	public int matchThingsText(Body body, Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths){
-		return matchThingsText(body, allThings, text, time, permlink, imgurl, thingPaths, null, null);
+	public int matchThingsText(Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths){
+		return matchThingsText(allThings, text, time, permlink, imgurl, thingPaths, null, null);
 	}
-	//public static int matchThingsText(Body body, Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths, ContentLocator titler){
-	//	return matchThingsText(body, allThings, text, time, permlink, imgurl, thingPaths, titler, null);
-	//}
-	public int matchThingsText(Body body, Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths, ContentLocator titler, ContentLocator imager){
+	public int matchThingsText(Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths, ContentLocator titler, ContentLocator imager){
 //TODO: actual image positions based on text MD/HTML parsing!? 
 			if (!AL.empty(imgurl)) {
 				if (imager == null)
@@ -108,7 +105,7 @@ public class Matcher {
 			long start = System.currentTimeMillis();  
 			body.debug("Siter matching start "+permlink);
 			for (Object thing: allThings) {
-				int match = match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null, titler);
+				int match = match(parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null, titler);
 				if (match > 0) {
 					body.debug("Siter matching found "+((Thing)thing).getName()+" in "+permlink);
 					matches += match;
@@ -120,7 +117,7 @@ public class Matcher {
 	}
 
 	//match one Pattern for one Thing for one Site
-	public int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
+	public int match(String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
 		Date now = Time.date(time);
 		int matches = 0;
 		//TODO:optimization so pattern with properties is not rebuilt every time?
@@ -130,7 +127,7 @@ public class Matcher {
 			Seq patseq = Reader.pattern(storager,instance, patstr);
 			
 			StringBuilder summary = new StringBuilder();
-			boolean read = readAutoPatterns(storager,iter,patseq,instance,summary);
+			boolean read = readAutoPatterns(iter,patseq,instance,summary);
 			if (!read)
 				break;
 			
@@ -189,7 +186,7 @@ public class Matcher {
 
 	//match all Patterns of one Thing for one Site and send updates to subscribed Peers
 	//TODO: Siter extends Matcher (MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker)
-	public int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
+	public int match(Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
 		//TODO: re-use iter building it one step above
 		//ArrayList positions = new ArrayList();
 		//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
@@ -199,10 +196,10 @@ public class Matcher {
 		//next, if none, create the pattern for the thing name manually
 		if (AL.empty(patterns))
 			//auto-pattern from thing name split apart
-			matches += match(storager,thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
+			matches += match(thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 		if (!AL.empty(patterns)) {
 			for (Iterator it = patterns.iterator(); it.hasNext();){				
-                matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
+                matches += match(((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 			}
 		}
 		return matches;

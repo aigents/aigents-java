@@ -23,9 +23,26 @@
  */
 package net.webstructor.core;
 
-import java.io.IOException;
+import net.webstructor.al.Period;
 
-public interface Updater {
-	public boolean update(Thing peer, String subject, String content, String signature)  throws IOException;
-	public boolean notifyable(Thing peer);
+//TODO: make the Updater generic class for all Spidereres, Saver, etc.
+public abstract class Scheduler {
+	long period = Period.HOUR;
+	long scheduled = 0;
+	public void setPeriod(long period){
+		this.period = period;
+	}
+	//TODO: make synchronized
+	public void schedule(){
+		scheduled = 0;
+	}
+	protected abstract void run();
+	public void check(boolean force) {
+		long time = System.currentTimeMillis();
+		if (force || scheduled < time){
+			run();
+			scheduled = (scheduled == 0 ? time : scheduled) + period;
+		}
+	}
 }
+

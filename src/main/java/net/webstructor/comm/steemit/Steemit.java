@@ -619,7 +619,7 @@ if (block % 10 == 0){
 											String permlink_url = Steemit.permlink_url(site,parent_permlink,author,permlink);
 											//Siter.matchPeersText(api.body, peerThings, text, new_date, permlink_url, imgurl);
 											//do updates later
-											thingMatches += matcher.matchThingsText(api.body,peerThings,text,new_date,permlink_url,imgurl,thingPaths);
+											thingMatches += matcher.matchThingsText(peerThings,text,new_date,permlink_url,imgurl,thingPaths);
 										}
 									}
 								}

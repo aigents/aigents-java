@@ -531,7 +531,7 @@ class Searcher extends Intenter {
 			summary.setLength(0);
 			Thing instance = new Thing();
 			Seq patseq = Reader.pattern(storager,instance,topic);
-			if (!matcher.readAutoPatterns(storager,iter,patseq,instance,summary))
+			if (!matcher.readAutoPatterns(iter,patseq,instance,summary))
 				break;
 			instance.setString(AL.text, summary.toString());
 			//TODO:unhack the hack, making sources as text!?

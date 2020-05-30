@@ -23,7 +23,6 @@
  */
 package net.webstructor.self;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -34,7 +33,6 @@ import java.util.Set;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
-import net.webstructor.al.All;
 import net.webstructor.al.Iter;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Period;
@@ -45,8 +43,6 @@ import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.cat.StringUtil;
 import net.webstructor.comm.Crawler;
-import net.webstructor.core.Actioner;
-import net.webstructor.core.Environment;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
@@ -54,7 +50,6 @@ import net.webstructor.data.ContentLocator;
 import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
-import net.webstructor.util.Str;
 
 //TODO split Siter into Siter framework and WebCrawler   
 //TODO Siter.newSpider => WebCrawler.crawl
@@ -192,6 +187,108 @@ public class Siter {
 		return ok;
 	}
 	
+	private void index(String path,Date time,Iter iter,ArrayList links){
+		if (body.sitecacher != null){
+			//TODO: actual time of the page
+			Graph g = body.sitecacher.getGraph(Time.day(time));//daily graph
+			//index links
+			if (!AL.empty(links))
+			for (Iterator it = links.iterator(); it.hasNext();){
+				String[] link = (String[])it.next();
+				String linkUrl = HttpFileReader.alignURL(path,link[0],false);//relaxed, let any "foreign" links
+				//String linkText = link[1];//TODO: use to evaluate source name as the best-weighted link!?
+				if (!AL.empty(linkUrl) && g.getValue(path, linkUrl, "links") == null){
+					g.addValue(path, linkUrl, "links", 1);
+					g.addValue(linkUrl, path, "linked", 1);
+				}
+			}
+			//index words (site->words->word, word->worded->site)
+//TODO: check configuration if need word index!?
+//TODO prevent double-triple-etc indexing on repeated reads!?
+//TODO unify with path in in-text ...
+			for (iter.pos(0); iter.has();){
+				Object o = iter.next();
+				//g.addValue(path, o, "words", 1);
+				g.addValue(o, path, "worded", 1);
+			}			
+		}
+	}
+	
+	//TODO public class WebCrawler implements Crawler
+	//TODO Override Crawler.crawl
+	private int crawl(Collection topics) {
+		int hits = 0;
+		for (Object topic : topics){
+			Thing t = (Thing)topic;
+			if (expired())
+				break;
+			Collection goals = new ArrayList(1);
+			goals.add(t);
+			String name = t.getName();
+			body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
+			boolean found = new PathTracker(this,goals,range).run(rootPath);
+			body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
+			if (found)
+				hits++;
+		}
+		return hits;
+	}
+	
+	boolean linkMatch(String text,Seq patseq) {
+		Iter iter = new Iter(Parser.parse(text));
+		try {
+			if (Reader.read(iter, patseq, null))
+				return true;
+		} catch (Throwable e) {
+			body.error("Siter linkMatch error pattern "+patseq, e);
+		}
+		return false;
+	}
+
+	boolean readPage(String path,ArrayList links,Collection things) {
+		Thread.yield();
+		boolean result = false;
+		boolean skipped = false;
+		boolean failed = false;
+		String text = null;
+		
+		body.reply("Site crawling page begin "+path+".");
+		if (!AL.isURL(path)) // if not http url, parse the entire text
+			//result = match(storager,path,time,null,things);
+			result = match(new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
+		else
+		//TODO: distinguish skipped || failed in readIfUpdated ?
+		if (!AL.empty(text = body.filecacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),titler.getMap(path),forced,realTime))) {
+			ArrayList positions = new ArrayList();
+			//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
+			Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,punctuation,positions));//build with original text positions preserved for image matching
+			result = match(iter,positions,timeDate,path,things);
+			index(path,timeDate,iter,links);
+			//TODO: add source name as page title by default?
+		} else {
+			skipped = true;//if not read 
+			failed = true;
+		}
+		if (skipped || failed)
+			body.reply("Site crawling page end "+(failed? "failed": "skipped")+" "+path+".");
+		else
+			body.reply("Site crawling page end "+(result? "found": "missed")+" "+path+".");
+		return result;
+	}
+
+	//get all things for the thing name
+	private boolean match(Iter iter,ArrayList positions,Date time,String path,Collection things) {
+		int matches = 0;
+		//if (text != null) {
+		if (iter != null && iter.size() > 0) {
+			if (!AL.empty(things)) {
+				for (Iterator it = things.iterator();it.hasNext();)
+					matches += matcher.match(iter,positions,(Thing)it.next(),time,path, thingTexts, thingPaths, imager, linker, titler);
+			}
+		}
+		return matches > 0;
+	}
+
 	private int update(){
 		int hits = update(body,rootPath,timeDate,thingPaths,forced,null);
 		thingPaths.clear();//help gc
@@ -200,7 +297,9 @@ public class Siter {
 		return hits;
 	}
 	
-	public static int update(Body body,String rootPath,Date time,MapMap thingPaths,boolean forced,Thing context){
+	//TODO: make the following non-static
+	
+	static public int update(Body body,String rootPath,Date time,MapMap thingPaths,boolean forced,Thing context){
 		Object[] things = thingPaths.getKeyObjects();
 		if (AL.empty(things))
 			return 0;
@@ -253,7 +352,7 @@ public class Siter {
 				//TODO: real path here!!??
 				//update(storager,thing,instances,path);
 			}
-			update(body,body.storager,thing,collector,rootPath,context);
+			body.getPublisher().update(thing,collector,rootPath,context);
 		}		
 		//memorize everything known and novel in STM AND LTM snapshots
 //TODO: optimization to avoid doing extra stuff below!!!		
@@ -289,137 +388,9 @@ public class Siter {
 		return hits;
 	}
 
-	private void index(String path,Date time,Iter iter,ArrayList links){
-		if (body.sitecacher != null){
-			//TODO: actual time of the page
-			Graph g = body.sitecacher.getGraph(Time.day(time));//daily graph
-			//index links
-			if (!AL.empty(links))
-			for (Iterator it = links.iterator(); it.hasNext();){
-				String[] link = (String[])it.next();
-				String linkUrl = HttpFileReader.alignURL(path,link[0],false);//relaxed, let any "foreign" links
-				//String linkText = link[1];//TODO: use to evaluate source name as the best-weighted link!?
-				if (!AL.empty(linkUrl) && g.getValue(path, linkUrl, "links") == null){
-					g.addValue(path, linkUrl, "links", 1);
-					g.addValue(linkUrl, path, "linked", 1);
-				}
-			}
-			//index words (site->words->word, word->worded->site)
-//TODO: check configuration if need word index!?
-//TODO prevent double-triple-etc indexing on repeated reads!?
-//TODO unify with path in in-text ...
-			for (iter.pos(0); iter.has();){
-				Object o = iter.next();
-				//g.addValue(path, o, "words", 1);
-				g.addValue(o, path, "worded", 1);
-			}			
-		}
-	}
-
+	//TODO: move the following out to time-specific framework!?
 	
-	
-	//TODO public class WebCrawler implements Crawler
-	
-	//TODO Override Crawler.crawl
-	private int crawl(Collection topics) {
-		int hits = 0;
-		for (Object topic : topics){
-			Thing t = (Thing)topic;
-			if (expired())
-				break;
-			Collection goals = new ArrayList(1);
-			goals.add(t);
-			String name = t.getName();
-			body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
-			boolean found = new PathTracker(this,goals,range).run(rootPath);
-			body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
-			if (found)
-				hits++;
-		}
-		return hits;
-	}
-	
-	boolean linkMatch(String text,Seq patseq) {
-		Iter iter = new Iter(Parser.parse(text));
-		try {
-			if (Reader.read(iter, patseq, null))
-				return true;
-		} catch (Throwable e) {
-			body.error("Siter linkMatch error pattern "+patseq, e);
-		}
-		return false;
-	}
-
-	boolean readPage(String path,ArrayList links,Collection things) {
-		Thread.yield();
-		boolean result = false;
-		boolean skipped = false;
-		boolean failed = false;
-		String text = null;
-		
-		body.reply("Site crawling page begin "+path+".");
-		if (!AL.isURL(path)) // if not http url, parse the entire text
-			//result = match(storager,path,time,null,things);
-			result = match(body.storager,new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
-		else
-		//TODO: distinguish skipped || failed in readIfUpdated ?
-		if (!AL.empty(text = body.filecacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),titler.getMap(path),forced,realTime))) {
-			ArrayList positions = new ArrayList();
-			//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
-			Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,punctuation,positions));//build with original text positions preserved for image matching
-			result = match(body.storager,iter,positions,timeDate,path,things);
-			index(path,timeDate,iter,links);
-			//TODO: add source name as page title by default?
-		} else {
-			skipped = true;//if not read 
-			failed = true;
-		}
-		if (skipped || failed)
-			body.reply("Site crawling page end "+(failed? "failed": "skipped")+" "+path+".");
-		else
-			body.reply("Site crawling page end "+(result? "found": "missed")+" "+path+".");
-		return result;
-	}
-
-	//get all things for the thing name
-	private boolean match(Storager storager,Iter iter,ArrayList positions,Date time,String path,Collection things) {
-		int matches = 0;
-		//if (text != null) {
-		if (iter != null && iter.size() > 0) {
-			if (!AL.empty(things)) {
-				for (Iterator it = things.iterator();it.hasNext();)
-					matches += matcher.match(storager,iter,positions,(Thing)it.next(),time,path, thingTexts, thingPaths, imager, linker, titler);
-			}
-		}
-		return matches > 0;
-	}
-
-	//TODO: move out to time-specific framework!?
-	static Collection latest(Storager storager, Thing is, String path) {
-		HashSet found = new HashSet();
-		long latest = 0;
-		Collection instances = storager.get(AL.is,is);
-		if (!AL.empty(instances)) {
-			//TODO: do we really need the clone here to prevent ConcurrentModificationException? 
-			for (Iterator it = new ArrayList(instances).iterator(); it.hasNext();) {
-				Thing instance = (Thing)it.next();
-//String debug_text = Writer.toPrefixedString(null, null, instance);				
-				if (path != null && !storager.has(instance,AL.sources,path))
-					continue;
-				Date date = Time.day(instance.get(AL.times));
-				long time = date == null ? 0 : date.getTime();
-				if (time >= latest) {
-					if (time > latest)
-						found.clear();
-					found.add(instance);
-					latest = time;
-				}
-			}
-		}
-		return found;
-	}
-
-	/*static private Thing existingNonPeiodic(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
+	/*private Thing existingNonPeiodic(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
 		Collection coll;
 		try {
 			All query = new All(new Object[]{
@@ -466,7 +437,31 @@ public class Siter {
 		return null;
 	}
 
-	//TODO move the following to Updater/Notifier/Publisher
+	static Collection latest(Storager storager, Thing is, String path) {
+		HashSet found = new HashSet();
+		long latest = 0;
+		Collection instances = storager.get(AL.is,is);
+		if (!AL.empty(instances)) {
+			//TODO: do we really need the clone here to prevent ConcurrentModificationException? 
+			for (Iterator it = new ArrayList(instances).iterator(); it.hasNext();) {
+				Thing instance = (Thing)it.next();
+//String debug_text = Writer.toPrefixedString(null, null, instance);				
+				if (path != null && !storager.has(instance,AL.sources,path))
+					continue;
+				Date date = Time.day(instance.get(AL.times));
+				long time = date == null ? 0 : date.getTime();
+				if (time >= latest) {
+					if (time > latest)
+						found.clear();
+					found.add(instance);
+					latest = time;
+				}
+			}
+		}
+		return found;
+	}
+
+	//TODO moved the following to Updater/Notifier/Publisher
 	
 	/**
 	 * Returns array of [subject,content]
@@ -475,6 +470,7 @@ public class Siter {
 	 * @param news
 	 * @return
 	 */
+	/*
 	static String[] digest(Body body, Thing thing, String path, Collection news, boolean verbose){
 		if (AL.empty(news))//no news - no digest
 			return null;
@@ -563,6 +559,27 @@ public class Siter {
 		body.update(peer, subject, content, signature);
 	}
 
+	//get count of news not trusted by the 1st peer trusted by self
+	public static int pendingNewsCount(Body body) {
+		int untrusted = 0;
+		Storager storager = body.storager;
+		//say for Android, display count of news specific to self owner (1st one trusted peer) 
+		Collection trusts = storager.get(AL.trusts, body.self());
+		if (!AL.empty(trusts)) {
+			Thing peer = (Thing)trusts.iterator().next();
+			Collection news = (Collection)peer.get(AL.news, peer);
+			if (!AL.empty(news)) {
+				for (Iterator it = news.iterator(); it.hasNext();) {
+					Thing t = (Thing) it.next();
+					Object trust = t.get(AL.trust,peer);
+					if (trust == null || !trust.equals(AL._true))
+						untrusted++;
+				}
+			}
+		}
+		return untrusted;
+	}
+	
 	//update all trusting peers being shared
 	public static Actioner getUpdater(){
 		return new Actioner(){
@@ -590,25 +607,5 @@ public class Siter {
 			}
 		};
 	}
-	
-	//get count of news not trusted by the 1st peer trusted by self
-	public static int pendingNewsCount(Body body) {
-		int untrusted = 0;
-		Storager storager = body.storager;
-		//say for Android, display count of news specific to self owner (1st one trusted peer) 
-		Collection trusts = storager.get(AL.trusts, body.self());
-		if (!AL.empty(trusts)) {
-			Thing peer = (Thing)trusts.iterator().next();
-			Collection news = (Collection)peer.get(AL.news, peer);
-			if (!AL.empty(news)) {
-				for (Iterator it = news.iterator(); it.hasNext();) {
-					Thing t = (Thing) it.next();
-					Object trust = t.get(AL.trust,peer);
-					if (trust == null || !trust.equals(AL._true))
-						untrusted++;
-				}
-			}
-		}
-		return untrusted;
-	}
+	 */	
 }

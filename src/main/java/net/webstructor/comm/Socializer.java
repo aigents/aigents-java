@@ -771,7 +771,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 			try {
 				Collection peers = body.storager.getByName(name() + " id", peer_id);
 				if (!AL.empty(peers))
-					matcher.matchPeersText(body, Peer.peerTopics(peers), text, time, permlink, imgurl);
+					matcher.matchPeersText(Peer.peerTopics(peers), text, time, permlink, imgurl);
 			} catch (Exception e) {
 				body.error("Siter matchig "+name()+" "+peer_id+" "+text,e);
 			}

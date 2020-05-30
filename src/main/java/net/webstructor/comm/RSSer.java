@@ -128,7 +128,7 @@ public class RSSer implements Crawler {
 		String text = HtmlStripper.convert(it.description,HtmlStripper.block_and_break_tags,HtmlStripper.block_breaker,null, imager.getMap(it.link), null, titler.getMap(it.link), rootPath);
 		titler.getMap(it.link).put(0, it.title);//hack to set the only title possible!!!
 //TODO: consider if we want to dive further with PathFinder if context of Siter has range > 1 
-		return matcher.matchThingsText(body,topics,text,Time.date(it.date),it.link,it.image,collector,titler,imager);
+		return matcher.matchThingsText(topics,text,Time.date(it.date),it.link,it.image,collector,titler,imager);
 	}
 	
 	int crawlRSS(Document document, Collection topics, MapMap collector, String baseRootPath, Date since){

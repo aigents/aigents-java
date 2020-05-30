@@ -26,6 +26,7 @@ package net.webstructor.agent;
 import net.webstructor.agent.Farm;
 import net.webstructor.peer.Conversationer;
 import net.webstructor.self.Matcher;
+import net.webstructor.self.Publisher;
 import net.webstructor.self.Siter;
 
 public class Demo extends Farm {
@@ -54,11 +55,20 @@ public class Demo extends Farm {
     @Override
 	public Matcher getMatcher(){
     	//one can use the Matcher subclass of their own, overridding the methods
-		return new Matcher(this);
+		return super.getMatcher();
 	}
 	
     /**
-     * May create custom social/network/media infrastructure
+     * May return custom Publisher
+     */
+    @Override
+	public Publisher getPublisher(){
+    	//one can use the Matcher subclass of their own, overridding the methods
+		return super.getPublisher();
+	}
+	
+    /**
+     * May create custom social/network/media infrastructure adapters/plugins
      */
     @Override
 	protected void socialize() {
