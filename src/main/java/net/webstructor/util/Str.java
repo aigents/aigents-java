@@ -213,7 +213,37 @@ public class Str {
 		}
 		return source;
 	}
-	    
+
+	public static String striptags(String src, String beg, String end) {
+		if (AL.empty(src) || AL.empty(beg) || AL.empty(end))
+			return src;
+		int srclen = src.length();
+		int beglen = beg.length();
+		int endlen = end.length();
+		int cdataendpos;
+		int cdatapos;
+		StringBuilder sb = new StringBuilder();
+		for (int pos = 0; pos < srclen;) {
+			cdatapos = src.indexOf(beg,pos);
+			if (cdatapos == -1) {//no more cdata
+				sb.append(src.substring(pos));
+				break;
+			} else {
+				if (pos < cdatapos)
+					sb.append(src.substring(pos,cdatapos));
+				cdataendpos = src.indexOf(end, cdatapos + beglen);
+				if (cdataendpos == -1) {//not closed cdata
+					sb.append(src.substring(cdatapos + beglen));
+					break;
+				} else {
+					sb.append(src.substring(cdatapos + beglen,cdataendpos));
+					pos = cdataendpos + endlen;
+				}
+			}
+		}
+		return sb.toString();
+	}
+	
 	public static String[] concat(String[] first, String[] second){
 		String[] result = Arrays.copyOf(first, first.length + second.length);
 		System.arraycopy(second, 0, result, first.length, second.length);
@@ -313,4 +343,16 @@ public class Str {
 
 		return (ll - costs[str2l]) / (double) ll;
 	  }
+
+	/*public static void main(String[] args) {
+		System.out.println(Str.striptags("1a2","1", "2"));
+		System.out.println(Str.striptags("a1b2","1", "2"));
+		System.out.println(Str.striptags("a1b2c","1", "2"));
+		System.out.println(Str.striptags("1a2b1c2","1", "2"));
+		System.out.println(Str.striptags("1a2b1c2d","1", "2"));
+		System.out.println(Str.striptags("1a2b1c2d1e2","1", "2"));
+		System.out.println(Str.striptags("a1b2c1d2e1f2g","1", "2"));
+		System.out.println(Str.striptags("<![CDATA[a]]>b<![CDATA[c]]>d<![CDATA[e]]>","<![CDATA[", "]]>"));
+		System.out.println(Str.striptags("a<![CDATA[b]]>c<![CDATA[d]]>e<![CDATA[f]]>g","<![CDATA[", "]]>"));
+	}*/
 }

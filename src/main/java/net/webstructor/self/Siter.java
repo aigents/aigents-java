@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.TreeMap;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
@@ -45,10 +44,9 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.cat.StringUtil;
-import net.webstructor.comm.Socializer;
+import net.webstructor.comm.Crawler;
 import net.webstructor.core.Actioner;
 import net.webstructor.core.Environment;
-import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
@@ -58,41 +56,11 @@ import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
-
-//TODO split Siter into Siter framwork and Webber   
-//TODO Siter.newSpider => Webber.crawl
-//TODO add Crawler interface with readChannel => crawl method
+//TODO split Siter into Siter framework and WebCrawler   
+//TODO Siter.newSpider => WebCrawler.crawl
 //TODO make Redditer, Twitter, Discourse => implement Crawler 
-//TODO make Webber to implement Crawler
-//TODO move sitecacher = new GraphCacher("www", this); under the umbrella of the Webber
-/*class Webber {
-	Siter siter;
-	Webber(Siter siter){
-		this.siter = siter;
-	}
-	public int crawl(String rootPath, Collection topics, MapMap thingPathsCollector) {
-		if (!AL.isURL(rootPath) || AL.isIMG(rootPath))
-			return -1;
-		int hits = 0;
-		for (Object topic : topics){
-			Thing t = (Thing)topic;
-			if (siter.expired())
-				break;
-			Collection goals = new ArrayList(1);
-			goals.add(t);
-			String name = t.getName();
-			
-			siter.body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
-			boolean found = new PathTracker(siter,goals,siter.range).run(rootPath);
-			siter.body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
-			if (found)
-				hits++;
-		}
-		return hits;
-	}
-}*/
-
-
+//TODO make WebCrawler to implement Crawler
+//TODO move sitecacher = new GraphCacher("www", this); under the umbrella of the WebCrawler
 public class Siter {
 
 	public static final int DEFAULT_RANGE = 1;//TODO: make configurable
@@ -101,38 +69,36 @@ public class Siter {
 	enum Mode { SMART, TRACK, FIND };
 	
 	Body body;
-	Thing self;
-	Storager storager;
 	private String thingname;
 	String rootPath;
+	
 	Date realTime; // real time to use for page refreshment
 	Date timeDate; // = Time.day(Time.today); // database time to use for storage
 	boolean forced;//forcing peer: if not null - re-read unconditionally, if null - read only if content is changed
 	boolean strict;//true - follow same-domain links only, false - follow all links
-	Collection focusThings;
+	int range;//TODO unify with PathFinder's hopLimit
+	Mode mode;//mode - [smart|track|find] - whether to use existing path if present only (track) or always explore new paths (find) or track first and go to find if nothing is found (default - smart)
+
+	long tillTime;
+	long newsLimit;
+	
 	Collection allThings;
 	MapMap thingPaths; //thing->path->instance
 	MapMap thingTexts; //thing->text->instance	
 	ContentLocator imager;
 	ContentLocator linker;//using Imager to keep positions of links
 	ContentLocator titler;
-	Cacher cacher;
-	long tillTime;
-	long newsLimit;
-	int range;//TODO unify with PathFinder's hopLimit
-	Mode mode;//mode - [smart|track|find] - whether to use existing path if present only (track) or always explore new paths (find) or track first and go to find if nothing is found (default - smart)
+	Matcher matcher;
 
-	public Siter(Body body,Storager storager,String path) {
+	public Siter(Body body,String path) {
 		this.body = body;
-		this.self = body.self();
 		this.rootPath = path;
-		this.storager = storager;
+		matcher = body.getMatcher();
 		thingPaths = new MapMap();
 		thingTexts = new MapMap();
 		imager = new ContentLocator();
 		linker = new ContentLocator();
 		titler = new ContentLocator();
-		this.cacher = body.filecacher;
 	}
 	
 	public Siter init(String thingname,Date time,boolean forced,long tillTime,int range,int limit,boolean strict,String mode) {
@@ -147,15 +113,15 @@ public class Siter {
 		this.mode = "track".equalsIgnoreCase(mode) ? Mode.TRACK : "find".equalsIgnoreCase(mode) ? Mode.FIND : Mode.SMART;
 		
 		//first, try to get things specified by thing name name (if explicitly provided)
-		allThings = storager.getNamed(thingname);
+		allThings = body.storager.getNamed(thingname);
 		if (AL.empty(allThings)) {
 			//next, try to find all things people are aware of:
 			//build list of things that are known to and trusted by users of given path
 			allThings = new HashSet();
 			//TODO: make sites readable not being listed?
-			java.util.Set sites = storager.get(AL.sites,rootPath);
+			java.util.Set sites = body.storager.get(AL.sites,rootPath);
 			java.util.Set peers = !AL.empty(sites)? new HashSet(sites) : null;
-			java.util.Set peerSiteTrusts = storager.get(AL.trusts,rootPath);
+			java.util.Set peerSiteTrusts = body.storager.get(AL.trusts,rootPath);
 			if (!AL.empty(peers) && !forced){//get things from peers only trusting this site
 				if (AL.empty(peerSiteTrusts))
 					peers.clear();
@@ -182,7 +148,7 @@ public class Siter {
 						for (Iterator jt = peerThings.iterator(); jt.hasNext();){
 							Thing thing = (Thing)jt.next();
 //TODO: optimize this							
-							Set peerThingTrusts = storager.get(AL.trusts,thing);
+							Set peerThingTrusts = body.storager.get(AL.trusts,thing);
 							if (!AL.empty(peerThingTrusts))//if there is at least one peer trusting the thing
 								if (forced || Array.intersect(peerThingTrusts,peerSiteTrusts)){
 									allThings.add(thing);
@@ -202,33 +168,15 @@ public class Siter {
 		return expired;
 	}
 	
-	private int crawl(Collection topics) {
-		int hits = 0;
-		for (Object topic : topics){
-			Thing t = (Thing)topic;
-			if (expired())
-				break;
-			Collection goals = new ArrayList(1);
-			goals.add(t);
-			String name = t.getName();
-			body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
-			boolean found = new PathTracker(this,goals,range).run(rootPath);
-			body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
-			if (found)
-				hits++;
-		}
-		return hits;
-	}
-	
 	public boolean read() {
-		cacher.clearTried();
-		Collection topics = !AL.empty(thingname) ? storager.getNamed(thingname) : allThings;
+		body.filecacher.clearContext();
+		Collection topics = !AL.empty(thingname) ? body.storager.getNamed(thingname) : allThings;
 		body.debug("Site crawling root begin "+rootPath+".");
 		long start = System.currentTimeMillis(); 
 
 		boolean ok = false;
-		for (Socializer s : body.getSocializers())//try channel-readers first
-			if (s.crawl(rootPath, topics, thingPaths) >= 0) {
+		for (Crawler s : body.getCrawlers())//try channel-readers first
+			if (s.crawl(rootPath, topics, realTime, thingPaths) >= 0) {
 				ok = true;
 				break;
 			}
@@ -248,7 +196,7 @@ public class Siter {
 		int hits = update(body,rootPath,timeDate,thingPaths,forced,null);
 		thingPaths.clear();//help gc
 		thingTexts.clear();
-		cacher.clearTried();
+		body.filecacher.clearContext();
 		return hits;
 	}
 	
@@ -340,17 +288,6 @@ public class Siter {
 		}
 		return hits;
 	}
-	
-	boolean linkMatch(String text,Seq patseq) {
-		Iter iter = new Iter(Parser.parse(text));
-		try {
-			if (Reader.read(iter, patseq, null))
-				return true;
-		} catch (Throwable e) {
-			body.error("Siter linkMatch error pattern "+patseq, e);
-		}
-		return false;
-	}
 
 	private void index(String path,Date time,Iter iter,ArrayList links){
 		if (body.sitecacher != null){
@@ -378,7 +315,41 @@ public class Siter {
 			}			
 		}
 	}
+
 	
+	
+	//TODO public class WebCrawler implements Crawler
+	
+	//TODO Override Crawler.crawl
+	private int crawl(Collection topics) {
+		int hits = 0;
+		for (Object topic : topics){
+			Thing t = (Thing)topic;
+			if (expired())
+				break;
+			Collection goals = new ArrayList(1);
+			goals.add(t);
+			String name = t.getName();
+			body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
+			boolean found = new PathTracker(this,goals,range).run(rootPath);
+			body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
+			if (found)
+				hits++;
+		}
+		return hits;
+	}
+	
+	boolean linkMatch(String text,Seq patseq) {
+		Iter iter = new Iter(Parser.parse(text));
+		try {
+			if (Reader.read(iter, patseq, null))
+				return true;
+		} catch (Throwable e) {
+			body.error("Siter linkMatch error pattern "+patseq, e);
+		}
+		return false;
+	}
+
 	boolean readPage(String path,ArrayList links,Collection things) {
 		Thread.yield();
 		boolean result = false;
@@ -389,14 +360,14 @@ public class Siter {
 		body.reply("Site crawling page begin "+path+".");
 		if (!AL.isURL(path)) // if not http url, parse the entire text
 			//result = match(storager,path,time,null,things);
-			result = match(storager,new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
+			result = match(body.storager,new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
 		else
 		//TODO: distinguish skipped || failed in readIfUpdated ?
-		if (!AL.empty(text = cacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),titler.getMap(path),forced,realTime))) {
+		if (!AL.empty(text = body.filecacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),titler.getMap(path),forced,realTime))) {
 			ArrayList positions = new ArrayList();
 			//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
 			Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,punctuation,positions));//build with original text positions preserved for image matching
-			result = match(storager,iter,positions,timeDate,path,things);
+			result = match(body.storager,iter,positions,timeDate,path,things);
 			index(path,timeDate,iter,links);
 			//TODO: add source name as page title by default?
 		} else {
@@ -411,54 +382,18 @@ public class Siter {
 	}
 
 	//get all things for the thing name
-	//private boolean match(Storager storager,String text,Date time,String path,Collection things) {
 	private boolean match(Storager storager,Iter iter,ArrayList positions,Date time,String path,Collection things) {
 		int matches = 0;
 		//if (text != null) {
 		if (iter != null && iter.size() > 0) {
 			if (!AL.empty(things)) {
 				for (Iterator it = things.iterator();it.hasNext();)
-					//matches += match(storager,text,(Thing)it.next(),time,path);
-					matches += match(storager,iter,positions,(Thing)it.next(),time,path);
+					matches += matcher.match(storager,iter,positions,(Thing)it.next(),time,path, thingTexts, thingPaths, imager, linker, titler);
 			}
 		}
 		return matches > 0;
 	}
-	
-	//match all Patterns of one Thing for one Site and send updates to subscribed Peers
-	//TODO: Siter extends Matcher (MapMap thingTexts, MapMap thingPaths, Imager imager, Imager linker)
-	public static int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
-		//TODO: re-use iter building it one step above
-		//ArrayList positions = new ArrayList();
-		//Iter iter = new Iter(Parser.parse(text,positions));//build with original text positions preserved for image matching
-		int matches = 0;
-		//first, try to get patterns for the thing
-		Collection patterns = (Collection)thing.get(AL.patterns);
-		//next, if none, create the pattern for the thing name manually
-		if (AL.empty(patterns))
-			//auto-pattern from thing name split apart
-			matches += match(storager,thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
-		if (!AL.empty(patterns)) {
-			for (Iterator it = patterns.iterator(); it.hasNext();){				
-                matches += match(storager,((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
-			}
-		}
-		return matches;
-	}
-	
-	private int match(Storager storager,Iter iter,ArrayList positions,Thing thing,Date time,String path) {
-		return match(storager, iter, positions, thing, time, path, thingTexts, thingPaths, imager, linker, titler);
-	}
-	
-	//TODO: move out?
-	static boolean has(Storager storager, Thing thing, String property, String name) {
-		Collection named = storager.getNamed(name);
-		Object props = thing.get(property);
-		if (props instanceof Collection && ((Collection)props).containsAll(named))
-			return true;
-		return false;
-	}
-	
+
 	//TODO: move out to time-specific framework!?
 	static Collection latest(Storager storager, Thing is, String path) {
 		HashSet found = new HashSet();
@@ -469,7 +404,7 @@ public class Siter {
 			for (Iterator it = new ArrayList(instances).iterator(); it.hasNext();) {
 				Thing instance = (Thing)it.next();
 //String debug_text = Writer.toPrefixedString(null, null, instance);				
-				if (path != null && !has(storager,instance,AL.sources,path))
+				if (path != null && !storager.has(instance,AL.sources,path))
 					continue;
 				Date date = Time.day(instance.get(AL.times));
 				long time = date == null ? 0 : date.getTime();
@@ -531,134 +466,8 @@ public class Siter {
 		return null;
 	}
 
-	public static String title(String path, String nl_text, int pos, ContentLocator titler) {
-		if (titler == null)
-			return shortTitle(nl_text);
-		String title_text = titler.getAvailableUp(path,0);
-		String header_text = titler.getAvailableUp(path,pos);
-		if (AL.empty(title_text) && AL.empty(header_text))
-			return shortTitle(nl_text);
-		if (title_text.contentEquals(header_text))
-			return title_text;
-		if (!AL.empty(title_text) && !AL.empty(header_text)) {
-			double t = Str.simpleTokenizedProximity(nl_text,title_text,AL.punctuation+AL.spaces);
-			double h = Str.simpleTokenizedProximity(nl_text,header_text,AL.punctuation+AL.spaces);
-			return h > t ? header_text : title_text;
-		}
-		return AL.empty(header_text) ? title_text : header_text;
-	}
+	//TODO move the following to Updater/Notifier/Publisher
 	
-	public static String shortTitle(String text) {
-		if(text.matches("(?![0-9]).*["+AL.punctuation+"](?![0-9]).*")) {
-			String[] tokens = text.split("["+AL.punctuation+"]");
-			for(String s : tokens) {
-				while(s.endsWith(" "))
-					s = s.substring(0, s.length()-1);
-				while(s.startsWith(" "))
-					s = s.substring(1, s.length());
-				if(s.contains(" "))
-					return s;
-			}
-		}
-		return text;
-	}
-
-	//TODO: move to other place
-	public static Seq relaxPattern(Storager storager, Thing instance, String context, Seq patseq, String about) {
-		if (AL.empty(patseq))
-			return patseq;
-		Object pat[] = new Object[patseq.size() + (context == null ? 0 : 1) + (about == null ? 0 : 1)];
-		int i = 0;
-		if (context != null)
-			pat[i++] = new Property(storager,instance,context);
-		for (int j = 0; j < patseq.size(); j++)
-			pat[i++] = patseq.get(j);
-		if (about != null)
-			pat[i++] = new Property(storager,instance,about);
-		return new Seq(pat);
-	}
-
-	//TODO: make smarter patterns like "[?prefix patseq ?postfix]" and make them supported by matcher!?
-	public static boolean readAutoPatterns(Storager storager, Iter iter, Seq patseq, Thing instance, StringBuilder summary) {
-		if (!Property.containedIn(patseq)){
-			if (Reader.read(iter, relaxPattern(storager, instance,"context",patseq,"about"), summary))
-				return true;
-			if (Reader.read(iter, relaxPattern(storager, instance,null,patseq,"about"), summary))
-				return true;
-			if (Reader.read(iter, relaxPattern(storager, instance,"context",patseq,null), summary))
-				return true;
-		}
-		return Reader.read(iter, patseq, summary);
-	}
-
-	//match one Pattern for one Thing for one Site
-	public static int match(Storager storager,String patstr, Iter iter, Thing thing, Date time, String path, ArrayList positions, MapMap thingTexts, MapMap thingPaths, ContentLocator imager, ContentLocator linker, ContentLocator titler) {
-		Date now = Time.date(time);
-		int matches = 0;
-		//TODO:optimization so pattern with properties is not rebuilt every time?
-		iter.pos(0);//reset 
-		for (;;) {
-			Thing instance = new Thing();
-			Seq patseq = Reader.pattern(storager,instance, patstr);
-			
-			StringBuilder summary = new StringBuilder();
-			boolean read = readAutoPatterns(storager,iter,patseq,instance,summary);
-			if (!read)
-				break;
-			
-			//plain text before "times" and "is" added
-			String nl_text = summary.toString();
-
-			//TODO check in mapmap by text now!!!
-			//TODO if matched, get the "longer" source path!!!???
-			if (thingTexts != null && thingTexts.getObject(thing, nl_text, false) != null)//already adding this
-				continue;
-
-			/*
-			//TODO: ensure if such GLOBAL "path-less" novelty (ditto above) is required
-			//check if latest in LTM
-			if (forcer == null && body.archiver.exists(patstr,nl_text)){
-				body.archiver.update(patstr,nl_text,now);//update temporal snapshot in LTM
-				continue;
-			}
-			*/
-			
-//TODO: move all that validation and serialization to updater!!!
-//first, add new entities
-//next, memorize new snapshot
-//also, don't add "is thing" to not memorized instance? 
-			
-			instance.addThing(AL.is, thing);
-			instance.set(AL.times, now);
-			instance.setString(AL.text,nl_text);
-			Integer textPos = positions == null ? new Integer(0) : (Integer)positions.get(iter.cur() - 1);
-			//try to get title from the structure or generate it from the text
-			String title_text = title(path, nl_text, textPos, titler);
-			if (!AL.empty(title_text))
-				instance.setString(AL.title,title_text);
-			if (imager != null){
-				String image = imager.getAvailable(path,textPos);
-				if (!AL.empty(image))
-					instance.setString(AL.image,image);
-			}
-			String link = null;
-			if (linker != null){
-				//measure link pos as link_pos = (link_beg+link_end)/2
-				//associate link with text if (text_pos - link_pos) < text_legth/2, where text_pos = (text_beg - text_end)/2
-				int range = nl_text.length()/2;
-				int text_pos = textPos.intValue() - range;//compute position of text as its middle
-				link = linker.getAvailableInRange(path,new Integer(text_pos),range);
-			}
-			if (thingTexts != null)
-				thingTexts.putObject(thing, nl_text, instance);
-			if (thingPaths != null)
-				thingPaths.putObjects(thing, !AL.empty(link)? link : path == null ? "" : path, instance);
-			
-			matches++;
-		}
-		return matches;
-	}
-
 	/**
 	 * Returns array of [subject,content]
 	 * @param thing
@@ -735,50 +544,14 @@ public class Siter {
 		for (Iterator it = peers.iterator(); it.hasNext();) {
 			Thing peer = (Thing)it.next();
 			update(body,storager,peer,thing,news,digest[0],digest[1],body.signature());
-			Collection allSharesTos = getSharesTos(storager,peer);
+			Collection allSharesTos = Peer.getSharesTos(storager,peer);
 			if (!AL.empty(allSharesTos)) for (Iterator tit = allSharesTos.iterator(); tit.hasNext();)
 				update(body,storager,(Thing)tit.next(),thing,news,digest[0],digest[1],signature(body,peer));
 		}
 	}
 	
-	public static String signature(Body body,Thing peer){
+	private static String signature(Body body,Thing peer){
 		return peer.getTitle(Peer.title_email)+" at "+body.site();
-	}
-	
-	/*static Collection getSharesTos(Storager storager, Thing peer){
-		//TODO: make this more efficient
-		//get list of peers trusted by the peer:
-		//1) get all peers that are marked to share to by this peer
-		Collection allSharesTos = (Collection)peer.get(AL.shares);
-		if (!AL.empty(allSharesTos)) {
-			//TODO: test if it works
-			Set trustingPeers = storager.get(AL.trusts,peer);
-			if (!AL.empty(trustingPeers)){
-				trustingPeers = new HashSet(trustingPeers);
-				//2) restrict all peers with those who have the shares
-				trustingPeers.retainAll(allSharesTos);
-				return trustingPeers;
-			}
-		}
-		return null;
-	}*/
-	
-	static Collection getSharesTos(Storager storager, Thing peer){
-		Set trustingPeers = storager.get(AL.trusts,peer);//all who trusts us (subscribers)
-		Collection allShares = (Collection)peer.get(AL.shares);//all who we share to plus our shared areas
-		if (!AL.empty(allShares) && !AL.empty(trustingPeers)) {//we need to share something plus should have someone who trusts us
-			trustingPeers = new HashSet(trustingPeers);
-			//check if this peer is public
-			Collection areas = (Collection)peer.get(AL.areas);
-			if (!AL.empty(areas)) {
-				areas = new HashSet(areas);
-				areas.retainAll(allShares);
-			}
-			if (AL.empty(areas))//if have public areas, return all trustees, otherwise:
-				trustingPeers.retainAll(allShares);//leave only the peers who are explicitly shared
-			return trustingPeers;
-		}
-		return null;
 	}
 	
 	static void update(Body body, Storager storager, Thing peer, Thing thing, Collection news, String subject, String content, String signature) throws IOException {
@@ -803,7 +576,7 @@ public class Siter {
 				String url = AL.empty(sources) ? null : ((Thing)sources.iterator().next()).getString(AL.name);
 				String text = target.getString(AL.text);
 				String content = Str.join(new String[]{url,text}, "\n");
-				Collection allSharesTos = getSharesTos(storager,context);
+				Collection allSharesTos = Peer.getSharesTos(storager,context);
 				if (!AL.empty(allSharesTos)) for (Iterator pit = allSharesTos.iterator(); pit.hasNext();){
 					Thing peer = (Thing)pit.next();
 					target.set(AL._new, AL._true, peer);
@@ -838,122 +611,4 @@ public class Siter {
 		}
 		return untrusted;
 	}
-	
-	/*
-	//TODO: all that is nt working good so far...
-	//... it is intended to create strings from patternless sites
-	void count(HashMap map, String token) {
-		Object o = map.get(token);
-		if (o == null)
-			map.put(token,new Integer(1));
-		else
-			map.put(token,new Integer( ((Integer)o).intValue() + 1 ));
-	}
-	int summarize(Storager storager, String text, Date time, String path) {
-		//TODO: re-use iter building it one step above
-		Iter iter = new Iter(Parser.parse(text));
-		final int block = 20; //magic average block length
-		int blocks = (iter.size() + block - 1) / block;
-		if (blocks > 1) {
-			HashMap overall = new HashMap();
-			HashMap[] phrases = new HashMap[blocks];
-			for (int b = 0; b < blocks; b++)
-				phrases[b] = new HashMap();
-			for (iter.pos(0); iter.has(); iter.next()) {
-				count(overall,(String)iter.get());
-				count(phrases[iter.cur() / block],(String)iter.get());
-			}
-			int best = 0;
-			for (Iterator it = overall.keySet().iterator(); it.hasNext();) {
-				String token = (String)it.next();
-				int total = ((Integer)overall.get(token)).intValue();
-				int finds = 0;
-				for (int b = 0; b < blocks; b++) {
-					Object found = phrases[b].get(token);
-					if (found != null)
-						finds++;					
-				}
-				int score = total/finds;
-				overall.put(token,new Integer(score));
-				if (best < score)
-					best = score;
-			}
-			StringBuilder buf = new StringBuilder();
-			for (Iterator it = overall.keySet().iterator(); it.hasNext();) {
-				String token = (String)it.next();
-				int score = ((Integer)overall.get(token)).intValue();
-				if (score >= best) {
-					if (buf.length() > 0)
-						buf.append(' ');
-					buf.append(token);
-				}
-			}
-			if (buf.length() > 0) {
-				Thing instance = new Thing();
-				instance.setString(AL.text,buf.toString());
-				instance.set(AL.times, time);
-
-				boolean found = false;
-				Collection already = storager.get(instance);
-				if (already != null) {
-					if (path == null)
-						found = true;
-					else
-						for (Iterator it = already.iterator(); it.hasNext();)
-							if  (Array.contains(
-								(Collection)((Thing)it.next()).get(AL.sources),
-								storager.getNamed(path))) {
-								found = true;
-								break; // found instance for the same site	
-							}
-				}
-				if (!found)
-				{
-					instance.store(storager);
-					try {
-						if (path != null)
-							storager.add(instance, AL.sources, path);
-					} catch (Exception e) {
-						body.error(e.toString(), e);
-					}
-					return 1;
-				}
-			}
-		}
-		return 0;
-	}
-	*/
-	
-	public static void matchPeersText(Body body, Collection things, String text, Date time, String permlink, String imgurl){
-		MapMap thingPaths = new MapMap();//collector
-		int matches = matchThingsText(body,things,text,time,permlink,imgurl,thingPaths);
-		if (matches > 0)
-			Siter.update(body,null,time,thingPaths,false,null);//forced=false, because may be retrospective
-	}
-	
-	//TODO: move to other place!?
-	public static int matchThingsText(Body body, Collection allThings, String text, Date time, String permlink, String imgurl, MapMap thingPaths){
-			ContentLocator imager = null;
-//TODO: actual image positions based on text MD/HTML parsing!? 
-			if (!AL.empty(imgurl)) {
-				imager = new ContentLocator();
-				TreeMap tm = imager.getMap(permlink);
-       			tm.put(new Integer(0), imgurl);
-			}
-			Iter parse = new Iter(Parser.parse(text));
-			int matches = 0;
-			long start = System.currentTimeMillis();  
-			body.debug("Siter matching start "+permlink);
-			for (Object thing: allThings) {
-				int match = Siter.match(body.storager, parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null, null);
-				if (match > 0) {
-					body.debug("Siter matching found "+((Thing)thing).getName()+" in "+permlink);
-					matches += match;
-				}
-			}
-			long stop = System.currentTimeMillis();  
-			body.debug("Siter matching stop "+permlink+", took "+Period.toHours(stop-start));
-			return matches;
-	}
-
 }

@@ -69,7 +69,7 @@ public class PayPal extends Socializer {
 	}
 
 	@Override
-	public String provider(){
+	public String name(){
 		return "paypal";
 	}
 	

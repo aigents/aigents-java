@@ -41,6 +41,7 @@ import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
+import net.webstructor.comm.Crawler;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.core.Thing;
@@ -49,14 +50,13 @@ import net.webstructor.data.Graph;
 import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
-import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
 //https://github.com/aigents/aigents-java/issues/7
 //public class Discourse extends Socializer {
-public class Discourse extends SocialCacher {
+public class Discourse extends SocialCacher implements Crawler {
 	String appId;
 	String appSecret;
 	protected HttpFileReader reader;//TODO: move up to HTTP or fix native HTTP
@@ -89,7 +89,7 @@ public class Discourse extends SocialCacher {
 	}
 	
 	@Override
-	public int crawl(String uri, Collection topics, MapMap thingPathsCollector){
+	public int crawl(String uri, Collection topics, Date time, MapMap thingPathsCollector){
 		String base_url;
 		if (AL.empty(uri) || AL.empty(base_url = HttpFileReader.getSite(uri)))
 			return -1;
@@ -207,7 +207,7 @@ public class Discourse extends SocialCacher {
 					OrderedStringSet links = new OrderedStringSet();
 					String text = SocialFeeder.parsePost(a.post_number < 2 ? a.title : null, a.text, links);
 					if (!AL.empty(text))
-						matches += Siter.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+						matches += matcher.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
 				}
 				before--;
 			}
@@ -247,7 +247,7 @@ public class Discourse extends SocialCacher {
 				OrderedStringSet links = new OrderedStringSet();
 				String text = SocialFeeder.parsePost(a.post_number < 2 ? a.title : null, a.text, links);
 				if (!AL.empty(text))
-					matches += Siter.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+					matches += matcher.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
 			}
 			return matches;
 		} catch (Exception e) {
@@ -287,7 +287,7 @@ public class Discourse extends SocialCacher {
 					//case 5: //5 - my reply posts
 					String text = SocialFeeder.parsePost(a.action_type == 4 ? a.title : null, a.text, links);
 					if (!AL.empty(text))
-						matches += Siter.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
+						matches += matcher.matchThingsText(body,topics,text,a.created_at,base_url + "/t/" + a.permlink,imgUrl(links),thingPathsCollector);
 				}
 			}
 		} catch (Exception e) {

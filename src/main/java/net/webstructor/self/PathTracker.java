@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ public class PathTracker extends PathFinder {
 				//TODO: now pattern scan Seq/s only, must be Sets!
 				//TODO: what if 'owner = null' strikes?
 				Thing dummyPatternConext = new Thing();//TODO: make use of it or make it not needed?
-				Set set = Reader.patterns(siter.storager,dummyPatternConext,pathStr);
+				Set set = Reader.patterns(siter.body.storager,dummyPatternConext,pathStr);
 				if (!(set instanceof Seq))
 					set = new Seq(new Object[]{set});
 				//TODO: consider splitting multiple paths in path set into many

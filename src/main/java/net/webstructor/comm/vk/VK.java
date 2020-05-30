@@ -94,7 +94,7 @@ public class VK extends Socializer {
 	}
 
 	//TODO:@Override
-	public String provider(){
+	public String name(){
 		return "vkontakte";
 	}
 	
@@ -106,7 +106,7 @@ public class VK extends Socializer {
 	}
 
 	public String[] verifyRedirect(String input) {
-		body.debug(provider()+" redirect: "+input);
+		body.debug(name()+" redirect: "+input);
 		String vkontakte_id = Str.parseBetween(input, "vkontakte_id=", "&");
 		String code = Str.parseBetween(input, "code=", "&");
 		String redirect_uri = Str.parseBetween(input, "state=", null);
@@ -120,9 +120,9 @@ public class VK extends Socializer {
 				"&client_secret=" + appSecret + "&v=5.44"+
 				"&redirect_uri=" + redirect_uri + "&code="+code;
 		try {
-			body.debug(provider()+" request: " + url);
+			body.debug(name()+" request: " + url);
 			String auth = simpleGet(url);				
-			body.debug(provider()+" response: " + auth);
+			body.debug(name()+" response: " + auth);
 			JsonReader jr = Json.createReader(new StringReader(auth));
 			JsonObject jauth = jr.readObject();
 			String access_token = jauth.getString("access_token");
@@ -132,7 +132,7 @@ public class VK extends Socializer {
 //TODO: do true verifyToken
 				return getUserInfo(userId,access_token);
 		} catch (Exception e) {
-			body.error(provider()+" server code validation ", e);
+			body.error(name()+" server code validation ", e);
 			return null;
 		}
 		return null;
@@ -142,9 +142,9 @@ public class VK extends Socializer {
 	public String[] getUserInfo(String userId,String access_token) {
 		String url = "https://api.vk.com/method/users.get?v=5.44&user_ids=" + userId + "&fields=first_name,last_name,email&access_token=" + access_token;
 		try {
-			body.debug(provider()+" request: " + url);
+			body.debug(name()+" request: " + url);
 			String user = simpleGet(url);				
-			body.debug(provider()+" response: " + user);
+			body.debug(name()+" response: " + user);
 			JsonReader jr = Json.createReader(new StringReader(user));
 			JsonObject info = jr.readObject();
 			JsonArray objects = info.getJsonArray("response");
@@ -152,11 +152,11 @@ public class VK extends Socializer {
 			String name = getJsonString(object,"first_name",userId);
 			String surname = getJsonString(object,"last_name",userId);
 			String email = getJsonString(object,"email",null);
-			body.debug(provider()+" user: " + name + " " + surname + " " + email);
+			body.debug(name()+" user: " + name + " " + surname + " " + email);
 			jr.close();
 			return new String[]{email,name,surname,access_token,userId};
 		} catch (Exception e) {
-			body.error(provider()+" user info ", e);
+			body.error(name()+" user info ", e);
 			return null;
 		}
 	}
@@ -165,7 +165,7 @@ public class VK extends Socializer {
 	public String[] verifyToken(String userId,String code) {
 		//TODO:
 		//check if have server token
-body.debug(provider()+" verifyToken: " + appSecret);
+body.debug(name()+" verifyToken: " + appSecret);
 		String server_token = body.self().getString(Body.vkontakte_token);
 		if (AL.empty(server_token)){
 			//if not, get it and save
@@ -174,18 +174,18 @@ body.debug(provider()+" verifyToken: " + appSecret);
 			String url = "https://oauth.vk.com/access_token?client_id=" + appId +
 				"&client_secret=" + appSecret + "&v=5.44&grant_type=client_credentials";
 			try {
-				body.debug(provider()+" request: " + url);
+				body.debug(name()+" request: " + url);
 				String auth = simpleGet(url);				
-				body.debug(provider()+" response: " + auth);
+				body.debug(name()+" response: " + auth);
 				//{"access_token":"...","expires_in":0}
 				JsonReader jr = Json.createReader(new StringReader(auth));
 				JsonObject jauth = jr.readObject();
 				server_token = jauth.getString("access_token");
 				jr.close();
-				body.debug(provider()+" server_token: " + server_token);
+				body.debug(name()+" server_token: " + server_token);
 				body.self().setString(Body.vkontakte_token,server_token);				
 			} catch (IOException e) {
-				body.error(provider()+" server token validation ", e);
+				body.error(name()+" server token validation ", e);
 				return null;
 			}
 		}
@@ -196,9 +196,9 @@ body.debug(provider()+" verifyToken: " + appSecret);
 			//TODO: "&ip=<user_ip>" + 
 			"&client_secret=" + appSecret + "&access_token=" + server_token;
 		try {
-			body.debug(provider()+" request: " + url);
+			body.debug(name()+" request: " + url);
 			String auth = simpleGet(url);
-			body.debug(provider()+" response: " + auth);
+			body.debug(name()+" response: " + auth);
 			//{"response":{"success":1,"user_id":49817193,"date":1454865203,"expire":1454872403}}
 			JsonReader jr = Json.createReader(new StringReader(auth));
 			JsonObject jauth = jr.readObject();
@@ -209,31 +209,9 @@ body.debug(provider()+" verifyToken: " + appSecret);
 			if (success == 1 && userId.equals(String.valueOf(user_id))){
 				//TODO: try to get email here too
 				return getUserInfo(userId,code);
-				/*
-				url = "https://api.vk.com/method/users.get?user_ids=" + userId +
-					"&fields=first_name,last_name,email";
-				try {
-					body.debug(provider()+" request: " + url);
-					String user = simpleGet(url);				
-					body.debug(provider()+" response: " + user);
-					jr = Json.createReader(new StringReader(user));
-					JsonObject info = jr.readObject();
-					JsonArray objects = info.getJsonArray("response");
-					JsonObject object = objects.getJsonObject(0);
-					String name = getJsonString(object,"first_name",userId);
-					String surname = getJsonString(object,"last_name",userId);
-					String email = getJsonString(object,"email",null);
-					body.debug(provider()+" user: " + name + " " + surname + " " + email);
-					jr.close();
-					return new String[]{email,name,surname,code};
-				} catch (IOException e) {
-					body.error(provider()+" user info ", e);
-					return null;
-				}
-				*/
 			}
 		} catch (IOException e) {
-			body.error(provider()+" client token validation ", e);
+			body.error(name()+" client token validation ", e);
 			return null;
 		}					
 		return null;

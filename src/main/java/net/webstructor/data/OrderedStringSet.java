@@ -31,6 +31,7 @@ import java.util.Iterator;
 
 import net.webstructor.al.AL;
 
+//TODO: extend OrderedSet
 //TODO: move ArrayList inside to dispable side effects
 public class OrderedStringSet extends ArrayList implements Comparable {
 	private static final long serialVersionUID = -5117640205010493911L;

@@ -41,8 +41,10 @@ import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
 import net.webstructor.comm.TCPListener;
 import net.webstructor.comm.HTTPListener;
+import net.webstructor.comm.RSSer;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.comm.CmdLiner;
+import net.webstructor.comm.Crawler;
 import net.webstructor.comm.Telegrammer;
 import net.webstructor.comm.discourse.Discourse;
 import net.webstructor.comm.eth.Ethereum;
@@ -103,6 +105,9 @@ public class Farm extends Body {
 		reply(Writer.toPrefixedString(null,new Seq(new Object[]{self()}),self()));
 	}
 	
+	/**
+	 * Main methond to start the Aigents body - override it if you extend Body or Farm and call super.start() if needed. 
+	 */
 	public void start() {
 		super.start();
 		//load from the path happens in Selfer constructor
@@ -206,6 +211,8 @@ public class Farm extends Body {
 		String eth_key = self().getString(ethereum_key);
 		if (!AL.empty(eth_url) && !AL.empty(eth_key))
 			socializers.put("ethereum", new Ethereum(this, "ethereum", eth_url, eth_key));
+		
+		socializers.put("rss",new RSSer(this));
 	}
 	
 	public boolean act(String name, Anything argument) {
@@ -295,8 +302,8 @@ public class Farm extends Body {
 		String network = self().getString(reputation_system);
 		boolean res = updateReputation(network);
 		// update all social cachers which have reputationers, except the default one updated right above 
-		for (Socializer s : this.getSocializers()) if (s instanceof SocialCacher) {
-			String name = s.provider();
+		for (Crawler s : this.getCrawlers()) if (s instanceof SocialCacher) {
+			String name = s.name();
 			if (!name.equals(network)) {
 
 //TODO make MEMORY_THRESHOLD parameter of body/self
@@ -369,7 +376,8 @@ public class Farm extends Body {
 	}
 	
 	public void updateStatusRarely() {
-		for (Socializer	feeder : socializers.values()) {
+		for (Crawler s : socializers.values()) if (s instanceof Socializer) {
+			Socializer feeder = (Socializer)s;
 			feeder.forget();
 			feeder.resync(0);
 		}
@@ -408,8 +416,8 @@ public class Farm extends Body {
 	
 	private Profiler[] profilers(Thing peer,String network) {
 		ArrayList<Profiler> profilers = new ArrayList(socializers.size()); 
-		for (Socializer	s : socializers.values()) {
-			if (!AL.empty(network) && !s.provider().equalsIgnoreCase(network))
+		for (Crawler s : socializers.values()) {
+			if (!AL.empty(network) && !s.name().equalsIgnoreCase(network))
 				continue;
 			Profiler p = s.getProfiler(peer);
 			if (p != null)
@@ -427,13 +435,13 @@ public class Farm extends Body {
     	    try	{
     	    	if (profiler.applies()) {
     	    		long start = System.currentTimeMillis();
-					debug("Peer crawling start "+profiler.provider().provider()+" "+peer.getString(AL.email)+".");
+					debug("Peer crawling start "+profiler.provider().name()+" "+peer.getString(AL.email)+".");
     	    		profiler.profile(peer,fresh);
     	    		long end = System.currentTimeMillis();
-					debug("Peer crawling stop "+profiler.provider().provider()+" "+peer.getString(AL.email)+", took "+new Period(end-start).toHours()+".");
+					debug("Peer crawling stop "+profiler.provider().name()+" "+peer.getString(AL.email)+", took "+new Period(end-start).toHours()+".");
     	    	}
     	    } catch (Exception e) {
-    	    	error("Peer crawling error "+profiler.provider().provider()+" "+peer.getString(AL.email), e);
+    	    	error("Peer crawling error "+profiler.provider().name()+" "+peer.getString(AL.email), e);
     	   	}
     	}
 	}

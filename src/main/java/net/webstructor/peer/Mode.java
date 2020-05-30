@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -248,15 +248,16 @@ public abstract class Mode {
 				if (!AL.empty(sources) && !AL.empty(text)){
 					String link = ((Thing)sources.iterator().next()).getName();
 					String topic = AL.empty(iss) ? null : HtmlStripper.encodeHTML(((Thing)iss.iterator().next()).getName());
+					title = HtmlStripper.encodeHTML(title);
 					text = HtmlStripper.encodeHTML(text);
 					link = HtmlStripper.encodeHTML(link);
 					if (AL.empty(title))
 						title = !AL.empty(topic) ? topic : text;
-					String description = topic == null ? text : text + "\ntopic: " + topic;
+					String description = topic == null ? text : "topic: \"" + topic + "\".\n" + text;
 					feed.append("  <item>\n");
 					feed.append("    <title>").append(title).append("</title>\n");
 					feed.append("    <link>").append(link).append("</link>\n");
-					feed.append("    <description>").append(description).append("</description>\n");
+					feed.append("    <description xml:space=\"preserve\">").append(description).append("</description>\n");
 					if (!AL.empty(image))
 						//https://www.w3schools.com/xml/tryrss.asp?filename=rss_ex_enclosure
 						feed.append("    <enclosure url=\"").append(HtmlStripper.encodeHTML(image)).append("\" type=\"image\" />\n");

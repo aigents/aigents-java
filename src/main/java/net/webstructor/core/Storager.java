@@ -115,6 +115,14 @@ public class Storager {
 		return false;
 	}
 	
+	public boolean has(Thing thing, String property, String name) {
+		Collection named = getNamed(name);
+		Object props = thing.get(property);
+		if (props instanceof Collection && ((Collection)props).containsAll(named))
+			return true;
+		return false;
+	}
+	
 	//get union of all things that have thing with given name as property of given type
 	public java.util.Set get(String type,String name) {
 		HashSet set = null;

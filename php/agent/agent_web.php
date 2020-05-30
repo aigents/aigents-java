@@ -2,7 +2,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2014-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2014-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,74 @@
  */
 
 include_once("test_api.php");
+
+function test_agent_rss() {
+	global $basePath;
+	global $version;
+	global $copyright;
+
+	//Arxiv Atom demo
+	login();
+	$filedata = file_get_contents("html/test/arxiv.xml");
+	$filedata = str_replace("2020-02-02",date("Y-m-d"),$filedata);
+	file_put_contents($basePath."html/test/arxiv1.xml",$filedata);
+	say_site("http://localtest.com/test/arxiv1.xml");
+	say_thing("reputation");
+	say("You reading site http://localtest.com/test/arxiv1.xml");
+	get("My reading site http://localtest.com/test/arxiv1.xml.");
+	say("What is reputation title, text, sources?");
+	get("There sources http://arxiv.org/abs/1902.03857v1, text and explore how various kinds of reputation systems with different parameters impact the economic security of the marketplace, title 'A Reputation System for Marketplaces - Viability Assessment'; sources http://arxiv.org/abs/1902.03857v1, text in this work we explore the implementation of the reputation system for a generic marketplace, title 'A Reputation System for Marketplaces - Viability Assessment'.");
+	say("No there times today.");
+	del_news_today("yesterday");
+	del_news_today();
+	say("What times today?");
+	get("There not.");
+	say_thing("test",false);
+	say_site("http://localtest.com/test/arxiv1.xml",false);
+	logout();
+	
+	//Plain Atom demo with images
+	login();
+	$filedata = file_get_contents("html/test/atom.xml");
+	$filedata = str_replace("2020-02-02",date("Y-m-d"),$filedata);
+	file_put_contents($basePath."html/test/atom1.xml",$filedata);
+	say_site("http://localtest.com/test/atom1.xml");
+	say_thing("test");
+	say("You reading site http://localtest.com/test/atom1.xml!");
+	get("My reading site http://localtest.com/test/atom1.xml.");
+//TODO: make it working - it does not work because image attribure is not parsed!
+	//say("What is test text, title, image, times, sources?");
+	say("What is test text, title, sources, image?");
+	get("There image http://localtest.com/test/junk.jpg, sources http://example.org/2003/12/13/atom03, text text about test feed, title 'Title about test feed'; image http://localtest.com/test/stuff.jpg, sources http://localtest.com/, text text for test image, title 'Test with image'.");
+	del_news_today();
+	say("What times today?");
+	get("There not.");
+	say_thing("test",false);
+	say_site("http://localtest.com/test/atom1.xml",false);
+	logout();
+	
+	//RSS demo
+	login();
+	$filedata = file_get_contents("html/test/rss.xml");
+	$filedata = str_replace("Wed, 1 Jan 2020 00:00:00 -0000",date("D, j M Y H:m:s O"),$filedata);
+	file_put_contents($basePath."html/test/rss1.xml",$filedata);
+	say_site("http://localtest.com/test/rss1.xml");
+	say_thing("test");
+	say("You reading site http://localtest.com/test/rss1.xml!");
+	get("My reading site http://localtest.com/test/rss1.xml.");
+	say("What is test text, title?");
+	get("There text test results scores, title 'RSS Solutions for Schools and Colleges'; text test the reaction of audience about the coming events and keep the community aware of changes in, title 'RSS Solutions for Governments'.");
+//TODO: make it working if no images found - it does not work because image attribure is not parsed!
+	//say("What is test text, image, title, times, sources?");
+	say("What is test text, title, sources, image?");
+	get("There image http://localtest.com/test/garbage.jpg, sources http://www.feedforall.com/government.htm, text test the reaction of audience about the coming events and keep the community aware of changes in, title 'RSS Solutions for Governments'; image http://localtest.com/test/stuff.jpg, sources http://www.feedforall.com/schools.htm, text test results scores, title 'RSS Solutions for Schools and Colleges'.");
+	del_news_today();
+	say("What times today?");
+	get("There not.");
+	say_thing("test",false);
+	say_site("http://localtest.com/test/rss1.xml",false);
+	logout();
+}
 
 function test_agent_web() {
 	global $basePath;
@@ -372,30 +440,8 @@ function test_agent_web() {
 "  <item>\n" .
 "    <title>about the tigers</title>\n" .
 "    <link>http://localtest.com/test.html</link>\n" .
-"    <description>tigers live in jungle\n" .
-"topic: live</description>\n" .
-"    <enclosure url=\"http://localtest.com/test/junk.jpg\" type=\"image\" />\n" .
-/*
- "    <pubDate>Mon, 25 May 2020 00:00:00" . 
-" +0700</pubDate>\n" .
-"    <category>live</category>\n" .
-"    <dc:creator><![CDATA[Aigents on Everything]]></dc:creator>\n" .
-"  </item>\n" .
-"  <item>\n" .
-"    <title>about the elephants</title>\n" .
-"    <link>http://localtest.com/test.html</link>\n" .
-"    <description>elephants live in savanna\n" .
-"topic: live</description>\n" .
-"    <enclosure url=\"http://localtest.com/test/stuff.jpg\" type=\"image\" />\n" .
-"    <pubDate>Sun, 23 May 2020 00:00:00 +0700</pubDate>\n" .
-"    <category>live</category>\n" .
-"    <dc:creator><![CDATA[Aigents on Everything]]></dc:creator>\n" .
-"  </item>\n" .
-"</channel>\n" .
-"\n" .
-"</rss>" . 
-*/
-"";
+"    <description xml:space=\"preserve\">topic: \"live\".\ntigers live in jungle</description>\n" .
+"    <enclosure url=\"http://localtest.com/test/junk.jpg\" type=\"image\" />\n";
 		get($expected_rss,false,true);//partial
 		say("My areas not everything, shares not everything.");
 		del_news_today();
@@ -859,6 +905,7 @@ function test_agent_web() {
 }	
 	
 test_init();
+test_agent_rss();
 test_agent_web();
 test_summary();
 

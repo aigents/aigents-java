@@ -107,14 +107,14 @@ public class Profiler {
 			//TODO: retain current sync time?
 			//int days = body.retentionDays();
 			//year back till tomorrow to account for possible time difference 
-			body.debug("Spidering peer "+provider.provider()+" id "+id()+" token "+token+", name "+name+", surname "+surname);
+			body.debug("Spidering peer "+provider.name()+" id "+id()+" token "+token+", name "+name+", surname "+surname);
 //TODO: include areas of interest
 //TODO: use user-specific retrospection period instead of automatically identified one 
 			//feeder = provider.getFeeder(id, token, key, Body.RETROSPECTION_PERIOD_DAYS, Body.RETROSPECTION_RETRIES, null);
 			HashMap feeds = new HashMap();
 			feeder = provider.getFeeder(id, token, key, 0, null, fresh, feeds);//default period, no areas, fresh
 			if (feeder != null){
-				body.debug("Spidering peer "+provider.provider()+" id "+id()+" news "+feeder.getNewsCount()+", name "+name+", surname "+surname);
+				body.debug("Spidering peer "+provider.name()+" id "+id()+" news "+feeder.getNewsCount()+", name "+name+", surname "+surname);
 				feeder.cluster(Body.MIN_RELEVANT_FEATURE_THRESHOLD_PERCENTS);
 				profile();
 				//default options
@@ -123,7 +123,7 @@ public class Profiler {
 			}
 		}
 		if (AL.empty(report))
-			body.debug("Spidering peer "+provider.provider()+" id "+id()+" failed");
+			body.debug("Spidering peer "+provider.name()+" id "+id()+" failed");
 		return report;
 	}
 	
@@ -245,7 +245,7 @@ public class Profiler {
 	
 	//TODO:
 	void profilePeers(){
-		String name = provider.provider() + " id";
+		String name = provider.name() + " id";
 		Object[][] similarPeers = feeder.getSimilarPeers(true,false,true);  
 		if (!AL.empty(similarPeers)){
 			for (int i = 0; i < similarPeers.length; i++){
@@ -335,7 +335,7 @@ public class Profiler {
 	}
 	
 	public String toString() {
-		return provider.provider() + " " + id + " " + token + " " + key;
+		return provider.name() + " " + id + " " + token + " " + key;
 	}
 	
 }

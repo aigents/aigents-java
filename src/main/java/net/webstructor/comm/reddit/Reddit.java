@@ -38,18 +38,18 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.HttpFileReader;
+import net.webstructor.comm.Crawler;
 import net.webstructor.comm.HTTP;
 import net.webstructor.comm.Socializer;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
-import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
 //TODO: merge Reddit+Redditer and FB+Messenger? 
-public class Reddit extends Socializer {
+public class Reddit extends Socializer implements Crawler {
 	String appId;
 	String appSecret;
 	protected HttpFileReader reader;//TODO: move up to HTTP or fix native HTTP
@@ -66,7 +66,7 @@ public class Reddit extends Socializer {
 	}
 
 	@Override
-	public String provider(){
+	public String name(){
 		return "reddit";
 	}
 	
@@ -97,7 +97,7 @@ public class Reddit extends Socializer {
 	}	
 
 	@Override
-	public int crawl(String uri, Collection topics, MapMap thingPathsCollector){
+	public int crawl(String uri, Collection topics, Date time, MapMap thingPathsCollector){
 		if (AL.empty(uri) || AL.empty(appId) || AL.empty(appSecret))
 			return -1;
 		
@@ -167,7 +167,7 @@ public class Reddit extends Socializer {
 							String text = HtmlStripper.convert(ri.text," ",null);
 							text = HtmlStripper.convertMD(text, null, null);
 //TODO: consider if we want to consider links and images same way as we do that for Siter's web pages  
-							matches += Siter.matchThingsText(body,topics,text,ri.date,ri.uri,AL.isURL(ri.thumbnail)?ri.thumbnail:null,thingPathsCollector);
+							matches += matcher.matchThingsText(body,topics,text,ri.date,ri.uri,AL.isURL(ri.thumbnail)?ri.thumbnail:null,thingPathsCollector);
 						}
 						after = JSON.getJsonString(data, "after");
 						if (after == null)

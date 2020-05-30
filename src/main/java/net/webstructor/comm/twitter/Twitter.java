@@ -38,13 +38,13 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.cat.HtmlStripper;
+import net.webstructor.comm.Crawler;
 import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
-import net.webstructor.self.Siter;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Reporter;
 import net.webstructor.util.Str;
@@ -152,7 +152,7 @@ class TwitterFeeder extends SocialFeeder {
 	}
 }
 
-public class Twitter extends Socializer {
+public class Twitter extends Socializer implements Crawler {
 	protected static final String content_url = "https://twitter.com/";
 	protected static final int DAILY_NEWS = 24;////assume 10 tweets per day as a default portion, TODO configuration
 	
@@ -166,7 +166,7 @@ public class Twitter extends Socializer {
 	}
 
 	@Override
-	public String provider() {
+	public String name() {
 		return "twitter";
 	}
 
@@ -188,7 +188,7 @@ public class Twitter extends Socializer {
 	}
 
 	@Override
-	public int crawl(String url, Collection topics, MapMap thingPathsCollector){
+	public int crawl(String url, Collection topics, Date time, MapMap thingPathsCollector){
 		String screen_name;
 		if (AL.empty(url) || AL.empty(screen_name = Str.parseBetween(url, content_url, "/", false)) || AL.empty(consumer_key) || AL.empty(consumer_key_secret))
 			return -1;
@@ -228,7 +228,7 @@ public class Twitter extends Socializer {
 				String text = HtmlStripper.convert(t.text," ",null);
 				text = HtmlStripper.convertMD(text, null, null);
 //TODO: consider if we want to consider links and images same way as we do that for Siter's web pages 
-				matches += Siter.matchThingsText(body,topics,text,Time.date(t.created_at),t.url,t.image,thingPathsCollector);
+				matches += matcher.matchThingsText(body,topics,text,Time.date(t.created_at),t.url,t.image,thingPathsCollector);
 			}
 			return matches;
 		} catch (Exception e) {

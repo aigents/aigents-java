@@ -82,7 +82,7 @@ public abstract class SocialCacher extends Socializer {
 	}
 	
 	@Override
-	public String provider(){
+	public String name(){
 		return name;
 	}
 	
@@ -177,7 +177,7 @@ public abstract class SocialCacher extends Socializer {
 		//TODO SocialCacher.getReputationer!!!!
 		//TODO use local stater!!!!
 //TODO MAKE sure the same Reputationer is re-used in multiple requests
-		ReputationSystem r = getReputationSystem(body, provider());
+		ReputationSystem r = getReputationSystem(body, name());
 		ArrayList data = new ArrayList();
 //TODO average reputation instead of the latest one!?
 		for (Date date = Time.date(until); since.compareTo(date) <= 0; date = Time.addDays(date,-1)) {

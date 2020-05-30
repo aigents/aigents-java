@@ -49,6 +49,7 @@ import net.webstructor.agent.Body;
 import net.webstructor.main.Mainer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
+import net.webstructor.self.Matcher;
 import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
@@ -178,11 +179,11 @@ public class Steemit extends SocialCacher {
 		//this.name = name;
 		//this.url = body != null ? body.self().getString(name+" url",url) : url;
 		this.reader = new HttpFileReader(body);
-		base_url = base_url(provider());
+		base_url = base_url(name());
 	}
 
 	@Override
-	public String provider(){
+	public String name(){
 		return name;
 	}
 	
@@ -365,7 +366,7 @@ public class Steemit extends SocialCacher {
 		
 	@Override
 	public Profiler getProfiler(Thing peer) {
-		return new Profiler(body,this,peer, provider()+" id");
+		return new Profiler(body,this,peer, name()+" id");
 	}
 
 	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {
@@ -374,6 +375,7 @@ public class Steemit extends SocialCacher {
 //get cacher from env!!!
 		//GraphCacher grapher = new GraphCacher(api_name,env);
 		Socializer socializer = env instanceof Body ? ((Body)env).getSocializer(api_name) : null;
+		Matcher matcher = env instanceof Body ? ((Body)env).getMatcher() : new Matcher(null);
 		GraphCacher grapher = socializer instanceof SocialCacher ? ((SocialCacher)socializer).getGraphCacher() : new GraphCacher(api_name,env);
 
 		String site = base_url(api_name);
@@ -394,7 +396,7 @@ public class Steemit extends SocialCacher {
 		int thingMatches = 0;
 		Date attention_date = api == null ? null : Time.today(-api.body.attentionDays());
 		if (api != null) {
-			String name_id = api.provider()+" id";
+			String name_id = api.name()+" id";
 			Collection candidates = api.body.storager.getAttributed(name_id);
 			if (candidates != null) {
 				Collection peers = new ArrayList();
@@ -617,7 +619,7 @@ if (block % 10 == 0){
 											String permlink_url = Steemit.permlink_url(site,parent_permlink,author,permlink);
 											//Siter.matchPeersText(api.body, peerThings, text, new_date, permlink_url, imgurl);
 											//do updates later
-											thingMatches += Siter.matchThingsText(api.body,peerThings,text,new_date,permlink_url,imgurl,thingPaths);
+											thingMatches += matcher.matchThingsText(api.body,peerThings,text,new_date,permlink_url,imgurl,thingPaths);
 										}
 									}
 								}

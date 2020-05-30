@@ -604,7 +604,7 @@ class Conversation extends Mode {
 				String id = arg.getString("id");
 				String token = session.read(new Seq(new Object[]{"token",new Property(arg,"token")})) ? arg.getString("token") : null;
 			   	if (AL.empty(token)) //if token is not supplied explicitly
-			   		token = arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.provider()+" token") : null;
+			   		token = arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.name()+" token") : null;
 				//TODO: name and language for opendata/steemit?
 			   	String secret = provider.getTokenSecret(session.getStoredPeer());
 				String report = provider.cachedReport(id,token,secret,id,"",language,format,fresh,session.input(),threshold,period,areas);
@@ -626,7 +626,7 @@ class Conversation extends Mode {
 				boolean fresh = session.input().contains("fresh");
 			   	Socializer provider = session.sessioner.body.getSocializer(arg.getString("network"));
 			   	String id = peer.getString(provider.getPeerIdName());
-			   	String token = peer.getString(provider.provider()+" token");
+			   	String token = peer.getString(provider.name()+" token");
 			   	String secret = provider.getTokenSecret(session.getStoredPeer());
 				String report = provider.cachedReport(id,token,secret,name,surname,language,format,fresh,session.input(),threshold,period,areas);
 				session.output(report != null ? report : "Not.");

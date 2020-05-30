@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "2.7.5";
+$version = "2.7.7";
 $copyright = " Copyright © 2020 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -244,10 +244,9 @@ function say_site($t, $no = true) {
 	}
 }
 
-function del_news_today(){
-	say("Times today new false.");
-	say("Times today trust false.");
-	say("No there times today.");
+function del_news_today($when = "today"){
+	say("Times ".$when." new false, trust false.");
+	say("No there times ".$when.".");
 }
 
 function login($name = "john", $email = "john@doe.org", $surname = "doe", $question = "q", $answer = "a"){

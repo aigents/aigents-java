@@ -87,7 +87,7 @@ public class Aigents extends Socializer {
 	}
 
 	@Override
-	public String provider(){
+	public String name(){
 		return body.name();
 	}
 	

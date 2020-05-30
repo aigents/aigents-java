@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -94,7 +94,7 @@ public class PathFinder {
 				//intelligent merge
 				String pathStr = goal.getString(AL.path);
 				if (!AL.empty(pathStr)) {
-					Set set = Reader.patterns(siter.storager,null,pathStr);
+					Set set = Reader.patterns(siter.body.storager,null,pathStr);
 					//ensure old paths are not overwritten - with merge
 					pathSet = pathSet.merge(set instanceof Any ? (Any)set : new Any(new Object[]{set}));
 				}

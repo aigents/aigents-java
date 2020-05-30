@@ -96,7 +96,7 @@ public abstract class Time extends Date	{
 	}
 
 	public static Date time(String text, String format) {
-		DateFormat df = new SimpleDateFormat(format);
+		DateFormat df = !AL.empty(format) ? new SimpleDateFormat(format) : new SimpleDateFormat();
 		try {
 			if (text != null)
 				return df.parse(text);

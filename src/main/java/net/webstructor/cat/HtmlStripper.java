@@ -39,14 +39,16 @@ import net.webstructor.util.Str;
 		public static final String block_breaker = ". ";
 		public static final String word_breaker = " ";//TODO: add CR/LF !?
 
-		static final String[] word_tags = {"br","div","td","tr","span","i","b","u"};
-		static final String[] block_tags = {
+		public static final String[] word_tags = {"br","div","td","tr","span","i","b","u"};
+		public static final String[] block_tags = {
 				//http://www.w3schools.com/html/default.asp
 				"p","tr","ul","h1","h2","h3","h4","h5","li","ul",
 				//http://www.w3schools.com/html/html5_new_elements.asp
 				"aside","bdi","ficaption","header","main","section","summary","article"};
-		static final String[] header_tags = {"h1","h2","h3","h4","h5","h6"};
-		static final String[] skip_tags = { "style", "script", "svg", "head", "noscript" };
+		public static final String[] header_tags = {"h1","h2","h3","h4","h5","h6"};
+		public static final String[] skip_tags = { "style", "script", "svg", "head", "noscript" };
+		public static final String[] unclosed_tags = { "p", "br" };
+		public static final String[] block_and_break_tags = Array.union(block_tags, unclosed_tags);//<p>, ... + <br> 
 		
 		static final int BLOCK_PHRASE_LENGTH = 16;//32;
 		
@@ -130,12 +132,12 @@ import net.webstructor.util.Str;
         }
 
         public static String convert( String  source, String breaker, ArrayList links){
-            return convert(source, breaker, links, null, null, null, null);
+            return convert(source, block_tags, breaker, links, null, null, null, null);
         }
         /**
          * @param images - "postion to string" map of image sources 
         */
-        public static String convert( String  source, String breaker, ArrayList links, Map images, Map linksPositions, Map titles, String path)
+        public static String convert( String  source, String[] blocktags, String breaker, ArrayList links, Map images, Map linksPositions, Map titles, String path)
         {
         	ArrayDeque tagStarts = new ArrayDeque();
         	String tag;
@@ -297,8 +299,8 @@ import net.webstructor.util.Str;
                         	//TODO: intelligent phrase breaking
                     		boolean closing = source.charAt(oldpos) == '/';
                     		String name = source.substring(oldpos + (closing ? 1 : 0), pos);
-                        	if (Array.startsWith(name,block_tags) != null) {//TODO case insensitive
-                        		if (!closing && !name.equalsIgnoreCase("p"))//<p> does not need closing
+                        	if (Array.startsWith(name,blocktags) != null) {//TODO case insensitive
+                        		if (!closing && !Array.contains(unclosed_tags, name.toLowerCase()))//<p> & <br> do not need closing
                         			tagStarts.push(new Integer(pos));
                         		else {
                         			int start = tagStarts.isEmpty() ? 0 : ((Integer)tagStarts.pop()).intValue();

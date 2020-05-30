@@ -423,7 +423,7 @@ function test_search() {
 	//say("Search results?");//TODO with proper query parsing and itenters going first in order 
 	say("Search results");
 	get("Search busy.");//search->ping -> no update
-	sleep($timeout * 5);
+	sleep($timeout * 6);
 	//say("What new true text?");//search->ping -> update
 	say("Search results");//search->ping -> update
 	get("There about including facebook, context social networks: register and login with, sources http://localtest.com/", null, true);

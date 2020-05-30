@@ -77,7 +77,7 @@ public class FB extends Socializer {
 		this.reader = new HttpFileReader(body);
 	}
 
-	public String provider(){
+	public String name(){
 		return "facebook";
 	}
 	

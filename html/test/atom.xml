@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title>Example Feed</title>
+  <link href="http://example.org/"/>
+  <updated>2003-12-13T18:30:02Z</updated>
+  <author>
+    <name>John Doe</name>
+  </author>
+  <id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>
+
+  <entry>
+    <title>Atom-Powered Robots Run Amok</title>
+    <link href="http://example.org/2003/12/13/atom03"/>
+    <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+    <updated>2020-02-02T18:30:02Z</updated>
+    <summary>Some text about robots run amok</summary>
+  </entry>
+  
+  <entry>
+    <title>Title about test feed</title>
+    <link href="http://example.org/2003/12/13/atom03"/>
+    <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+    <updated>2020-02-02T18:30:02Z</updated>
+    <summary>Text about test feed</summary>
+    <icon>http://localtest.com/test/junk.jpg</icon>
+  </entry>
+
+  <entry>
+    <title>Old title about test feed</title>
+    <link href="http://example.org/2003/12/13/atom03"/>
+    <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+    <updated>2019-12-13T18:30:02Z</updated>
+    <summary>Old text about test feed</summary>
+  </entry>
+  
+  <entry>
+    <title>Test with image</title>
+    <link href="http://localtest.com/"/>
+    <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+    <updated>2020-02-02T18:30:02Z</updated>
+    <content><![CDATA[<a href="http://localtest.com/test/">
+      <img alt="test_pic" src="http://localtest.com/test/stuff.jpg" />
+      Text for test image</a>]]></content>
+  </entry>
+  
+</feed>

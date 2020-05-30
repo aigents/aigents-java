@@ -44,6 +44,7 @@ import net.webstructor.cat.StringUtil;
 import net.webstructor.comm.Emailer;
 import net.webstructor.core.Agent;
 import net.webstructor.core.Query;
+import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.serp.Serper;
 import net.webstructor.util.Array;
@@ -396,6 +397,24 @@ public class Peer extends Agent {
 			HashSet result = new HashSet(topics);
 			result.retainAll(trusts);
 			return result;
+		}
+		return null;
+	}
+	
+	public static Collection getSharesTos(Storager storager, Thing peer){
+		Set trustingPeers = storager.get(AL.trusts,peer);//all who trusts us (subscribers)
+		Collection allShares = (Collection)peer.get(AL.shares);//all who we share to plus our shared areas
+		if (!AL.empty(allShares) && !AL.empty(trustingPeers)) {//we need to share something plus should have someone who trusts us
+			trustingPeers = new HashSet(trustingPeers);
+			//check if this peer is public
+			Collection areas = (Collection)peer.get(AL.areas);
+			if (!AL.empty(areas)) {
+				areas = new HashSet(areas);
+				areas.retainAll(allShares);
+			}
+			if (AL.empty(areas))//if have public areas, return all trustees, otherwise:
+				trustingPeers.retainAll(allShares);//leave only the peers who are explicitly shared
+			return trustingPeers;
 		}
 		return null;
 	}

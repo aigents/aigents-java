@@ -35,6 +35,7 @@ import java.util.Iterator;
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Writer;
+import net.webstructor.comm.Crawler;
 import net.webstructor.comm.Socializer;
 //import net.webstructor.comm.fb.FB;
 //import net.webstructor.comm.goog.GApi;
@@ -54,6 +55,9 @@ import net.webstructor.peer.Conversationer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Sessioner;
 import net.webstructor.data.LangPack;
+import net.webstructor.data.OrderedMap;
+import net.webstructor.self.Matcher;
+import net.webstructor.self.Siter;
 import net.webstructor.self.Thinker;
 import net.webstructor.serp.Serper;
 import net.webstructor.util.Array;
@@ -61,7 +65,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.7.5";
+	public final static String VERSION = "2.7.7";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -204,7 +208,8 @@ public abstract class Body extends Anything implements Environment, Updater
 	public CacherHolder cacheholder = null;
 	protected HashMap actioners = new HashMap();
 	protected HashMap<String,Serper> searchers = new HashMap<String,Serper>();
-	protected HashMap<String,Socializer> socializers = new HashMap<String,Socializer>();
+	//protected HashMap<String,Crawler> socializers = new HashMap<String,Crawler>();
+	protected OrderedMap<String,Crawler> socializers = new OrderedMap<String,Crawler>();
 	
 	//TODO:configuration on-line
 	protected boolean console;
@@ -272,12 +277,14 @@ public abstract class Body extends Anything implements Environment, Updater
 	}
 	
 	public Socializer getSocializer(String name){
+		Crawler c;
 		synchronized (socializers) {
-			return socializers.get(name);
+			c = socializers.get(name);
 		}
+		return c instanceof Socializer ? (Socializer)c : null;
 	}
 	
-	public Collection<Socializer> getSocializers(){
+	public Collection<Crawler> getCrawlers(){
 		synchronized (socializers) {
 			return socializers.values();
 		}
@@ -287,6 +294,23 @@ public abstract class Body extends Anything implements Environment, Updater
 		synchronized (searchers) {
 			return searchers.get(name);
 		}
+	}
+	
+	/**
+	 * Creates or returns Siter instance to hold context of site spidering/crawling
+	 * @param path of the resource to be spidered/crawled
+	 * @return Siter instance
+	 */
+	public Siter getSiter(String path){
+		return new Siter(this,path);
+	}
+	
+	/**
+	 * Creates or returns Matcher instance to do the text matching
+	 * @return Matcher instance
+	 */
+	public Matcher getMatcher(){
+		return new Matcher(this);
 	}
 	
 	public Collection<Serper> getSerpers(){

@@ -56,27 +56,27 @@ import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Transcoder;
 import net.webstructor.data.Translator;
 import net.webstructor.peer.Peer;
-import net.webstructor.peer.Profiler;
-import net.webstructor.self.Siter;
+import net.webstructor.self.Matcher;
 
 /**
  * Keeps context of entire social network.
  * Also, keeps generic social reporting functionality.  
  * @author akolonin
  */
-public abstract class Socializer extends HTTP {
+public abstract class Socializer extends HTTP implements Crawler {
 	protected int timeout = 0;
+	protected Matcher matcher;
 	
 	protected Socializer(Body body) {
 		super(body);
+		matcher = body.getMatcher();
 	}
 
-	//TODO: move the following to separate framework
+	@Override
+	public int crawl(String url, Collection topics, Date time, MapMap thingPathsCollector){
+		return -1;//default socializer can't "crawl" on url basis
+	}
 	
-	public abstract String provider();
-	public abstract SocialFeeder getFeeder(String id, String token, String key, Date since, Date until, String[] areas) throws IOException;
-	public abstract Profiler getProfiler(Thing peer);
-
 	public String getTokenSecret(Thing peer) {//most providers don't need token secret, by Twitter is special
 		return null;
 	}
@@ -85,7 +85,7 @@ public abstract class Socializer extends HTTP {
 	//public String reportingPath(String user_id,String format,int period_days){
 	public String reportingPath(String user_id,int period_days,String format){
 		format = ("json").equalsIgnoreCase(format) ? "json" : "html";
-		return "reports/report_"+provider()+"_"+user_id+
+		return "reports/report_"+name()+"_"+user_id+
 				(period_days > 0 ? "_"+String.valueOf(period_days) : "")+"."+format;
 	}
 	
@@ -94,7 +94,7 @@ public abstract class Socializer extends HTTP {
 	private HashSet cachedRequests = new HashSet(); 
 
 	public String getPeerIdName(){
-		return provider()+" id";
+		return name()+" id";
 	}
 	
 	//virtual
@@ -126,17 +126,6 @@ public abstract class Socializer extends HTTP {
 		return null;//not defined by default
 	}
 
-	/**
-	 * Read newsfeed/personal channel like subreddit, group or personal feed 
-	 * @param uri of the channel
-	 * @param topics to be searched
-	 * @param collector to accumulate findings in triple store: Thing topic, String path, Thing instance
-	 * @return -1 if ot supported, 0 if supported but not read, 1 if read
-	 */
-	public int crawl(String uri, Collection topics, MapMap collector){
-		return -1;
-	}
-	
 	//TODO keep not transient SocialFeeders, but serialized SocialFeeds
 	private HashMap feeders = new HashMap();
 
@@ -148,7 +137,7 @@ public abstract class Socializer extends HTTP {
 	
 	private String getFeedKey(String id, Date since, Date until, String[] areas){
 		StringBuilder sb = new StringBuilder();
-		sb.append(provider()).append('_').append(id).append('_').append(Time.day(since, false)).append('_').append(Time.day(until, false));
+		sb.append(name()).append('_').append(id).append('_').append(Time.day(since, false)).append('_').append(Time.day(until, false));
 		if (!AL.empty(areas)){
 			Arrays.sort(areas);
 			for (int a = 0; a < areas.length; a++)
@@ -343,7 +332,7 @@ public abstract class Socializer extends HTTP {
 								cacheReport(feeder,feeds,user_id,access_token,key,name,surname,language,format,options,threshold);
 							}
 						} catch (IOException e) {
-			    	    	body.error(provider()+" profiling error", e);
+			    	    	body.error(name()+" profiling error", e);
 						}
 						synchronized (cachedRequests) {
 							cachedRequests.remove(user_id);
@@ -638,7 +627,7 @@ public abstract class Socializer extends HTTP {
 		Translator t = body.translator(language);
 		Reporter rep = Reporter.reporter(body,format,writer);
 		String full_name = rep.buildName(user_id, Writer.capitalize(user_name), Writer.capitalize(user_surname));
-		String title = t.loc("Aigents Report for")+" "+Writer.capitalize(provider()+" (beta)"+ " - "+full_name);
+		String title = t.loc("Aigents Report for")+" "+Writer.capitalize(name()+" (beta)"+ " - "+full_name);
 		//TODO fix hack
 		if (feeder.errorMessage != null)
 				title = title + " : " + feeder.errorMessage;
@@ -665,11 +654,11 @@ public abstract class Socializer extends HTTP {
 	}
 	
 	private String heading(String heading){
-		return !provider().equals("ethereum") ? heading 
+		return !name().equals("ethereum") ? heading 
 			: "Likes".equals(heading) ? "Pays" : "Comments".equals(heading) ? "Calls" : "Friends".equals(heading) ? "Contragents" : heading;
 	}
 	private String[] peersHeadings(Reporter rep){
-		if (!provider().equals("ethereum"))
+		if (!name().equals("ethereum"))
 			return rep.needsId() ? new String[]{"Rank,%","Friend","My likes","Likes","Comments", "Id"}
 								 : new String[]{"Rank,%","Friend","My likes","Likes","Comments"};
 		else 
@@ -780,11 +769,11 @@ public abstract class Socializer extends HTTP {
 		Date attention_date = Time.today(-body.self().getInt(Body.attention_period,14));
 		if (attention_date.compareTo(time) < 0) {
 			try {
-				Collection peers = body.storager.getByName(provider() + " id", peer_id);
+				Collection peers = body.storager.getByName(name() + " id", peer_id);
 				if (!AL.empty(peers))
-					Siter.matchPeersText(body, Peer.peerTopics(peers), text, time, permlink, imgurl);
+					matcher.matchPeersText(body, Peer.peerTopics(peers), text, time, permlink, imgurl);
 			} catch (Exception e) {
-				body.error("Siter matchig "+provider()+" "+peer_id+" "+text,e);
+				body.error("Siter matchig "+name()+" "+peer_id+" "+text,e);
 			}
 		}
 	}

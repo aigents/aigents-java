@@ -86,6 +86,7 @@ function test_once() {
 	test_agent_think_ex();
 	
 	//test web processing and parsing
+	test_agent_rss();
 	test_agent_web();
 	
 	//test data modeling

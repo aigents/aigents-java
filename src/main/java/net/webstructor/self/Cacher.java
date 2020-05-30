@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import net.webstructor.agent.Body;
@@ -50,23 +51,34 @@ public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data
 	private Thing self;
 	private Storager storager;
 	private HttpFileReader reader;
-	private HashMap pathTexts; //read and parsed page texts
+	private HashMap<String,Object[]> pathTexts; //read and parsed page texts
 	private HashMap pathTried; //actually read and updated pages
-	private HashMap<String,Date> pathTimes; //timestamps
 	
 	public Cacher(String name,Body body,Storager storager){
 		this.body = body;
 		this.self = body.self();
 		this.storager = storager;
 		reader = new HttpFileReader(body,Body.http_user_agent);
-		pathTexts = new HashMap();
+		pathTexts = new HashMap<String,Object[]>();
 		pathTried = new HashMap();
-		pathTimes = new HashMap<String,Date>();
 		body.register(name, this);
 	}
 	
-	synchronized void clearTried(){
+	//TODO: what if called concurrently in different contexts, pass context in!!??
+	synchronized void clearContext(){
 		pathTried.clear();
+		HashSet<String> invalids = new HashSet<String>();
+		for (String path : pathTexts.keySet()) {
+			Object[] o = pathTexts.get(path);
+			if (o == null)
+				invalids.add(path);
+//TODO: enable this memory-saving but this breaks unit tests causing RSSer to re-read cached HTML files
+//TODO: implement "type" in cache so the crawlers can be more specific!? 
+//			else
+//				o[0] = null;//clear raw data to dsave memory 
+		}
+		for (String path : invalids)
+			pathTexts.remove(path);
 	}
 
 	@Override
@@ -84,63 +96,66 @@ public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data
 		if (everything) {
 body.debug("Cacher clearing everything");
 			pathTexts.clear();
-			pathTimes.clear();
 		} else synchronized(this) {
 			Object[] paths = pathTexts.keySet().toArray(new String[] {});
 			for (Object path : paths) {
-				if (till == null || pathTimes.get(path).compareTo(till) < 0) {
+				Object[] cached = pathTexts.get(path);
+				Date date = cached == null ? null : (Date)cached[1];
+				if (cached == null || till == null || date.compareTo(till) < 0) {
 body.debug("Cacher clearing "+path);
 					pathTexts.remove(path);
-					pathTimes.remove(path);
 				}
 			}
 		}
 	}
-		
+	
 	/**
 	 * Need to cache single-site pages per multi-thing site spidering so no-need to re-spider pages for every thing. 
 	 * @param path
 	 * @param links
+	 * @param titles
 	 * @return
 	 */
 	//TODO: if cached and date in cache is less than current date
-	private String readCached(String path,long time,ArrayList links,Map images,Map linkPositions, Map titles){
-		Date date = pathTimes.get(path);
-		if (date != null && date.getTime() >= time){//if not expired
-			Object[] cached = (Object[])pathTexts.get(path);
-			if (cached == null)
-				return null;
-			if ((ArrayList)cached[1] != null)
-				links.addAll((ArrayList)cached[1]);
-			if ((Map)cached[2] != null)
-				linkPositions.putAll((Map)cached[2]);
-			if ((Map)cached[3] != null)
-				images.putAll((Map)cached[3]);
-			if ((Map)cached[3] != null)
-				titles.putAll((Map)cached[4]);
-			return (String)cached[0];
+	public String readCached(String path,long time,ArrayList links,Map images,Map linkPositions, Map titles, boolean raw){
+		Object[] cached = pathTexts.get(path);
+		Date date = cached == null ? null : (Date)cached[1];
+		if ((cached != null && date != null && date.getTime() >= time)//if not expired
+				&& !(raw && cached[0] == null)//if raw data is NOT cleared
+			){
+			if (!raw && cached[2] == null) {//if cached raw, extend the cache with parsed version
+				String text = HtmlStripper.convert((String)cached[0],HtmlStripper.block_tags,HtmlStripper.block_breaker,links,images,linkPositions,titles,path).toLowerCase();
+				pathTexts.put(path, new Object[]{cached[0],new Date(),text,links,linkPositions,images,titles});
+				return text;
+			}
+			if (links != null && (ArrayList)cached[3] != null)
+				links.addAll((ArrayList)cached[3]);
+			if (linkPositions != null && (Map)cached[4] != null)
+				linkPositions.putAll((Map)cached[4]);
+			if (images != null && (Map)cached[5] != null)
+				images.putAll((Map)cached[5]);
+			if (titles != null && (Map)cached[6] != null)
+				titles.putAll((Map)cached[6]);
+			return raw ? (String)cached[0] : (String)cached[2];
 		}
 //TODO: find more clever way to check readability instead of such DoS attack - simulation, use context.conn
 		HttpFileContext context = new HttpFileContext();
 		if (reader.allowedForRobots(path) && reader.canReadDocContext(path,context)) { //still, here we need to try it first in order to get encoding	
 			try {
-				//TODO: if breaking with blocks
-				//do this intelligently (hierarchically) 
-				//otherwise some (say chinese) things do not work
-				String html = reader.readDocData(path," ",context);
-				String text = AL.empty(html) ? null :
-						HtmlStripper.convert(html,HtmlStripper.block_breaker,links,images,linkPositions,titles,path).toLowerCase();
-				if (text != null) {
-					pathTexts.put(path, new Object[]{text,links,linkPositions,images,titles});
-					pathTimes.put(path, new Date());
+				String data = reader.readDocData(path," ",context);
+				if (data != null) {
+					//TODO: if breaking with blocks
+					//do this intelligently (hierarchically) 
+					//otherwise some (say chinese) things do not work
+					String text = raw ? null : HtmlStripper.convert(data,HtmlStripper.block_tags,HtmlStripper.block_breaker,links,images,linkPositions,titles,path).toLowerCase();
+					pathTexts.put(path, new Object[]{data,new Date(),text,links,linkPositions,images,titles});
+					return raw ? data : text;
 				}
-				return text;
 			} catch (Exception e) {
-				pathTexts.put(path, null);
-				pathTimes.put(path, new Date());
 				body.error(e.toString(), e);
 			}
 		}
+		pathTexts.put(path, null);//"blacklist" the site
 		return null;
 	}
 
@@ -154,17 +169,18 @@ body.debug("Cacher clearing "+path);
 	 * @param images - map of image positions to images
 	 * @param linkPositions - map of link positions to links
 	 * @param forced - return text even of it is not different from the text read, parsed and stored earlier
-	 * @param time - !!!???
+	 * @param realTime - time when we want this to be actual
 	 * @return
 	 */
 	protected String readIfUpdated(String path,ArrayList links,Map images,Map linkPositions,Map titles,boolean forced,Date realTime){
+//TODO: can't we get rid of the pathTried!?
 		//pathTried - means "doable", indicates that file can be processed repeatedly for different things!!!
 		//if known as ignored or not ignored, return from cache
 		Boolean tried = (Boolean)pathTried.get(path);
 		if (tried != null)
-			return tried.booleanValue() ? readCached(path,realTime.getTime(),links,images,linkPositions, titles) : null;
+			return tried.booleanValue() ? readCached(path,realTime.getTime(),links,images,linkPositions, titles, false) : null;
 		//if ignorance is unknown, figure it owt
-		String text = readCached(path,realTime.getTime(),links,images,linkPositions,titles);
+		String text = readCached(path,realTime.getTime(),links,images,linkPositions,titles, false);
 		if (AL.empty(text)) {
 			pathTried.put(path, new Boolean(true));//ignore as error
 		}else {

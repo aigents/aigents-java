@@ -104,7 +104,7 @@ class Worker extends Thread {
  */
 public class Conversationer {
 	//TODO: configuration
-	final public static int WORKERS = 3;
+	final public static int WORKERS = 10;//1 for single-user, greater for multiple users 
 	
 	protected LinkedList queue = new LinkedList();//Message
 	protected Body body;

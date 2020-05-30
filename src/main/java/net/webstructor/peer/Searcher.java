@@ -57,6 +57,7 @@ import net.webstructor.data.Linker;
 import net.webstructor.data.ThingComparator;
 import net.webstructor.data.TextMiner;
 import net.webstructor.data.Translator;
+import net.webstructor.self.Matcher;
 import net.webstructor.self.Siter;
 import net.webstructor.serp.Serper;
 import net.webstructor.util.ArrayPositionComparator;
@@ -71,6 +72,8 @@ abstract class Intenter {
 class Searcher extends Intenter {
 
 	public static final String name = "search";
+	
+	protected Matcher matcher = null; 
 
 //TODO: abastract reporter for xlsx/html/pdf!?
 	String format(Conversation conversation, Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs, Thing arg) {
@@ -266,6 +269,12 @@ class Searcher extends Intenter {
 	}
 	
 	boolean handle(final Conversation conversation,final Storager storager,final Session session) {
+		
+		synchronized (this) {//TODO fiz this lazy init hack
+			if (matcher == null)
+				matcher = session.sessioner.body.getMatcher();
+		}
+		
 		final String[] args = session.args();
 		if (AL.empty(args) || args.length < 2 || !args[0].equalsIgnoreCase(name))
 			return false;
@@ -522,7 +531,7 @@ class Searcher extends Intenter {
 			summary.setLength(0);
 			Thing instance = new Thing();
 			Seq patseq = Reader.pattern(storager,instance,topic);
-			if (!Siter.readAutoPatterns(storager,iter,patseq,instance,summary))
+			if (!matcher.readAutoPatterns(storager,iter,patseq,instance,summary))
 				break;
 			instance.setString(AL.text, summary.toString());
 			//TODO:unhack the hack, making sources as text!?
