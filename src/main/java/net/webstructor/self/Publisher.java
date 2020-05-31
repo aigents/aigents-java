@@ -24,13 +24,18 @@
 package net.webstructor.self;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.All;
 import net.webstructor.al.Seq;
+import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.core.Actioner;
 import net.webstructor.core.Environment;
@@ -38,6 +43,7 @@ import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.peer.Peer;
 import net.webstructor.util.Array;
+import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
 public class Publisher { 
@@ -49,6 +55,168 @@ public class Publisher {
 		storager = body.storager;
 	}
 
+	public int update(String rootPath,Date time,MapMap thingPaths,boolean forced,Thing context){
+		Object[] things = thingPaths.getKeyObjects();
+		if (AL.empty(things))
+			return 0;
+		int hits = 0;
+		Date now = Time.date(time);
+		HashMap<Thing,Thing> existings = new HashMap<Thing,Thing>(); 
+		//update whatever is novel compared to snapshot in STM or LTM
+		for (int p = 0; p < things.length; p++){
+			Thing thing = (Thing)things[p];
+			Object[] paths = thingPaths.getSubKeyObjects(thing);
+			ArrayList collector = new ArrayList();
+			for (int i = 0; i < paths.length; i++){
+				String path = (String)paths[i];
+				Collection instances = thingPaths.getObjects(thing, path);
+				for (Iterator it = instances.iterator(); it.hasNext();){
+					Thing instance = (Thing)it.next();
+					//Collection ises = instance.getThings(AL.is);
+					String text = instance.getString(AL.text);
+					//if (!AL.empty(ises) && !AL.empty(text)){
+						//String thingName = ((Thing)ises.iterator().next()).getName();
+					if (!AL.empty(text)){
+						String thingName = thing.getName();
+					
+//TODO: use "forced" consistently						
+//TODO: make sure if GLOBAL novelty is required, indeed... 
+//TODO: use "newly existing" logic same as used in archiver.exists!?
+//TODO: use either existing = existing(... thing or instance to update snapshots on the next round below????
+						Thing existing = existing(body,thing,instance,null,false,text);
+						if (existing != null) {//new path-less identity
+							existings.put(instance,existing);
+							continue;
+						}
+						//checking for existence before today, not just today... 
+						Date date = null;//instance.getDate(AL.times,null);
+						if (!forced && body.archiver.exists(thingName,text,date))//check LTM
+							continue;
+					
+						hits++;
+						instance.store(body.storager);
+						if (!AL.empty(path))
+							try {
+								body.storager.add(instance, AL.sources, path);
+							} catch (Exception e) {
+								body.error(e.toString(), e);
+							}
+						collector.add(instance);
+					}
+				}
+				//update(storager,thing,instances,rootPath);
+				//TODO: real path here!!??
+				//update(storager,thing,instances,path);
+			}
+			body.getPublisher().update(thing,collector,rootPath,context);
+		}		
+		//memorize everything known and novel in STM AND LTM snapshots
+//TODO: optimization to avoid doing extra stuff below!!!		
+		for (int j = 0; j < things.length; j++){
+			Thing thing = (Thing)things[j];
+			Object[] paths = thingPaths.getSubKeyObjects(thing);
+			for (int i = 0; i < paths.length; i++){
+				String path = (String)paths[i];
+				Collection instances = thingPaths.getObjects(thing, path);
+				for (Iterator it = instances.iterator(); it.hasNext();){
+					Thing instance = (Thing)it.next();
+					//Collection ises = instance.getThings(AL.is);
+					String text = instance.getString(AL.text);
+					//if (!AL.empty(ises) && !AL.empty(text)){
+						//String thingName = ((Thing)ises.iterator().next()).getName();
+					if (!AL.empty(text)){
+						String thingName = thing.getName();
+						Thing existing = existings.get(instance);
+//TODO: use "forced" consistently						
+						if (!forced && existing != null)//new path-less identity
+							existing.set(AL.times,now);//update temporal snapshot in-memory
+//TODO don't need not-a-news-item things hanging in memory?
+						//if (existing == null) {
+						//	instance.store(body.storager);
+						//	instance.set(AL.times,now);
+						//}
+						
+						body.archiver.update(thingName,text,now);//update temporal snapshot in LTM
+					}
+				}
+			}
+		}
+		return hits;
+	}
+
+	/*
+	private Thing existingNonPeiodic(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
+		Collection coll;
+		try {
+			All query = new All(new Object[]{
+					new Seq(new Object[] {AL.is,thing}),
+					new Seq(new Object[] {AL.text,text})});
+			coll = body.storager.get(query,(Thing)null);
+			if (!AL.empty(coll))
+				return (Thing)coll.iterator().next();
+		} catch (Exception e) {
+			body.error("Spidering existence check failed ",e);
+		}
+		return null;
+	}
+	*/
+
+	protected Thing existing(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
+		Collection coll = latest(body.storager,thing,path);
+		if (debug) {
+			body.debug("thing   :"+Writer.toString(thing));
+			body.debug("instance:"+Writer.toString(instance));
+			body.debug("path    :"+path);
+			body.debug("coll    :");
+		}
+		if (!AL.empty(coll))
+			for (Iterator it = coll.iterator(); it.hasNext();) {
+				Thing latest = (Thing)it.next();
+				if (debug)
+					body.debug("latest  :"+latest);
+				String latestText = latest.getString(AL.text);
+				if (!AL.empty(text) && !AL.empty(latestText)){//TODO: validate by text!!!??? 
+					if (text.equals(latestText)){
+						if (debug)
+							body.debug("novel   :false");
+						return latest;
+					}
+				} else
+				if (body.storager.match(latest, instance)) {
+					if (debug)
+						body.debug("novel   :false");
+					return latest;
+				}
+			}
+		if (debug)
+			body.debug("novel   :true");
+		return null;
+	}
+
+	protected Collection latest(Storager storager, Thing is, String path) {
+		HashSet found = new HashSet();
+		long latest = 0;
+		Collection instances = storager.get(AL.is,is);
+		if (!AL.empty(instances)) {
+			//TODO: do we really need the clone here to prevent ConcurrentModificationException? 
+			for (Iterator it = new ArrayList(instances).iterator(); it.hasNext();) {
+				Thing instance = (Thing)it.next();
+//String debug_text = Writer.toPrefixedString(null, null, instance);				
+				if (path != null && !storager.has(instance,AL.sources,path))
+					continue;
+				Date date = Time.day(instance.get(AL.times));
+				long time = date == null ? 0 : date.getTime();
+				if (time >= latest) {
+					if (time > latest)
+						found.clear();
+					found.add(instance);
+					latest = time;
+				}
+			}
+		}
+		return found;
+	}
+	
 	/**
 	 * Returns array of [subject,content]
 	 * @param thing
@@ -56,7 +224,7 @@ public class Publisher {
 	 * @param news
 	 * @return
 	 */
-	 String[] digest(Thing thing, String path, Collection news, boolean verbose){
+	protected String[] digest(Thing thing, String path, Collection news, boolean verbose){
 		if (AL.empty(news))//no news - no digest
 			return null;
 		//StringBuilder subject = new StringBuilder();
@@ -100,7 +268,7 @@ public class Publisher {
 	//TODO: if forcer is given, don't update others
 	//- send updates (push notifications)
 	//-- Selfer: for a news for thing, send email for all its users (not logged in?) 
-	void update(Thing thing,Collection news,String path,Thing group) {	
+	protected void update(Thing thing,Collection news,String path,Thing group) {	
 		Object[] topics = {AL.topics,thing};
 		Object[] sites = {AL.sites,path};
 		Object[] topics_trusts = {AL.trusts,thing};
@@ -131,11 +299,11 @@ public class Publisher {
 		}
 	}
 	
-	private String signature(Body body,Thing peer){
+	protected String signature(Body body,Thing peer){
 		return peer.getTitle(Peer.title_email)+" at "+body.site();
 	}
 	
-	void update(Thing peer, Thing thing, Collection news, String subject, String content, String signature) throws IOException {
+	protected void update(Thing peer, Thing thing, Collection news, String subject, String content, String signature) throws IOException {
 		for (Iterator it = news.iterator(); it.hasNext();) {
 			Thing t = (Thing)it.next();
 //TODO: eliminate duplicated !!!untrusted things here on peer-specific basis!!!???

@@ -67,6 +67,7 @@ import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
 import net.webstructor.serp.Serper;
 import net.webstructor.self.Selfer;
+import net.webstructor.self.WebCrawler;
 import net.webstructor.self.Aigents;
 import net.webstructor.util.Array;
 
@@ -213,6 +214,7 @@ public class Farm extends Body {
 			socializers.put("ethereum", new Ethereum(this, "ethereum", eth_url, eth_key));
 		
 		socializers.put("rss",new RSSer(this));
+		socializers.put("www",new WebCrawler(this));//should be the last in the list!?
 	}
 	
 	public boolean act(String name, Anything argument) {

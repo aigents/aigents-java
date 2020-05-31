@@ -46,7 +46,7 @@ public class Demo extends Farm {
     @Override
 	public Siter getSiter(String path){
     	//one can use the Siter subclass of their own, overridding the methods
-		return new Siter(this,path);
+		return super.getSiter(path);
 	}
 	
     /**

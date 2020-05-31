@@ -50,7 +50,6 @@ import net.webstructor.main.Mainer;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Matcher;
-import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
@@ -651,8 +650,8 @@ if (block % 10 == 0){
 		}
 		logger.close();//TODO: move it to updateGraphs in SocialCacher
 
-		if (thingMatches > 0)
-			Siter.update(api.body,null,Time.date(new Date(start)),thingPaths,false,null);//forced=false, because may be retrospective
+		if (api != null && thingMatches > 0)
+			api.body.getPublisher().update(null,Time.date(new Date(start)),thingPaths,false,null);//forced=false, because may be retrospective
 
 		long stop = System.currentTimeMillis(); 
 		env.debug(caps_name+" crawling stop, took "+Period.toHours(stop-start));

@@ -81,7 +81,8 @@ public class PathTracker extends PathFinder {
 		//			“exhaustive” modality: continue
 		readPaths.add(path);
 		ArrayList links = new ArrayList();
-		if (siter.readPage(path,links,goals)) {
+		Thread.yield();
+		if (siter.crawler.scalp(siter,path,links,goals)) {
 			return true;
 		}
 		

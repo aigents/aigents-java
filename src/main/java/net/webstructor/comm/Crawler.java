@@ -24,27 +24,43 @@
 package net.webstructor.comm;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
+import net.webstructor.self.Siter;
 import net.webstructor.util.MapMap;
 
 public interface Crawler {
 	/**
-	 * Read newsfeed/personal channel like subreddit, group or personal feed 
-	 * @param uri of the channel
+	 * Read newsfeed/personal channel like subreddit, group or personal feed
+	 * @param Siter context 
+	 * @param path/uri of the channel/source
 	 * @param topics to be searched
 	 * @param collector to accumulate findings in triple store: Thing topic, String path, Thing instance
 	 * @return -1 if ot supported, 0 if supported but not read, 1 if read
 	 */
-	public int crawl(String uri, Collection topics, Date time, MapMap collector);
+	public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap collector);
+
+	/**
+	 * Read specific page for list of topics of interest and return links found along the way  
+	 * @param Siter context 
+	 * @param path/uri of the page/source
+	 * @param collector to accumulate found links
+	 * @param topics to be searched
+	 * @return boolean if successful, false otherwise
+	 */
+	//TODO return int count as crawl?
+	public boolean scalp(Siter siter,String path,ArrayList links,Collection topics);
+
 	/**
 	 * Name of the adapter like "facebook", "www", "ethereum", "rss", "twitter", "reddit", "discourse", etc.
 	 * @return name of the adapter lowercase
 	 */
+
 	public String name();
 	/**
 	 * Return SocialFeeder caching social crawl results if extends Socializer
@@ -57,7 +73,9 @@ public interface Crawler {
 	 * @return SocialFeeder or null if not supported
 	 * @throws IOException
 	 */
+
 	public SocialFeeder getFeeder(String id, String token, String key, Date since, Date until, String[] areas) throws IOException;
+
 	/**
 	 * Create profiler to profile given peer
 	 * @param peer

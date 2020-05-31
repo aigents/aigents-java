@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -57,6 +58,7 @@ import net.webstructor.data.Transcoder;
 import net.webstructor.data.Translator;
 import net.webstructor.peer.Peer;
 import net.webstructor.self.Matcher;
+import net.webstructor.self.Siter;
 
 /**
  * Keeps context of entire social network.
@@ -73,8 +75,13 @@ public abstract class Socializer extends HTTP implements Crawler {
 	}
 
 	@Override
-	public int crawl(String url, Collection topics, Date time, MapMap thingPathsCollector){
+	public int crawl(Siter siter, String url, Collection topics, Date time, MapMap thingPathsCollector){
 		return -1;//default socializer can't "crawl" on url basis
+	}
+	
+	@Override
+	public boolean scalp(Siter siter,String path,ArrayList links,Collection topics) {
+		return false;//so we can't scalp anything by default
 	}
 	
 	public String getTokenSecret(Thing peer) {//most providers don't need token secret, by Twitter is special

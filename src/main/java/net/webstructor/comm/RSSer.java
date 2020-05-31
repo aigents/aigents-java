@@ -26,6 +26,7 @@ package net.webstructor.comm;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -46,6 +47,7 @@ import net.webstructor.data.ContentLocator;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Matcher;
+import net.webstructor.self.Siter;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
@@ -74,7 +76,12 @@ public class RSSer implements Crawler {
 		matcher = body.getMatcher();
 	}
 	
-	public int crawl(String uri, Collection topics, Date time, MapMap collector) {
+	@Override
+	public boolean scalp(Siter siter,String path,ArrayList links,Collection topics) {
+		return false;//so we can't scalp anything
+	}
+	
+	public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap collector) {
 		if (!AL.isURL(uri))
 			return -1;
 //TODO: make time mased on Selfer.minCheckCycle!?

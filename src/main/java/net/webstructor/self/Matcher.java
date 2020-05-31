@@ -85,7 +85,7 @@ public class Matcher {
 		MapMap thingPaths = new MapMap();//collector
 		int matches = matchThingsText(things,text,time,permlink,imgurl,thingPaths);
 		if (matches > 0)
-			Siter.update(body,null,time,thingPaths,false,null);//forced=false, because may be retrospective
+			body.getPublisher().update(null,time,thingPaths,false,null);//forced=false, because may be retrospective
 	}
 	
 	//TODO: move to other place!?

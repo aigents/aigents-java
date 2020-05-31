@@ -45,6 +45,7 @@ import net.webstructor.core.Thing;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
+import net.webstructor.self.Siter;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Reporter;
 import net.webstructor.util.Str;
@@ -188,7 +189,7 @@ public class Twitter extends Socializer implements Crawler {
 	}
 
 	@Override
-	public int crawl(String url, Collection topics, Date time, MapMap thingPathsCollector){
+	public int crawl(Siter siter, String url, Collection topics, Date time, MapMap thingPathsCollector){
 		String screen_name;
 		if (AL.empty(url) || AL.empty(screen_name = Str.parseBetween(url, content_url, "/", false)) || AL.empty(consumer_key) || AL.empty(consumer_key_secret))
 			return -1;

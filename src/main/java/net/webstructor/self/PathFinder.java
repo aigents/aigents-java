@@ -122,7 +122,8 @@ public class PathFinder {
 		//TODO: thread safety in concurrent mode!
 		readPaths.add(path);
 		ArrayList links = new ArrayList();
-		if (siter.readPage(path,links,goals)) {
+		Thread.yield();
+		if (siter.crawler.scalp(siter,path,links,goals)) {
 			pathSeqs.add(pathSeq);
 			return true;
 		}
@@ -187,7 +188,8 @@ public class PathFinder {
 			//	continue;
 			
 			ArrayList links = new ArrayList();
-			if (siter.readPage(path,links,goals)) {
+			Thread.yield();
+			if (siter.crawler.scalp(siter,path,links,goals)) {
 				if (pathSeq != null)//TODO: should we add "head of the trail" as a separate path?
 					pathSeqs.add(pathSeq);
 				cnt++;

@@ -44,6 +44,7 @@ import net.webstructor.comm.Socializer;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
+import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
@@ -97,7 +98,7 @@ public class Reddit extends Socializer implements Crawler {
 	}	
 
 	@Override
-	public int crawl(String uri, Collection topics, Date time, MapMap thingPathsCollector){
+	public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap thingPathsCollector){
 		if (AL.empty(uri) || AL.empty(appId) || AL.empty(appSecret))
 			return -1;
 		
