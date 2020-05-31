@@ -212,9 +212,9 @@ public class Matcher {
 		String header_text = titler.getAvailableUp(path,pos);
 		if (AL.empty(title_text) && AL.empty(header_text))
 			return shortTitle(nl_text);
-		if (title_text.contentEquals(header_text))
-			return title_text;
 		if (!AL.empty(title_text) && !AL.empty(header_text)) {
+			if (title_text.contentEquals(header_text))
+				return title_text;
 			double t = Str.simpleTokenizedProximity(nl_text,title_text,AL.punctuation+AL.spaces);
 			double h = Str.simpleTokenizedProximity(nl_text,header_text,AL.punctuation+AL.spaces);
 			return h > t ? header_text : title_text;

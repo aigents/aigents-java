@@ -214,7 +214,8 @@ import net.webstructor.util.Str;
                 		if (source.charAt(pos) != '/')
                 			headerContentBuf = new StringBuilder();
                 		else {
-                			titles.put(new Integer(buf.length()), headerContentBuf.toString());
+                			if (!AL.empty(headerContentBuf))
+                				titles.put(new Integer(buf.length()), headerContentBuf.toString());
                 			headerContentBuf = null;
                 		}
                 	}

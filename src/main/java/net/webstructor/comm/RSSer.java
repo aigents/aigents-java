@@ -48,6 +48,7 @@ import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Matcher;
 import net.webstructor.self.Siter;
+import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
@@ -70,6 +71,8 @@ class RSSItem {
 public class RSSer implements Crawler {
 	Body body;
 	Matcher matcher;
+	
+	protected static final String[] feed_tag_starts = new String[] {"<rss ","<feed "}; 
 	
 	public RSSer(Body body) {
 		this.body = body;
@@ -95,16 +98,21 @@ public class RSSer implements Crawler {
 		//<rss version="2.0">
 		if (AL.empty(xml) || !xml.startsWith("<?xml version=\"1.0\""))
 			return -1;
+		String header = xml.substring(1000);
+		Array.containsAnyAsSubstring(feed_tag_starts, header);
 		Date since = Time.today(-1);
 		//https://www.viralpatel.net/java-xml-xpath-tutorial-parse-xml/
-		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		try {
+			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+		    body.debug("RSS crawling start "+uri); 
 			DocumentBuilder builder = builderFactory.newDocumentBuilder();
 			Document document = builder.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 			int res = crawlRSS(document, topics, collector, uri, since);
-			return res != -1 ? res : crawlAtom(document, topics, collector, uri, since);
+			res = res != -1 ? res : crawlAtom(document, topics, collector, uri, since);
+		    body.debug("RSS crawling stop "+uri);
+		    return res;
 		} catch (Exception e) {
-		    body.error("RSS parse", e); 
+		    body.error("RSS crawling error "+uri, e); 
 		}
 		return -1;
 	}
