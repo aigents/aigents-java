@@ -172,13 +172,6 @@ public class Siter {
 				ok = true;
 				break;
 			}
-/*
-//TODO use conventional Crawler here!!!???
-		if (!ok)//use no channel-reader responded, try site-reader as fallback
-			//ok = crawl(targetTopics) > 0;
-//TODO move to registry
-			ok = (crawler = new WebCrawler(body)).crawl(this, rootPath, targetTopics, realTime, thingPaths) > 0;
-*/			
 
 		if (ok) {//send updates on success
 			int hits = body.getPublisher().update(rootPath,timeDate,thingPaths,forced,null);

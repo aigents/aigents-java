@@ -66,7 +66,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.7.13";
+	public final static String VERSION = "2.7.16";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -95,8 +95,9 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String cookie_domain = "cookie domain";
 	public static final String store_path = "store path";
 	public static final String store_cycle = "store cycle";
-	public static final String retention_period = "retention period";//LTM
-	public static final String attention_period = "attention period";//STM
+	public static final String retention_period = "retention period";//LTM, days
+	public static final String attention_period = "attention period";//STM, days
+	public static final String caching_period = "caching period";//time to keep web data in cache, minutes
 	public static final String email_login = "email login";
 	public static final String email_password = "email password";
 	public static final String email_cycle = "email cycle";

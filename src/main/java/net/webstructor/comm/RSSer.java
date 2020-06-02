@@ -96,10 +96,9 @@ public class RSSer implements Crawler {
 		//RSS:
 		//<?xml version="1.0" encoding="windows-1252"?>
 		//<rss version="2.0">
-		if (AL.empty(xml) || !xml.startsWith("<?xml version=\"1.0\""))
+		if (AL.empty(xml) || !xml.startsWith("<?xml version=\"1.0\"") || Array.containsAnyAsSubstring(feed_tag_starts, xml.substring(0,1000)) == null)
 			return -1;
-		String header = xml.substring(1000);
-		Array.containsAnyAsSubstring(feed_tag_starts, header);
+		
 		Date since = Time.today(-1);
 		//https://www.viralpatel.net/java-xml-xpath-tutorial-parse-xml/
 		try {
@@ -109,7 +108,7 @@ public class RSSer implements Crawler {
 			Document document = builder.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 			int res = crawlRSS(document, topics, collector, uri, since);
 			res = res != -1 ? res : crawlAtom(document, topics, collector, uri, since);
-		    body.debug("RSS crawling stop "+uri);
+		    body.debug("RSS crawling stop, found "+res+" "+uri);
 		    return res;
 		} catch (Exception e) {
 		    body.error("RSS crawling error "+uri, e); 

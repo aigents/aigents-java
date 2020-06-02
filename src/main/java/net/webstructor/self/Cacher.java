@@ -33,6 +33,7 @@ import java.util.Map;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.All;
+import net.webstructor.al.Period;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Statement;
 import net.webstructor.al.Time;
@@ -44,22 +45,24 @@ import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.util.Array;
 
-
-public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data package
+//TODO: move to data package?
+public class Cacher implements net.webstructor.data.Cacher {
 	
 	private Body body;
 	private Thing self;
 	private Storager storager;
 	private HttpFileReader reader;
-	private HashMap<String,Object[]> pathTexts; //read and parsed page texts
-	private HashMap pathTried; //actually read and updated pages
+	private HashMap<String,HttpFileContext> pathTexts; //read and parsed page texts
+	private HashMap pathTried; //actually read and updated pages //TODO: get rid of this!
+	
+	private static long active_time = Period.MINUTE * 10;//TODO: make configurable "cache expiration" 
 	
 	public Cacher(String name,Body body,Storager storager){
 		this.body = body;
 		this.self = body.self();
 		this.storager = storager;
 		reader = new HttpFileReader(body,Body.http_user_agent);
-		pathTexts = new HashMap<String,Object[]>();
+		pathTexts = new HashMap<String,HttpFileContext>();
 		pathTried = new HashMap();
 		body.register(name, this);
 	}
@@ -67,15 +70,17 @@ public class Cacher implements net.webstructor.data.Cacher {//TODO: move to data
 	//TODO: what if called concurrently in different contexts, pass context in!!??
 	synchronized void clearContext(){
 		pathTried.clear();
+		long latest = System.currentTimeMillis() - active_time;
 		HashSet<String> invalids = new HashSet<String>();
 		for (String path : pathTexts.keySet()) {
-			Object[] o = pathTexts.get(path);
-			if (o == null)
+			HttpFileContext cached = pathTexts.get(path);
+			if (cached == null)//clear unvavaliable entries hoping they may get available
 				invalids.add(path);
-//TODO: enable this memory-saving but this breaks unit tests causing RSSer to re-read cached HTML files
-//TODO: implement "type" in cache so the crawlers can be more specific!? 
-//			else
-//				o[0] = null;//clear raw data to dsave memory 
+			else
+			if (cached.time.getTime() < latest) {//clear expired entires
+				invalids.add(path);
+				cached.trash();
+			}
 		}
 		for (String path : invalids)
 			pathTexts.remove(path);
@@ -99,8 +104,8 @@ body.debug("Cacher clearing everything");
 		} else synchronized(this) {
 			Object[] paths = pathTexts.keySet().toArray(new String[] {});
 			for (Object path : paths) {
-				Object[] cached = pathTexts.get(path);
-				Date date = cached == null ? null : (Date)cached[1];
+				HttpFileContext cached = pathTexts.get(path);
+				Date date = cached == null ? null : cached.time;
 				if (cached == null || till == null || date.compareTo(till) < 0) {
 body.debug("Cacher clearing "+path);
 					pathTexts.remove(path);
@@ -118,28 +123,33 @@ body.debug("Cacher clearing "+path);
 	 */
 	//TODO: if cached and date in cache is less than current date
 	public String readCached(String path,long time,ArrayList links,Map images,Map linkPositions, Map titles, boolean raw){
-		Object[] cached = pathTexts.get(path);
-		Date date = cached == null ? null : (Date)cached[1];
-		if ((cached != null && date != null && date.getTime() >= time)//if not expired
-				&& !(raw && cached[0] == null)//if raw data is NOT cleared
+		HttpFileContext context = pathTexts.get(path);
+		Date date = context == null ? null : context.time;
+		if (context != null && date != null && date.getTime() >= time//if NOT expired
+				&& !(raw && context.data == null)//and NOT the case the requested raw data is cleared
 			){
-			if (!raw && cached[2] == null) {//if cached raw, extend the cache with parsed version
-				String text = HtmlStripper.convert((String)cached[0],HtmlStripper.block_tags,HtmlStripper.block_breaker,links,images,linkPositions,titles,path).toLowerCase();
-				pathTexts.put(path, new Object[]{cached[0],new Date(),text,links,linkPositions,images,titles});
+			if (!raw && context.text == null) {//if cached raw, extend the cache with parsed version
+				String text = HtmlStripper.convert(context.data,HtmlStripper.block_tags,HtmlStripper.block_breaker,links,images,linkPositions,titles,path).toLowerCase();
+				context.text = text;
+				context.time = new Date();
+				context.links = links;
+				context.images = images;
+				context.linkPositions = linkPositions;
+				context.titles = titles;
 				return text;
 			}
-			if (links != null && (ArrayList)cached[3] != null)
-				links.addAll((ArrayList)cached[3]);
-			if (linkPositions != null && (Map)cached[4] != null)
-				linkPositions.putAll((Map)cached[4]);
-			if (images != null && (Map)cached[5] != null)
-				images.putAll((Map)cached[5]);
-			if (titles != null && (Map)cached[6] != null)
-				titles.putAll((Map)cached[6]);
-			return raw ? (String)cached[0] : (String)cached[2];
+			if (links != null && context.links != null)
+				links.addAll(context.links);
+			if (linkPositions != null && context.linkPositions != null)
+				linkPositions.putAll(context.linkPositions);
+			if (images != null && context.images != null)
+				images.putAll(context.images);
+			if (titles != null && context.titles != null)
+				titles.putAll(context.titles);
+			return raw ? context.data : context.text;
 		}
 //TODO: find more clever way to check readability instead of such DoS attack - simulation, use context.conn
-		HttpFileContext context = new HttpFileContext();
+		context = new HttpFileContext();
 		if (reader.allowedForRobots(path) && reader.canReadDocContext(path,context)) { //still, here we need to try it first in order to get encoding	
 			try {
 				String data = reader.readDocData(path," ",context);
@@ -148,7 +158,14 @@ body.debug("Cacher clearing "+path);
 					//do this intelligently (hierarchically) 
 					//otherwise some (say chinese) things do not work
 					String text = raw ? null : HtmlStripper.convert(data,HtmlStripper.block_tags,HtmlStripper.block_breaker,links,images,linkPositions,titles,path).toLowerCase();
-					pathTexts.put(path, new Object[]{data,new Date(),text,links,linkPositions,images,titles});
+					context.data = data;
+					context.text = text;
+					context.time = new Date();
+					context.links = links;
+					context.images = images;
+					context.linkPositions = linkPositions;
+					context.titles = titles;
+					pathTexts.put(path, context);
 					return raw ? data : text;
 				}
 			} catch (Exception e) {

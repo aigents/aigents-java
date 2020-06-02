@@ -23,9 +23,34 @@
  */
 package net.webstructor.cat;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+
 //TODO: eliminate if not needed
 public class HttpFileContext {
 	protected String content_type = null;
 	protected String content_encoding = null;
 	protected String charset = null;
+	//TODO: nicer API?
+	public String data = null;
+	public String text = null;
+	public Date time = null;
+	public ArrayList links = null;
+	public Map images = null;
+	public Map linkPositions = null;
+	public Map titles = null;
+	
+	public void trash() {//help GC
+		content_type = null;
+		content_encoding = null;
+		charset = null;
+		data = null;
+		text = null;
+		time = null;
+		links = null;
+		images = null;
+		linkPositions = null;
+		titles = null;
+	}
 }
