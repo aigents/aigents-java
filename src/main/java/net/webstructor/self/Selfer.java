@@ -312,7 +312,7 @@ public class Selfer extends Thread {
 		String[] cycles = body.storager.getNames(Peer.check_cycle);
 		if (!AL.empty(cycles))
 			for (int i = 0; i < cycles.length; i++) {
-				long check_cycle = new Period(Period.DAY).parse(cycles[i]);					
+				long check_cycle = Period.parseUnits(cycles[i],Period.HOUR);
 				if (cycle == 0 || cycle > check_cycle)
 					cycle = check_cycle;
 			}

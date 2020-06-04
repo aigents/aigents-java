@@ -69,9 +69,9 @@ public class Period {
 		String chunk;
 		for (int i = 0; i<chunks.size(); i++) {
 			chunk = (String)chunks.get(i);
-			long value;
+			double value;
 			try {//first, assume it is number separated from unit like "1 h" or "1 hour"
-				value = Long.parseLong(chunk);
+				value = Double.parseDouble(chunk);
 				if (++i < chunks.size() && !AL.empty((chunk = (String)chunks.get(i))))
 					value *= unit(chunk.charAt(0), unit);
 				else
@@ -79,7 +79,7 @@ public class Period {
 			} catch (Exception e) {//if can't parse, assume it is number glued up with unit like "1h" or "1hour"
 				value = parseUnit(chunk, unit);
 			}
-			temp += value; 
+			temp += Math.round(value); 
 		}
 		return temp;
 	}
@@ -94,14 +94,14 @@ public class Period {
 			return 1 * unit;
 		for (int i = 0; i < string.length(); i++) {
 			char c = string.charAt(i);
-			if (!Character.isDigit(c)){
+			if (!(Character.isDigit(c) || c == '.')){
 				unit = unit(c, unit);
 				string = string.substring(0,i);
 			}
 		}
-		long value = 1;
-		try { value = Long.parseLong(string);} catch (Exception e) {}//default to 1
-		return value * unit; 
+		double value = 1;
+		try { value = Double.parseDouble(string);} catch (Exception e) {}//default to 1
+		return Math.round(value * unit); 
 	}
 	
 	public long getMillis() {
@@ -163,6 +163,9 @@ public class Period {
 		t.assume(parseUnits("1 m 1 s",HOUR),61000);
 		t.assume(parseUnits("2 m 2s",HOUR),122000);
 		t.assume(parseUnits("3m 3s",HOUR),183000);
+		t.assume(parseUnits("30m",HOUR),1800000);
+		t.assume(parseUnits(".5h",HOUR),1800000);
+		t.assume(parseUnits(".5 h",HOUR),1800000);
 		t.check();
 	}
 }

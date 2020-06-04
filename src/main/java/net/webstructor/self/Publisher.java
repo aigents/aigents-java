@@ -66,6 +66,7 @@ public class Publisher {
 		for (int p = 0; p < things.length; p++){
 			Thing thing = (Thing)things[p];
 			Object[] paths = thingPaths.getSubKeyObjects(thing);
+			Collection latest = latest(thing,null);//assumbin we can ignore the same things with different paths 
 			ArrayList collector = new ArrayList();
 			for (int i = 0; i < paths.length; i++){
 				String path = (String)paths[i];
@@ -82,8 +83,9 @@ public class Publisher {
 //TODO: use "forced" consistently						
 //TODO: make sure if GLOBAL novelty is required, indeed... 
 //TODO: use "newly existing" logic same as used in archiver.exists!?
-//TODO: use either existing = existing(... thing or instance to update snapshots on the next round below????
-						Thing existing = existing(body,thing,instance,null,false,text);
+						
+						//Thing existing = existing(thing,instance,path,false,text);//if path were involved...
+						Thing existing = existing(latest,instance,false,text);
 						if (existing != null) {//new path-less identity
 							existings.put(instance,existing);
 							continue;
@@ -92,6 +94,7 @@ public class Publisher {
 						Date date = null;//instance.getDate(AL.times,null);
 						if (!forced && body.archiver.exists(thingName,text,date))//check LTM
 							continue;
+//TODO update existings otherwise!?
 					
 						hits++;
 						instance.store(body.storager);
@@ -145,7 +148,7 @@ public class Publisher {
 	}
 
 	/*
-	private Thing existingNonPeiodic(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
+	private Thing existingNonPeriodic(Thing thing, Thing instance, String path, boolean debug, String text) {
 		Collection coll;
 		try {
 			All query = new All(new Object[]{
@@ -161,39 +164,38 @@ public class Publisher {
 	}
 	*/
 
-	protected Thing existing(Body body, Thing thing, Thing instance, String path, boolean debug, String text) {
-		Collection coll = latest(body.storager,thing,path);
-		if (debug) {
-			body.debug("thing   :"+Writer.toString(thing));
+	protected Thing existing(Collection latest, Thing instance, boolean debug, String text) {
+		if (debug)
 			body.debug("instance:"+Writer.toString(instance));
-			body.debug("path    :"+path);
-			body.debug("coll    :");
-		}
-		if (!AL.empty(coll))
-			for (Iterator it = coll.iterator(); it.hasNext();) {
-				Thing latest = (Thing)it.next();
+		if (!AL.empty(latest))
+			for (Iterator it = latest.iterator(); it.hasNext();) {
+				Thing t = (Thing)it.next();
 				if (debug)
-					body.debug("latest  :"+latest);
-				String latestText = latest.getString(AL.text);
+					body.debug("latest  :"+t);
+				String latestText = t.getString(AL.text);
 				if (!AL.empty(text) && !AL.empty(latestText)){//TODO: validate by text!!!??? 
 					if (text.equals(latestText)){
 						if (debug)
 							body.debug("novel   :false");
-						return latest;
+						return t;
 					}
 				} else
-				if (body.storager.match(latest, instance)) {
+				if (body.storager.match(t, instance)) {
 					if (debug)
 						body.debug("novel   :false");
-					return latest;
+					return t;
 				}
 			}
 		if (debug)
 			body.debug("novel   :true");
 		return null;
 	}
+	
+	protected Thing existing(Thing thing, Thing instance, String path, boolean debug, String text) {
+		return existing(latest(thing,path), instance, debug, text);
+	}
 
-	protected Collection latest(Storager storager, Thing is, String path) {
+	protected Collection latest(Thing is, String path) {
 		HashSet found = new HashSet();
 		long latest = 0;
 		Collection instances = storager.get(AL.is,is);
