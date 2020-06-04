@@ -55,7 +55,7 @@ public class Cacher implements net.webstructor.data.Cacher {
 	private HashMap<String,HttpFileContext> pathTexts; //read and parsed page texts
 	private HashMap pathTried; //actually read and updated pages //TODO: get rid of this!
 	
-	private static long active_time = Period.MINUTE * 10;//TODO: make configurable "cache expiration" 
+	//private static long caching_period = Period.MINUTE * 10;//TODO: make configurable "cache expiration" 
 	
 	public Cacher(String name,Body body,Storager storager){
 		this.body = body;
@@ -70,7 +70,8 @@ public class Cacher implements net.webstructor.data.Cacher {
 	//TODO: what if called concurrently in different contexts, pass context in!!??
 	synchronized void clearContext(){
 		pathTried.clear();
-		long latest = System.currentTimeMillis() - active_time;
+		long caching_period = Period.parseUnits(body.getSelf().getString(Body.caching_period,"10m"),Period.MINUTE);
+		long latest = System.currentTimeMillis() - caching_period;
 		HashSet<String> invalids = new HashSet<String>();
 		for (String path : pathTexts.keySet()) {
 			HttpFileContext cached = pathTexts.get(path);

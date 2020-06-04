@@ -40,7 +40,7 @@ function test_agent_rss() {
 	say("You reading site http://localtest.com/test/arxiv1.xml");
 	get("My reading site http://localtest.com/test/arxiv1.xml.");
 	say("What is reputation title, text, sources?");
-	get("There sources http://arxiv.org/abs/1902.03857v1, text and explore how various kinds of reputation systems with different parameters impact the economic security of the marketplace, title 'A Reputation System for Marketplaces - Viability Assessment'; sources http://arxiv.org/abs/1902.03857v1, text in this work we explore the implementation of the reputation system for a generic marketplace, title 'A Reputation System for Marketplaces - Viability Assessment'.");
+	get("There sources http://arxiv.org/abs/1902.03857v1, text a reputation system for marketplaces - viability assessment, title 'A Reputation System for Marketplaces - Viability Assessment'; sources http://arxiv.org/abs/1902.03857v1, text and explore how various kinds of reputation systems with different parameters impact the economic security of the marketplace, title 'A Reputation System for Marketplaces - Viability Assessment'; sources http://arxiv.org/abs/1902.03857v1, text in this work we explore the implementation of the reputation system for a generic marketplace, title 'A Reputation System for Marketplaces - Viability Assessment'.");
 	say("No there times today.");
 	del_news_today("yesterday");
 	del_news_today();
@@ -62,7 +62,7 @@ function test_agent_rss() {
 //TODO: make it working - it does not work because image attribure is not parsed!
 	//say("What is test text, title, image, times, sources?");
 	say("What is test text, title, sources, image?");
-	get("There image http://localtest.com/test/junk.jpg, sources http://example.org/2003/12/13/atom03, text text about test feed, title 'Title about test feed'; image http://localtest.com/test/stuff.jpg, sources http://localtest.com/, text text for test image, title 'Test with image'.");
+	get("There image http://localtest.com/test/junk.jpg, sources http://example.org/2003/12/13/atom03, text text about test feed, title 'Title about test feed'; image http://localtest.com/test/junk.jpg, sources http://example.org/2003/12/13/atom03, text title about test feed, title 'Title about test feed'; image http://localtest.com/test/stuff.jpg, sources http://localtest.com/, text text for test image, title 'Test with image'.");
 	del_news_today();
 	say("What times today?");
 	get("There not.");

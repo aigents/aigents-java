@@ -244,7 +244,7 @@ class Conversation extends Mode {
 			return false;			
 		} else
 			
-		if ((session.mood == AL.direction || session.mood == AL.declaration)
+		if ((session.mood == AL.direction)// || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,spider))) {
 			Thing task = new Thing();
 			session.output("Not.");

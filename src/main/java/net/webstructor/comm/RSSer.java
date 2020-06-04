@@ -141,6 +141,11 @@ public class RSSer implements Crawler {
 	int match(RSSItem it, Collection topics, MapMap collector, ContentLocator titler, ContentLocator imager, String rootPath) {
 		String text = HtmlStripper.convert(it.description,HtmlStripper.block_and_break_tags,HtmlStripper.block_breaker,null, imager.getMap(it.link), null, titler.getMap(it.link), rootPath);
 		titler.getMap(it.link).put(0, it.title);//hack to set the only title possible!!!
+		
+//TODO: lowercase title?
+		if (!AL.empty(it.title))
+			text = it.title.endsWith(".") ? it.title + " " + text : it.title + " . " + text; 
+		
 //TODO: consider if we want to dive further with PathFinder if context of Siter has range > 1 
 		return matcher.matchThingsText(topics,text,Time.date(it.date),it.link,it.image,collector,titler,imager);
 	}

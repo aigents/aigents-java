@@ -276,12 +276,12 @@ public class Selfer extends Thread {
 			String date = target.getString(AL.time);
 			Date time = date == null ? new Date() : Time.date(date);
 			String scope =target.getString("scope", "site");
-			int range = Integer.parseInt(target.getString("range", "3"), 10);//default range 3
+			int searchRange = Integer.parseInt(target.getString("range", "3"), 10);//default range 3
 			int minutes = Integer.parseInt(target.getString("minutes", "1"), 10);
 			int limit = Integer.parseInt(target.getString("limit", "0"), 10);
 			long tillTime = minutes <= 0 ? 0 : System.currentTimeMillis() + Period.MINUTE * minutes;
 			body.filecacher.clear(false,time);//reset cache to current point in time
-			boolean ok = spider.spider(target.getString("url"), target.getString("thingname"), time, tillTime, true, range, limit, "site".equalsIgnoreCase(scope) ? true : false, target.getString("mode"));
+			boolean ok = spider.spider(target.getString("url"), target.getString("thingname"), time, tillTime, true, searchRange, limit, "site".equalsIgnoreCase(scope) ? true : false, target.getString("mode"));
 			if (ok && body.sitecacher != null)
 				body.sitecacher.updateGraph(time, body.sitecacher.getGraph(Time.date(time)), System.currentTimeMillis());
 			return ok;

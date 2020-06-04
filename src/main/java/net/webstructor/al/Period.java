@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 package net.webstructor.al;
 
 import java.util.Date;
+
+import net.webstructor.main.Tester;
 
 //TODO: in other place and properly, with account to glued synomymic abreviations "1m and 1min"
 //and validation
@@ -56,24 +58,50 @@ public class Period {
 	public long parse(String string, long unit) {
 		if (AL.empty(string))
 			return period;//TODO: fix hack
+		return period = parseUnits(string, unit);
+	}
+	
+	public static long parseUnits(String string, long unit) {
+		if (AL.empty(string))
+			return 1 * unit;
 		Seq chunks = Parser.parse(string);
 		long temp = 0;
+		String chunk;
 		for (int i = 0; i<chunks.size(); i++) {
-			long value = 1;
-			try {
-				value = Long.parseLong((String)chunks.get(i));
-				i++;
-			} catch (Exception e) {
-				value = 1;//default to 1
+			chunk = (String)chunks.get(i);
+			long value;
+			try {//first, assume it is number separated from unit like "1 h" or "1 hour"
+				value = Long.parseLong(chunk);
+				if (++i < chunks.size() && !AL.empty((chunk = (String)chunks.get(i))))
+					value *= unit(chunk.charAt(0), unit);
+				else
+					value *= unit > 0 ? unit : HOUR;
+			} catch (Exception e) {//if can't parse, assume it is number glued up with unit like "1h" or "1hour"
+				value = parseUnit(chunk, unit);
 			}
-			if (i < chunks.size() && !AL.empty((String)chunks.get(i))) {
-				char c = ((String)chunks.get(i)).toLowerCase().charAt(0);
-				unit = ( c=='s'? SECOND : c=='m'? MINUTE : c=='h'? HOUR : 
-					c=='d'? DAY : c=='w'? WEEK : HOUR ); //default to HOUR
-			}
-			temp += value * unit; 
+			temp += value; 
 		}
-		return period = temp;
+		return temp;
+	}
+	
+	public static long unit(char c, long unit) {
+		c = Character.toLowerCase(c);
+		return c=='s'? SECOND : c=='m'? MINUTE : c=='h'? HOUR : c=='d'? DAY : c=='w'? WEEK : unit > 0 ? unit : HOUR; //default to HOUR
+	}
+	
+	public static long parseUnit(String string, long unit) {
+		if (AL.empty(string))
+			return 1 * unit;
+		for (int i = 0; i < string.length(); i++) {
+			char c = string.charAt(i);
+			if (!Character.isDigit(c)){
+				unit = unit(c, unit);
+				string = string.substring(0,i);
+			}
+		}
+		long value = 1;
+		try { value = Long.parseLong(string);} catch (Exception e) {}//default to 1
+		return value * unit; 
 	}
 	
 	public long getMillis() {
@@ -120,6 +148,22 @@ public class Period {
 		System.out.println(new Period(   11000).toHours());
 		System.out.println(new Period(  671000).toHours());
 		System.out.println(new Period(40271000).toHours());
+		Tester t = new Tester();
+		t.assume(parseUnits(null,0),0);
+		t.assume(parseUnits("",0),0);
+		t.assume(parseUnits("",SECOND),1000);
+		t.assume(parseUnits("",HOUR),3600000);
+		t.assume(parseUnits("1",0),3600000);//??
+		t.assume(parseUnits("1",SECOND),1000);
+		t.assume(parseUnits("1s",0),1000);
+		t.assume(parseUnits("1s",HOUR),1000);
+		t.assume(parseUnits("1 s",0),1000);
+		t.assume(parseUnits("1 s",HOUR),1000);
+		t.assume(parseUnits("1m 1 s",0),61000);
+		t.assume(parseUnits("1 m 1 s",HOUR),61000);
+		t.assume(parseUnits("2 m 2s",HOUR),122000);
+		t.assume(parseUnits("3m 3s",HOUR),183000);
+		t.check();
 	}
 }
 

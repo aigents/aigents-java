@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2017 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  * Copyright (c) 2018 SingularityNET
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -59,4 +59,13 @@ public class Tester {
 		}
 	}
 	
+	public void assume(long actual,long expected){
+		total++;
+		if (expected == actual)
+			System.out.println(actual);
+		else{
+			System.out.println("FAILED:"+actual+" != "+expected);
+			failed++;
+		}
+	}
 }

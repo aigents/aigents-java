@@ -66,7 +66,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.7.16";
+	public final static String VERSION = "2.7.18";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
@@ -98,6 +98,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String retention_period = "retention period";//LTM, days
 	public static final String attention_period = "attention period";//STM, days
 	public static final String caching_period = "caching period";//time to keep web data in cache, minutes
+	public static final String crawl_range = "crawl range";//default maximum range of crawling on the web 
 	public static final String email_login = "email login";
 	public static final String email_password = "email password";
 	public static final String email_cycle = "email cycle";
@@ -169,8 +170,9 @@ public abstract class Body extends Anything implements Environment, Updater
 		tcp_port, tcp_timeout,
 		http_port, http_timeout, http_threads, http_origin, http_secure, cookie_name, cookie_domain,
 		store_path, store_cycle,
-		attention_period, retention_period,
+		attention_period, retention_period, caching_period,
 		Peer.check_cycle,//TODO:fix namespace
+		crawl_range,
 		AL.email, email_login, email_password, email_cycle, email_retries,
 		mail_smtp_host, mail_smtp_auth, mail_smtp_port, mail_smtp_ssl_enable, mail_smtp_starttls_enable, 
 		mail_store_protocol, 
