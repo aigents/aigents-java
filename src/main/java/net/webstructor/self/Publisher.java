@@ -94,7 +94,6 @@ public class Publisher {
 						Date date = null;//instance.getDate(AL.times,null);
 						if (!forced && body.archiver.exists(thingName,text,date))//check LTM
 							continue;
-//TODO update existings otherwise!?
 					
 						hits++;
 						instance.store(body.storager);

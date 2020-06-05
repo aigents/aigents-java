@@ -102,11 +102,11 @@ public class WebCrawler implements Crawler {
 	}
 
 	//get all things for the thing name
-	private boolean match(Siter siter, Iter iter,ArrayList positions,Date time,String path,Collection things) {
+	private boolean match(Siter siter, Iter iter,ArrayList positions,Date time,String path,Collection topics) {
 		int matches = 0;
 		if (iter != null && iter.size() > 0) {
-			if (!AL.empty(things)) {
-				for (Iterator it = things.iterator();it.hasNext();)
+			if (!AL.empty(topics)) {
+				for (Iterator it = topics.iterator();it.hasNext();)
 					matches += matcher.match(iter,positions,(Thing)it.next(),time,path, siter.thingTexts, siter.thingPaths, siter.imager, siter.linker, siter.titler);
 			}
 		}

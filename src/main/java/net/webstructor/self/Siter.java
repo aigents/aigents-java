@@ -94,7 +94,7 @@ public class Siter {
 		titler = new ContentLocator();
 	}
 	
-	public Siter init(String thingname,Date time,boolean forced,long tillTime,int range,int limit,boolean strict,String mode) {
+	public Siter init(String topic,Date time,boolean forced,long tillTime,int range,int limit,boolean strict,String mode) {
 		this.realTime = time;
 		this.timeDate = Time.date(time);
 		this.forced = forced;
@@ -105,7 +105,7 @@ public class Siter {
 		this.mode = "track".equalsIgnoreCase(mode) ? Mode.TRACK : "find".equalsIgnoreCase(mode) ? Mode.FIND : Mode.SMART;
 		
 		//first, try to get things specified by thing name name (if explicitly provided)
-		targetTopics = body.storager.getNamed(thingname);
+		targetTopics = body.storager.getNamed(topic);
 		if (AL.empty(targetTopics)) {
 			//next, try to find all things people are aware of:
 			//build list of things that are known to and trusted by users of given path

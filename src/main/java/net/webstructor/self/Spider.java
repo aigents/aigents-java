@@ -179,7 +179,7 @@ public class Spider {
 	//http://stackoverflow.com/questions/5715235/java-set-timeout-on-a-certain-block-of-code
 	//http://www.javacoffeebreak.com/articles/network_timeouts/
 	//http://mrfeinberg.com/blog/archives/000016.html
-	public boolean spider(final String site, final String thingname, final Date time, final long tillTime, final boolean forced, final int range,final int limit,final boolean strict, final String mode) {
+	public boolean spider(final String site, final String topic, final Date time, final long tillTime, final boolean forced, final int range,final int limit,final boolean strict, final String mode) {
 		final Callable task = new Callable() {
 		    //public void run() { /* Do stuff here. */
 			public Object call() throws Exception {
@@ -188,7 +188,7 @@ public class Spider {
 		    	Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 		    	boolean ok = false;
 		    	try {
-		    		ok = body.getSiter(site).init(thingname,time,forced,tillTime,range,limit,strict,mode).read();
+		    		ok = body.getSiter(site).init(topic,time,forced,tillTime,range,limit,strict,mode).read();
 		    	} catch (Throwable t){
 					body.error("Site crawling failed unknown "+site+" "+t.toString()+",",t);
 		    	}
