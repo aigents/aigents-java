@@ -38,7 +38,6 @@ import net.webstructor.comm.Crawler;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
-import net.webstructor.util.MapMap;
 
 public class WebCrawler implements Crawler { 
 	Body body;
@@ -51,7 +50,7 @@ public class WebCrawler implements Crawler {
 
 //TODO eliminate all extra arguments 
 	@Override
-	public int crawl(Siter siter, String rootPath, Collection topics, Date time, MapMap thingPathsCollector) {
+	public int crawl(Siter siter) {
 		if (AL.empty(siter.rootPath) || AL.isIMG(siter.rootPath))//don't check AL.isURL because it can expectedly handle plain texts 
 			return -1;
 		int hits = 0;
@@ -62,11 +61,15 @@ public class WebCrawler implements Crawler {
 			Collection goals = new ArrayList(1);
 			goals.add(t);
 			String name = t.getName();
-			siter.body.reply("Site crawling thing begin "+name+" in "+siter.rootPath+".");
-			boolean found = new PathTracker(siter,goals,siter.range).run(siter.rootPath);
-			siter.body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+siter.rootPath+".");
-			if (found)
-				hits++;
+			siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" in "+siter.rootPath+".");
+			try {
+				boolean found = new PathTracker(siter,goals,siter.range).run(siter.rootPath);
+				siter.body.debug("Site crawling start root "+siter.rootPath+" "+name+" "+(found ? "found" : "missed")+".");
+				if (found)
+					hits++;
+			} catch (Throwable e) {
+				siter.body.error("Site crawling stop root "+siter.rootPath+" "+name+" falied",e);
+			}
 		}
 		return hits;
 	}

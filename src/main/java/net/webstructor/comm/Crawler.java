@@ -32,7 +32,6 @@ import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
-import net.webstructor.util.MapMap;
 
 public interface Crawler {
 	/**
@@ -43,7 +42,8 @@ public interface Crawler {
 	 * @param collector to accumulate findings in triple store: Thing topic, String path, Thing instance
 	 * @return -1 if ot supported, 0 if supported but not read, 1 if read
 	 */
-	public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap collector);
+	//public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap collector);
+	public int crawl(Siter siter);
 
 	/**
 	 * Read specific page for list of topics of interest and return links found along the way  

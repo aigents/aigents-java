@@ -189,7 +189,10 @@ public class Twitter extends Socializer implements Crawler {
 	}
 
 	@Override
-	public int crawl(Siter siter, String url, Collection topics, Date time, MapMap thingPathsCollector){
+	public int crawl(Siter siter){
+		String url = siter.getRootPath();
+		Collection topics = siter.getTopics(); 
+		MapMap collector = siter.getPathBasedCollector();
 		String screen_name;
 		if (AL.empty(url) || AL.empty(screen_name = Str.parseBetween(url, content_url, "/", false)) || AL.empty(consumer_key) || AL.empty(consumer_key_secret))
 			return -1;
@@ -229,7 +232,7 @@ public class Twitter extends Socializer implements Crawler {
 				String text = HtmlStripper.convert(t.text," ",null);
 				text = HtmlStripper.convertMD(text, null, null);
 //TODO: consider if we want to consider links and images same way as we do that for Siter's web pages 
-				matches += matcher.matchThingsText(topics,text,Time.date(t.created_at),t.url,t.image,thingPathsCollector);
+				matches += matcher.matchThingsText(topics,text,Time.date(t.created_at),t.url,t.image,collector);
 			}
 			return matches;
 		} catch (Exception e) {

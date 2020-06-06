@@ -98,7 +98,10 @@ public class Reddit extends Socializer implements Crawler {
 	}	
 
 	@Override
-	public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap thingPathsCollector){
+	public int crawl(Siter siter){
+		String uri = siter.getRootPath();
+		Collection topics = siter.getTopics(); 
+		MapMap collector = siter.getPathBasedCollector();
 		if (AL.empty(uri) || AL.empty(appId) || AL.empty(appSecret))
 			return -1;
 		
@@ -168,7 +171,7 @@ public class Reddit extends Socializer implements Crawler {
 							String text = HtmlStripper.convert(ri.text," ",null);
 							text = HtmlStripper.convertMD(text, null, null);
 //TODO: consider if we want to consider links and images same way as we do that for Siter's web pages  
-							matches += matcher.matchThingsText(topics,text,ri.date,ri.uri,AL.isURL(ri.thumbnail)?ri.thumbnail:null,thingPathsCollector);
+							matches += matcher.matchThingsText(topics,text,ri.date,ri.uri,AL.isURL(ri.thumbnail)?ri.thumbnail:null,collector);
 						}
 						after = JSON.getJsonString(data, "after");
 						if (after == null)

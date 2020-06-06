@@ -49,7 +49,6 @@ import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.StringUtil;
 import net.webstructor.core.Thing;
-import net.webstructor.util.MapMap;
 import net.webstructor.util.Reporter;
 
 import net.webstructor.data.Graph;
@@ -75,7 +74,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 	}
 
 	@Override
-	public int crawl(Siter siter, String url, Collection topics, Date time, MapMap thingPathsCollector){
+	public int crawl(Siter siter){
 		return -1;//default socializer can't "crawl" on url basis
 	}
 	

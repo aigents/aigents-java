@@ -90,7 +90,10 @@ public class Discourse extends SocialCacher implements Crawler {
 	}
 	
 	@Override
-	public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap thingPathsCollector){
+	public int crawl(Siter siter){
+		String uri = siter.getRootPath();
+		Collection topics = siter.getTopics(); 
+		MapMap collector = siter.getPathBasedCollector();
 		String base_url;
 		if (AL.empty(uri) || AL.empty(base_url = HttpFileReader.getSite(uri)))
 			return -1;
@@ -123,15 +126,15 @@ public class Discourse extends SocialCacher implements Crawler {
 		int matches = 0;
 		Date since = Time.today(-1);
 		if (!AL.empty(user))
-			matches = readUser(base_url, user, since, topics, thingPathsCollector);
+			matches = readUser(base_url, user, since, topics, collector);
 		else
 		if (!AL.empty(topic))
-			matches = readTopic(base_url, topic, since, topics, thingPathsCollector);
+			matches = readTopic(base_url, topic, since, topics, collector);
 		else {
 			//https://community.singularitynet.io/c/qa
 			//https://community.singularitynet.io/c/qa/9
 			long category_id = !AL.empty(category) ? getCategoryId(base_url,category) : -1;
-			matches = readPosts(base_url, category_id,  since, topics,thingPathsCollector);
+			matches = readPosts(base_url, category_id,  since, topics, collector);
 		}
 		
 		if (debug) body.debug("Discourse crawling url "+uri+" found "+matches);

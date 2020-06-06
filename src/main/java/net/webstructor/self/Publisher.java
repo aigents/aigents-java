@@ -66,7 +66,11 @@ public class Publisher {
 		for (int p = 0; p < things.length; p++){
 			Thing thing = (Thing)things[p];
 			Object[] paths = thingPaths.getSubKeyObjects(thing);
-			Collection latest = latest(thing,null);//assumbin we can ignore the same things with different paths 
+			Collection latest = latest(thing,null);//assuming we can ignore the same things with different paths 
+//TODO: cleanup here and below
+boolean debug = "precognition".equals(thing.getName());
+if (debug) for (Object o : latest)
+body.debug("Publisher update latest "+((Thing)o).getString(AL.text));
 			ArrayList collector = new ArrayList();
 			for (int i = 0; i < paths.length; i++){
 				String path = (String)paths[i];
@@ -86,13 +90,20 @@ public class Publisher {
 						
 						//Thing existing = existing(thing,instance,path,false,text);//if path were involved...
 						Thing existing = existing(latest,instance,false,text);
+if (debug)
+body.debug("Publisher update instance "+instance.getString(AL.text));
+if (debug)
+body.debug("Publisher update existing STM "+existing.getString(AL.text));
 						if (existing != null) {//new path-less identity
 							existings.put(instance,existing);
 							continue;
 						}
 						//checking for existence before today, not just today... 
 						Date date = null;//instance.getDate(AL.times,null);
-						if (!forced && body.archiver.exists(thingName,text,date))//check LTM
+						boolean exists = body.archiver.exists(thingName,text,date);
+if (debug)
+body.debug("Publisher update exists LTM "+exists);
+						if (!forced && exists)//check LTM
 							continue;
 					
 						hits++;
@@ -117,6 +128,7 @@ public class Publisher {
 		for (int j = 0; j < things.length; j++){
 			Thing thing = (Thing)things[j];
 			Object[] paths = thingPaths.getSubKeyObjects(thing);
+boolean debug = "precognition".equals(thing.getName());
 			for (int i = 0; i < paths.length; i++){
 				String path = (String)paths[i];
 				Collection instances = thingPaths.getObjects(thing, path);
@@ -129,6 +141,14 @@ public class Publisher {
 					if (!AL.empty(text)){
 						String thingName = thing.getName();
 						Thing existing = existings.get(instance);
+						
+						
+if (debug)
+body.debug("Publisher update instance "+instance.getString(AL.text));
+if (debug)
+body.debug("Publisher update existing STM "+existing.getString(AL.text));
+						
+
 //TODO: use "forced" consistently						
 						if (!forced && existing != null)//new path-less identity
 							existing.set(AL.times,now);//update temporal snapshot in-memory

@@ -84,7 +84,12 @@ public class RSSer implements Crawler {
 		return false;//so we can't scalp anything
 	}
 	
-	public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap collector) {
+	//public int crawl(Siter siter, String uri, Collection topics, Date time, MapMap collector) {
+	public int crawl(Siter siter) {
+		String uri = siter.getRootPath();
+		Collection topics = siter.getTopics(); 
+		Date time = siter.getTime();
+		MapMap collector = siter.getPathBasedCollector();
 		if (!AL.isURL(uri))
 			return -1;
 //TODO: make time mased on Selfer.minCheckCycle!?

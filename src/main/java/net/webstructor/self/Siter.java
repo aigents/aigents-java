@@ -153,6 +153,22 @@ public class Siter {
 		return this;
 	}
 	
+	public String getRootPath() {
+		return rootPath;
+	}
+	
+	public Collection getTopics() {
+		return targetTopics;
+	}
+	
+	public Date getTime() {
+		return realTime;
+	}
+	
+	public MapMap getPathBasedCollector() {
+		return thingPaths;
+	}
+	
 	protected boolean expired(){
 		boolean expired = tillTime > 0 && System.currentTimeMillis() > tillTime;
 		if (expired)
@@ -168,7 +184,7 @@ public class Siter {
 		boolean ok = false;
 		for (Crawler c : body.getCrawlers())//try channel-readers first
 			//set crawler in the Siter context so it can be referred by PathFinder/PathTracker 
-			if ((this.crawler = c).crawl(this, rootPath, targetTopics, realTime, thingPaths) >= 0) {
+			if ((this.crawler = c).crawl(this) >= 0) {
 				ok = true;
 				break;
 			}
@@ -214,28 +230,6 @@ public class Siter {
 		}
 	}
 	
-	/*
-	//TODO public class WebCrawler implements Crawler
-	//TODO Override Crawler.crawl
-	private int crawl(Collection topics) {
-		int hits = 0;
-		for (Object topic : topics){
-			Thing t = (Thing)topic;
-			if (expired())
-				break;
-			Collection goals = new ArrayList(1);
-			goals.add(t);
-			String name = t.getName();
-			body.reply("Site crawling thing begin "+name+" in "+rootPath+".");
-			boolean found = new PathTracker(this,goals,range).run(rootPath);
-			body.reply("Site crawling thing end "+(found ? "found" : "missed")+" "+name+" in "+rootPath+".");
-			if (found)
-				hits++;
-		}
-		return hits;
-	}
-	*/
-	
 	boolean linkMatch(String text,Seq patseq) {
 		Iter iter = new Iter(Parser.parse(text));
 		try {
@@ -246,48 +240,5 @@ public class Siter {
 		}
 		return false;
 	}
-
-	/*
-	boolean readPage(String path,ArrayList links,Collection things) {
-		Thread.yield();
-		boolean result = false;
-		boolean skipped = false;
-		boolean failed = false;
-		String text = null;
-		
-		body.reply("Site crawling page begin "+path+".");
-		if (!AL.isURL(path)) // if not http url, parse the entire text
-			result = match(new Iter(Parser.parse(path)),null,timeDate,null,things);//with no positions
-		else
-		//TODO: distinguish skipped || failed in readIfUpdated ?
-		if (!AL.empty(text = body.filecacher.readIfUpdated(path,links,imager.getMap(path),linker.getMap(path),titler.getMap(path),forced,realTime))) {
-			ArrayList positions = new ArrayList();
-			Iter iter = new Iter(Parser.parse(text,null,false,true,true,false,punctuation,positions));//build with original text positions preserved for image matching
-			result = match(iter,positions,timeDate,path,things);
-			index(path,timeDate,iter,links);
-			//TODO: add source name as page title by default?
-		} else {
-			skipped = true;//if not read 
-			failed = true;
-		}
-		if (skipped || failed)
-			body.reply("Site crawling page end "+(failed? "failed": "skipped")+" "+path+".");
-		else
-			body.reply("Site crawling page end "+(result? "found": "missed")+" "+path+".");
-		return result;
-	}
-
-	//get all things for the thing name
-	private boolean match(Iter iter,ArrayList positions,Date time,String path,Collection things) {
-		int matches = 0;
-		if (iter != null && iter.size() > 0) {
-			if (!AL.empty(things)) {
-				for (Iterator it = things.iterator();it.hasNext();)
-					matches += matcher.match(iter,positions,(Thing)it.next(),time,path, thingTexts, thingPaths, imager, linker, titler);
-			}
-		}
-		return matches > 0;
-	}
-	*/
 
 }
