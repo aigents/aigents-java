@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,13 +33,61 @@ public class Any extends Set {
 		this.max = max;
 		this.set = set; 
 	}
+	public Set compact() {
+		return compact(false);
+	}
+	public Set compact(boolean recursive) {//TODO do we need this recursion option?
+		if (recursive)
+			for (int i = 0; i < set.length; i++)
+				if (set[i] instanceof Set)
+					((Set)set[i]).compact();
+		if (set.length < 2)
+			return this;
+		boolean[] valids = new boolean[set.length];
+		valids[0] = true;
+		int valid = set.length;//not a duplicates
+		for (int o = 1; o < set.length; o++) {
+			valids[o] = true;
+			for (int t = 0; t < o; t++) if (valids[t] && compare(set[t],set[o]) == 0) {
+				valids[o] = false;
+				valid--;
+				break;
+			}
+		}
+		if (valid == set.length)
+			return this;
+		//eliminate duplicates
+		Object[] set = new Object[valid];
+		set[0] = this.set[0];
+		int v = 1;
+		for (int i = 1; i < this.set.length; i++)
+			if (valids[i])
+				set[v++] = this.set[i];
+		this.set = set;
+		return this;
+	}
 	public Any merge(Any other) {
-		Object[] set = new Object[size() + other.size()];
+		if (AL.empty(other))
+			return this;
+		boolean[] valids = new boolean[other.size()];
+		int valid = other.size();//not a duplicates
+		for (int o = 0; o < other.size(); o++) {
+			valids[o] = true;
+			for (int t = 0 ; t < this.size(); t++) if (compare(this.set[t],other.set[o]) == 0) {
+				valids[o] = false;
+				valid--;
+				break;
+			}
+		}
+		if (valid == 0)
+			return this;
+		Object[] set = new Object[size() + valid];
 		int i=0;
 		for (; i<size(); i++)
 			set[i] = this.set[i];
-		for (int j = 0; i<set.length; i++)
-			set[i] = other.set[j];
+		for (int j = 0; j < other.set.length; j++)
+			if (valids[j])
+				set[i++] = other.set[j];
 		return new Any(set);
 	}
 }

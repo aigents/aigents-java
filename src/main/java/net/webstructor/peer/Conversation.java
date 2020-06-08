@@ -143,7 +143,7 @@ class Conversation extends Mode {
 		}
 	  } catch (Exception e) {
 		  if (!(e instanceof Mistake))
-			  session.sessioner.body.error("Error handling: "+session.input(), e);
+			  session.sessioner.body.error("Error handling "+(session.peer != null ? session.peer.getTitle(Peer.title_email) : "null")+": "+session.input(), e);
 		  session.output("Not. "+e.getMessage());
 		  return false;
 	  }

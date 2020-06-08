@@ -57,20 +57,41 @@ public abstract class Set extends Term implements Comparable {
 			a[c++] = it.next();
 		return a;
 	}
+	@Override
 	public int compareTo(Object o) {
 		if (o == null)
 			return 1;//TODO: -1 ?
 		if (!(o instanceof Set))
-			return this.getClass().getCanonicalName().compareTo(o.getClass().getCanonicalName());
+			return this.toString().compareTo(o.toString());
 		Set other = (Set)o;
 		int thisS = this.size();
 		int otherS = other.size();
+		if (thisS != otherS)
+			return thisS - otherS;//TODO: otherS - thisS ? 
 		for (int i = 0; i < thisS && i < otherS; i++){
-			int c = ((String)this.get(i)).compareTo((String)other.get(i));
+			Object thisO = this.get(i);
+			Object otherO = other.get(i);
+			int c = compare(thisO,otherO);
 			if (c != 0)
 				return c;
 		}
-		return thisS - otherS;//TODO: otherS - thisS ? 
+		return 0;
+	}
+	public static int compare(Object thisO, Object otherO) {
+		if (thisO == otherO)
+			return 0;
+		if (otherO == null)
+			return 1;//TODO: -1 ?
+		if (thisO == null)
+			return -1;//TODO: +1 ?
+		int c = thisO instanceof Set ? ((Set)thisO).compareTo(otherO) :
+			otherO instanceof Set ? -((Set)otherO).compareTo(thisO) :
+				thisO.toString().compareTo(otherO.toString());
+		return c;
+	}
+//TODO: make this 
+	public Set compact() {
+		return this;//no action by default
 	}
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -80,13 +101,15 @@ public abstract class Set extends Term implements Comparable {
 		for (int i = 0 ; i < set.length; i++){
 			if (i > 0)
 				sb.append(' ');
-			sb.append(set[i].toString());
+			Object term = set[i];
+//TODO make sure why empty terms can be possible if it they shouyld be quotable properly!?
+			sb.append(term instanceof String ? Writer.toString(term) : term.toString());
 		}
 		//if (!AL.empty(set))
 			sb.append(this instanceof Seq ? ']' : this instanceof Any ? '}' : ')');
 		return sb.toString();
 	}
-	public void toLower(){
+	public Set toLower(){
 		for (int i = 0 ; i < set.length; i++){
 			Object o = set[i];
 			if (o instanceof String)
@@ -95,5 +118,6 @@ public abstract class Set extends Term implements Comparable {
 			if (o instanceof Set)
 				((Set)o).toLower();
 		}
+		return this;
 	}
 }

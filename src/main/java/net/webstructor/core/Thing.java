@@ -399,7 +399,7 @@ public class Thing extends Anything { // implements ORObject
 			return (Date)o;
 		if (o instanceof String)
 			return Time.date((String)o);
-		return def == null ? new Date(0) : def;
+		return def == null ? new Date(0) : def;//TODO should null return null?
 	}
 	
 	public final int getInt(String name,int def) {

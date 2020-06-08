@@ -409,8 +409,10 @@ public class Reader extends AL {
 		int temptype;
 		for (;!parser.end();) {
 			String term = parser.parseTerm(true,true);//with regexp
-			if (AL.empty(term))
+			if (term == null)
 				break;
+//			if (AL.empty(term))
+//				break;
 			//first, identify set type as specified or by opening bracket
 			if (closer == null) {
 				//if defined then use it
@@ -431,7 +433,7 @@ public class Reader extends AL {
 			if (term.length() > 1 && term.charAt(0) == '$')
 				terms.add(new Property(storager,owner,term.substring(1)));
 			else //TODO: the same properly - recursively!
-			if ((temptype = AL.brackets_open.indexOf(term)) != -1)
+			if (!AL.empty(term) && (temptype = AL.brackets_open.indexOf(term)) != -1)
 				terms.add(patterns(storager,owner,parser,temptype));
 			else
 				terms.add(term);

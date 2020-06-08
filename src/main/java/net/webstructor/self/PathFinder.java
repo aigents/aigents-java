@@ -40,6 +40,7 @@ import net.webstructor.al.Set;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.core.Thing;
+import net.webstructor.main.Tester;
 
 public class PathFinder {
 	int hopLimit;
@@ -99,7 +100,7 @@ public class PathFinder {
 					pathSet = pathSet.merge(set instanceof Any ? (Any)set : new Any(new Object[]{set}));
 				}
 				//TODO:keep path sets in better way?
-				pathSet.toLower();
+				pathSet.toLower().compact();
 				goal.set(AL.path,Writer.toString(new StringBuilder(),pathSet,true).toString());
 			}
 			return true;
@@ -229,6 +230,25 @@ public class PathFinder {
 			}
 		}//while have something to do
 		return cnt > 0;
+	}
+	
+	//TODO: move to unit tests
+	public static void main(String args[]) {
+		Tester t = new Tester();
+		t.init();
+		t.assume(Reader.patterns(null,null,"{[a b][c d]}").toString(),"{[a b] [c d]}");
+		t.assume(Reader.patterns(null,null,"{[a b][c d][a b][c d]}").toString(),"{[a b] [c d] [a b] [c d]}");
+		t.assume(Reader.patterns(null,null,"{[a b][c d][a b][c d]}").compact().toString(),"{[a b] [c d]}");
+		t.assume(((Any)Reader.patterns(null,null,"{[a b][c d][a b][c d]}")).merge((Any)Reader.patterns(null,null,"{[a b][c d]}")).toString(),"{[a b] [c d] [a b] [c d]}");
+		t.assume(((Any)Reader.patterns(null,null,"{[a b][c d][x y][w z]}")).merge((Any)Reader.patterns(null,null,"{[a b][c d]}")).toString(),"{[a b] [c d] [x y] [w z]}");
+		t.assume(((Any)Reader.patterns(null,null,"{[a b]}")).merge((Any)Reader.patterns(null,null,"{[c d]}")).toString(),"{[a b] [c d]}");
+		t.assume(((Any)Reader.patterns(null,null,"{[a b] [w z]}")).merge((Any)Reader.patterns(null,null,"{[c d]}")).toString(),"{[a b] [w z] [c d]}");
+		t.assume(((Any)Reader.patterns(null,null,"{[a b][w z]}")).merge((Any)Reader.patterns(null,null,"{[a b][c d]}")).toString(),"{[a b] [w z] [c d]}");
+		t.assume(((Any)Reader.patterns(null,null,"{[w z][a b]}")).merge((Any)Reader.patterns(null,null,"{[c d][a b]}")).toString(),"{[w z] [a b] [c d]}");
+//TODO make sure why empty terms can be possible if it they shouyld be quotable properly!?
+		t.assume(Reader.patterns(null,null,"{[ai safety research] '' ''}").toString(),"{[ai safety research] '' ''}");
+		t.assume(Reader.patterns(null,null,"{[ai safety research] '' ''}").compact().toString(),"{[ai safety research] ''}");
+		t.check();
 	}
 	
 }

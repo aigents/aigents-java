@@ -33,6 +33,7 @@ import net.webstructor.agent.Farm;
 import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
+import net.webstructor.al.Reader;
 import net.webstructor.al.Time;
 import net.webstructor.core.Thing;
 import net.webstructor.data.GraphCacher;
@@ -145,6 +146,27 @@ public class Selfer extends Thread {
 				}
 			} catch (Exception e) {
 				body.error("Upgrade error "+current_version+" to 1.6.8", e);
+			}
+		}
+//TODO upgrade
+		if (normalisedVersion(current_version).compareTo(normalisedVersion("2.8.3")) < 0){
+			try {//rename all knows to topics
+				Collection things = body.storager.getThings();
+				for (Iterator it = things.iterator(); it.hasNext();) {
+					Thing t = (Thing)it.next();
+					String path = t.getString(AL.path);
+					if (AL.empty(path))
+						continue;
+					String compacted = Reader.patterns(body.storager,null,path).compact().toString();
+					if (!path.equals(compacted) ) {
+//TODO: cleanup
+//System.out.println(path);						
+//System.out.println(compacted);						
+						t.setString(AL.path, compacted);
+					}
+				}
+			} catch (Exception e) {
+				body.error("Upgrade error "+current_version+" to 2.8.3", e);
 			}
 		}
 		body.debug("Upgrade completed to "+Body.VERSION);

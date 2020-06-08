@@ -78,6 +78,11 @@ public class Cacher implements net.webstructor.data.Cacher {
 			if (cached == null)//clear unvavaliable entries hoping they may get available
 				invalids.add(path);
 			else
+			if (cached.time == null) {//TODO already trashed!? Not possible!!!???
+				body.error("Cacher trashing invalid entry "+path, null);
+				invalids.add(path);
+				cached.trash();
+			} else 
 			if (cached.time.getTime() < latest) {//clear expired entires
 				invalids.add(path);
 				cached.trash();
