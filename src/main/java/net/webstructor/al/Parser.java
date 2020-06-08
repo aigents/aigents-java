@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javafx.util.Pair;
 import net.webstructor.util.Array;
 
 //http://www.tutorialspoint.com/java/java_regular_expressions.htm
@@ -43,6 +44,8 @@ public class Parser {
 	private boolean quoting = true;
 	private boolean urling = false;
 	private String punctuation = AL.punctuation;
+
+	public enum TokenType { SYMBOL, QUOTED, REGEXP, INVALID };
 	
 	public Parser(String input) {
 		pos = 0;
@@ -269,6 +272,9 @@ public class Parser {
 		return parseTerm(regexp,tolower,null);
 	}
 	public String parseTerm(boolean regexp,boolean tolower,String delimiters) {
+		return parseTermType(regexp, tolower, delimiters).getKey();
+	}
+	public Pair<String,TokenType> parseTermType(boolean regexp,boolean tolower,String delimiters) {
 		char quoted = 0;
 		int begin = -1;
 		int cur = pos;
@@ -278,7 +284,7 @@ public class Parser {
 			if (begin == -1 && c == '/' && regexp) {//regexp
 				s = tryRegexp(cur);
 				if (s != null)
-					return s;
+					return new Pair<String,TokenType>(s,TokenType.REGEXP);
 			}
 			if (!this.quoting && (c == '\'' || c == '\"')) { // ignore quoting
 				//
@@ -307,7 +313,7 @@ public class Parser {
 				if (quoted == c) {
 					s = input.substring(begin,cur);
 					this.pos = ++cur;
-					return Array.replace(s, escapedQuotes, unescapedQuotes);//no .toLowerCase() for quoted strings!
+					return new Pair<String,TokenType>(Array.replace(s, escapedQuotes, unescapedQuotes),TokenType.QUOTED);//no .toLowerCase() for quoted strings!
 				}
 			}
 			else
@@ -318,7 +324,7 @@ public class Parser {
 				if (punctuation.indexOf(c) != -1 && !punctuationException(input,cur,size,punctuation)) {//return symbol
 					s = input.substring(cur,cur+1);
 					pos = ++cur;
-					return tolower ? s.toLowerCase() : s;
+					return new Pair<String,TokenType>(tolower ? s.toLowerCase() : s, TokenType.SYMBOL);
 				} else
 				if (AL.spaces.indexOf(c) == -1)//start froming token
 					begin = cur;
@@ -331,13 +337,13 @@ public class Parser {
 					if (!(urling && AL.isURL(s) && AL.urls.indexOf(c) != -1 && 
 							!((cur + 1) == size || isPunctuationOrSpace(input.charAt(cur + 1),punctuation)))){
 						pos = cur;//stay at delimiter to return symbol later
-						return tolower ? s.toLowerCase() : s;
+						return new Pair<String,TokenType>(tolower ? s.toLowerCase() : s, TokenType.SYMBOL);
 					}
 				}
 				if (AL.spaces.indexOf(c) != -1) {//return token
 					s = input.substring(begin,cur);
 					pos = ++cur;//skip delimiter
-					return !tolower || (urling && AL.isURL(s)) ? s : s.toLowerCase();
+					return new Pair<String,TokenType>(!tolower || (urling && AL.isURL(s)) ? s : s.toLowerCase(), TokenType.SYMBOL);
 				}
 				//else keep forming token
 			}				
@@ -345,9 +351,9 @@ public class Parser {
 		pos = cur;
 		if (begin != -1){
 			s = input.substring(begin);
-			return !tolower || (urling && AL.isURL(s)) ? s : s.toLowerCase();
+			return new Pair<String,TokenType>(!tolower || (urling && AL.isURL(s)) ? s : s.toLowerCase(), TokenType.SYMBOL);
 		}
-		return null;//TODO:fix
+		return new Pair<String,TokenType>(null,TokenType.INVALID);
 	}
 
 	public boolean parseOne(String one) {

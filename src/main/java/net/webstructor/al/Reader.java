@@ -28,7 +28,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import javafx.util.Pair;
 import net.webstructor.agent.Body;
+import net.webstructor.al.Parser.TokenType;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Mistake;
 import net.webstructor.core.Property;
@@ -408,11 +410,13 @@ public class Reader extends AL {
 		String closer = null;
 		int temptype;
 		for (;!parser.end();) {
-			String term = parser.parseTerm(true,true);//with regexp
+			Pair<String,Parser.TokenType> p = parser.parseTermType(true,true,null);//with regexp
+			String term = p.getKey();
+			Parser.TokenType t = p.getValue();
 			if (term == null)
 				break;
-//			if (AL.empty(term))
-//				break;
+			if (term.length() == 0 && t != TokenType.QUOTED)
+				break;
 			//first, identify set type as specified or by opening bracket
 			if (closer == null) {
 				//if defined then use it
@@ -428,8 +432,12 @@ public class Reader extends AL {
 					closer = AL.brackets_close.substring(settype = 2,settype+1);
 			}
 			//close brackets
+			if (t != TokenType.SYMBOL)//quoted or regexp
+				terms.add(term);
+			else
 			if (closer.equals(term))
 				break;
+			else
 			if (term.length() > 1 && term.charAt(0) == '$')
 				terms.add(new Property(storager,owner,term.substring(1)));
 			else //TODO: the same properly - recursively!

@@ -144,7 +144,8 @@ public class PathFinder {
 			String[] link = (String[])links.get(i);
 			String linkUrl = HttpFileReader.alignURL(path,link[0],siter.strict);
 			String linkText = link[1];
-			if (!AL.empty(linkUrl) && !AL.empty(linkText) && !readPaths.contains(linkUrl)) {
+			//linkText may be null because of graphics!
+			if (!AL.empty(linkUrl) && linkText != null && !readPaths.contains(linkUrl)) {
 				Seq extPath = extendTail(pathSeq,linkText);
 				boolean found = run(linkUrl,extPath);
 				if (found) {
@@ -245,9 +246,14 @@ public class PathFinder {
 		t.assume(((Any)Reader.patterns(null,null,"{[a b] [w z]}")).merge((Any)Reader.patterns(null,null,"{[c d]}")).toString(),"{[a b] [w z] [c d]}");
 		t.assume(((Any)Reader.patterns(null,null,"{[a b][w z]}")).merge((Any)Reader.patterns(null,null,"{[a b][c d]}")).toString(),"{[a b] [w z] [c d]}");
 		t.assume(((Any)Reader.patterns(null,null,"{[w z][a b]}")).merge((Any)Reader.patterns(null,null,"{[c d][a b]}")).toString(),"{[w z] [a b] [c d]}");
-//TODO make sure why empty terms can be possible if it they shouyld be quotable properly!?
 		t.assume(Reader.patterns(null,null,"{[ai safety research] '' ''}").toString(),"{[ai safety research] '' ''}");
 		t.assume(Reader.patterns(null,null,"{[ai safety research] '' ''}").compact().toString(),"{[ai safety research] ''}");
+		t.assume(Reader.patterns(null,null,"{[$nrn '(' neuron ')']}").toString(),"{[$nrn '(' neuron ')']}");
+		t.assume(Reader.patterns(null,null,"{[$nrn '(' neuron ')']}").compact().toString(),"{[$nrn '(' neuron ')']}");
+		t.assume(Reader.patterns(null,null,"{[$nrn (neuron)]}").toString(),"{[$nrn (neuron)]}");
+		t.assume(Reader.patterns(null,null,"{[$nrn (neuron)]}").compact().toString(),"{[$nrn (neuron)]}");
+		t.assume(Reader.patterns(null,null,"{developers media [data & security] omics [$nrn '(' neuron ')'] [terms of service] [ideas inside silicon valley’s newest ',' most autonomous farm yet]}").compact().toString(),"{developers media [data & security] omics [$nrn '(' neuron ')'] [terms of service] [ideas inside silicon valley’s newest ',' most autonomous farm yet]}");
+		t.assume(Reader.patterns(null,null,"{developers media [data & security] omics [$nrn (neuron)] [terms of service] [ideas inside silicon valley’s newest ',' most autonomous farm yet]}").compact().toString(),"{developers media [data & security] omics [$nrn (neuron)] [terms of service] [ideas inside silicon valley’s newest ',' most autonomous farm yet]}");
 		t.check();
 	}
 	
