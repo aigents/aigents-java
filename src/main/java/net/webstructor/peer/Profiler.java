@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -308,11 +308,12 @@ public class Profiler {
 		}
 	}
 	
-	int updateLinks(String name, String site, boolean trust, int count, int limit){
+	int updateLinks(String name, String item, boolean trust, int count, int limit){
+//TODO make sure added patterns are-not re-assemblies of items in the list of "ignores" (need to do pattern parsing and cross-matching)
 		//get only anonymous things!!!
-		Collection things = body.storager.getNamed(site,null);
+		Collection things = body.storager.getNamed(item,null);
 		if (AL.empty(things)) {
-			Thing t = new Thing(site);
+			Thing t = new Thing(item);
 			t.store(body.storager);
 			peer.addThing(name, t);
 			if (trust && count < limit){
@@ -320,14 +321,17 @@ public class Profiler {
 				count++;
 			}
 		} else {
-			for (Iterator it = things.iterator(); it.hasNext();){
-				Thing t = (Thing)it.next();
-				if (peer.hasThing(name, t) || peer.hasThing(AL.ignores, t))
-					continue;
-				peer.addThing(name, t);
-				if (trust && count < limit){
-					peer.addThing(AL.trusts, t);
-					count++;
+//TODO deal with duplicates!?
+			//for (Iterator it = things.iterator(); it.hasNext();){
+			//	Thing t = (Thing)it.next();
+			{
+				Thing t = (Thing)things.iterator().next();
+				if (!(peer.hasThing(name, t) || peer.hasThing(AL.ignores, t))){
+					peer.addThing(name, t);
+					if (trust && count < limit){
+						peer.addThing(AL.trusts, t);
+						count++;
+					}
 				}
 			}
 		}

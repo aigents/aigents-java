@@ -123,8 +123,8 @@ public class Matcher {
 		//TODO:optimization so pattern with properties is not rebuilt every time?
 		iter.pos(0);//reset 
 //TODO: cleanup here and below
-if ("precognition".equals(thing.getName()) || (path != null && path.contains("scientificexploration")))
-matches = matches;
+//if ("precognition".equals(thing.getName()) || (path != null && path.contains("scientificexploration")))
+//matches = matches;
 		for (;;) {
 			Thing instance = new Thing();
 			Seq patseq = Reader.pattern(storager,instance, patstr);
@@ -139,8 +139,8 @@ matches = matches;
 
 			//TODO check in mapmap by text now!!!
 			//TODO if matched, get the "longer" source path!!!???
-if ("precognition".equals(thing.getName()))
-nl_text = nl_text;
+//if ("precognition".equals(thing.getName()))
+//nl_text = nl_text;
 			if (thingTexts != null && thingTexts.getObject(thing, nl_text, false) != null)//already adding this
 				continue;
 

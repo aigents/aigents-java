@@ -185,14 +185,10 @@ public class Siter {
 		for (Crawler c : body.getCrawlers())//try channel-readers first
 			//set crawler in the Siter context so it can be referred by PathFinder/PathTracker 
 			if ((this.crawler = c).crawl(this) >= 0) {
-				ok = true;
+				int hits = body.getPublisher().update(rootPath,timeDate,thingPaths,forced,null);
+				ok = hits > 0;
 				break;
 			}
-
-		if (ok) {//send updates on success
-			int hits = body.getPublisher().update(rootPath,timeDate,thingPaths,forced,null);
-			ok = hits > 0;
-		}
 
 		thingPaths.clear();//help gc
 		thingTexts.clear();
