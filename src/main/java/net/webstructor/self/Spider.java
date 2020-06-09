@@ -56,39 +56,42 @@ public class Spider {
 	public void spider(long tillTime) 
 	{
 		try {
-			//get all user sites and things
-			
-			//TODO: spider only active peers
-			//-get all peers
-			//--who is still active
-			//---get their sites
-			//----that are trusted
-			HashSet sites = new HashSet();
+			//get all peers' sites and topics - spider only the active peers
+			HashSet<String> sites = new HashSet<String>();
 			Collection peers = (Collection)body.storager.getByName(AL.is,Schema.peer);
-			
-			//TODO:?
-			//Collection activePeers = new ArrayList();
-			
 			if (!AL.empty(peers)){
 				Date since = Time.today(-body.attentionDays());
 				for (Iterator it = peers.iterator(); it.hasNext();){
 					Thing peer = (Thing)it.next();
 					Date activityTime = (Date)peer.get(Peer.activity_time);
 					if (activityTime != null && activityTime.compareTo(since) >= 0){
-						Collection peerSites = peer.getThings(AL.sites);
 						Collection peerTrusts = peer.getThings(AL.trusts);
-						if (!AL.empty(peerSites) && !AL.empty(peerTrusts)){
-							peerSites = new HashSet(peerSites);
-							peerSites.retainAll(peerTrusts);
-							for (Iterator jt = peerSites.iterator(); jt.hasNext();){
-								Thing site = (Thing)jt.next();
-								sites.add(site.getName());
+						if (!AL.empty(peerTrusts)) {
+							Collection peerSites = peer.getThings(AL.sites);
+							Collection peerTopics = peer.getThings(AL.topics);
+							if (!AL.empty(peerSites)){
+								peerSites = new HashSet(peerSites);
+								peerSites.retainAll(peerTrusts);
+								for (Iterator jt = peerSites.iterator(); jt.hasNext();){
+									String site = ((Thing)jt.next()).getName();
+									if (!AL.empty(site))
+										sites.add(site);
+								}
+							}
+							//build implict "pseudo-urls" for web search from words in topics for those wh pay for the search function
+							if (!AL.empty(peerTopics) && Peer.paid(peer)){
+								peerTopics = new HashSet(peerTopics);
+								peerTopics.retainAll(peerTrusts);
+								for (Iterator jt = peerTopics.iterator(); jt.hasNext();){
+									String topic = ((Thing)jt.next()).getName();
+									if (!AL.empty(topic))
+										sites.add(topic);
+								}
 							}
 						}
 					}
 				}
 			}
-			//TODO: same as above to things of peers!?
 			
 			if (!AL.empty(sites)) {			
 				Date time = new Date();

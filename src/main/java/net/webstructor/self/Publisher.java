@@ -68,9 +68,9 @@ public class Publisher {
 			Object[] paths = thingPaths.getSubKeyObjects(thing);
 			Collection latest = latest(thing,null);//assuming we can ignore the same things with different paths 
 //TODO: cleanup here and below
-//boolean debug = "precognition".equals(thing.getName());
-//if (debug) for (Object o : latest)
-//body.debug("Publisher update latest "+((Thing)o).getString(AL.text));
+/*boolean debug = "trump".equals(thing.getName());
+if (debug) for (Object o : latest)
+body.debug("Publisher update latest "+((Thing)o).getString(AL.text));*/
 			ArrayList collector = new ArrayList();
 			for (int i = 0; i < paths.length; i++){
 				String path = (String)paths[i];
@@ -90,10 +90,12 @@ public class Publisher {
 						
 						//Thing existing = existing(thing,instance,path,false,text);//if path were involved...
 						Thing existing = existing(latest,instance,false,text);
-//if (debug)
-//body.debug("Publisher update instance "+instance.getString(AL.text));
-//if (debug)
-//body.debug("Publisher update existing STM "+existing.getString(AL.text));
+/*if (text.equals("poll: trump falls 14 points behind biden after week of protests over george floyd's death"))
+text=text;	
+if (debug)
+body.debug("Publisher update instance "+instance.getString(AL.text));
+if (debug)
+body.debug("Publisher update existing STM "+(existing == null ? "null" : existing.getString(AL.text)));*/
 						if (existing != null) {//new path-less identity
 							existings.put(instance,existing);
 							continue;
@@ -101,8 +103,8 @@ public class Publisher {
 						//checking for existence before today, not just today... 
 						Date date = null;//instance.getDate(AL.times,null);
 						boolean exists = body.archiver.exists(thingName,text,date);
-//if (debug)
-//body.debug("Publisher update exists LTM "+exists);
+/*f (debug)
+body.debug("Publisher update exists LTM "+exists);*/
 						if (!forced && exists)//check LTM
 							continue;
 					

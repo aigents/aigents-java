@@ -39,6 +39,7 @@ import net.webstructor.cat.StringUtil;
 import net.webstructor.util.Array;
 import net.webstructor.util.Str;
 import net.webstructor.comm.Emailer;
+import net.webstructor.main.Tester;
 import net.webstructor.al.Set;
 import net.webstructor.al.Reader;
 
@@ -368,6 +369,31 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 		}
 	}
 
+	public static String toWordList(Set set){
+		StringBuilder sb = new StringBuilder();
+		toWordList(set, sb);
+		return sb.toString();
+	}
+	protected static void toWordList(Set set, StringBuilder sb){
+		if (!AL.empty(set)) for (int i = 0; i < set.size(); i++){
+			Object o = set.get(i); 
+			if (o instanceof String) {
+				if (sb.length() > 0)
+					sb.append(' ');
+				sb.append((String)o);
+			} else
+			if (o instanceof String[]) {
+				for (String s : (String[])o) {
+					if (sb.length() > 0)
+						sb.append(' ');
+					sb.append(s);
+				}
+			} else
+			if (o instanceof Set)
+				toWordList(((Set)o),sb);
+		}
+	}
+	
 	//https://www.freeformatter.com/java-dotnet-escape.html#ad-output
 	//https://regexr.com/
 	//https://www.rexegg.com/regex-quickstart.html
@@ -412,5 +438,14 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 			//boolean rm = isRegexpMatching("/"+ps+"/",s);
 			//System.out.println(rm);
     	}
+		
+		Tester t = new Tester();
+		t.init();
+		t.assume(toWordList(Reader.patterns(null,null,"{[a bb][ccc {dddd [eeeee (ffffff ggggggg)]}]}")),"a bb ccc dddd eeeee ffffff ggggggg");
+		t.assume(toWordList(Reader.patterns(null,null,"{[a $x bb][ccc {$yy dddd [eeeee (ffffff ggggggg $zzz)]}]}")),"a bb ccc dddd eeeee ffffff ggggggg");
+		t.assume(toWordList(Reader.patterns(null,null,"")),"");
+		t.assume(toWordList(Reader.patterns(null,null,"a")),"a");
+		t.assume(toWordList(Reader.patterns(null,null,"a $x b")),"a b");
+		t.check();
   	}
 }

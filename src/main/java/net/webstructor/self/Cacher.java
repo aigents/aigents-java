@@ -55,8 +55,6 @@ public class Cacher implements net.webstructor.data.Cacher {
 	private HashMap<String,HttpFileContext> pathTexts; //read and parsed page texts
 	private HashMap pathTried; //actually read and updated pages //TODO: get rid of this!
 	
-	//private static long caching_period = Period.MINUTE * 10;//TODO: make configurable "cache expiration" 
-	
 	public Cacher(String name,Body body,Storager storager){
 		this.body = body;
 		this.self = body.self();
@@ -79,7 +77,7 @@ public class Cacher implements net.webstructor.data.Cacher {
 				invalids.add(path);
 			else
 			if (cached.time == null) {//TODO already trashed!? Not possible!!!???
-				body.error("Cacher trashing invalid entry "+path, null);
+				body.error("Cacher trashing invalid entry "+path+"->"+cached.time+" "+cached.text+":", null);
 				invalids.add(path);
 				cached.trash();
 			} else 
@@ -103,7 +101,7 @@ public class Cacher implements net.webstructor.data.Cacher {
 	}
 	
 	@Override
-	public void clear(boolean everything, Date till) {
+	public synchronized void clear(boolean everything, Date till) {
 		if (everything) {
 body.debug("Cacher clearing everything");
 			pathTexts.clear();
@@ -118,6 +116,18 @@ body.debug("Cacher clearing "+path);
 				}
 			}
 		}
+	}
+
+	public synchronized String checkCachedRaw(String path){
+		HttpFileContext cached = pathTexts.get(path);
+		return cached != null ? cached.data : null;
+	}
+	
+	public synchronized void putCachedRaw(String path,String data){
+		HttpFileContext cached = new HttpFileContext();
+		cached.time = new Date();
+		cached.data = data;
+		pathTexts.put(path,cached);
 	}
 	
 	/**

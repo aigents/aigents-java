@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -36,19 +37,28 @@ import javax.json.JsonReader;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
+import net.webstructor.al.Reader;
+import net.webstructor.al.Time;
+import net.webstructor.comm.Crawler;
 import net.webstructor.comm.HTTP;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Environment;
+import net.webstructor.core.Property;
 import net.webstructor.core.Thing;
+import net.webstructor.data.SocialFeeder;
 import net.webstructor.main.Mainer;
+import net.webstructor.peer.Profiler;
+import net.webstructor.self.Matcher;
+import net.webstructor.self.Siter;
 import net.webstructor.util.JSON;
+import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
 //TODO Gigablast
 //https://www.gigablast.com/api.html
 
 class GoogleSearch extends Serper {
-	
+
 	public GoogleSearch(Environment env){
 		super(env);
 	}
@@ -57,13 +67,18 @@ class GoogleSearch extends Serper {
 	public String name() {
 		return "google";
 	}
+
+	@Override
+	public String api_key() {
+		return env.getSelf() == null ? null : env.getSelf().getString(Body.googlesearch_key);
+	}
 	
 	@Override
 	public Collection<Thing> search(String type, String text, String lang, int limit) {
 		//https://stackoverflow.com/questions/34035422/google-image-search-says-api-no-longer-available
 		//"template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&relatedSite={relatedSite?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
 
-		String api_key = env.getSelf() == null ? null : env.getSelf().getString(Body.googlesearch_key);
+		String api_key = api_key();
 		//String cx = env.getSelf() == null ? null : env.getSelf().getString(Body.googlesearch_code);//TODO: not needed?
 		if (AL.empty(api_key) || AL.empty(text))
 			return null;
@@ -83,7 +98,11 @@ class GoogleSearch extends Serper {
 				request += "&searchType="+String.valueOf(searchType);
 					
 			if (debug) env.debug("Googlesearch crawling request "+request);
-			String response = HTTP.simple(request,null,"GET",0,null,null);
+			String response = checkCached(request);
+			if (response == null) {
+				response = HTTP.simple(request,null,"GET",0,null,null);
+				putCached(request,response);
+			}
 			
 			if (debug) env.debug("Googlesearch crawling response "+Str.first(response,200));
 			if (!AL.empty(response)) {
@@ -146,9 +165,14 @@ class SerpAPI extends Serper {
 	}
 	
 	@Override
+	public String api_key() {
+		return env.getSelf() == null ? null : env.getSelf().getString(Body.serpapi_key);
+	}
+	
+	@Override
 	public Collection<Thing> search(String type, String text, String lang, int limit) {
 		//https://serpapi.com/search-api
-		String api_key = env.getSelf() == null ? null : env.getSelf().getString(Body.serpapi_key);
+		String api_key = api_key();
 		if (AL.empty(api_key) || AL.empty(text))
 			return null;
 		String tbm = type == null ? null : (type = type.toLowerCase()).startsWith("image") ? "isch" : type.startsWith("video") ? "vid" : null;
@@ -156,6 +180,7 @@ class SerpAPI extends Serper {
 		//String gl = "us";//TODO country
 		//String location = "Novosibirsk";//TODO location
 
+//TODO: loop over multiple results		
 		try {
 			StringBuilder url = new StringBuilder("https://serpapi.com/search");
 			url.append("?api_key=").append(api_key);
@@ -172,7 +197,11 @@ class SerpAPI extends Serper {
 			url.append("&engine").append("google");
 			String request = url.toString();
 			if (debug) env.debug("Serpapi crawling request "+request);
-			String response = HTTP.simple(request,null,"GET",0,"application/json",null);
+			String response = checkCached(request);
+			if (response == null) {
+				response = HTTP.simple(request,null,"GET",0,"application/json",null);
+				putCached(request,response);
+			}
 			if (debug) env.debug("Serpapi crawling response "+Str.first(response,200));
 			if (!AL.empty(response)) {
 				JsonReader jsonReader = Json.createReader(new StringReader(response));
@@ -237,7 +266,10 @@ class SerpAPI extends Serper {
 	}
 }
 
-public abstract class Serper {
+public abstract class Serper implements Crawler {
+
+	public static final int LIMIT = 100;//TODO: eliminate limit or have it configured at Siter/Spider level
+	
 	protected Environment env;
 	protected boolean debug = true;
 
@@ -246,12 +278,70 @@ public abstract class Serper {
 	}
 
 	abstract public String name();
+	abstract String api_key();
 	abstract public Collection<Thing> search(String type, String text, String lang, int limit);
 
+	@Override
+	public int crawl(Siter siter) {
+		String query = siter.getRootPath();
+		if (AL.empty(api_key()) || AL.empty(query) || AL.isURL(query))
+			return -1;
+		Collection topics = ((Body)env).storager.getNamed(query);//precise topics overriding siter.getTopics() 
+		query = Property.toWordList(Reader.patterns(null,null,query));//transform query pattern to query words
+		if (AL.empty(query) || AL.empty(topics))
+			return -1;
+//TODO actual limit
+		int limit = Math.min(siter.getLimit(), LIMIT);
+		Collection<Thing> things = search("text", query, null, limit);
+		if (things == null)
+			return -1;
+//TODO iterate and match
+		Date time = siter.getTime();
+		MapMap collector = siter.getPathBasedCollector();
+		Matcher matcher = ((Body)env).getMatcher();
+		int matches = 0;
+		for (Thing t : things) {
+			String title = t.getString(AL.title);
+			String text = t.getString(AL.text);
+			if (!AL.empty(title))
+				text = title.endsWith(".") ? title + " " + text : title + " . " + text;
+			text = text.toLowerCase();
+			String image = t.getString(AL.image);
+			String sources = t.getString(AL.sources);
+			if (!AL.empty(sources))
+				matches += matcher.matchThingsText(topics,text,Time.date(time),sources,image,collector,null,null);
+		}
+		return matches;
+	}
+
+	@Override
+	public boolean scalp(Siter siter, String path, ArrayList links, Collection topics) {
+		return false;//can't scalp
+	}
+
+	@Override
+	public SocialFeeder getFeeder(String id, String token, String key, Date since, Date until, String[] areas) throws IOException {
+		return null;//can't feed
+	}
+
+	@Override
+	public Profiler getProfiler(Thing peer) {
+		return null;//can't profile
+	}
+
+	public String checkCached(String path){
+		return env instanceof Body ? ((Body)env).filecacher.checkCachedRaw(path) : null;
+	}
+	
+	public void putCached(String path,String data){
+		if (env instanceof Body)
+			((Body)env).filecacher.putCachedRaw(path, data);
+	}
+	
 	public static Serper[] getDefaultSerpers(Environment e) {
 		return new Serper[]{new GoogleSearch(e),new SerpAPI(e)};
 	}
-
+	
 	public static void main(String args[]) {
 		if (args.length > 0) {
 			final Thing context = new Thing();
@@ -280,4 +370,5 @@ public abstract class Serper {
 			}
 		}	
 	}
+	
 }

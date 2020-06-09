@@ -37,9 +37,6 @@ import net.webstructor.al.Period;
 import net.webstructor.al.Writer;
 import net.webstructor.comm.Crawler;
 import net.webstructor.comm.Socializer;
-//import net.webstructor.comm.fb.FB;
-//import net.webstructor.comm.goog.GApi;
-//import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Actioner;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Archiver;
@@ -66,13 +63,10 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.8.5";
+	public final static String VERSION = "2.8.7";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	
-	//public final static int MAX_TRUSTED_NEWS = 500;//999; 
-	//public final static int MAX_TRUSTED_LINKS = 20;//25; 
-	//public final static int MAX_UNTRUSTED_LINKS = 100; 
 	public final static int PEER_TRUSTS_LIMIT = 20; 
 	public final static int PEER_ITEMS_LIMIT = 100; 
 	public final static int MAX_UNTRUSTED_NEWS = 100;//999//TODO: make configurable
@@ -215,7 +209,6 @@ public abstract class Body extends Anything implements Environment, Updater
 	public CacherHolder cacheholder = null;
 	protected HashMap actioners = new HashMap();
 	protected HashMap<String,Serper> searchers = new HashMap<String,Serper>();
-	//protected HashMap<String,Crawler> socializers = new HashMap<String,Crawler>();
 	protected OrderedMap<String,Crawler> socializers = new OrderedMap<String,Crawler>();
 	
 	//TODO:configuration on-line

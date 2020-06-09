@@ -389,7 +389,7 @@ public class Peer extends Agent {
 			result.add(peer);
 		return result;
 	}
-	
+
 	public static Set peerTopics(Thing peer) {
 		Collection topics = peer.getThings(AL.topics);
 		Collection trusts = peer.getThings(AL.trusts);

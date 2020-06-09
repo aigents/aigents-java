@@ -5006,6 +5006,7 @@ oily
 old bag
 olein
 oligospermia
+omg
 ominous
 ominously
 omission
@@ -5059,7 +5060,6 @@ osteolysis
 osteomyelitis
 ostracize
 otc
-other
 otherworldly
 otiose
 out
@@ -5500,6 +5500,8 @@ protected
 protecting
 protest
 protested
+protester
+protesters
 protesting
 protests
 protracted
@@ -6829,6 +6831,10 @@ tecophilaeacea
 tedious
 tediously
 tell off
+tear gas
+tear-gas
+teargas
+teargassed
 temerity
 temper
 temperate

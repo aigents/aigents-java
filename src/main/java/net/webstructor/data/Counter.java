@@ -327,8 +327,8 @@ public class Counter extends HashMap implements Linker {
 			if (thisVal == null)
 				put(key,otherVal);
 			else{
-				int otherInt = ((Integer)otherVal).intValue();
-				int thisInt = ((Integer)thisVal).intValue();
+				int otherInt = ((Number)otherVal).intValue();
+				int thisInt = ((Number)thisVal).intValue();
 				if (otherInt > thisInt)
 					put(key,otherVal);
 			}

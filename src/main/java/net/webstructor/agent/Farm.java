@@ -212,6 +212,9 @@ public class Farm extends Body {
 		String eth_key = self().getString(ethereum_key);
 		if (!AL.empty(eth_url) && !AL.empty(eth_key))
 			socializers.put("ethereum", new Ethereum(this, "ethereum", eth_url, eth_key));
+	
+		for (Serper s : Serper.getDefaultSerpers(this))//register search engines as crawlers
+			socializers.put(s.name(), s);
 		
 		socializers.put("rss",new RSSer(this));
 		socializers.put("www",new WebCrawler(this));//should be the last in the list!?

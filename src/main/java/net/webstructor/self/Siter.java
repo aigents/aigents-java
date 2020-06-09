@@ -67,7 +67,7 @@ public class Siter {
 	String rootPath;//search path
 	Collection targetTopics;//search goals
 	long tillTime;// allocated time
-	long newsLimit;// limits number of findings
+	int newsLimit;// limits number of findings
 	Date realTime;// real time to use for page refreshment
 	Date timeDate;// = Time.day(Time.today); // database time to use for storage
 	boolean forced;//forcing peer: if not null - re-read unconditionally, if null - read only if content is changed
@@ -169,6 +169,10 @@ public class Siter {
 		return thingPaths;
 	}
 	
+	public int getLimit() {
+		return newsLimit;
+	}
+	
 	protected boolean expired(){
 		boolean expired = tillTime > 0 && System.currentTimeMillis() > tillTime;
 		if (expired)
@@ -182,10 +186,15 @@ public class Siter {
 		long start = System.currentTimeMillis(); 
 
 		boolean ok = false;
+//TODO we do so because in case of "non-url source queries" the targetTopics are formed inside the crawlers based on the queries...
+		if (!AL.empty(targetTopics) || (!forced && !AL.isURL(rootPath)))
 		for (Crawler c : body.getCrawlers())//try channel-readers first
 			//set crawler in the Siter context so it can be referred by PathFinder/PathTracker 
 			if ((this.crawler = c).crawl(this) >= 0) {
-				int hits = body.getPublisher().update(rootPath,timeDate,thingPaths,forced,null);
+				//int hits = body.getPublisher().update(rootPath,timeDate,thingPaths,forced,null);
+//TODO consider hack - setting rootPath for non-url queries so can have unit tests passed for text being parsed instead of being searched
+//TODO for this purpose, add textCrawler as separate plugin, added after the "Serper-s"
+				int hits = body.getPublisher().update(forced || AL.isURL(rootPath) ? rootPath : null,timeDate,thingPaths,forced,null);
 				ok = hits > 0;
 				break;
 			}
