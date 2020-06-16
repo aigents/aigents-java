@@ -63,9 +63,10 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.8.7";
+	public final static String VERSION = "2.9.0";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
+	public final static String DEFAULT_API_URL = "/al";
 	
 	public final static int PEER_TRUSTS_LIMIT = 20; 
 	public final static int PEER_ITEMS_LIMIT = 100; 
@@ -83,7 +84,8 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String http_port = "http port";
 	public static final String http_timeout = "http timeout";
 	public static final String http_threads = "http threads";
-	public static final String http_origin = "http origin";
+	public static final String http_origin = "http origin";//Web UI
+	public static final String http_url = "http url";//Web API
 	public static final String http_secure = "http secure";
 	public static final String cookie_name = "cookie name";
 	public static final String cookie_domain = "cookie domain";
@@ -162,7 +164,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String[] strings = new String[] {
 		AL.name,
 		tcp_port, tcp_timeout,
-		http_port, http_timeout, http_threads, http_origin, http_secure, cookie_name, cookie_domain,
+		http_port, http_timeout, http_threads, http_origin, http_url, http_secure, cookie_name, cookie_domain,
 		store_path, store_cycle,
 		attention_period, retention_period, caching_period,
 		Peer.check_cycle,//TODO:fix namespace
@@ -235,6 +237,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		self.setString(http_timeout,"60000");
 		self.setString(http_threads,"2");
 		self.setString(http_origin,Body.ORIGINSITE);
+		self.setString(http_url,Body.ORIGINSITE+Body.DEFAULT_API_URL);
 		self.setString(store_path,"./al.txt");
 		self.setString(store_cycle,"60 sec");
 		self.setString(attention_period,"7");//TODO: use "days" and Period
@@ -529,11 +532,13 @@ public abstract class Body extends Anything implements Environment, Updater
 		return updater;
 	}
 	
+	@Override
 	public boolean notifyable(Thing peer) {
 		return true;//send broadcasting notifications by default
 	}	
 	
-	public boolean update(Thing peer, String subject, String content, String signature) throws IOException{
+	@Override
+	public boolean update(Thing peer, String sessionKey, String subject, String content, String signature) throws IOException{
 		boolean updated = false;
 		for (Iterator it = updaters.values().iterator(); it.hasNext();){
 			Updater u = (Updater)it.next();
@@ -542,7 +547,7 @@ public abstract class Body extends Anything implements Environment, Updater
 			try {
 				if (AL.empty(signature))
 					signature = signature();
-				if (u.update(peer, subject, content, signature))
+				if (u.update(peer, sessionKey, subject, content, signature))
 					updated = true; 
 			} catch (Exception e) {
 				error("Update error for "+peer.getName()+" via "+u.getClass().getSimpleName(),e);

@@ -241,7 +241,7 @@ public class Siter {
 			if (Reader.read(iter, patseq, null))
 				return true;
 		} catch (Throwable e) {
-			body.error("Siter linkMatch error pattern "+patseq, e);
+			body.error("Siter error link "+text+" pattern "+patseq+":", e);
 		}
 		return false;
 	}

@@ -128,15 +128,20 @@ public class Telegrammer extends Mediator {
 		self = body.self();
 	}
 	
-	public void output(Session session, String message) throws IOException {
+	private String chatId(String sessionKey,Thing peer) {
 		String chat_id = null;
-		String[] ids = ids(session.getKey());
-		if (ids != null)
-			//TODO: support group conversations
+		String[] ids;
+		if (sessionKey != null && (ids = ids(sessionKey)) != null)
+			//support group conversations
 			chat_id = ids[1];//chat_id
 			//chat_id = ids[2];//from_id
-		if (AL.empty(chat_id))
-			chat_id = session.getPeer().getString(Body.telegram_id);
+		if (AL.empty(chat_id) && peer != null)
+			chat_id = peer.getString(Body.telegram_id);
+		return chat_id;
+	}
+	
+	public void output(Session session, String message) throws IOException {
+		String chat_id = chatId(session.getKey(),session.getPeer());
 		if (!AL.empty(chat_id))
 			output(chat_id, message);
 	}
@@ -403,8 +408,11 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 	}
 	
 	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler
-	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
-		String from_id = peer.getString(Body.telegram_id);
+	public boolean update(Thing peer, String sessionKey, String subject, String content, String signature) throws IOException {
+		String from_id = chatId(sessionKey,peer);
+//TODO eliminate this in favor of chatId()
+		if (AL.empty(from_id))
+			from_id = peer.getString(Body.telegram_id);
 		if (AL.empty(from_id)){//backup path - get from id from the session
 			//TODO: use peer session here using getTokenSegment and getPeerSession
 			String login_token = peer.getString(Peer.login_token);
@@ -414,6 +422,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					from_id = ids[2];
 			}
 		}
+//TODO eliminate the above in favor of chatId()
 		if (!AL.empty(from_id)){
 			StringBuilder sb = new StringBuilder();
 			if (!AL.empty(subject))

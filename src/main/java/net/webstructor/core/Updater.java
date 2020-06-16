@@ -26,6 +26,6 @@ package net.webstructor.core;
 import java.io.IOException;
 
 public interface Updater {
-	public boolean update(Thing peer, String subject, String content, String signature)  throws IOException;
+	public boolean update(Thing peer, String sessionKey, String subject, String content, String signature)  throws IOException;
 	public boolean notifyable(Thing peer);
 }

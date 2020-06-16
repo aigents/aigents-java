@@ -27,6 +27,18 @@ class Emoticon {
 	String[] faces;
 }
 
-
+//https://apps.timwhitlock.info/emoji/tables/unicode
+//https://unicode.org/emoji/charts/full-emoji-list.html#1f642
+//https://lemire.me/blog/2018/06/15/emojis-java-and-strings/
+//https://www.branah.com/unicode-converter
 public class Emotioner {
+	public static final String positive = "\ud83d\ude0a";//😊0001f60a
+	public static final String negative = "\ud83d\ude1e";//😞0001f61e
+	public static void main(String args[]){
+		String x = positive;
+		System.out.println(x);
+		System.out.println(x.length());
+		char c = x.charAt(0);
+		System.out.format("%05X\n", (int)c);
+	}
 }

@@ -23,6 +23,8 @@
  */
 package net.webstructor.al;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,6 +38,8 @@ import net.webstructor.core.Mistake;
 import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
+import net.webstructor.main.Mainer;
+import net.webstructor.main.Tester;
 import net.webstructor.peer.Session;
 import net.webstructor.util.Array;
 import net.webstructor.util.Str;
@@ -761,5 +765,29 @@ if (!AL.empty(thing_names)){
 			}
 		}//if (items.size() > 0)
 		return step;
+	}
+	public static void main(String args[]) {
+		Tester t = new Tester();
+		t.init();
+		BufferedReader reader = Mainer.getReader("patterns.txt");
+		for (;;) {
+			String line;
+			try {
+				line = reader.readLine();
+				if (AL.empty(line))
+					break;
+			} catch (IOException e) {
+				break;
+			}
+			if (line.charAt(0) != '{')
+				continue;
+	//		Set s;
+			t.assume((Reader.patterns(null,null,line)).toString(),line);
+			t.assume((Reader.patterns(null,null,line)).compact().toString(),line);
+			//s = null;
+		}
+//		t.assume(Reader.patterns(null,null,"{[melissaa \'(\' 49 \')\'] \'#news\' [world \"/]}").toString(),"{[melissaa \'(\' 49 \')\'] \'#news\' [world \"/]}");
+//		t.assume(Reader.patterns(null,null,"{[melissaa \'(\' 49 \')\'] \'#news\' [world \"/] [united states & canada] [topic | united states] \'\' [[world /\" \"  ] europe \']\' [world \'/] [middle east]]").compact().toString(),"{[$nrn (neuron)]}");
+		t.check();
 	}
 }

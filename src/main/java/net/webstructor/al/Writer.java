@@ -525,7 +525,7 @@ public class Writer extends AL {
 			int i = 0;
 			for (Object o : set) {
 				if (i++ > 0)
-					sb.append(" ");
+					sb.append(";<br>");
 				if (o instanceof Thing) {
 					String n = ((Thing) o).getName();
 					if (!AL.empty(n))

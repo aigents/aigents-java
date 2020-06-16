@@ -224,6 +224,7 @@ class SerpAPI extends Serper {
 							t.setString("sources",link);
 							if (!AL.empty(thumbnail) && AL.isIMG(thumbnail))
 								t.setString(AL.image,thumbnail);
+							things.add(t);
 						} else if ("isch".equals(tbm)) {// image
 							String title = JSON.getJsonString(item, "title", null);
 							String link = JSON.getJsonString(item, "link", null);
@@ -240,19 +241,23 @@ class SerpAPI extends Serper {
 							//if (!AL.empty(thumbnail) && AL.isIMG(thumbnail))//this does not pass URL-s like https://i0.wp.com/blocksplain.com/wp-content/uploads/2018/02/Screen-Shot-2018-02-21-at-5.19.43-PM.png?resize=1280%2C816&ssl=1
 							if (!AL.empty(thumbnail) && AL.isURL(thumbnail))
 								t.setString(AL.image,thumbnail);
-						} else {
-							;//TODO text
+							things.add(t);
+						} else {// text
 							String title = JSON.getJsonString(item, "title", null);
-							String link = JSON.getJsonString(item, "link", null);
 							String snippet = JSON.getJsonString(item, "snippet", null);
+							if (AL.empty(snippet))
+								snippet = title;
+							if (AL.empty(snippet))
+								continue;
+							String link = JSON.getJsonString(item, "link", null);
 							String thumbnail = JSON.getJsonString(item, "thumbnail", null);
 							t.setString("title",title);
 							t.setString("text",snippet);
 							t.setString("sources",link);
 							if (!AL.empty(thumbnail) && AL.isIMG(thumbnail))
 								t.setString(AL.image,thumbnail);
+							things.add(t);
 						}
-						things.add(t);
 					}
 					return things;
 				}

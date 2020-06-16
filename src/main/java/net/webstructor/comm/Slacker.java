@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2019-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -320,7 +320,8 @@ public class Slacker extends Mediator implements HTTPHandler {
 		}
 	}
 
-	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
+	@Override
+	public boolean update(Thing peer, String sessionKey, String subject, String content, String signature) throws IOException {
 		String self_lack_token = body.self().getString(Body.slack_token);
 		String psid = null;
 		if (!AL.empty(self_lack_token)){

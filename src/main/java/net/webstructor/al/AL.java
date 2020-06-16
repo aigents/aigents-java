@@ -231,6 +231,10 @@ public class AL {
     	}
 	}
 
+	public static String toString(Object o) {
+		return o == null || o instanceof String ? (String)o : o.toString(); 
+	}
+	
 	public Storager getStorager() {
 		return body.storager;
 	}

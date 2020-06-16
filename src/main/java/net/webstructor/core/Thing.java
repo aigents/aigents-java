@@ -430,6 +430,15 @@ public class Thing extends Anything { // implements ORObject
 		return o.toString();
 	}
 
+	public Collection getCollection(String name) {
+		Object o = get(name);
+		if (o == null || o instanceof Collection)
+			return (Collection)o;
+		Collection c = new ArrayList(1);
+		c.add(o);
+		return c;
+	}
+	
 	public final Object getFirst(String name) {
 		Collection iss = getThings(name);
 		return AL.empty(iss) ? null : (Thing)iss.iterator().next(); 

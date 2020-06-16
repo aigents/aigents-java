@@ -540,7 +540,7 @@ public class Session  {
  		    	} else {
  		    		if (communicator instanceof Updater) {//async delivery
  		    			try {
-							((Updater)communicator).update(getStoredPeer(), null, output(), null);
+							((Updater)communicator).update(getStoredPeer(), this.key, null, output(), null);
 						} catch (IOException e) {
 							sessioner.body.error(Writer.capitalize(name)+" update", e);
 						}

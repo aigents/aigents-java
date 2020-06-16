@@ -151,7 +151,7 @@ public class Self {
 			//alert owner
 			Thing owner = body.getSelfPeer();
 			if (owner != null) try {
-				body.update(owner, "Low storage", Writer.toString(body.self(), null, new String[]{Body.retention_period,Body.attention_period}, false), body.signature());
+				body.update(owner, null, "Low storage", Writer.toString(body.self(), null, new String[]{Body.retention_period,Body.attention_period}, false), body.signature());
 			} catch (Exception e) {
 				body.error("Update error on low storage",e);
 			}

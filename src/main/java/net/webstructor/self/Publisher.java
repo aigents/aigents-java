@@ -330,7 +330,7 @@ body.debug("Publisher update exists LTM "+exists);*/
 //TODO: eliminate duplicated !!!untrusted things here on peer-specific basis!!!???
 			t.set(AL._new, AL._true, peer);
 		}
-		body.update(peer, subject, content, signature);
+		body.update(peer, null, subject, content, signature);
 	}
 
 	//get count of news not trusted by the 1st peer trusted by self
@@ -372,7 +372,7 @@ body.debug("Publisher update exists LTM "+exists);*/
 					Thing peer = (Thing)pit.next();
 					target.set(AL._new, AL._true, peer);
 					try {
-						body.update(peer, subject, content, signature);
+						body.update(peer, null, subject, content, signature);
 					} catch (IOException e) {
 						body.error("Siter updating "+subject+" "+text+" "+signature,e);
 					}

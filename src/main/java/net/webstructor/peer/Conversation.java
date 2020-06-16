@@ -697,7 +697,7 @@ class Conversation extends Mode {
 				//send notification to all matching peers of those who trust to this peer
 				if (peer == self || peer.hasThing(AL.trusts, self)){
 					try {
-						boolean updated = session.sessioner.body.update(peer, null, text, "- "+self.getTitle(Login.login_context));
+						boolean updated = session.sessioner.body.update(peer, null, null, text, "- "+self.getTitle(Login.login_context));
 						session.output(updated ? "Ok." : "Not.");
 					} catch (IOException e) {
 						session.sessioner.body.error("Alerting "+peer.getTitle(Login.login_context), e);

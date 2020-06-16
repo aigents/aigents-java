@@ -1,16 +1,7 @@
-package net.webstructor.comm;
-
-import java.io.IOException;
-
-import net.webstructor.agent.Body;
-import net.webstructor.core.Thing;
-import net.webstructor.core.Updater;
-import net.webstructor.peer.Session;
-
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +21,14 @@ import net.webstructor.peer.Session;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package net.webstructor.comm;
+
+import java.io.IOException;
+
+import net.webstructor.agent.Body;
+import net.webstructor.core.Thing;
+import net.webstructor.core.Updater;
+import net.webstructor.peer.Session;
 
 //TODO imlement cofiguration and SMTP protocol for SMS/text messages handling
 public class SMTPer extends Communicator implements Updater {
@@ -39,7 +38,8 @@ public class SMTPer extends Communicator implements Updater {
 		//TODO
 	}
 
-	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
+	@Override
+	public boolean update(Thing peer, String sessionKey, String subject, String content, String signature) throws IOException {
 		//TODO
 		return false;
 	}
@@ -48,6 +48,7 @@ public class SMTPer extends Communicator implements Updater {
 		//TODO
 	}
 
+	@Override
 	public boolean notifyable(Thing peer) {
 		//TODO
 		return false;

@@ -1264,7 +1264,7 @@ function edit_trust(title,list,verb,item,callback) {
 		var newstr = AL.toString(newval,"name");
 		requestBase(list,'My '+verb+' not '+oldstr+', '+newstr+'.'+
 			' Name '+newstr+' trust '+(oldchk ? 'true' : 'false')+'.');
-		$(item).children().children(".name").text(newval);
+		$(item).children().children().children().children(".name").text(newval);
 		menu_data[index][0] = newval;
 		if (callback)
 			callback(newval);

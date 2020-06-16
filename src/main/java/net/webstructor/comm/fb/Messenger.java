@@ -165,58 +165,28 @@ public class Messenger extends Mediator implements HTTPHandler {
 		return false;
 	}
 	
+	public void outputFile(String psid, String file) throws IOException {
+		//TODO:Facebook can't send files, so need to create retrievable URL
+		//put message in session-based storage
+		String uuid  = cacheHolder.store(file);
+		//return url to base_url/al/facebook/report.html
+		String http_base = body.self().getString(Body.http_url,"https://aigents.com/al");
+		output(psid,http_base+"/facebook/report_"+uuid+".html");
+		body.debug("Facebook report stored "+uuid);
+	}
+
 	public void output(Session session, String message) throws IOException {
 		//String facebook_id = session.getPeer().getString(Body.facebook_id);
 		//if (!AL.empty(facebook_id))
 		String sessionKey = session.getKey();
 		String psid = Parser.split(sessionKey,":")[1];
-		/*
-        $htmlpos = strpos($reply,"<html>");
-        if (isset($htmlpos) && $htmlpos === 0){
-        */
 		if (message.startsWith("<html>")){
-			//TODO:Facebook can't send files, so need to create retrievable URL
-			/*
-            $filename = "aigents_" . hash("md5", $sender . $message . time()) . ".html";
-            $tmpfname = "/var/www/html/tmp/" . $filename;
-            $handle = fopen($tmpfname, "w");
-            fwrite($handle, $reply);
-            fclose($handle);
-            do_send($sender,"https://aigents.com/tmp/" . $filename);
-            */
-			//put message in session-based storage
-			String uuid  = cacheHolder.store(message);
-			//return url to base_url/al/facebook/report.html
-//TODO:Body.http_base without "/"
-			String http_base = "https://aigents.com/al";
-			output(psid,http_base+"/facebook/report_"+uuid+".html");
-			body.debug("Facebook report stored "+uuid);
+			outputFile(psid,message);
 		}else{
-        	/*
-            $reply = str_replace(array("\r\n", "\n", "\r"), ' ', $reply);//replace CR/LF-s with spaces in PHP!?
-            do_send($sender,$reply);
-            */
 			output(psid,message);
 		}
 	}
 
-	/*function do_send( $recipient, $message ) {
-	    global $url;
-	    $ch = curl_init($url);
-	    //$jsonData = '{"recipient":{"id":"' . $recipient . '"},"message":{"text":"' . $message . '"}}';
-	    //TODO: break long messages aparn on semi-colons;
-	    if (strlen($message) > 640)
-	        $message = substr($message,0,637) . "...";
-	    $message = json_encode($message);
-	    $jsonData = '{"recipient":{"id":"' . $recipient . '"},"message":{"text":' . $message . '}}';
-	    curl_setopt($ch, CURLOPT_POST, 1);
-	    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-	    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-	    if (!empty($message)) {
-	        $result = curl_exec($ch); // user will get the message
-	    }
-	    return $result;
-	}*/
 	private void output(String psid, String message) throws IOException {
 		String url = Feeder.api_url+"me/messages?access_token="+body.self().getString(Body.facebook_token);
 		try {
@@ -230,42 +200,21 @@ public class Messenger extends Mediator implements HTTPHandler {
 			    		.add("message", Json.createObjectBuilder().add("text", message))
 			    	    .build();
 			    data = json.toString();
+				body.debug("Facebook response "+data);
+				String res = HTTP.simple(url,data,"POST",timeout,"application/json");
+				body.debug("Facebook result "+res);
 			} else {
-				//TODO: send reports somehow!?
-				data = "{\"recipient\":{\"id\":"+psid+"},\"message\":{\"text\":\"Can't do that now... :-(\"}}";
-				/*
-				//This is how it is done for Telegram!!!
-				//https://habr.com/sandbox/103022/
-				String boundary = "--bndry--";
-				String url = base_url+token+"/sendDocument";
-				String par = "\r\n"
-					+"--"+boundary+"\r\n"
-		  			+"Content-Disposition: form-data; name=\"chat_id\"\r\n"
-		            +"\r\n"
-		            +chat_id+"\r\n"
-					+"--"+boundary+"\r\n"
-		  			+"Content-Disposition: form-data; name=\"document\"; filename=\"report.html\"\r\n"
-		            +"Content-Type: text/html; charset=utf-8\r\n"
-		            +"\r\n"
-		            +message+"\r\n"
-					+"--"+boundary+"--\r\n";
-				String response = HTTP.simple(url,par,"POST",timeout,"multipart/form-data; boundary="+boundary);
-				JsonReader jr = Json.createReader(new StringReader(response));
-				JsonObject result = jr.readObject();
-				if (!HTTP.getJsonBoolean(result, "ok", false))
-					throw new Exception("Telegram error sendDocument: "+result.toString());
-				*/
+				//data = "{\"recipient\":{\"id\":"+psid+"},\"message\":{\"text\":\"Can't do that now... :-(\"}}";
+				outputFile(psid,message);
 			}
-			body.debug("Facebook response "+data);
-			String res = HTTP.simple(url,data,"POST",timeout,"application/json");
-			body.debug("Facebook result "+res);
 		} catch (Exception e){
 			body.error("Facebook error",e);
 		}
 	}
 
 	//TODO class HttpBotter extends net.webstructor.comm.Communicator implements HTTPHandler
-	public boolean update(Thing peer, String subject, String content, String signature) throws IOException {
+	@Override
+	public boolean update(Thing peer, String sessionKey, String subject, String content, String signature) throws IOException {
 		String facebook_id = peer.getString(Body.facebook_id);
 		String psid = null;
 		if (!AL.empty(facebook_id)){//TODO: don't use that because that is Facebook network id, not Facebook Messendger id

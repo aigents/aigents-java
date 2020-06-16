@@ -52,7 +52,9 @@ import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
 import net.webstructor.data.Counter;
+import net.webstructor.data.Emotioner;
 import net.webstructor.data.GraphCacher;
+import net.webstructor.data.LangPack;
 import net.webstructor.data.Linker;
 import net.webstructor.data.ThingComparator;
 import net.webstructor.data.TextMiner;
@@ -75,8 +77,8 @@ class Searcher extends Intenter {
 	
 	protected Matcher matcher = null; 
 
-//TODO: abastract reporter for xlsx/html/pdf!?
-	String format(Conversation conversation, Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs, Thing arg) {
+//TODO: abstract reporter for xlsx/html/pdf!?
+	String format(Conversation conversation, Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs, boolean sentiment, Thing arg) {
 		Thing peer = conversation.getSessionAreaPeer(session);
 		String language = peer.getString(Peer.language);
 		String out = null;
@@ -90,6 +92,24 @@ class Searcher extends Intenter {
 						break;
 				}
 				filtered = limited;
+			}
+			
+			if (sentiment) {
+				LangPack lo = session.getBody().languages;
+				for (Object i : filtered) {
+					Thing t = (Thing)i;
+					String text = t.getString(AL.text);
+					int[] s = lo.sentiment(text);
+					t.setString("sentiment", s[2] < -50 ? Emotioner.negative : s[2] > 50 ? Emotioner.positive : "");
+					/*
+					String val = "";
+					if (s[0] > 50) 
+						val += "postivie";
+					if (s[1] > 50) 
+						val += s.length > 0 ? ", " + "positive" : "negative";
+					t.setString("sentiment", val);
+					*/
+				}
 			}
 			
 			if ("html".equalsIgnoreCase(format)) {
@@ -116,8 +136,10 @@ class Searcher extends Intenter {
 							String cat_name = cat.toString();
 							for (Object doc : docs_by_cat.keys()) {
 								Thing doc_thing = (Thing)doc;
-								String category = doc_thing.getString("category");
-								doc_thing.setString("category", category == null ? cat_name : category + "; " + cat_name);
+//TODO: remove category1
+								//String category = doc_thing.getString("category1");
+								//doc_thing.setString("category1", category == null ? cat_name : category + "; " + cat_name);
+								addObject(doc_thing,"category",cat_name);
 							}
 						}
 //TODO: fix hack to populate "Unclassifeid" as "-"
@@ -130,7 +152,9 @@ class Searcher extends Intenter {
 									catdocs.put("-", l = new Counter());
 								l.count(doc_thing);
 								cats.count("-");
-								doc_thing.setString("category", "-");
+//TODO: remove category1
+								//doc_thing.setString("category1", "-");
+								addObject(doc_thing,"category","-");
 							}
 						}
 						Object[][] catdata = cats.toData();
@@ -161,10 +185,20 @@ class Searcher extends Intenter {
 								String gi = graphs[i];
 								String gj = graphs[j];
 								String gij = gi+"-"+gj;
+								/*
 								String si = thing.getString(gi);
 								String sj = thing.getString(gj);
 								if (!AL.empty(si) && !AL.empty(sj))
 									g.addValue(si, sj, gij, 1);
+									*/
+								Collection ci = thing.getCollection(gi);
+								Collection cj = thing.getCollection(gj);
+								if (ci != null && cj != null) for (Object oi : ci) for (Object oj : cj) {
+									String si = AL.toString(oi);
+									String sj = AL.toString(oj);
+									if (!AL.empty(si) && !AL.empty(sj))
+										g.addValue(si, sj, gij, 1);
+								}
 							}
 						}
 						//add categories to graph
@@ -253,6 +287,16 @@ class Searcher extends Intenter {
 		return out;
 	}
 	
+	//TODO move out
+	private static boolean addObject(Thing thing, String name, Object object) {
+		Object s = thing.get(name);
+		if (object == null || (s != null && !(s instanceof java.util.Set)))
+			return false;
+		if (s == null)
+			thing.set(name, s = new HashSet());
+		((HashSet)s).add(object);
+		return true;
+	}
 	
 	private static void toGraphText(StringBuilder graph_text, HashMap subgraph, String gij, String gi) {
 		for (Object k : subgraph.keySet()) {
@@ -310,6 +354,7 @@ class Searcher extends Intenter {
 		final String novelty = Str.argLower(args,"novelty", "all");//new|all
 		final String scope = Str.argLower(args,"scope", "site");//site|web|domain pattern?
 		final Date date = Time.day(time);
+		final boolean sentiment = Str.has(args,"sentiment");
 		arg.set(AL.time, time);
 		arg.set("scope", scope);
 		String default_period = "3";//session.getBody().self().getString(Body.retention_period,"31");//search retention period by default
@@ -347,7 +392,7 @@ class Searcher extends Intenter {
 				}
 			}
 			if (!AL.empty(res)){
-				session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, arg));
+				session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, sentiment, arg));
 				return true;
 			}
 			session.output("Not.");
@@ -400,7 +445,7 @@ class Searcher extends Intenter {
 							filtered = conversation.filter(session,conversation.getSessionAreaPeer(session),q,filter);
 							session.sessioner.body.debug("Searcher older filtered="+(filtered == null? 0 : filtered.size()));
 						}
-						out = format(conversation, session, topic, q, format, limit, filtered, cluster, graphs, arg);
+						out = format(conversation, session, topic, q, format, limit, filtered, cluster, graphs, sentiment, arg);
 						session.output(!AL.empty(out) ? out : "Not.");
 					} catch (Throwable e) {
 						session.sessioner.body.error("Searcher "+session.input(), e);
@@ -428,7 +473,7 @@ class Searcher extends Intenter {
 						,properties});
 					Collection clones = conversation.filter(session,peer,q,null);
 					if (!AL.empty(clones)){
-						session.output(format(conversation, session, topic, q, format, limit, clones, cluster, graphs, arg));
+						session.output(format(conversation, session, topic, q, format, limit, clones, cluster, graphs, sentiment, arg));
 						return true;
 					}
 					//if not found, extend for all texts and search in them with siter matcher
@@ -453,7 +498,7 @@ class Searcher extends Intenter {
 //TODO: fill up to the limit
 						//flush final collection to out
 						if (!AL.empty(res)){
-							session.output(format(conversation, session, topic, q, format, limit, res, cluster, graphs, arg));
+							session.output(format(conversation, session, topic, q, format, limit, res, cluster, graphs, sentiment, arg));
 							return true;
 						}else {
 							;
@@ -510,7 +555,7 @@ class Searcher extends Intenter {
 //TODO: fill up to the limit
 						//flush final collection to out ON the first day AND the first tie on matches
 						if (!AL.empty(res)){
-							session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, arg));
+							session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, sentiment, arg));
 							return true;
 						}
 					}
