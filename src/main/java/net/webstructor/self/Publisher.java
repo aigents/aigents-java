@@ -49,6 +49,8 @@ import net.webstructor.util.Str;
 public class Publisher { 
 	protected Body body;
 	protected Storager storager;
+	
+	private static final String[] text_date = new String[] {AL.text,AL.date};
 
 	public Publisher(Body body){
 		this.body = body;
@@ -83,28 +85,21 @@ body.debug("Publisher update latest "+((Thing)o).getString(AL.text));*/
 						//String thingName = ((Thing)ises.iterator().next()).getName();
 					if (!AL.empty(text)){
 						String thingName = thing.getName();
+						Date date = instance.getDate(AL.times,null);
+						if (!date.equals(now) && AL.empty(body.storager.get(instance,text_date)))//ignore old copies
+							continue;
 					
 //TODO: use "forced" consistently						
 //TODO: make sure if GLOBAL novelty is required, indeed... 
 //TODO: use "newly existing" logic same as used in archiver.exists!?
 						
-						//Thing existing = existing(thing,instance,path,false,text);//if path were involved...
 						Thing existing = existing(latest,instance,false,text);
-/*if (text.equals("poll: trump falls 14 points behind biden after week of protests over george floyd's death"))
-text=text;	
-if (debug)
-body.debug("Publisher update instance "+instance.getString(AL.text));
-if (debug)
-body.debug("Publisher update existing STM "+(existing == null ? "null" : existing.getString(AL.text)));*/
 						if (existing != null) {//new path-less identity
 							existings.put(instance,existing);
 							continue;
 						}
 						//checking for existence before today, not just today... 
-						Date date = null;//instance.getDate(AL.times,null);
-						boolean exists = body.archiver.exists(thingName,text,date);
-/*f (debug)
-body.debug("Publisher update exists LTM "+exists);*/
+						boolean exists = body.archiver.exists(thingName,text,null);//ignore date
 						if (!forced && exists)//check LTM
 							continue;
 					

@@ -65,7 +65,7 @@ function parseInstancesToLinks(things,links,nodes) {
 		mapmap_put(nodes,o.text,'is','instance');
     	for(var key in o){
     		var v;
-    		if (key == 'text' || key == 'is')
+    		if (key == 'text' || key == 'is' || key == 'title')
     			continue;
     		v = o[key];
     		if (AL.empty(v))
@@ -80,6 +80,13 @@ function parseInstancesToLinks(things,links,nodes) {
             if (key == 'times'){
         		links.push([o.text,v,1.0,'time']);
             	mapmap_put(nodes,v,'is','time');
+            }else 
+            if (key == 'sentiment'){
+            	if (v < -10 || +10 < v){
+            		var n = v < -50 ? '😞' :  '😊';
+            		links.push([o.text,n,v/100,'sentiment']);
+            		mapmap_put(nodes,n,'is','emotion');
+            	}
             }else 
         	if ((v = o[key]) != null){
         		links.push([o.text,v,1.0,key]);
@@ -238,7 +245,7 @@ function graph_topics(news_data){
 			var site = source ? (AL.isURL(source) ? new URL(source).hostname : source) : 'unknown';
 			var name = item[3];
 			var time = item[4];
-			var topic = item[7];
+			var topic = AL.empty(item[7]) ? 'unknown' : item[7];
 			var relevance = parseInt(item[0]) + parseInt(item[1]); //sum of relevances;
 			counter_add(orders,topic,relevance);
 			counter_add(orders,site,relevance);

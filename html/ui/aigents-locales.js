@@ -102,7 +102,7 @@ var locale_ru = {
 		peers_menu_graph: 'Смотреть сеть друзей',
 		sites_menu_graph: 'Смотреть ссылки сайта',
 		topics_menu_graph_patterns: 'Смотреть шаблоны темы',
-		topics_menu_graph_things: 'Смотреть находки по теме',
+		topics_menu_graph_things: 'Смотреть новости по теме',
 		graph_menu_setup: 'Настроить свойства сети',
 		graph_menu_connections: 'Смотреть связи',
 		graph_menu_open_url: 'Открыть страницу по ссылке'
@@ -138,7 +138,7 @@ var locale_ru = {
 		peers_menu_graph: 'Сеть друзей',
 		sites_menu_graph: 'Ссылки сайта',
 		topics_menu_graph_patterns: 'Шаблоны темы',
-		topics_menu_graph_things: 'Находки по теме',
+		topics_menu_graph_things: 'Новости по теме',
 		graph_menu_setup: 'Свойства сети',
 		graph_menu_connections: 'Смотреть связи',
 		graph_menu_open_url: 'Открыть ссылку'

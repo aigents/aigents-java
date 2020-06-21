@@ -63,7 +63,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.9.0";
+	public final static String VERSION = "2.9.1";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	public final static String DEFAULT_API_URL = "/al";
