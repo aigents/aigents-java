@@ -69,10 +69,6 @@ public class Publisher {
 			Thing thing = (Thing)things[p];
 			Object[] paths = thingPaths.getSubKeyObjects(thing);
 			Collection latest = latest(thing,null);//assuming we can ignore the same things with different paths 
-//TODO: cleanup here and below
-/*boolean debug = "trump".equals(thing.getName());
-if (debug) for (Object o : latest)
-body.debug("Publisher update latest "+((Thing)o).getString(AL.text));*/
 			ArrayList collector = new ArrayList();
 			for (int i = 0; i < paths.length; i++){
 				String path = (String)paths[i];
@@ -86,7 +82,7 @@ body.debug("Publisher update latest "+((Thing)o).getString(AL.text));*/
 					if (!AL.empty(text)){
 						String thingName = thing.getName();
 						Date date = instance.getDate(AL.times,null);
-						if (!date.equals(now) && AL.empty(body.storager.get(instance,text_date)))//ignore old copies
+						if (!date.equals(now) && !AL.empty(body.storager.get(instance,text_date)))//ignore old copies
 							continue;
 					
 //TODO: use "forced" consistently						
@@ -114,9 +110,8 @@ body.debug("Publisher update latest "+((Thing)o).getString(AL.text));*/
 						collector.add(instance);
 					}
 				}
-				//update(storager,thing,instances,rootPath);
 				//TODO: real path here!!??
-				//update(storager,thing,instances,path);
+				//update(storager,thing,instances,rootPath);
 			}
 			body.getPublisher().update(thing,collector,rootPath,context);
 		}		
