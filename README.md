@@ -1,7 +1,12 @@
 # Aigents Java Core Platform
-![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
+![https://aigents.com/](https://aigents.com/img/aigents_heternet.png)
 
-## Pre-requisites
+## Platform Overview
+1. **Aigents Social and Media Intelligence Platform for Business** joins heterogeneous social and online media sources, blockchains and payment systems and couples them with artificial intelligence to find and track changes in
+the field of information to **let its force be with you**.
+2. **Aigents Personal Artificial Intelligence** is serving as a magic glass ball in the world of social and online networks to recognize one’s preferences, find what they need and help managing connections. 
+
+## Installation Pre-requisites
 1. Ensure that the following software is installed for build and test purposes:
 - Java JDK 6,7,8 (any version, Oracle Java strongly recommended) - used for build and run
 - PHP (any version with cURL for PHP installed) - used for tests
