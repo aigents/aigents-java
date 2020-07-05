@@ -270,7 +270,7 @@ public class Storager {
 		if (seq.size() == 1 && seq.get(0) instanceof Set)
 			res = get((Set)seq.get(0),getter);
 		else
-		if (seq.size() == 2 && seq.get(0) instanceof Thing && ((Thing)seq.get(0)).getName() == null) {
+		if (seq.size() == 2 && seq.get(0) instanceof Thing && ((Thing)seq.get(0)).name() == null) {
 			//TODO:remove hack for anonymous 'there'
 			res = get((Set)seq.get(1),getter);
 		}
@@ -572,7 +572,7 @@ public class Storager {
 			if (!AL.empty(things)) {
 				String[] names = new String[things.length];
 				for (int i=0; i<names.length; i++)
-					names[i] = ((Thing)things[i]).getName();
+					names[i] = ((Thing)things[i]).name();
 				return names;
 			}
 			return null;

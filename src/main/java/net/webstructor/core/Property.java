@@ -47,7 +47,7 @@ import net.webstructor.al.Reader;
  * Effectively, it is a Variable, with "owner" serving as a scope and "value" stored in context of the owner.
  * @author akolonin
  */
-public class Property extends Anything {
+public class Property extends Anything implements Named {
 	public static final int DEFAULT_PROPERTY_LIMIT = 100; 
 	private static final String[] names = {"owner","value"};
 	protected String name;//TODO: is
@@ -87,7 +87,8 @@ public class Property extends Anything {
 		return AL.empty(value) ? ("$" + this.name) : ("$" + this.name + " " + value);
 	}
 	
-	public String getName() {
+	@Override
+	public String name() {
 		return this.name;
 	}
 
@@ -145,7 +146,7 @@ public class Property extends Anything {
 		if (!AL.empty(ps)){
 			for (Iterator i = ps.iterator(); i.hasNext();){
 				//TODO: system-wide cache of compiled patterns!?
-				String patstr = ((Thing)i.next()).getName();
+				String patstr = ((Thing)i.next()).name();
 				Set pat = Reader.pat(storager, owner instanceof Thing ? (Thing)owner : null, patstr);
 				if (Reader.read(it, pat, summary))
 					return true;
@@ -240,7 +241,7 @@ System.out.println(name+" "+value+" "+ps+" FAILED");
 					if (!AL.empty(domains))
 						for (Iterator it = domains.iterator();it.hasNext();) {
 							Thing cls = (Thing)it.next();
-							String name = cls.getName();
+							String name = cls.name();
 							if (!AL.empty(name)) {
 								int is_match;
 								if ((is_match = domain(name,value)) != 0)

@@ -40,7 +40,7 @@ import net.webstructor.comm.vk.VK;
 import net.webstructor.core.Thing;
 import net.webstructor.util.Array;
 
-class Login extends Mode {	
+class Login extends Responser {	
 	static String[] login_context = new String[] {"email", "name", "surname"/*, "birth date"*/};
 	
 	private Thing singleRegisteredPeer(Session session) throws Exception {
@@ -188,10 +188,10 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		if (tryRSS(session.getStorager(),session))//if RSS feed tried successflly 
 			return false;//no further interaction is needed
 		
-		if (noSecretQuestion(session))
-			return answer(session);
+		//if (noSecretQuestion(session))
+		//	return answer(session);
 		
-		if (Responser.response(session))
+		if (handleIntent(session))
 			return false;//TODO: append login flow?
 
 		if (session.peer == null) {

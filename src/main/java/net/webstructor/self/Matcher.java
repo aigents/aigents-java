@@ -107,7 +107,7 @@ public class Matcher {
 			for (Object thing: allThings) {
 				int match = match(parse, null, (Thing)thing, time, permlink, null, thingPaths, imager, null, titler);
 				if (match > 0) {
-					body.debug("Siter matching found "+((Thing)thing).getName()+" in "+permlink);
+					body.debug("Siter matching found "+((Thing)thing).name()+" in "+permlink);
 					matches += match;
 				}
 			}
@@ -201,10 +201,10 @@ public class Matcher {
 		//next, if none, create the pattern for the thing name manually
 		if (AL.empty(patterns))
 			//auto-pattern from thing name split apart
-			matches += match(thing.getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
+			matches += match(thing.name(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 		if (!AL.empty(patterns)) {
 			for (Iterator it = patterns.iterator(); it.hasNext();){				
-                matches += match(((Thing)it.next()).getName(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
+                matches += match(((Thing)it.next()).name(),iter,thing,time,path,positions, thingTexts, thingPaths, imager, linker, titler);
 			}
 		}
 		return matches;

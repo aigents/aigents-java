@@ -80,7 +80,7 @@ public class Publisher {
 					//if (!AL.empty(ises) && !AL.empty(text)){
 						//String thingName = ((Thing)ises.iterator().next()).getName();
 					if (!AL.empty(text)){
-						String thingName = thing.getName();
+						String thingName = thing.name();
 						Date date = instance.getDate(AL.times,null);
 						if (!date.equals(now) && !AL.empty(body.storager.get(instance,text_date)))//ignore old copies
 							continue;
@@ -131,7 +131,7 @@ public class Publisher {
 					//if (!AL.empty(ises) && !AL.empty(text)){
 						//String thingName = ((Thing)ises.iterator().next()).getName();
 					if (!AL.empty(text)){
-						String thingName = thing.getName();
+						String thingName = thing.name();
 						Thing existing = existings.get(instance);
 						
 //if (debug)
@@ -256,7 +256,7 @@ public class Publisher {
 			//real path
 			Collection sources = t.getThings(AL.sources);
 			if (!AL.empty(sources)){
-				String source = ((Thing)sources.iterator().next()).getName();
+				String source = ((Thing)sources.iterator().next()).name();
 				if (!AL.empty(source) && !source.equals(path)){
 					if (currentPath == null || !currentPath.equals(source))
 						content.append(source).append('\n');
@@ -273,7 +273,7 @@ public class Publisher {
 				}
 			}
 		}
-		return new String[]{thing.getName(),content.toString()};
+		return new String[]{thing.name(),content.toString()};
 	}
 	
 	//TODO: if forcer is given, don't update others

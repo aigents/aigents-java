@@ -21,47 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.data;
+package net.webstructor.peer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import net.webstructor.core.Named;
 
-/**
- * Maintaines original order in the elements of the map
- * @author akolonin
- * @param <P> map key
- * @param <T> map value 
- */
-public class OrderedMap<P,T> extends ArrayList<T> {
-	private static final long serialVersionUID = -7114034521031949539L;
-	private HashMap<P,T> map = new HashMap<P,T>();
+//intent = template + help + action
+public interface Intenter extends Named {
+	abstract boolean handleIntent(final Session session);
+};
 
-	public T get(P p){
-		return map.get(p);
-	}
-	
-	public synchronized boolean put(P p, T t){
-		if (map.containsKey(p))
-			return false;
-		map.put(p,t);
-		add(t);
-		return true;
-	}
-	
-	/*public OrderedMap<P,T> clone() {
-		OrderedMap<P,T> clone = new OrderedMap<P,T>();
-		for (T t : this) {
-			for (P p : map.keySet()) {
-				T pt = map.get(p);
-				if (t.equals(pt))
-					put(p,t);
-			}
-		}
-		return clone;
-	}*/
-	
-	public Collection<T> values() {
-		return this;
-	}
-}

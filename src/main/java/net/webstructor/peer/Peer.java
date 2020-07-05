@@ -100,8 +100,9 @@ public class Peer extends Agent {
 		language,
 		login_count,login_token,login_time,registration_time,activity_time,
 		paid_term,
-//TODO: make format per-session property (or make AL clients to understand JSON)!!!
+//TODO: make format and conversation per-session property (or make AL clients to understand JSON)!!!
 		AL.format,
+		AL.conversation,
 		AL.currency,
 		//AL.format,//TODO: fix unit test in agent_sites.php (not trivial!)?
 		Body.facebook_id, Body.facebook_token,
@@ -204,7 +205,7 @@ public class Peer extends Agent {
 				session.sessioner.body.debug("Populating content to "+thisPeer);
 				Thing areaPeer = session.getAreaPeer();
 				if (areaPeer != null){
-					session.sessioner.body.debug("Populating content from "+areaPeer.getName());
+					session.sessioner.body.debug("Populating content from "+areaPeer.name());
 					areaPeer.copyTo(thisPeer,new String[]{AL.topics,AL.sites,AL.news},null,true);
 				}else {
 					//otherwise populate with default data

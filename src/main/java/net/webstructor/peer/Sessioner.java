@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ public class Sessioner {
 				Collection is = sess.getThings(AL.is);
 				if (!AL.empty(is) && is.size() == 1){
 					Thing peer = (Thing)(is.iterator().next());
-					if (!Schema.peer.equals(peer.getName())){//if not a root peer class but peer instance
+					if (!Schema.peer.equals(peer.name())){//if not a root peer class but peer instance
 //TODO: remove login tokens from peers when ported update functions across messengers!
 						//peer.set(Peer.login_token, null);//remove login tokens from peers forever
 						return new Session(this,communicator,type,key,peer);

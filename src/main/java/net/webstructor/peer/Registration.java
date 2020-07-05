@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@ import net.webstructor.comm.Emailer;
 import net.webstructor.core.Property;
 import net.webstructor.core.Thing;
 
-class Registration extends Mode {	
+class Registration extends Responser {	
 
 	public static final String[] question_answer = new String[]{Peer.secret_question,Peer.secret_answer};
 	public static final String[] answer_only = new String[]{Peer.secret_answer};

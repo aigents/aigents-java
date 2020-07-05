@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "2.9.2";
+$version = "2.9.3";
 $copyright = " Copyright © 2020 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -33,7 +33,7 @@ $baseURL = "http://localhost:1180/?";
 $basePath = "./";
 
 $timeout = 7;
-$base_things_count = 133;
+$base_things_count = 134;
 
 $cookie;
 

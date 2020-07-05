@@ -249,7 +249,7 @@ public class HTTPeer extends Communicator
 	    //logger.log(StringUtil.first(result,MAX_INPUT),"response");//TODO rework	
 		} catch (SocketException e){
 			body.error("SocketException in HTTPeer.output session " + session.getKey()
-					+ (session.getAreaPeer() == null ? "" : " name " +session.getAreaPeer().getName())
+					+ (session.getAreaPeer() == null ? "" : " name " +session.getAreaPeer().name())
 					+ " text "+resultString+" error "+e.getMessage(),null);
 		}
 	}

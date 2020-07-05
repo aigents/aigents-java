@@ -48,22 +48,21 @@ public class Session  {
 	Thing peer = null;
 	Thing session = null;//specific session context of the peer - peer's sub-personality
 	Communicator communicator;
-	Mode mode = null;
+	Responser mode = null;
 	String key;
 	String type;
-	int mood = AL.declaration;
-	int fails = 0;
+	transient int mood = AL.declaration;
+	transient int fails = 0;
+	transient Statement query = null;
 
 	private boolean authenticated = false;
 	
-	//private ArrayList messages = new ArrayList();
 	private String input = null;//raw input
 	private String args[] = null;//pre-parsed input
 	private String output = null;
 	
 	private StringBuilder outputs = new StringBuilder();//TODO: use it to replace String output
 
-	//protected HashMap expected = new HashMap();
 	private String[] expected = null;
 
 	public Session(Sessioner sessioner,Communicator communicator,String type,String key) {
@@ -402,7 +401,7 @@ public class Session  {
 			Peer.populateContent(session,Body.testEmail(email));
 			session.updateRegistration();
 		} catch (Exception e) {
-			session.output += " " + Mode.statement(e);
+			session.output += " " + Responser.statement(e);
 			session.sessioner.body.error(provider+" error: "+e.toString(), e);
 		}
 	}

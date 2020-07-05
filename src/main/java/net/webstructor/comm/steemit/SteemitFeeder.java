@@ -355,7 +355,7 @@ class SteemitFeeder extends SocialFeeder {
 		while (!days_over){
 			int min_sequence = -1;
 			//TODO: id = 25 change to use id
-			String par = "steemit".equals(api.getName()) ? 
+			String par = "steemit".equals(api.name()) ? 
 					"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"get_account_history\",\"params\": [\""
 					+ user_id + "\",\""+String.valueOf(from_pos)+"\",\""+String.valueOf(block_size)+"\"]}"
 					://"golos"
@@ -364,9 +364,9 @@ class SteemitFeeder extends SocialFeeder {
 			
 			String response = null;
 			try {
-				if (debug) body.debug(Writer.capitalize(api.getName())+" request "+api.getUrl()+" "+par);
+				if (debug) body.debug(Writer.capitalize(api.name())+" request "+api.getUrl()+" "+par);
 				response = Steemit.retryPost(body,api.getUrl(),par);
-				if (debug) body.debug(Writer.capitalize(api.getName())+" response "+Str.first(response,200));
+				if (debug) body.debug(Writer.capitalize(api.name())+" response "+Str.first(response,200));
 				JsonReader jr = Json.createReader(new StringReader(response));
 				JsonObject result = jr.readObject();
 				JsonArray items = result.getJsonArray("result");

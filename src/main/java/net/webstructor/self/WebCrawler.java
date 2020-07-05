@@ -60,7 +60,7 @@ public class WebCrawler implements Crawler {
 				break;
 			Collection goals = new ArrayList(1);
 			goals.add(t);
-			String name = t.getName();
+			String name = t.name();
 			siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" in "+siter.rootPath+".");
 			try {
 				boolean found = new PathTracker(siter,goals,siter.range).run(siter.rootPath);

@@ -63,8 +63,10 @@ import net.webstructor.core.Scheduler;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.ReputationSystem;
 import net.webstructor.peer.Conversationer;
+import net.webstructor.peer.Intenter;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
+import net.webstructor.peer.Responser;
 import net.webstructor.serp.Serper;
 import net.webstructor.self.Selfer;
 import net.webstructor.self.WebCrawler;
@@ -148,76 +150,79 @@ public class Farm extends Body {
 		
 		for (Serper s : Serper.getDefaultSerpers(this))
 			searchers.put(s.name(), s);
+		
+		for (Intenter i : Responser.getDefaultIntenters())
+			intenters.put(i.name(), i);
 	}
 
 	//TODO: have this done in fresh new Farm class diverged from old Farm class renamed to Cell 
 	//TODO: this in other "factory pool" place, changeable online?
 	protected void socialize() {
-		socializers.put(name(), new Aigents(this));
+		crawlers.put(name(), new Aigents(this));
 		
 		String tg_id = self().getString(telegram_token);
 		if (!AL.empty(tg_id))
-			socializers.put("telegram", new Telegram(this));
+			crawlers.put("telegram", new Telegram(this));
 		
 		String fb_id = self().getString(facebook_id);
 		String fb_key = self().getString(facebook_key);
 		if (!AL.empty(fb_id) && !AL.empty(fb_key))
-			socializers.put("facebook", new FB(this,fb_id,fb_key));
+			crawlers.put("facebook", new FB(this,fb_id,fb_key));
 		
 		String goog_id = self().getString(google_id);
 		String goog_key = self().getString(google_key);
 		if (!AL.empty(goog_id) && !AL.empty(goog_key))
-			socializers.put("google", new GApi(this,goog_id,goog_key));
+			crawlers.put("google", new GApi(this,goog_id,goog_key));
 		else
-			socializers.put("google", new GApi(this,null,null));//fake instance for testing
+			crawlers.put("google", new GApi(this,null,null));//fake instance for testing
 		
 		String vk_id = self().getString(vkontakte_id);
 		String vk_key = self().getString(vkontakte_key);
 		if (!AL.empty(vk_id) && !AL.empty(vk_key))
-			socializers.put("vkontakte", new VK(this,vk_id,vk_key));
+			crawlers.put("vkontakte", new VK(this,vk_id,vk_key));
 		
 		//TODO: merge Reddit+Redditer and FB+Messenger? 
 		String r_id = self().getString(reddit_id);
 		String r_key = self().getString(reddit_key);
 		if (!AL.empty(r_id) && !AL.empty(r_key))
-			socializers.put("reddit", new Reddit(this,r_id,r_key));
+			crawlers.put("reddit", new Reddit(this,r_id,r_key));
 
 		String t_key = self().getString(twitter_key);
 		String t_secret = self().getString(twitter_key_secret);
 		if (!AL.empty(t_key) && !AL.empty(t_secret))
-			socializers.put("twitter", new Twitter(this,t_key,t_secret));
+			crawlers.put("twitter", new Twitter(this,t_key,t_secret));
 		
 		//TODO: make it possible to have many Discourse instances per farm 
 		String d_id = self().getString(discourse_id);
 		String d_key = self().getString(discourse_key);
 		String d_url = self().getString(discourse_url);
 		if (!AL.empty(d_url))// && !AL.empty(d_id) && !AL.empty(d_key))//TODO:? force key-based discourse authentication?
-			socializers.put("discourse", new Discourse(this,"discourse",d_url,d_id,d_key));
+			crawlers.put("discourse", new Discourse(this,"discourse",d_url,d_id,d_key));
 		
 		//TODO: merge PayPal+PayPaler? 
 		String p_id = self().getString(paypal_id);
 		String p_key = self().getString(paypal_key);
 		if (!AL.empty(p_id) && !AL.empty(p_key))
-			socializers.put("paypal", new PayPal(this,p_id,p_key));
+			crawlers.put("paypal", new PayPal(this,p_id,p_key));
 		
 		String st_url = self().getString(steemit_url);
 		if (!AL.empty(st_url))
-			socializers.put("steemit", new Steemit(this,"steemit",st_url));
+			crawlers.put("steemit", new Steemit(this,"steemit",st_url));
 		
 		String go_url = self().getString(golos_url);
 		if (!AL.empty(go_url))//Golos.io is clone/fork of Steemit
-			socializers.put("golos", new Steemit(this,"golos",go_url));
+			crawlers.put("golos", new Steemit(this,"golos",go_url));
 
 		String eth_url = self().getString(ethereum_url);
 		String eth_key = self().getString(ethereum_key);
 		if (!AL.empty(eth_url) && !AL.empty(eth_key))
-			socializers.put("ethereum", new Ethereum(this, "ethereum", eth_url, eth_key));
+			crawlers.put("ethereum", new Ethereum(this, "ethereum", eth_url, eth_key));
 	
 		for (Serper s : Serper.getDefaultSerpers(this))//register search engines as crawlers
-			socializers.put(s.name(), s);
+			crawlers.put(s.name(), s);
 		
-		socializers.put("rss",new RSSer(this));
-		socializers.put("www",new WebCrawler(this));//should be the last in the list!?
+		crawlers.put("rss",new RSSer(this));
+		crawlers.put("www",new WebCrawler(this));//should be the last in the list!?
 	}
 	
 	public boolean act(String name, Anything argument) {
@@ -361,7 +366,7 @@ public class Farm extends Body {
 	}
 	
 	public void updateStatusRarely() {
-		for (Crawler s : socializers.values()) if (s instanceof Socializer) {
+		for (Crawler s : crawlers.values()) if (s instanceof Socializer) {
 			Socializer feeder = (Socializer)s;
 			feeder.forget();
 			feeder.resync(0);
@@ -400,8 +405,8 @@ public class Farm extends Body {
 	}
 	
 	private Profiler[] profilers(Thing peer,String network) {
-		ArrayList<Profiler> profilers = new ArrayList(socializers.size()); 
-		for (Crawler s : socializers.values()) {
+		ArrayList<Profiler> profilers = new ArrayList(crawlers.size()); 
+		for (Crawler s : crawlers.values()) {
 			if (!AL.empty(network) && !s.name().equalsIgnoreCase(network))
 				continue;
 			Profiler p = s.getProfiler(peer);

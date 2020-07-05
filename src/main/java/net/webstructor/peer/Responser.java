@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,98 +25,276 @@ package net.webstructor.peer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
 
+import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
-import net.webstructor.al.Iter;
-import net.webstructor.al.Parser;
+import net.webstructor.al.Any;
 import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
+import net.webstructor.al.Set;
+import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
+import net.webstructor.cat.HtmlStripper;
+import net.webstructor.core.Property;
+import net.webstructor.core.Query;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
+import net.webstructor.util.Array;
 
-class Responser {	
+public abstract class Responser implements Intenter {
+	
+	static final protected Set cancel_pattern = Reader.patterns(null,null,"{no not login logout [my login] [my logout] bye}");
+	
+//TODO: initialize list of intenters
+//TODO: handle(storager,session) -> handleIntent(session)
+	Searcher searcher = new Searcher();
+	PatternResponser patternResponser = new PatternResponser();
+	ControlledResponser controlledResponser = new ControlledResponser();
+	
+	public static Intenter[] getDefaultIntenters() {
+		return new Intenter[]{
+				new Searcher(),
+				new ControlledResponser(),
+				new PatternResponser()
+		};
+	}
 
-	static boolean response(Session session){
-		//TODO:
-		// PATTERN<=M:M=>THING<=M:M=>RESPONSE
-		// Idealistic scenario:
-		//1) get all things that have responses AND patterns
-		//2) get all possible patterns for these things
-		//3) match session input against all patterns
-		//4) find most suitable patterns
-		//5) pick random patterns across multiple suitable patterns
-		//6) find most suitable things for the picked pattern
-		//7) get all responses for the most suitable things 
-		//8) find most suitable responses for the most suitable things
-		//9) pick random response across multiple suitable respnoses
-		//10) fill the variables in response
-		//11) return the response
-//TODO: use safer operations and clone collections
-		//1-2
-		Storager storager = session.getStorager();
-		java.util.Set responses = storager.getValuesSet(AL.responses);
-		HashSet all_patterns = new HashSet();
-		if (!AL.empty(responses)) for (Iterator it = responses.iterator(); it.hasNext();){
-			Object response = it.next();
-			Set reactions = storager.get(AL.responses, response);
-			if (!AL.empty(reactions)) for (Iterator rit = reactions.iterator(); rit.hasNext();){
-				Thing ra = (Thing)rit.next();
-				Collection ps = ra.getThings(AL.patterns);
-				if (!AL.empty(ps)) for (Iterator pit = ps.iterator(); pit.hasNext();){
-					Thing p = (Thing)pit.next();
-					all_patterns.add(p);
-				}
-			}
-		}
-		//3
-		//HashSet all_responses = new HashSet();
-		ArrayList all_responses = new ArrayList();
-		int matchlen = 0;
-		Iter iter = new Iter(Parser.parse(session.input()));//build with original text positions preserved for image matching
-		if (!AL.empty(all_patterns)) for (Iterator it = all_patterns.iterator(); it.hasNext();){
-			iter.pos(0);//reset 
-			Thing instance = new Thing();
-			Thing patthing = ((Thing)it.next());
-			Seq patseq = Reader.pattern(storager,instance,patthing.getName());
-			StringBuilder sbtmp = new StringBuilder();
-			boolean read = Reader.read(iter, patseq, sbtmp);
-			if (read){
-				session.sessioner.body.debug(session.toString()+" X "+patthing.getName()+" = "+sbtmp.toString());
-			}
-			if (read && sbtmp.length() > matchlen){//if found better match
-				matchlen = sbtmp.length();
-				all_responses.clear();
-				java.util.Set reactions = storager.get(AL.patterns, patthing);
-				if (!AL.empty(reactions)) for (Iterator rit = reactions.iterator(); rit.hasNext();){
-					Thing ra = (Thing)rit.next();
-					Collection rs = ra.getThings(AL.responses);
-					if (!AL.empty(rs)) for (Iterator rsit = rs.iterator(); rsit.hasNext();){
-						Thing r = (Thing)rsit.next();
-						all_responses.add(r);
-					}
-				}
-			}
-		}
-		//for (Iterator it = all_responses.iterator(); it.hasNext();){
-		//	Thing r = (Thing)it.next();
-		if (all_responses.size() > 0){
-			int i = new Random().nextInt(all_responses.size());
-			Thing r = (Thing)all_responses.get(i);
-			String s = r.getName();
-			if (!AL.empty(s)){
-				s = Writer.capitalize(s);
-				if (!AL.periods.contains(s.substring(s.length()-1)))
-					s = s + ".";
-				session.output(s);
+	@Override
+	public String name() {
+		return "system";
+	}
+	
+	@Override
+	public boolean handleIntent(final Session session) {
+		/*
+		if (searcher.handleIntent(session))//if search is done successflly 
+			return true;
+		if (controlledResponser.handleIntent(session))
+			return true;
+		if (patternResponser.handleIntent(session))
+			return true;
+		*/
+//TODO user "controlled" OR "natural" in order according to Peer/Session "conversation" property
+		Body body = session.sessioner.body;
+		for (Intenter i : getDefaultIntenters()) {
+			if (body.getIntenter(i.name()).handleIntent(session))
 				return true;
-			}
 		}
 		return false;
 	}
 	
+	public abstract boolean process(Session session);
+	static protected String statement(Throwable e) {
+		String message = e.getMessage();
+		return Writer.capitalize(message != null ? message : e.toString())+".";		
+	}	
+
+	static boolean noSecretQuestion(Session session) {
+		//if a non-secret question from anonymous, answer it
+		//int mood = session.reader.readMood(session.input);
+		//String[] disallowed_words = new String[]{AL.you[0],Schema.peer,Schema.self,Schema.self,/*Body.email,*/Body.email_password,Peer.secret_answer};
+		//if (mood == AL.interrogation && Array.containsAnyAsSubstring(disallowed_words,session.input) == null)
+		String[] allowed_questions = new String[]{
+				"What new true sources, text, times, trust, relevance, social relevance, image, is, sentiment?",
+				"What new true sources, text, times, trust, relevance, social relevance, image, is?",
+				"What new true sources, text, times, trust, relevance, social relevance, image?",
+				"What new true sources, text, times, trust, relevance, social relevance?",
+				"What new true sources, text, times, trust, relevance?",
+				"What new true sources, text, times, trust?",
+				"What my sites name, trust, relevance, positive, negative?",
+				"What my sites name, trust, relevance, sentiment?",
+				"What my sites name, trust, relevance?",
+				"What my areas?",
+				"What my sites name, trust?",
+				"What my topics name, trust, relevance, positive, negative?",
+				"What my topics name, trust, relevance, sentiment?",
+				"What my topics name, trust, relevance?",
+				"What my topics name, trust?"}; 
+		if (session.mood == AL.interrogation && Array.containsIgnoreCase(allowed_questions, session.input()))
+			return true;
+		return false;
+	}
+
+	//TODO: do this via generic functionality such as temporary proxy peer?
+	static boolean setProperties(Session session) {
+		Thing temp = new Thing();
+		if (Reader.read(session.input(), Reader.pattern(AL.i_my,temp,new String[]{AL.areas}))){
+			String area = temp.getString(AL.areas);
+			if (session.peer == null)
+				session.peer = new Thing();
+			session.peer.delThings(AL.areas);
+			if (!AL.empty(area)){
+				session.peer.addThing(AL.areas, session.sessioner.body.storager.getThing(area));
+			}
+			session.output("Ok.");
+			return true;
+		}
+		if (Reader.read(session.input(), Reader.pattern(AL.i_my,temp,new String[]{Peer.language}))){
+			if (session.peer == null)
+				session.peer = new Thing();
+			session.peer.setString(Peer.language,temp.getString(Peer.language));
+			session.output("Ok.");
+			return true;
+		}
+		return false;
+	}
+
+	static Thing getSessionAreaPeer(Session session){
+		Thing peer = session.peer != null && session.authenticated() ? session.getStoredPeer() : null;
+		
+		//for authenticated session with some session context 
+		//TODO: for the time being, get "opinion leader" for the first of session "areas", if specified
+		if (peer == null)
+			peer = session.getAreaPeer();
+		
+		if (peer == null) {
+			//TODO: replace with self - with "collective" belief inferred from peers
+			//TODO: cleanup because this is aready done in getAreaPeer?
+			Collection trusts = (Collection)session.getBody().self().get(AL.trusts);
+			if (!AL.empty(trusts))
+				peer = (Thing)trusts.iterator().next();
+		}
+		return peer;
+	}
+	
+	static String format(String format, Session session, Thing peer, Seq query, Collection coll){
+		//dump query to output
+		if (AL.empty(format) && peer != null)
+			format = peer.getString("format");//TODO: move to ontology
+		return "json".equalsIgnoreCase(format) ? Writer.toJSON(coll,null) 
+			: "html".equalsIgnoreCase(format) ? Writer.toHTML(coll,null)
+			: Writer.toPrefixedString(
+					session,//TODO: fix hack!
+					query, coll);
+	}
+	
+	static Collection queryFilter(Session session, Thing peer, Seq query, Query.Filter filter) throws Throwable {
+		//execute query: [thing,thing,thing,...,set]
+		Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker)
+			.getThings(query,peer);
+		if (AL.empty(clones))
+			return null;
+		if (filter != null){
+			Collection filtered = new ArrayList(clones.size());
+			for (Iterator it = clones.iterator(); it.hasNext();){
+				Thing t = (Thing)it.next();
+				if (filter.passed(t))
+					filtered.add(t);
+			}
+			if (AL.empty(filtered))
+				return null;
+			clones = filtered;
+		}
+		return clones;
+	}
+
+	static String queryFilterFormat(Session session, Thing peer, Seq query) throws Throwable {
+		//execute query: [thing,thing,thing,...,set]
+		Collection clones = queryFilter(session, peer, query, null);
+		if (clones == null)//TODO: fix regression hack!?
+			return null;
+		//dump query to output
+		return format(null, session, peer, query, clones);
+	}
+	
+	boolean answer(Session session) {
+		session.query = null;
+		if (handleIntent(session))//session.query is expected ot get filled by controlledResponser!  
+			return false;;
+		session.output(session.query == null ? "No." : Writer.toPrefixedString(session,session.query,null));
+		return false;
+	}
+
+	//TODO: Intenter
+	boolean tryRSS(Storager storager, Session session) {
+		//"What areas $area rss?" => "$area rss"
+		//Get list of areas in the system
+		String[] areas = storager.getValuesNames(AL.areas);
+		if (!AL.empty(areas)){
+			//Build "$area rss" template
+			Thing arg = new Thing();
+			if (/*(session.read(new Seq(new Object[]{"areas",new Any(1,areas),"rss"})) &&
+				session.read(new Seq(new Object[]{"areas",new Property(arg,"area"),"rss"})))||*/
+				(session.read(new Seq(new Object[]{"rss",new Any(1,areas)})) &&
+				session.read(new Seq(new Object[]{"rss",new Property(arg,"area")})))){
+				String area = arg.getString("area");
+				if (!AL.empty(area)){
+					//Get peer for matched area
+					Thing peer = session.getAreaPeer(area,true);
+					//if not found, return
+					if (peer != null){
+						//get news feed for the peer
+						Seq query;
+						try {
+							query = session.reader.parseStatement(session,"What new true, times today or yesterday is, sources, text, image, times, title?",peer);
+							//execute query: [thing,thing,thing,...,set]
+							Collection clones = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(query,peer); 
+							//format news feed
+							session.output(createRSS(clones,area,session.sessioner.body.site(),Writer.capitalize(session.sessioner.body.name())));
+						} catch (Exception e) {
+							session.output(statement(e));
+							session.sessioner.body.error(e.toString(), e);
+						}
+						return true;
+					}
+				}
+			}
+			//if not matched, return
+		}
+		return false;
+	}
+	
+	//https://validator.w3.org/feed/docs/rss2.html#ltauthorgtSubelementOfLtitemgt
+	String createRSS(Collection things,String area,String url,String author){
+		area = Writer.capitalize(area);
+		String authorarea = author + " on " + area;
+		StringBuilder feed = new StringBuilder();
+		feed.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+		feed.append("<rss version=\"2.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n\n");
+		feed.append("<channel>\n");
+		feed.append("  <title>").append(authorarea).append("</title>\n");
+		feed.append("  <link>").append(url).append("</link>\n");
+		feed.append("  <description>Aigents RSS feed about ").append(area).append("</description>\n");
+		if (!AL.empty(things)){
+			for (Iterator i = things.iterator(); i.hasNext();){
+				Thing t = (Thing)i.next();
+				Collection iss = t.getThings(AL.is);
+				Collection sources = t.getThings(AL.sources);
+				String text = t.getString(AL.text);
+				String title = t.getString(AL.title);
+				String image = t.getString(AL.image);
+				Date time = (Date)t.get(AL.times);
+				if (!AL.empty(sources) && !AL.empty(text)){
+					String link = ((Thing)sources.iterator().next()).name();
+					String topic = AL.empty(iss) ? null : HtmlStripper.encodeHTML(((Thing)iss.iterator().next()).name());
+					title = HtmlStripper.encodeHTML(title);
+					text = HtmlStripper.encodeHTML(text);
+					link = HtmlStripper.encodeHTML(link);
+					if (AL.empty(title))
+						title = !AL.empty(topic) ? topic : text;
+					String description = topic == null ? text : "topic: \"" + topic + "\".\n" + text;
+					feed.append("  <item>\n");
+					feed.append("    <title>").append(title).append("</title>\n");
+					feed.append("    <link>").append(link).append("</link>\n");
+					feed.append("    <description xml:space=\"preserve\">").append(description).append("</description>\n");
+					if (!AL.empty(image))
+						//https://www.w3schools.com/xml/tryrss.asp?filename=rss_ex_enclosure
+						feed.append("    <enclosure url=\"").append(HtmlStripper.encodeHTML(image)).append("\" type=\"image\" />\n");
+					if (time != null)
+						feed.append("    <pubDate>").append(Time.rfc822(time)).append("</pubDate>\n");
+					if (!AL.empty(topic))
+						feed.append("    <category>").append(topic).append("</category>\n");
+					if (!AL.empty(author))
+						feed.append("    <dc:creator><![CDATA[").append(authorarea).append("]]></dc:creator>\n");//https://www.aitrends.com/feed/
+					//https://validator.w3.org/feed/docs/rss2.html#ltguidgtSubelementOfLtitemgt
+//TODO: <guid isPermaLink="true">http://inessential.com/2002/09/01.php#a2</guid>
+					feed.append("  </item>\n");
+				}
+			}
+		}
+		feed.append("</channel>\n\n</rss>\n");
+		return feed.toString();
+	}
 }

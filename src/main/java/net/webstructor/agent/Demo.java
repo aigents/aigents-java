@@ -72,8 +72,17 @@ public class Demo extends Farm {
      */
     @Override
 	protected void socialize() {
-    	//one can setup their own Crawler-s and Socializers, using the default ones or not
+    	//one can setup their own Crawler-s/Socializer-s, using the default ones or not
 		super.socialize();
+	}
+	
+    /**
+     * May create Communicator-s, Serper-s and Intenter-s
+     */
+    @Override
+    public void start() {
+    	//one can setup their own ommunicator-s, Serper-s and Intenter-s, using the default ones or not
+		super.start();
 	}
 	
     public static void main(String[] args) {

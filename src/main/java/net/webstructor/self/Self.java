@@ -126,7 +126,7 @@ public class Self {
 			peerLinks.addAll(ignores);
 		for (Iterator tit = peerLinks.iterator(); tit.hasNext();){
 			Thing t = (Thing)tit.next();
-			String name = t.getName();
+			String name = t.name();
 			if (body.languages.scrub(name) || Array.contains(body.storager.getNames(),name)){
 				peer.delThing(AL.topics, t);
 				peer.delThing(AL.trusts, t);

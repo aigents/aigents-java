@@ -28,12 +28,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+import net.webstructor.core.Named;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
 
-public interface Crawler {
+public interface Crawler extends Named {
 	/**
 	 * Read newsfeed/personal channel like subreddit, group or personal feed
 	 * @param Siter context 
@@ -56,12 +57,6 @@ public interface Crawler {
 	//TODO return int count as crawl?
 	public boolean scalp(Siter siter,String path,ArrayList links,Collection topics);
 
-	/**
-	 * Name of the adapter like "facebook", "www", "ethereum", "rss", "twitter", "reddit", "discourse", etc.
-	 * @return name of the adapter lowercase
-	 */
-
-	public String name();
 	/**
 	 * Return SocialFeeder caching social crawl results if extends Socializer
 	 * @param id

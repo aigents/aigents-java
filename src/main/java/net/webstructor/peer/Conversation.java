@@ -51,7 +51,6 @@ import net.webstructor.al.Parser;
 import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
-import net.webstructor.al.Statement;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.StringUtil;
@@ -63,7 +62,6 @@ import net.webstructor.comm.vk.VK;
 import net.webstructor.comm.goog.GApi;
 import net.webstructor.core.Mistake;
 import net.webstructor.core.Property;
-import net.webstructor.core.Query;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
@@ -76,14 +74,11 @@ import net.webstructor.self.Self;
 import net.webstructor.util.Array;
 import net.webstructor.util.Str;
 
-class Conversation extends Mode {
+class Conversation extends Responser {
 	
 	public static final String[] spider = new String[] {"spider","spidering","crawl","crawling"};
 	public static final String[] logout = new String[] {"logout","bye"};
 	public static final String[] in_site = new String[] {"site","in","url"};
-	
-	//TODO: initialize list of intents 
-	Searcher searcher = new Searcher();
 	
 	private String spidering(Session session, String name, String id) {
 		String report = null;
@@ -442,7 +437,7 @@ class Conversation extends Mode {
 				}
 				Collection rs = new ArrayList();
 				rs.add(reader);
-				session.output(this.format(null, session, curPeer, null, rs));
+				session.output(Responser.format(null, session, curPeer, null, rs));
 			}
 			return false;	
 		} else
@@ -486,9 +481,6 @@ class Conversation extends Mode {
 			}
 			return false;			
 		} else	
-		if (searcher.handle(this,storager,session))//if search is done successflly 
-			return false;//no further interaction is needed
-		else
 		if (tryAlerter(storager,session))//if alert sent successflly 
 			return false;//no further interaction is needed
 		else
@@ -510,71 +502,13 @@ class Conversation extends Mode {
 		if (tryReputationer(storager,session))//if graphing tried successfully 
 			return false;//no further interaction is needed
 		else
-		if (Reader.read(session.input(), new Any(1,AL.not)))
-		{
-			try {
-				Statement query = session.reader.parseStatement(session,session.input(),session.getStoredPeer());
-				session.sessioner.body.output("Dec:"+Writer.toString(query)+".");	
-				if (!AL.empty(query)) {
-					int skipped = 0;
-					Collection things = storager.get(query,session.getStoredPeer());
-					if (!AL.empty(things)) //clone for deletion!
-						for (Iterator it = new ArrayList(things).iterator();it.hasNext();) {
-							Thing thing = (Thing)it.next();
-							String deathmask = Writer.toString(thing);
-							if (!thing.del()) {
-								session.sessioner.body.output("SKIPPED:"+deathmask+".");
-								skipped++;
-							}
-							else {
-								session.sessioner.body.output("DELETED:"+deathmask+".");
-								session.getStorager().setUpdate();
-							}
-						}
-					session.output(skipped > 0 ? "Not. There things." : "Ok.");
-				}
-			} catch (Exception e) {
-				session.output(statement(e));
-				session.sessioner.body.error(e.toString(), e);
-			}
-			return false;
-		} else 
 		if (session.mood == AL.declaration || session.mood == AL.direction)
 		{
-			try {
-				Thing storedPeer = session.getStoredPeer();
-				StringBuilder out = new StringBuilder();
-				Collection message = session.reader.parseStatements(session,session.input(),session.getStoredPeer());
-				for (Iterator it = message.iterator(); it.hasNext();) {
-					Statement query = (Statement)it.next();
-					session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
-					Query q = new Query(session.sessioner.body,storager,session.sessioner.body.self());
-					int updated = q.setThings(query,storedPeer);
-					//int updated = q.setThings(query,storedPeer,true);//smart things creation, but "NL" chat is not working
-					if (updated > 0){
-						out.append(out.length() > 0 ? " " : "").append("Ok.");
-						//TODO: do this peer saving and restoring more clever and not every time?
-						//get stored session peer pointer just in case it is changed in background
-						//get actual session peer parameters to access it another time
-						session.peer.update(storedPeer,Login.login_context);
-					}
-				}
-				if (out.length() == 0)
-					throw new Mistake(Mistake.no_thing);
-				session.output(out.toString());
-				return false;
-			} catch (Exception e) {
-				
-				//TODO: move out and re-use in "answer"
-				if (e instanceof Mistake && e.getMessage().equals(Mistake.no_thing))
-					if (Responser.response(session))
-						return false;
-				
-				session.output(statement(e));
-				if (!(e instanceof Mistake))
-					session.sessioner.body.error(e.toString(), e);
-				return false;
-			}
+			if (handleIntent(session))
+				return false;;
+//TODO !? session.output("No.");
+			session.output("No thing.");
+			return false;
 		} 
 		//TODO: if such fallthrough is needed?
 		session.output("Dear " 

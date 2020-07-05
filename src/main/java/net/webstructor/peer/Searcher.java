@@ -66,20 +66,20 @@ import net.webstructor.util.ArrayPositionComparator;
 import net.webstructor.util.Reporter;
 import net.webstructor.util.Str;
 
-//intent = template + help + action
-abstract class Intenter {
-	abstract boolean handle(Conversation conversation, final Storager storager,final Session session);
-};
-
-class Searcher extends Intenter {
+class Searcher implements Intenter {
 
 	public static final String name = "search";
+	
+	@Override
+	public String name() {
+		return name;
+	}
 	
 	protected Matcher matcher = null; 
 
 //TODO: abstract reporter for xlsx/html/pdf!?
-	String format(Conversation conversation, Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs, boolean sentiment, Thing arg) {
-		Thing peer = conversation.getSessionAreaPeer(session);
+	String format(Session session, String topic, Seq q, String format, int limit, Collection filtered, String cluster, String[] graphs, boolean sentiment, Thing arg) {
+		Thing peer = Responser.getSessionAreaPeer(session);
 		String language = peer.getString(Peer.language);
 		String out = null;
 		if (!AL.empty(filtered)) {
@@ -278,11 +278,11 @@ class Searcher extends Intenter {
 				List data = filtered instanceof List ? (List)filtered : new ArrayList(filtered); 
 				rep.subtitle(t.loc("Data") + " ("+data.size()+")");
 				Collections.sort(data,new ThingComparator(arg.getString("sort"),"asc".equals(arg.getString("order"))));
-				writer.append(conversation.format(format, session, peer, q, data));
+				writer.append(Responser.format(format, session, peer, q, data));
 				rep.closeReport();
 				out = writer.toString();
 			} else
-				out = conversation.format(format, session, peer, q, filtered);
+				out = Responser.format(format, session, peer, q, filtered);
 		}
 		return out;
 	}
@@ -311,17 +311,19 @@ class Searcher extends Intenter {
 			graph_text.append("\'"+source+"\' is '"+gi+"'\\n\\\n");
 		}
 	}
-	
-	boolean handle(final Conversation conversation,final Storager storager,final Session session) {
+
+	@Override
+	public boolean handleIntent(final Session session) {
 		
-		synchronized (this) {//TODO fiz this lazy init hack
+		final String[] args = session.args();
+		if (AL.empty(args) || args.length < 2 || !args[0].equalsIgnoreCase(name) || !session.authenticated())
+			return false;
+		
+		synchronized (this) {//TODO fix this lazy init hack
 			if (matcher == null)
 				matcher = session.sessioner.body.getMatcher();
 		}
 		
-		final String[] args = session.args();
-		if (AL.empty(args) || args.length < 2 || !args[0].equalsIgnoreCase(name))
-			return false;
 		if (session.read(new Seq(new Object[]{name,"results"})))
 			if (session.status(name))
 				return true;
@@ -329,7 +331,7 @@ class Searcher extends Intenter {
 		final long timeout_millis = Period.SECOND * Integer.valueOf(Str.arg(args, "timeout", "10")).intValue();
 		Thread task = new Thread() {
 	         public void run() {
-	        	session.result( handleTimed(args,conversation,storager,session) );
+	        	session.result( handleTimed(args,session) );
 				session.complete(name);
 	         };
 	    };
@@ -338,8 +340,9 @@ class Searcher extends Intenter {
 	
 	//TODO: members: Conversation conversation, Storager storager, Session session
 	
-	boolean handleTimed(final String[] args, final Conversation conversation,final Storager storager,final Session session) {
-		Thing peer = conversation.getSessionAreaPeer(session);
+	boolean handleTimed(final String[] args, final Session session) {
+		Storager storager = session.getStorager();
+		Thing peer = Responser.getSessionAreaPeer(session);
 		Thing arg = new Thing();
 		final String topic = Str.arg(args,"search",null);
 		final String site = Str.arg(args,Conversation.in_site, null);
@@ -392,7 +395,7 @@ class Searcher extends Intenter {
 				}
 			}
 			if (!AL.empty(res)){
-				session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, sentiment, arg));
+				session.output(format(session, topic, null, format, limit, res, cluster, graphs, sentiment, arg));
 				return true;
 			}
 			session.output("Not.");
@@ -434,18 +437,18 @@ class Searcher extends Intenter {
 							public boolean passed(Thing thing) {
 								Collection s = thing.getThings(AL.sources);
 								if (!AL.empty(s) && 
-									HttpFileReader.alignURL(site, ((Thing)s.iterator().next()).getName(), true) != null)
+									HttpFileReader.alignURL(site, ((Thing)s.iterator().next()).name(), true) != null)
 									return true;
 								return false;
 							}};
-						Collection filtered = conversation.filter(session,peer,q,filter);
+						Collection filtered = Responser.queryFilter(session,peer,q,filter);
 						session.sessioner.body.debug("Searcher today filtered="+(filtered == null? 0 : filtered.size()));
 						if (AL.empty(filtered)) {
 							q = new Seq(new Object[]{new Seq(new Object[]{"is",topic}),properties});
-							filtered = conversation.filter(session,conversation.getSessionAreaPeer(session),q,filter);
+							filtered = Responser.queryFilter(session,Responser.getSessionAreaPeer(session),q,filter);
 							session.sessioner.body.debug("Searcher older filtered="+(filtered == null? 0 : filtered.size()));
 						}
-						out = format(conversation, session, topic, q, format, limit, filtered, cluster, graphs, sentiment, arg);
+						out = format(session, topic, q, format, limit, filtered, cluster, graphs, sentiment, arg);
 						session.output(!AL.empty(out) ? out : "Not.");
 					} catch (Throwable e) {
 						session.sessioner.body.error("Searcher "+session.input(), e);
@@ -471,9 +474,9 @@ class Searcher extends Intenter {
 							new All(new Object[]{new Seq(new Object[]{"is",topic}),
 							new Seq(new Object[]{"times",day})})
 						,properties});
-					Collection clones = conversation.filter(session,peer,q,null);
+					Collection clones = Responser.queryFilter(session,peer,q,null);
 					if (!AL.empty(clones)){
-						session.output(format(conversation, session, topic, q, format, limit, clones, cluster, graphs, sentiment, arg));
+						session.output(format(session, topic, q, format, limit, clones, cluster, graphs, sentiment, arg));
 						return true;
 					}
 					//if not found, extend for all texts and search in them with siter matcher
@@ -498,7 +501,7 @@ class Searcher extends Intenter {
 //TODO: fill up to the limit
 						//flush final collection to out
 						if (!AL.empty(res)){
-							session.output(format(conversation, session, topic, q, format, limit, res, cluster, graphs, sentiment, arg));
+							session.output(format(session, topic, q, format, limit, res, cluster, graphs, sentiment, arg));
 							return true;
 						}else {
 							;
@@ -555,7 +558,7 @@ class Searcher extends Intenter {
 //TODO: fill up to the limit
 						//flush final collection to out ON the first day AND the first tie on matches
 						if (!AL.empty(res)){
-							session.output(format(conversation, session, topic, null, format, limit, res, cluster, graphs, sentiment, arg));
+							session.output(format(session, topic, null, format, limit, res, cluster, graphs, sentiment, arg));
 							return true;
 						}
 					}

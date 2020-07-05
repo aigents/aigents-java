@@ -90,6 +90,7 @@ public class AL {
 	public final static String text 	= "text"; // TODO: move this out to name?
 	public final static String version  = "version";
 	public final static String format   = "format";
+	public final static String conversation   = "conversation";
 	public final static String context  = "context";
 	public final static String reputation = "reputation";//global reputaion
 	public final static String title  = "title";

@@ -39,7 +39,7 @@ import net.webstructor.al.Writer;
 import net.webstructor.cat.StringUtil;
 import net.webstructor.util.Array;
 
-public class Thing extends Anything { // implements ORObject
+public class Thing extends Anything implements Named { // implements ORObject
 
 	private static final String[] names = new String[] {//TODO have this in Schema, not here and in AL
 		AL.is,
@@ -149,8 +149,9 @@ public class Thing extends Anything { // implements ORObject
     	}
 		return sb.toString();
 	}
-	
-	public String getName() {
+
+	@Override
+	public String name() {
 		//TODO: ensure it is unique
 		return getString(AL.name);
 	}
@@ -257,12 +258,12 @@ public class Thing extends Anything { // implements ORObject
 	public boolean is(String[] exceptions) {
 		if (AL.empty(exceptions))
 			return false;
-		if (Array.contains(exceptions,getName()))
+		if (Array.contains(exceptions,name()))
 			return true;
 		Collection is = (Collection)get(AL.is);
 		if (is !=  null)
 			for (Iterator it = is.iterator(); it.hasNext();)	
-				if (Array.contains(exceptions, ((Thing)it.next()).getName()))
+				if (Array.contains(exceptions, ((Thing)it.next()).name()))
 					return true;
 		return false;
 	}
@@ -345,7 +346,7 @@ public class Thing extends Anything { // implements ORObject
     	if (has instanceof Collection) {
     		Collection coll = (Collection)has;
       		for (Iterator it = coll.iterator();it.hasNext();)
-    			has_names.add(((Thing)it.next()).getName());
+    			has_names.add(((Thing)it.next()).name());
     	}
        	Object is = get(AL.is);
     	if (is instanceof Collection) {
@@ -355,7 +356,7 @@ public class Thing extends Anything { // implements ORObject
       	    	if (ishas instanceof Collection) {
       	    		Collection iscoll = (Collection)ishas;
       	      		for (Iterator isit = iscoll.iterator();isit.hasNext();)
-      	    			has_names.add(((Thing)isit.next()).getName());
+      	    			has_names.add(((Thing)isit.next()).name());
       	    	}
       		}
     	}
@@ -423,7 +424,7 @@ public class Thing extends Anything { // implements ORObject
 				Object e = it.next();
 				if (sb.length()>0)
 					sb.append(", ");//TODO: unhack the hack!?
-				sb.append(e instanceof Thing ? ((Thing)e).getName() : e.toString());
+				sb.append(e instanceof Thing ? ((Thing)e).name() : e.toString());
 			}
 			return sb.toString();
 		}

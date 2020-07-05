@@ -77,10 +77,6 @@ public abstract class SocialCacher extends Socializer {
 		return period;
 	}
 	
-	public String getName(){
-		return name;
-	}
-	
 	@Override
 	public String name(){
 		return name;

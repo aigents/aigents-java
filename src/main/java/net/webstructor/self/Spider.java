@@ -73,7 +73,7 @@ public class Spider {
 								peerSites = new HashSet(peerSites);
 								peerSites.retainAll(peerTrusts);
 								for (Iterator jt = peerSites.iterator(); jt.hasNext();){
-									String site = ((Thing)jt.next()).getName();
+									String site = ((Thing)jt.next()).name();
 									if (!AL.empty(site))
 										sites.add(site);
 								}
@@ -83,7 +83,7 @@ public class Spider {
 								peerTopics = new HashSet(peerTopics);
 								peerTopics.retainAll(peerTrusts);
 								for (Iterator jt = peerTopics.iterator(); jt.hasNext();){
-									String topic = ((Thing)jt.next()).getName();
+									String topic = ((Thing)jt.next()).name();
 									if (!AL.empty(topic))
 										sites.add(topic);
 								}
