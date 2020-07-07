@@ -70,7 +70,7 @@ class ControlledResponser implements Intenter {
 									session.getStorager().setUpdate();
 								}
 							}
-						session.output(skipped > 0 ? "Not. There things." : "Ok.");
+						session.output(skipped > 0 ? "No. There things." : "Ok.");
 					}
 				} catch (Exception e) {
 					session.output(Responser.statement(e));

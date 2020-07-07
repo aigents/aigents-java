@@ -50,7 +50,7 @@ public class Matcher {
 	
 	public Matcher(Body body) {
 		this.body = body;
-		this.storager = body.storager;
+		this.storager = body !=  null ? body.storager : null;
 	}
 	
 	//TODO: move to other place

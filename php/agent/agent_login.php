@@ -200,9 +200,9 @@ function test_login_new() {
 	say("My verification code 1111.");
 	get("What your verification code?");
 	say("What new true sources, text, times, trust?");
-	get("There not.");
+	get("No.");
 	say("What my sites name, trust?");
-	get("Your sites not.");
+	get("No.");
 	say("What my verification code?");
 	get("What your verification code? Sent to john@doe.org.");
 	say("My verification code 1234.");
@@ -250,7 +250,7 @@ function test_login_new() {
 	say("My email john@doe.org.");
 	get("What your verification code? Sent to john@doe.org.");
 	say("What times today, new true?");
-	get("There not.");
+	get("No.");
 	say("What my verification code?");
 	get("What your verification code? Sent to john@doe.org.");
 	say("My verification code 1234.");
@@ -388,7 +388,7 @@ function test_login_new() {
 	say("My email john@doe.com.");
 	get("Email john@doe.com is owned.");
 	say("What is peer, name test email?");
-	get("There not.");
+	get("No.");
 	say("There is peer, name test, email ali@baba.org.");
 	get("Ok.");
 	say("Is peer, name test email john@doe.com.");
@@ -452,7 +452,7 @@ function test_login_new() {
 	say("My sezame simsim.");
 	get("Ok. Hello Ali Baba!\nMy Aigents ".$version.$copyright);
 	say("What my google id?");
-	get("Your not.");
+	get("No.");
 	say("My google id 'testid3', google token 'testcode3'.");
 	get("Ok.");
 	say("My logout.");
@@ -556,7 +556,7 @@ function test_login_old() {
 	test_o("What your things?");
 	get("My things activity time, aigents, areas, attention period, birth date, caching period, check cycle, clicks, clustering timeout, conversation, cookie domain, cookie name, copypastes, crawl range, currency, daytime, discourse id, discourse key, discourse url, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, format, friend, friends, golos id, golos url, google id, google key, google token, googlesearch key, http origin, http port, http secure, http threads, http timeout, http url, ignores, items limit, john, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paid term, paypal id, paypal key, paypal token, paypal url, peer, phone, queries, reddit id, reddit image, reddit key, reddit redirect, reddit token, registration time, reputation conservatism, reputation decayed, reputation default, reputation system, retention period, secret answer, secret question, selections, self, sensitivity threshold, serpapi key, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram name, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, twitter id, twitter image, twitter key, twitter key secret, twitter redirect, twitter token, twitter token secret, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
 	say("What times today?");//debug
-	get("There not.");
+	get("No.");
 	test_o("What your things count?");
 	test_i("My things count ".($base_things_count + 1).".");
 	say("What your things?");
@@ -575,7 +575,7 @@ function test_login_old() {
 	test_o("No email john@doe.org, name John, surname Doe.");
 	test_i("Ok.");
 	test_o("What name john email, surname?");
-	test_i("John not.");
+	test_i("No.");
 	test_o("You load test1.txt!");
 	test_i("Ok.");
 	test_o("What your things count?");
@@ -874,7 +874,7 @@ function test_login_areas() {
 	say("You forget!");
 	get("Ok.");
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	
 	say("What email john@doe.org areas?");
 	get("There areas academgorodok.");
@@ -932,7 +932,7 @@ function test_login_sessions() {
 	say("what is john is?");
 	get("There is john.");
 	say("what is doe is?");
-	get("There not.");
+	get("No.");
 	$john_cookie = get_cookie();//save session
 	set_cookie(null);//reset session
 	

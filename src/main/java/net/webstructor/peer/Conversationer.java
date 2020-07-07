@@ -78,7 +78,7 @@ class Worker extends Thread {
 		message.session.comprehend(message.text);		  
 //conversationer.body.debug("Input:"+message.session.input);//TODO:cleanup	
 		//TODO: iterative modes processing the session context
-		while (message.session.mode.process(message.session)) {//mode act on session
+		while (message.session.responser.process(message.session)) {//mode act on session
 			;
 		}		
 //conversationer.body.debug("Output:"+message.session.output);//TODO:cleanup	

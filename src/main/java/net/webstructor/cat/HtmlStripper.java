@@ -184,7 +184,8 @@ import net.webstructor.util.Str;
             	baseHref = path;
             for(  pos = source.indexOf(LT,pos); pos < source.length(); pos = source.indexOf(LT,pos)  ) 
             {
-                if(pos < 0) break;
+                if(pos < 0)
+                	break;
                 if(pos>startOfText && startOfText != -1)
                 {
                 	StringBuilder chunk = new StringBuilder(); 
@@ -197,7 +198,8 @@ import net.webstructor.util.Str;
                     	headerContentBuf.append(chunkStr);
                     startOfText = -1;
                 }
-                pos++;
+                if (++pos >= source.length())
+                	break;
                 if(isComment(source,pos))
                 {
                     // skip html comments
@@ -419,6 +421,8 @@ import net.webstructor.util.Str;
                              }
         
         static String whichTag(String source, int pos, String[] tags, boolean closingToo) {
+        	if (pos >= source.length())
+        		return null;
         	if (closingToo && source.charAt(pos) == '/') 
         		pos++;
         	for (int i=0; i<tags.length; i++)

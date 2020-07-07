@@ -95,13 +95,6 @@ public class Query
 	
 	private Thing clone(Thing source, String[] args,Thing viewer,boolean think){
 		Thing clone = source.clone(args,viewer);
-		/*//obfuscate hidden attributes
-		if (!root && !(source.equals(viewer) || source.hasThing(AL.is, viewer)) && Peer.registered(source)) {
-			for (String hidden : Schema.hidden) {
-				if (!AL.empty(clone.getString(hidden)))
-					clone.setString(hidden, "****************");//TODO configure properly
-			}
-		}*/
 		obfuscate(source, clone, args, viewer);
 		if (think && thinker != null)
 			thinker.think(source, clone, args, viewer);
@@ -228,8 +221,9 @@ public class Query
 			}
 		}
 		if (current != null && !(current instanceof Collection)) {
-			HashSet set = new HashSet(1);
-			set.add(current);
+			HashSet set = new HashSet();
+			if (!(current instanceof Thing && ((Thing)current).empty()))
+				set.add(current);
 			current = set;
 		}			
 		return (Collection)current;

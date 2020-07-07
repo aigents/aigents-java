@@ -149,7 +149,7 @@ abstract class DataModel extends AbstractTableModel {
 				if (i > 0)
 					sb.append(AL.lister[0]).append(AL.space);
 //TODO: make insensitive to no/not/~ ?
-				sb.append(AL.not[1]).append(AL.space);
+				sb.append(AL.not[0]).append(AL.space);
 				Writer.toString(sb,names[i]);        				
 			}
 			sb.append(AL.period);
@@ -205,7 +205,7 @@ abstract class DataModel extends AbstractTableModel {
 	String editRequest(int row, int col, String oldValue, String newValue) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("My ").append(type()).append(AL.space);
-		sb.append(AL.not[1]).append(AL.space);
+		sb.append(AL.not[0]).append(AL.space);
 		Writer.toString(sb,oldValue);        				
 		sb.append(AL.lister[0]).append(AL.space);
 		Writer.toString(sb,newValue);

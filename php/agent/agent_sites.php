@@ -68,7 +68,7 @@ http://www.tesis.lebedev.ru/sun_flares.html
 	say("my format not json");
 	get("Ok.");
 	say("what my format?");
-	get("Your not.");
+	get("No.");
 	test_o("No there is sun flare.");
 	test_i("Ok.");
 	test_o("My topics no sun flare.");
@@ -451,7 +451,7 @@ function test_authoring() {//content authoring and sharing
 	say("what is test page new, times");
 	get("There new true, times today.");
 	say("there is 'test page', sources http://localtest.com/test/, times today, new true.");
-	get("No thing.");//nothing is updated //TODO: say somethig more reasonable
+	get("No.");//nothing is updated //TODO: say somethig more reasonable
 	say("what is test page");
 	get("There is test page, sources http://localtest.com/test/, times today.");
 	say("is test page new false");
@@ -459,7 +459,7 @@ function test_authoring() {//content authoring and sharing
 	say("no there is 'test page'");
 	get("Ok.");
 	say("what is test page");
-	get("There not.");
+	get("No.");
 	//Content authoring and sharing
 	$john_cookie = get_cookie();//save john session
 	set_cookie(null);//reset session
@@ -467,9 +467,9 @@ function test_authoring() {//content authoring and sharing
 	say("email john@doe.org trust true");//trust to john
 	get("Ok.");
 	say("what new true");
-	get("There not.");
+	get("No.");
 	say("what is test page");
-	get("There not.");
+	get("No.");
 	$doe_cookie = get_cookie();//save doe session
 	set_cookie($john_cookie);//back to john
 	say("email doe@john.org share true");//share to doe

@@ -40,12 +40,12 @@ class Verification extends Registration {
 		Peer temp = new Peer();
 		check(session);
 		if (q == null || a == null) {
-			session.mode = new Registration();
+			session.responser = new Registration();
 			session.expect(null);
 			return true;			
 		}
 		if (Reader.read(session.input(), cancel_pattern)) {
-			session.mode = new Login();
+			session.responser = new Login();
 			session.peer = null;
 			session.expect(null);
 			return true;
@@ -57,7 +57,7 @@ class Verification extends Registration {
 			{
 			String answer = temp.getString(q);
 			if (a.equalsIgnoreCase(answer)) {
-				session.mode= new Conversation();
+				session.responser = session.sessioner.body.getResponser();
 				session.output(session.welcome());
 				try {
 					String email = session.peer.getString(AL.email);
@@ -71,7 +71,7 @@ class Verification extends Registration {
 				return false;
 			}
 			if (++session.fails >= 4){
-				session.mode = new Login();
+				session.responser = new Login();
 				session.clear();
 				session.expect(null);
 				return true;
@@ -81,7 +81,7 @@ class Verification extends Registration {
 			if (session.mood == AL.interrogation){
 				//'what my $secret_question?' => back to verirfication
 				if (q != null && session.read(Reader.pattern(AL.i_my,new String[] {q,Peer.secret_question,Peer.secret_answer}))){
-					session.mode = new VerificationChange();
+					session.responser = new VerificationChange();
 					session.expect(null);
 					return true;
 				}

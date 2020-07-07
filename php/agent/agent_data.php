@@ -46,11 +46,11 @@ function test_data() {
 	say("what company has?");
 	get("Company has address, categories, name, phone, sites.");
 	say("what is company?");
-	get("There not.");
+	get("No.");
 	say("what product has?");
 	get("Product has address, categories, companies, name, price, quantity, times.");
 	say("what is product?");
-	get("There not.");
+	get("No.");
 	
 	say("there is company, name 'Русская чайная компания', categories 'Розничные магазины', phone '7 (495) 447-05-56', address 'ТЦ Олимпия, 1 этаж, ул. Галущака, 2А, Новосибирск, Новосибирская обл., 630049', sites 'https://www.rusteaco.ru/'. " .
 	"there is company, name 'Окей', ̆categories 'Гипермаркеты', phone '7(495)139-20-85', address 'ТРЦ «Аура», Военная ул., 5, Новосибирск, Новосибирская обл., 630099', sites 'https://www.okeydostavka.ru/'. " .
@@ -88,9 +88,9 @@ function test_data() {
 	say("No name company.");
 
 	say("what is company?");
-	get("There not.");
+	get("No.");
 	say("what is product?");
-	get("There not.");
+	get("No.");
 	
 	say("You forget!");
 	get("Ok.");

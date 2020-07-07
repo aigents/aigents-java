@@ -46,7 +46,7 @@ function test_agent_think() {
 	say("Your things count?");
 	get("My things count ".($base_things_count).".");
 	say("What times today text?");
-	get("There not.");
+	get("No.");
 	
 	say("My logout.");
 
@@ -195,7 +195,7 @@ function test_agent_think() {
 	say("My x y.");
 	del_news_today();
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say_thing("there is \$something.",false);
 	say_site("http://localtest.com/think.html",false);
 	say("No email doe@john.com.");
@@ -274,7 +274,7 @@ function test_agent_think_ex() {
 	say("My x y.");
 	del_news_today();
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say_thing("there is \$something.",false);
 	say_thing("here is \$something.",false);
 	say_site("http://localtest.com/think.html",false);

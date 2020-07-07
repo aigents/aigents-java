@@ -47,6 +47,10 @@ get("Your login count 1, registration time today.");
 say("What your version?");
 get("My version ".$version.".");
 
+//Testing Demo Plugin
+//say("ping");
+//get("pong");
+
 say("You forget everything!");
 get("Ok.");
 
@@ -185,7 +189,7 @@ test_i("There email ali@baba.com, phone +12345678901.");
 test_o("Is peer, name Ali, surname Baba trust true.");
 test_i("Ok.");
 test_o("No there is peer, name Ali, surname Baba.");
-test_i("Not. There things.");
+test_i("No. There things.");
 test_o("Is peer, name Ali, surname Baba trust false.");
 test_i("Ok.");
 test_o("No there is peer, name Ali, surname Baba.");
@@ -223,7 +227,7 @@ test_i("Your sites http://weather.yahoo.com, http://www.weather.com.");
 test_o("What my sites?");
 test_i("Your sites http://weather.yahoo.com, http://www.weather.com.");
 test_o("What my topics?");
-test_i("Your not.");
+test_i("No.");
 test_o("My topics temperature, storm.");
 test_i("Ok.");
 test_o("My trusts temperature, storm.");
@@ -304,7 +308,7 @@ test_i("Ok.");
 test_o("No there is http://localtest.com/test.");
 test_i("Ok.");
 test_o("What is http://localtest.com/test, times today text?");
-test_i("There not.");
+test_i("No.");
 
 //Test reading from texts
 test_o("Value is number.");
@@ -340,7 +344,7 @@ test_i("Ok.");
 test_o("What your things count?");
 test_i("My things count ".($base_things_count + 11).".");
 test_o("What times today is, region?");
-test_i("There not.");
+test_i("No.");
 test_o("You load test1.txt!");
 test_i("Ok.");
 test_o("What your things count?");
@@ -356,13 +360,13 @@ test_i("Ok.");
 test_o("What my topics?");
 test_i("Your topics storm, temperature, test.");
 test_o("What is http://localtest.com/test?");
-test_i("There not.");
+test_i("No.");
 test_o("What is test?");
-test_i("There not.");
+test_i("No.");
 test_o("What my news?");
-test_i("Your not.");
+test_i("No.");
 test_o("What my news text?");
-test_i("Your news not.");
+test_i("No.");
 test_o("You reading site http://localtest.com/test!");
 test_i("My reading site http://localtest.com/test.");
 test_o("What sources http://localtest.com/test text?");
@@ -426,7 +430,7 @@ test_i("There text temperature 22 c°, trust true.");
 test_o("What new true, trust true text?");
 test_i("There text temperature 22 c°.");
 test_o("No there is test or temperature or storm.");
-test_i("Not. There things.");
+test_i("No. There things.");
 //TODO: this does not parse as [is {test, temperature, storm}] - fix!
 //test_o("Is test or temperature or storm trust false, new false.");
 //test_i("Ok.");
@@ -438,13 +442,13 @@ test_i("Ok.");
 test_o("What new true text, trust?");
 test_i("There text temperature 22 c°, trust false; text this is a test page, trust false.");
 test_o("No there is test or temperature or storm.");
-test_i("Not. There things.");
+test_i("No. There things.");
 test_o("Is test, times today, text 'this is a test page' new false.");
 test_i("Ok.");
 test_o("text temperature 22 c°, times today new false.");
 test_i("Ok.");
 test_o("What my news?");
-test_i("Your not.");
+test_i("No.");
 //TODO - self site time checking
 //TODO - time or times!?
 
@@ -471,7 +475,7 @@ get("There sources 'https://play.google.com/store/apps/details?id=net.webstructo
 say("Is 'Android \$info' new false.");
 say("No there is 'Android \$info'.");
 say("What is 'Android \$info' text, sources?");
-get("There not.");
+get("No.");
 say("Name 'Android \$info' path '{contacts}'.");
 say("What name 'Android \$info' path?");
 get("Android \$info path '{contacts}'.");
@@ -492,10 +496,10 @@ say("No there is 'Android \$info'.");
 say("You reading!");
 get("Ok. My reading.");
 say("You reading!");
-get("Not. My reading.");
+get("No. My reading.");
 sleep($timeout);
 say("What is 'Android \$info' text, sources?");
-get("There not.");
+get("No.");
 
 //test exhaustive reading
 //1st, get by existing non-exhaustive path
@@ -560,7 +564,7 @@ say("You forget!");
 test_o("No there is test or temperature or storm.");
 test_i("Ok.");
 test_o("What is test?");
-test_i("There not.");
+test_i("No.");
 test_o("My trusts no test.");
 test_i("Ok.");
 test_o("My topics no test.");
@@ -578,7 +582,7 @@ test_i("Ok.");
 test_o("No name text.");
 test_i("Ok.");
 test_o("What is http://localtest.com/test times, text?");
-test_i("There not.");
+test_i("No.");
 
 //logout and login after save and load and then see we are okay
 test_o("My logout.");
@@ -602,7 +606,7 @@ test_i("Your topics temperature.");
 test_o("My topics no temperature.");
 test_i("Ok.");
 test_o("What my topics?");
-test_i("Your not.");
+test_i("No.");
 test_o("No name temperature, name storm.");
 test_i("Ok.");
 test_o("No name scale, name value, name region.");
@@ -689,12 +693,12 @@ test_i("Ok.");
 test_o("You forget!");
 test_i("Ok.");
 test_o("What text 3 today new, trust?");
-test_i("There not.");
+test_i("No.");
 test_o("What text 4 today new, trust?");
-test_i("There not.");
+test_i("No.");
 test_o("Your attention period 3.");
 test_o("What sources http://weather.yahoo.com text?");
-test_i("There not.");
+test_i("No.");
 
 //unregister
 say("Your trusts no John.");

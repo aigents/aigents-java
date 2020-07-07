@@ -118,9 +118,9 @@ GET:There not; patterns 'responses Type "my topics?" to list topics, TODO ...', 
 	say("You forget!");
 	get("Ok.");
 	say("What patterns help?").
-	get("There not.");
+	get("No.");
 	say("help!");
-	get("No thing.");
+	get("No.");
 	logout();
 }
 
@@ -154,21 +154,21 @@ function test_chat() {
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	// check that patterns-responses ARE NOT working
 	say("hi");
-	get("No thing.");
+	get("No.");
 	say("What is hi?");
-	get("There not.");
+	get("No.");
 	say("What hi is?");
-	get("Hi not.");
+	get("No.");
 	say("What hi name?");
-	get("Hi not.");
+	get("No.");
 	say("What hi?");
-	get("Hi not.");
+	get("No.");
 	say("What help?");
-	get("Help not.");
+	get("No.");
 	say("Whatsup");
-	get("No thing.");
+	get("No.");
 	say("привет");
-	get("No thing.");
+	get("No.");
 	// check that patterns-responses ARE working
 	// 1st, create patterns
 	say("There patterns hi, hello, whatsup, greeting; responses 'hi!', 'hello!', 'whatsup?', 'greeting!'.");
@@ -224,34 +224,34 @@ function test_chat() {
 	say("No there patterns howdy.");
 	get("Ok.");
 	say("What patterns news?");
-	get("There not.");
+	get("No.");
 	say("What patterns help?");
-	get("There not.");
+	get("No.");
 	say("What patterns hi?");
-	get("There not.");
+	get("No.");
 	say("What patterns здорово?");
-	get("There not.");
+	get("No.");
 	say("What patterns howdy?");
-	get("There not.");
+	get("No.");
 	say("You forget.");
 	get("Ok.");
 	// check that patterns-responses ARE NOT working
 	say("hi");
-	get("No thing.");
+	get("No.");
 	say("What is hi?");
-	get("There not.");
+	get("No.");
 	say("What hi is?");
-	get("Hi not.");
+	get("No.");
 	say("What hi name?");
-	get("Hi not.");
+	get("No.");
 	say("What hi?");
-	get("Hi not.");
+	get("No.");
 	say("What help?");
-	get("Help not.");
+	get("No.");
 	say("Whatsup");
-	get("No thing.");
+	get("No.");
 	say("привет");
-	get("No thing.");	
+	get("No.");	
 	//cleanup
 	test_chat_cleanup();
 		
@@ -409,7 +409,7 @@ function test_search() {
 	say("You forget everything!");
 	get("Ok.");
 	say("what text 'text aigents topics sites news' sources?");
-	get("There not.");
+	get("No.");
 	say("search '{[\$context business applications \$about] [\$context social networks \$about]}' in http://localtest.com/, range 10, limit 100, timeout 1");
 	get("Search working.");
 	say("search '{[\$context business applications \$about] [\$context social networks \$about]}' in http://localtest.com/, range 10, limit 100, timeout 1");
@@ -417,9 +417,9 @@ function test_search() {
 	say("");//search->ping -> no update
 	get("Ok.");
 	say("What new true text?");
-	get("There not.");
+	get("No.");
 	say("what text 'text aigents topics sites news' sources?");
-	get("There not.");
+	get("No.");
 	//say("Search results?");//TODO with proper query parsing and itenters going first in order 
 	say("Search results");
 	get("Search busy.");//search->ping -> no update
@@ -453,7 +453,7 @@ function test_search() {
 	say("You forget!");
 	get("Ok.");
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say("www id products graph date today, period 0");
 	get("products worded http://localtest.com/sitea/corporate.html 100.\nproducts worded http://localtest.com/sitea/index.html 100.\nproducts worded http://localtest.com/sitea/personal.html 100.");
 	say("www id make graph date today, period 0");
@@ -463,7 +463,7 @@ function test_search() {
 	say("Search 'products make \$x', period 0");
 	get("Sources http://localtest.com/sitea/corporate.html, text products make corporations more profitable, x corporations more profitable; sources http://localtest.com/sitea/personal.html, text products make people happier, x people happier.");
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say("Search people");
 	get("Sources http://localtest.com/sitea/mission.html, text our mission is to make people happier; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
 	say("Search \"make people happier\"");
@@ -486,13 +486,13 @@ function test_search() {
 	say("No there times today.");
 	get("Ok.");
 	say("what is temperature");
-	get("There not.");
+	get("No.");
 	say("search temperature site http://localtest.com/test/");
 	get("There sources http://localtest.com/test/, text the outside temperature is 22 c°.");
 	say("what is temperature");
 	get("There about is 22 c°, context the outside, is temperature, sources http://localtest.com/test/, text the outside temperature is 22 c°, times today, title 'Aigents Test Page'.");
 	say("what is test");
-	get("There not.");
+	get("No.");
 	say("search test in http://localtest.com/test/Test.pdf");
 	get("There sources 'http://localtest.com/test/Test.pdf', text this is a test page.");
 	say("what is test");
@@ -505,7 +505,7 @@ function test_search() {
 	say("No there is products.");
 	get("Ok.");
 	say("what is products text");
-	get("There not.");
+	get("No.");
 	say("search products in http://localtest.com/sitea/, range 2, limit 1");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us.");
 	say("what is products text");

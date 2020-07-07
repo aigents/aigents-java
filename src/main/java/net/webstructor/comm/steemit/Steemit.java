@@ -304,12 +304,12 @@ public class Steemit extends SocialCacher {
 		env.debug("Steemit resyncing "+name+" end "+new Date(end)+", count "+count+", took "+Period.toHours(end-start)+", peer "+Period.toHours((end-start)/count)+".");
 	}
 	
-	public static String retryPost(Environment env,String api_url,String par) throws Exception{
+	public static String retryPost(Environment env,String api_url,String par) throws Throwable {
 		String response = null;
 		for (int retry = 1; retry <= 10; retry++){
 			response = HTTP.simple(api_url,par,"POST",0);
 			if (response.startsWith("<html>")){
-				env.error("Steemit response "+response+" on "+par,null);
+				env.error("Steemit response "+api_url+" "+par+" "+response,null);
 				Thread.sleep(100 * retry);
 			} else 
 				break;
@@ -317,7 +317,7 @@ public class Steemit extends SocialCacher {
 		return response;
 	}
 	
-	public static long headBlock(Environment env, String api_url,String api_name) throws Exception {
+	public static long headBlock(Environment env, String api_url,String api_name) throws Throwable {
 		String par = "steemit".equals(api_name) ? 
 				"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"get_dynamic_global_properties\",\"params\": []}"//Steemit
 				:"{\"jsonrpc\":\"2.0\",\"id\":\"25\",\"method\":\"call\",\"params\": [\"database_api\",\"get_dynamic_global_properties\",[]]}";//Golos
@@ -357,7 +357,7 @@ public class Steemit extends SocialCacher {
 			*/
 			
 			cacher.saveGraphs();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// TODO Auto-generated catch block
 			body.error(Writer.capitalize(name)+" crawling error",e);
 		}
@@ -368,7 +368,7 @@ public class Steemit extends SocialCacher {
 		return new Profiler(body,this,peer, name()+" id");
 	}
 
-	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Exception {
+	public static void blockSpider(Steemit api, Environment env, String api_name, String api_url, long start_block, boolean debug) throws Throwable {
 		String caps_name = Writer.capitalize(api_name);
 
 //get cacher from env!!!
@@ -636,8 +636,8 @@ if (block % 10 == 0){
 				}//transactions
 			}//graph
 //TODO:indent			
-			} catch (Exception e) {
-				env.error(caps_name+" crawling error "+response,e);
+			} catch (Throwable e) {
+				env.error(caps_name+" crawling error "+api_url+" "+par+" "+response,e);
 			}
 			
 		}//blocks
@@ -743,7 +743,7 @@ if (block % 10 == 0){
 			HTTP.init();
 			//optional input - block number
 			blockSpider(null,new Mainer(),name,url, args.length > 1 ? Long.parseLong(args[1]) : -1 , false);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

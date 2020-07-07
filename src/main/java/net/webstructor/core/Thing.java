@@ -314,6 +314,10 @@ public class Thing extends Anything implements Named { // implements ORObject
 			storager.del(name, value, this);//update storager index
 		return this; 
 	}
+
+    public boolean empty() {
+    	return properties == null || properties.isEmpty();
+    }
 	
 	//actual properties that thing possess
     public String[] getNamesAvailable() {

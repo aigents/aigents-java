@@ -74,7 +74,7 @@ import net.webstructor.self.Self;
 import net.webstructor.util.Array;
 import net.webstructor.util.Str;
 
-class Conversation extends Responser {
+public class Conversation extends Responser {
 	
 	public static final String[] spider = new String[] {"spider","spidering","crawl","crawling"};
 	public static final String[] logout = new String[] {"logout","bye"};
@@ -116,24 +116,24 @@ class Conversation extends Responser {
 		if (!session.authenticated() && setProperties(session))
 			return false;
 		if (session.peer == null) { // not authenticated, but in the process
-			session.mode = new Login();
+			session.responser = new Login();
 			return true;
 		} else
 		if (session.read(Reader.pattern(AL.i_my,logout)) || Array.contains(logout, session.input().toLowerCase())){//can logout at any point			
 			session.output("Ok.");
-			session.mode = new Login();
+			session.responser = new Login();
 			session.logout();
 			return false;			
 		} else
 		if (!session.authenticated() && !session.isSecurityLocal() &&
 			session.read(Reader.pattern(AL.i_my,new String[] {"secret question","secret answer"}))){
-			session.mode = new VerificationChange();
+			session.responser = new VerificationChange();
 			return true;			
 		} else
 		if (session.authenticated()) {
 			return doAuthenticated(storager,session);
 		} else {
-			session.mode = new Login();//TODO: really, just back to login?
+			session.responser = new Login();//TODO: really, just back to login?
 			return true;
 		}
 	  } catch (Exception e) {
@@ -212,7 +212,7 @@ class Conversation extends Responser {
 			
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
 			session.read(Reader.pattern(AL.i_my,new String[] {"email","e-mail"},"/.+@.+/"))) {
-			session.mode = new EmailChange();
+			session.responser = new EmailChange();
 			return true;			
 		} else 
 		if (session.input().length() == 0) { //repeated authentication seed for pre-authenticated session
@@ -404,7 +404,7 @@ class Conversation extends Responser {
 					if (session.getBody().act("read", null))//just read all sites altogether
 						session.output("Ok. My "+Self.reading[0]+".");
 					else
-						session.output("Not. My "+Self.reading[0]+".");
+						session.output("No. My "+Self.reading[0]+".");
 				}
 			}
 			return false;
@@ -415,7 +415,7 @@ class Conversation extends Responser {
 			session.output("Not.");
 			String text = reader.getString("text");
 			if (!AL.empty(text)){
-				String format = session.format();
+				String format = session.getString(AL.format);
 				//text = AL.unquote(text);//TODO: unquoting is overkill here?
 				ArrayList pc = new ArrayList();
 				ArrayList nc = new ArrayList();
@@ -506,8 +506,7 @@ class Conversation extends Responser {
 		{
 			if (handleIntent(session))
 				return false;;
-//TODO !? session.output("No.");
-			session.output("No thing.");
+			session.output(Writer.capitalize(AL.not[0])+".");
 			return false;
 		} 
 		//TODO: if such fallthrough is needed?

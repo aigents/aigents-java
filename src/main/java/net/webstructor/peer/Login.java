@@ -153,7 +153,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 					session.sessioner.body.debug("Facebook auto-log:"+peer);
 					peer.set(Body.facebook_id, id);
 					peer.set(Body.facebook_token, token);
-					session.mode = new Conversation();
+					session.responser = session.sessioner.body.getResponser();
 					session.peer = new Thing(peer,null);
 					session.output(session.welcome());
 					return false;
@@ -163,7 +163,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 					session.sessioner.body.debug("Facebook auto-reg:"+peer);
 					peer.set(Body.facebook_id, id);
 					peer.set(Body.facebook_token, token);
-					session.mode= new Conversation();
+					session.responser= new Conversation();
 					session.output(session.welcome());
 					try {
 						Peer.populateContent(session,Body.testEmail(email));
@@ -225,7 +225,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			try {
 				Thing peer = singleRegisteredPeer(session);
 				if (peer != null) {
-					session.mode= new Conversation();
+					session.responser= session.sessioner.body.getResponser();
 					session.peer = new Thing(peer,null);
 					session.output(session.welcome());
 					return false;
@@ -268,11 +268,11 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			session.peer = new Thing((Thing)peers.iterator().next(),null);
 			//if registered -  Verification
 			if (session.peer.getString(Peer.secret_answer) != null){
-				session.mode= new Verification();
+				session.responser= new Verification();
 				session.expect(new String[]{session.peer.getString(Peer.secret_question)});
 			}else{
 			//if not registered - Registration
-				session.mode= new Registration();
+				session.responser= new Registration();
 				session.expect(null);
 			}
 			return true;
@@ -300,7 +300,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				//TODO: do this default initialization in some other place!
 				//must initialize parameter sheets for peers anyway otherwise they can't be quaried by ALL-kind "open" queries
 				storedPeer.setString(Peer.check_cycle,"3 hours");//TODO:move out of here?
-				session.mode = new Registration();
+				session.responser = new Registration();
 				session.expect(null);
 				return true;
 			}

@@ -62,7 +62,7 @@ function test_agent_learn() {
 	say("Path?");
 	get();
 	say("What person path?");
-	get("Person path not.");
+	get("No.");
 	
 	//aside from learning, test ability to detect really new news only
 	//TODO: fix parsing so 'john doe founder' is parsed out of 'there is john doe founder elected'
@@ -147,7 +147,7 @@ function test_agent_learn() {
 	say("No there times today.");
 	get("Ok.");
 	say("What is person firstname, lastname, sources?");
-	get("There not.");
+	get("No.");
 	say("What person path?");
 	get("Person path '{[[about us] [company management]]}'.");
 	//find path for thing on site B
@@ -168,7 +168,7 @@ function test_agent_learn() {
 	say("No there is person.");
 	get("Ok.");
 	say("What is person firstname, lastname?");
-	get("There not.");
+	get("No.");
 	//find thing by path on site B
 	say("You reading person in http://localtest.com/siteb/!");
 	get("My reading person in http://localtest.com/siteb/.");
@@ -211,7 +211,7 @@ function test_agent_learn() {
 	say("No there is person.");
 	get("Ok.");
 	say("What is person firstname, lastname?");
-	get("There not.");
+	get("No.");
 
 	//http://www.irobot.com/->About iRobot->Management Team->Success
 	//https://www.google.com->About->Management->Success
@@ -275,11 +275,11 @@ function test_agent_learn() {
 	say("No name john.");
 	get("Ok.");
 	say("What times today is?");
-	get();//TODO: get("There not."); //decide what to do with multiple along-the-path sites
+	get();//TODO: get("No."); //decide what to do with multiple along-the-path sites
 	say("No there times today.");
 	get("Ok.");
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say("My logout.");
 	get("Ok.");
 	
@@ -321,7 +321,7 @@ function test_agent_agglomerate() {
 	get("Ok.");
 	
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say("My sites http://localtest.com/sitea/test.html, http://localtest.com/siteb/test.html.");
 	say("My trusts http://localtest.com/sitea/test.html, http://localtest.com/siteb/test.html.");
 	say("You reading!");
@@ -335,16 +335,16 @@ function test_agent_agglomerate() {
 	say("no there times today.");
 	get("Ok.");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
-	get("There not.");
+	get("No.");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
-	get("There not.");
+	get("No.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder adviced</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
-	get("There not.");
+	get("No.");
 	say("You forget everything!");
 	get("Ok.");
 	say("What times today?");
@@ -352,7 +352,7 @@ function test_agent_agglomerate() {
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
-	get("There not.");
+	get("No.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder declared</body></html>");
 	say("You reading!");
 	sleep($timeout);
@@ -374,7 +374,7 @@ function test_agent_agglomerate() {
 	say("no there times today.");
 	get("Ok.");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
-	get("There not.");
+	get("No.");
 	say("You forget everything!");
 	get("Ok.");
 //TODO: make this working WITHOUT "and" and WITH it!!!
@@ -397,7 +397,7 @@ function test_agent_agglomerate() {
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
-	get("There not.");
+	get("No.");
 	say("New true new false.");//discard news
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' times, text?");
 	get("There text xx xxx founder, times today; text yy yyy cto, times today; text zz zzz cto, times today.");	
@@ -424,7 +424,7 @@ function test_agent_agglomerate() {
 	say("You forget everything!");
 	file_put_contents($basePath."html/sitea/test.html","<html><body></body></html>");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
-	get("There not.");
+	get("No.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said .</body></html>");
 	say("You reading!");
 	sleep($timeout);
@@ -437,7 +437,7 @@ function test_agent_agglomerate() {
 	say("no there is '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("no there times today.");
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said . zz zzz cto announced .</body></html>");
 	say("You reading!");
 	sleep($timeout);
@@ -450,7 +450,7 @@ function test_agent_agglomerate() {
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
-	get("There not.");//3
+	get("No.");//3
 	say("new true new false.");
 	say("no there is '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("no there times today.");
@@ -466,7 +466,7 @@ function test_agent_agglomerate() {
 	say("no there is '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("no there times today.");
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . yy yyy founder declared. zz zzz director shouted. ww www cto spelled.</body></html>");
 	say("You reading!");
 	sleep($timeout);
@@ -499,7 +499,7 @@ function test_agent_agglomerate() {
 	say("No name lastname.");
 	get("Ok.");
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say("You forget.");
 	get("Ok.");
 

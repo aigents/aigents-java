@@ -63,10 +63,8 @@ import net.webstructor.core.Scheduler;
 import net.webstructor.data.GraphCacher;
 import net.webstructor.data.ReputationSystem;
 import net.webstructor.peer.Conversationer;
-import net.webstructor.peer.Intenter;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
-import net.webstructor.peer.Responser;
 import net.webstructor.serp.Serper;
 import net.webstructor.self.Selfer;
 import net.webstructor.self.WebCrawler;
@@ -151,8 +149,8 @@ public class Farm extends Body {
 		for (Serper s : Serper.getDefaultSerpers(this))
 			searchers.put(s.name(), s);
 		
-		for (Intenter i : Responser.getDefaultIntenters())
-			intenters.put(i.name(), i);
+		/*for (Intenter i : Responser.getDefaultIntenters())
+			intenters.put(i.name(), i);*/
 	}
 
 	//TODO: have this done in fresh new Farm class diverged from old Farm class renamed to Cell 

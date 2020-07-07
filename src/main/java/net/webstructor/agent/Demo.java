@@ -24,7 +24,11 @@
 package net.webstructor.agent;
 
 import net.webstructor.agent.Farm;
+import net.webstructor.peer.Conversation;
 import net.webstructor.peer.Conversationer;
+import net.webstructor.peer.Intenter;
+import net.webstructor.peer.Responser;
+import net.webstructor.peer.Session;
 import net.webstructor.self.Matcher;
 import net.webstructor.self.Publisher;
 import net.webstructor.self.Siter;
@@ -65,6 +69,38 @@ public class Demo extends Farm {
 	public Publisher getPublisher(){
     	//one can use the Matcher subclass of their own, overridding the methods
 		return super.getPublisher();
+	}
+	
+    /**
+     * May return custom Intenter
+     */
+    @Override
+	public Responser getResponser(){
+    	//one can use the basic Intenter subclass of their own, overridding the methods
+		return new Conversation() {
+			@Override
+			public Intenter[] getIntenters() {
+		    	//one can reload subordinate Intenters
+				Intenter[] base = super.getIntenters();
+				Intenter[] extended = new Intenter[base.length + 1];
+				System.arraycopy(base, 0, extended, 1, base.length);
+				extended[0] = new Intenter() {
+					@Override
+					public String name() {
+						return "ping chat demo";
+					}
+					@Override
+					public boolean handleIntent(Session session) {
+						if ("ping".equals(session.input())) {
+							session.output("pong");
+							return true;
+						}
+						return false;
+					}
+				};
+				return extended;
+			}
+		};
 	}
 	
     /**

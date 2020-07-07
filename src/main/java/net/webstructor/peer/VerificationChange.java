@@ -44,7 +44,7 @@ class VerificationChange extends Registration {
 			if (Reader.read(session.input(), Reader.pattern(AL.i_my,new String[] {"verification code "+code}))) {
 				session.peer.setString(Peer.secret_question,null);
 				session.peer.setString(Peer.secret_answer,null);
-				session.mode = new Registration();
+				session.responser = new Registration();
 				//TODO: consider that this peer update does not actually work ("no property - no change") 
 				//TODO: but also consider this is rather good because answer/question are not lost of change is cancelled
 				storedPeer.update(session.peer,null);
@@ -52,7 +52,7 @@ class VerificationChange extends Registration {
 			}
 		}
 		if (Reader.read(session.input(), cancel_pattern) || ++session.fails >= 3) {
-			session.mode = new Login();
+			session.responser = new Login();
 			session.clear();
 			return true;
 		}

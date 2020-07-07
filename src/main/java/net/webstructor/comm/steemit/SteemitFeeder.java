@@ -452,7 +452,7 @@ class SteemitFeeder extends SocialFeeder {
  */
 				}
 				
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				body.error("Spidering peer Steemit feeder user "+user_id+" request "+par+" response"+response,e);
 				break;
 			}

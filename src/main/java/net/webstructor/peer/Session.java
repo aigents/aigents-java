@@ -48,7 +48,7 @@ public class Session  {
 	Thing peer = null;
 	Thing session = null;//specific session context of the peer - peer's sub-personality
 	Communicator communicator;
-	Responser mode = null;
+	Responser responser = null;
 	String key;
 	String type;
 	transient int mood = AL.declaration;
@@ -70,7 +70,7 @@ public class Session  {
 		this.communicator = communicator;
 		this.type = type;
 		this.key = key;
-		this.mode = new Conversation();
+		this.responser = sessioner.body.getResponser();
 		this.reader = new Reader(sessioner.body);
 		//this.writer = new Writer(sessioner.body);
 	}
@@ -151,18 +151,16 @@ public class Session  {
 		authenticated = false;
 	}
 	
-	String format(){
-//TODO make format a session property
-		String format = null;
+	public String getString(String name) {
+		String value = null;
 		if (peer != null)
-			format = peer.getString(AL.format);
-		if (AL.empty(format)) {
+			value = peer.getString(name);
+		if (AL.empty(value)) {
 			Thing p = getStoredPeer();
 			if (p != null)
-				format = p.getString(AL.format);
-			//TODO: Mode.getSessionAreaPeer(this)?
+				value = p.getString(name);
 		}
-		return format;
+		return value;
 	}
 	
 	public Thing getPeer() {
@@ -387,7 +385,7 @@ public class Session  {
 	public void login(String provider, Thing storedPeer) {
 		Session session = this;
 		session.sessioner.body.debug(provider+" auto-log: "+storedPeer);
-		session.mode = new Conversation();
+		session.responser = session.sessioner.body.getResponser();
 		session.peer = new Thing(storedPeer,null);
 		session.output = session.welcome();
 	}

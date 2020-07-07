@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Any;
 import net.webstructor.al.Reader;
@@ -47,25 +46,21 @@ public abstract class Responser implements Intenter {
 	
 	static final protected Set cancel_pattern = Reader.patterns(null,null,"{no not login logout [my login] [my logout] bye}");
 	
-//TODO: initialize list of intenters
-//TODO: handle(storager,session) -> handleIntent(session)
-	Searcher searcher = new Searcher();
+//TODO: initialize list of intenters in Body/Farm and rearrange their order in Session 
+	/*Searcher searcher = new Searcher();
 	PatternResponser patternResponser = new PatternResponser();
-	ControlledResponser controlledResponser = new ControlledResponser();
-	
-	public static Intenter[] getDefaultIntenters() {
-		return new Intenter[]{
+	ControlledResponser controlledResponser = new ControlledResponser();*/
+	private static Intenter[] intenters = new Intenter[]{
 				new Searcher(),
 				new ControlledResponser(),
 				new PatternResponser()
-		};
-	}
+	};
 
 	@Override
 	public String name() {
 		return "system";
 	}
-	
+
 	@Override
 	public boolean handleIntent(final Session session) {
 		/*
@@ -76,13 +71,16 @@ public abstract class Responser implements Intenter {
 		if (patternResponser.handleIntent(session))
 			return true;
 		*/
-//TODO user "controlled" OR "natural" in order according to Peer/Session "conversation" property
-		Body body = session.sessioner.body;
-		for (Intenter i : getDefaultIntenters()) {
-			if (body.getIntenter(i.name()).handleIntent(session))
+//TODO user "controlled" OR "natural" in order according to Peer/Session "conversation" property?
+		for (Intenter i : getIntenters()) {
+			if (i.handleIntent(session))
 				return true;
 		}
 		return false;
+	}
+
+	public Intenter[] getIntenters() {
+		return intenters;
 	}
 	
 	public abstract boolean process(Session session);
@@ -203,7 +201,8 @@ public abstract class Responser implements Intenter {
 		session.query = null;
 		if (handleIntent(session))//session.query is expected ot get filled by controlledResponser!  
 			return false;;
-		session.output(session.query == null ? "No." : Writer.toPrefixedString(session,session.query,null));
+		//session.output(session.query == null ? "No." : Writer.toPrefixedString(session,session.query,null));
+		session.output(Writer.capitalize(AL.not[0])+".");
 		return false;
 	}
 

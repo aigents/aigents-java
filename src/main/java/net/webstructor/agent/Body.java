@@ -48,9 +48,10 @@ import net.webstructor.data.GraphCacher;
 import net.webstructor.data.CacherHolder;
 import net.webstructor.data.Translator;
 import net.webstructor.main.Logger;
+import net.webstructor.peer.Conversation;
 import net.webstructor.peer.Conversationer;
-import net.webstructor.peer.Intenter;
 import net.webstructor.peer.Peer;
+import net.webstructor.peer.Responser;
 import net.webstructor.peer.Sessioner;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedMap;
@@ -64,7 +65,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "2.9.3";
+	public final static String VERSION = "2.9.5";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	public final static String DEFAULT_API_URL = "/al";
@@ -213,7 +214,7 @@ public abstract class Body extends Anything implements Environment, Updater
 	protected HashMap actioners = new HashMap();
 	protected HashMap<String,Serper> searchers = new HashMap<String,Serper>();
 	protected OrderedMap<String,Crawler> crawlers = new OrderedMap<String,Crawler>();
-	protected OrderedMap<String,Intenter> intenters = new OrderedMap<String,Intenter>();
+	//protected OrderedMap<String,Intenter> intenters = new OrderedMap<String,Intenter>();
 	
 	//TODO:configuration on-line
 	protected boolean console;
@@ -294,17 +295,9 @@ public abstract class Body extends Anything implements Environment, Updater
 			return crawlers.values();
 		}
 	}
-	
-	public Collection<Intenter> getIntenters(){
-		synchronized (intenters) {
-			return intenters.values();
-		}
-	}
 
-	public Intenter getIntenter(String name){
-		synchronized (intenters) {
-			return intenters.get(name);
-		}
+	public Responser getResponser(){
+		return new Conversation();
 	}
 
 	public Serper getSerper(String name){

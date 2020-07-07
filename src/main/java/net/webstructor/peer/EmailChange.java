@@ -47,7 +47,7 @@ class EmailChange extends Registration {
 			if (Reader.read(session.input(), seq) && (email = temp.getString(AL.email)) != null) {
 				if (oldmail.equalsIgnoreCase(email)) {
 					session.output("Ok.");
-					session.mode = new Conversation();
+					session.responser = session.sessioner.body.getResponser();
 					return false;
 				}	
 				try {
@@ -65,7 +65,7 @@ class EmailChange extends Registration {
 				return false;				
 			}
 			else {
-				session.mode = new Conversation();
+				session.responser = new Conversation();
 				return true;
 			}
 		} else {
@@ -73,7 +73,7 @@ class EmailChange extends Registration {
 			if (Reader.read(session.input(), Reader.pattern(AL.i_my,new String[] {"verification code "+code}))) {
 				session.peer.update(storedPeer,null);
 				session.peer.setString(AL.email, newmail);				
-				session.mode = new Conversation();
+				session.responser = new Conversation();
 				//session.sessioner.body.debug("Email change to "+newmail+".");
 				//session.sessioner.body.debug("New peer "+Writer.toString(session.peer)+".");
 				//session.sessioner.body.debug("Old peer "+Writer.toString(storedPeer)+".");
@@ -93,7 +93,7 @@ class EmailChange extends Registration {
 			}
 		}
 		if (Reader.read(session.input(), cancel_pattern)) {//TODO: get rid of 'my logout' and 'my login' here
-			session.mode = new Conversation();
+			session.responser = new Conversation();
 			session.output("Ok.");
 			return false;
 		}

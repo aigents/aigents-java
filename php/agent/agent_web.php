@@ -45,7 +45,7 @@ function test_agent_rss() {
 	del_news_today("yesterday");
 	del_news_today();
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say_thing("test",false);
 	say_site("http://localtest.com/test/arxiv1.xml",false);
 	logout();
@@ -65,7 +65,7 @@ function test_agent_rss() {
 	get("There image http://localtest.com/test/junk.jpg, sources http://example.org/2003/12/13/atom03, text text about test feed, title 'Title about test feed'; image http://localtest.com/test/junk.jpg, sources http://example.org/2003/12/13/atom03, text title about test feed, title 'Title about test feed'; image http://localtest.com/test/stuff.jpg, sources http://localtest.com/, text text for test image, title 'Test with image'.");
 	del_news_today();
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say_thing("test",false);
 	say_site("http://localtest.com/test/atom1.xml",false);
 	logout();
@@ -87,7 +87,7 @@ function test_agent_rss() {
 	get("There image http://localtest.com/test/garbage.jpg, sources http://www.feedforall.com/government.htm, text test the reaction of audience about the coming events and keep the community aware of changes in, title 'RSS Solutions for Governments'; image http://localtest.com/test/stuff.jpg, sources http://www.feedforall.com/schools.htm, text test results scores, title 'RSS Solutions for Schools and Colleges'.");
 	del_news_today();
 	say("What times today?");
-	get("There not.");
+	get("No.");
 	say_thing("test",false);
 	say_site("http://localtest.com/test/rss1.xml",false);
 	logout();
@@ -122,7 +122,7 @@ function test_agent_web() {
 		say_thing($patt);
 		say("No there is '".$patt."'.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		say("You reading '".$patt."' in '".$site."', range 1, minutes 10!");//it works
 		//say("You reading '".$patt."' in '".$site."', range 4, minutes 60, limit 1000!");//it works, but long
 		get("My reading ".$patt." in ".$site.".");
@@ -218,7 +218,7 @@ function test_agent_web() {
 		say_thing($patt);
 		say("No there is '".$patt."'.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		say("You reading '".$patt."' in '".$site."'!");
 		get();
 		say("What is '".$site."' text?");
@@ -238,7 +238,7 @@ function test_agent_web() {
 		say_thing($patt);
 		say("No there is '".$patt."'.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		say("You reading '".$patt."' in 'https://steemit.com/ethereum/@aigents/ethereum-graphs-with-aigents'!");
 		say("What is '".$patt."' text?");
 		get("There text you can enjoy trying our latest release.");
@@ -271,7 +271,7 @@ function test_agent_web() {
 		say_thing($patt);
 		say("No there is '".$patt."'.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		say("You reading '".$patt."' in 'http://tesis.lebedev.ru/en/magnetic_storms.html?m=9&d=21&y=2018'!");
 		say("What is '".$patt."' text?");
 		get("There text 'magnetic storm of level g1 ( minor ) from 21:00 to 00:00'.");
@@ -288,7 +288,7 @@ function test_agent_web() {
 		say_site($site);
 		say("No there is '".$patt."'.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		say("You reading site '".$site."'!");
 		sleep(10);
 		say("What is '".$patt."' text, sources?");
@@ -306,7 +306,7 @@ function test_agent_web() {
 		say_site($site);
 		say("No there is '".$patt."'.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		say("You reading!");
 		sleep(20);
 		say("What is '".$patt."' text, sources?");
@@ -446,7 +446,7 @@ function test_agent_web() {
 		say("My areas not everything, shares not everything.");
 		del_news_today();
 		say("What times today?");
-		get("There not.");
+		get("No.");
 		say_thing("live",false);
 		say_site("http://localtest.com/test.html",false);
 	}
@@ -466,7 +466,7 @@ function test_agent_web() {
 		get("There text new cat, title cat title; text new dog, title dog title; text new everything, title everything title; text new man, title man title; text new woman, title woman title.");
 		del_news_today();
 		say("What times today?");
-		get("There not.");
+		get("No.");
 		say_thing("new \$word",false);
 		say_site("http://localtest.com/test.html",false);
 	}	
@@ -578,7 +578,7 @@ function test_agent_web() {
 		get("There image http://localtest.com/test/stuff.jpg, word stuff.");
 		del_news_today();
 		say("What times today?");
-		get("There not.");
+		get("No.");
 		say_thing("plain \$word",false);
 		say_thing("test \$word",false);
 		say_thing("dummy \$word",false);
@@ -597,7 +597,7 @@ function test_agent_web() {
 		get("There sources http://facebook.com, text facebook site; sources http://google.com, text google site link; sources http://localtest.com/test.html, text just test site; sources http://microsoft.com, text site of microsoft.");
 		del_news_today();
 		say("What times today?");
-		get("There not.");
+		get("No.");
 		say_thing("site",false);
 		say_site("http://localtest.com/test.html",false);
 	}
@@ -627,7 +627,7 @@ function test_agent_web() {
 		get("There text '© зао \"нгс\"'.");
 		del_news_today();
 		say("What times today?");
-		get("There not.");
+		get("No.");
 		say_thing("test dummy",false);
 		say_site("http://localtest.com/test.html",false);
 	}
@@ -647,7 +647,7 @@ function test_agent_web() {
 		get("There text 'my test stuff is here and it is just a test stuff, not test dummy. is is test actually, not a test stuff garbage.'.");
 		del_news_today();
 		say("What times today?");
-		get("There not.");
+		get("No.");
 		say_thing("test \$word",false);
 		say_site("http://localtest.com/test.html",false);
 	}
@@ -705,7 +705,7 @@ function test_agent_web() {
 		say("No there is relationship.");
 		say("You read relationship in 'bobby has kicked robby'");
 		say("What is relationship text?");
-		get("There not.");
+		get("No.");
 		say("You read relationship in 'john is about to divorse with judith'");
 		say("What is relationship text?");
 		get("There text john divorse judith.");	
@@ -851,7 +851,7 @@ function test_agent_web() {
 		say_thing($patt);
 		say("No there is '".$patt."'.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		//should not be able to read in range = 1
 		say("You reading '".$patt."' in '".$site."', range 1, minutes 10!");
 		get("Not.");
@@ -875,14 +875,14 @@ function test_agent_web() {
 		say("No there times today.");
 		get("Ok.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		//start over with cleaned paattern path memory
 		say_thing($patt);
 		//should not be reading target in range 2
 		say("You reading '".$patt."' in '".$site."', range 2, minutes 10!");
 		get("Not.");
 		say("What is '".$patt."' text?");
-		get("There not.");
+		get("No.");
 		//should be able to read in default range = 3
 		say("You reading '".$patt."' in '".$site."'!");
 		get("My reading ".$patt." in ".$site.".");

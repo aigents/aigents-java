@@ -121,7 +121,7 @@ public class AL {
 	public final static String[] doo  	= new String[] {"do"};
 	//TODO: decide what to do with true/false if appears as property value and breaks parsing as negation
 	//public final static String[] not  	= new String[] {"not","no","false","~"};
-	public final static String[] not  	= new String[] {"not","no","~"};
+	public final static String[] not  	= new String[] {"no","not","~"};
 	public final static String[] yes  	= new String[] {"ok","yes","true"};
 	public final static String[] i_my 	= new String[] {"my","i","we","our","me"};	
 	public final static String[] you  	= new String[] {"your","you"};

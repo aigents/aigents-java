@@ -98,7 +98,7 @@ class Registration extends Responser {
 			return answer(session);
 
 		if (Reader.read(session.input(), cancel_pattern)) {
-			session.mode = new Login();
+			session.responser = new Login();
 			session.peer = null;
 			session.expect(null);
 			return true;
@@ -163,7 +163,7 @@ class Registration extends Responser {
 		}
 		if (q != null && a != null) {
 			session.updateRegistration();
-			session.mode= new Verification();
+			session.responser= new Verification();
 			storedPeer.update(session.peer,null);
 			session.expect(new String[]{q});
 			return true;

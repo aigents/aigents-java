@@ -94,7 +94,7 @@ function test_agent_expereinces() {
 	say("no there times today");
 	get("Ok.");
 	say("what times today text, new, copypaste, click, query, selection?");
-	get("There not.");
+	get("No.");
 	//make sure old things (past the attention period) are forgotten
 	say("there text 'new regular text', new true, trust true, times today.");
 	say("there text 'old regular text', new true, trust true, times 2019-01-01.");
@@ -111,7 +111,7 @@ function test_agent_expereinces() {
 	say("no there times today");
 	get("Ok.");
 	say("what times today?");
-	get("There not.");
+	get("No.");
 	
 	//get patterns from texts without of storing texts in aigents
 	say("You cluster format json texts '[\"germans live in germany\",\"russians live in russia\",\"spaniards live in spain\",\"cars ride on roads\",\"cat is a mammal\",\"trains ride on rails\",\"bikes ride on trails\"]'.");
@@ -130,9 +130,9 @@ function test_agent_expereinces() {
 	
 	//pattern mining by profiler API
 	say("what my topics name, trust?");//ensure that we have no topics set up
-	get("Your topics not.");
+	get("No.");
 	say("what my sites name, trust?");//ensure that we have no sites set up
-	get("Your sites not.");
+	get("No.");
 	//get some content "trusted"
 	say("There text 'germans live in germany', sources 'http://localtest.com/people.html', times today, selection true, trust true, new true.");
 	say("There text 'russians live in russia', sources 'http://localtest.com/people.html', times today, query true, trust true, new true.");
@@ -380,9 +380,9 @@ function test_agent_cat() {
 	
 	TODO: something like this...
 	say("What text 'They like me' is?");
-	get("There not.");
+	get("No.");
 	say("What text 'They like me' goodness?");
-	get("There not.");
+	get("No.");
 	say("Tou think 'They like me', good.");
 	get("Ok.");
 	say("What text 'They like me' is?");
