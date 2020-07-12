@@ -38,6 +38,55 @@ function test_chat_cleanup() {
 	get("Ok.");
 }
 
+function test_freechat() {
+	login();
+	say("There patterns hi, hello, whatsup, greeting, responses 'hi!', 'hello!', 'whatsup?', 'greeting!'.");
+	get("Ok.");
+	say("What patterns hi patterns, responses?");
+	get();
+	say("hi how are you");
+	get("Greeting!",array("Hi!","Hello!","Whatsup?"));
+	test_chat_cleanup();
+	
+	login();
+	say("There patterns '{hi hello}'; responses 'hi!', 'hello!', 'whatsup?', 'greeting!'.");
+	get("Ok.");
+	say("What patterns '{hi hello}' patterns, responses?");
+	get();
+	say("hello");
+	get("Greeting!",array("Hi!","Hello!","Whatsup?"));
+	test_chat_cleanup();
+	
+	login();
+	say("There patterns '{hi hello whatsup greeting}', responses 'hi!', 'hello!', 'whatsup?', 'greeting!'.");
+	get("Ok.");
+	say("hi how are you");
+	get("Greeting!",array("Hi!","Hello!","Whatsup?"));
+	test_chat_cleanup();
+
+	login();
+	say("There patterns '{[feeling great] [i am okay] [I am fine] [just perfect]}', responses great to hear.");
+	get("Ok.");
+	say("What patterns '{[feeling great] [i am okay] [I am fine] [just perfect]}'?");
+	get("There patterns '{[feeling great] [i am okay] [I am fine] [just perfect]}', responses great to hear.");
+	say("I am just perfect");
+	get("Great to hear.\n😊");
+	test_chat_cleanup();
+	
+	login();
+	say("There patterns 'feeling {bad sad anxious}', responses 'Does it happen all the time or just occasionally?', trust true");
+	get("Ok.");
+	say("There patterns '{feeling feel} {happy lucky good}', responses 'Happy about you!', trust true");
+	get("Ok.");
+	say("What patterns 'feeling {bad sad anxious}'?");
+	get("There patterns 'feeling {bad sad anxious}', responses 'Does it happen all the time or just occasionally?'.");
+	say("I am feeling sad");
+	get("Does it happen all the time or just occasionally?\n😞");
+	say("I feel lucky today");
+	get("Happy about you!\n😊");
+	test_chat_cleanup();
+}
+
 function test_help() {
     login();
 	
@@ -619,6 +668,7 @@ function test_groups() {
 
 
 test_init();
+test_freechat();
 test_help();
 test_chat();
 test_groups();

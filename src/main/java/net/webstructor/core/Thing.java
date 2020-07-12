@@ -50,6 +50,7 @@ public class Thing extends Anything implements Named { // implements ORObject
 		AL.times,
 		AL.sources,
 		AL.patterns,
+		AL.responses,//TODO make is so thing does not need all imaginable properties declared explicitly
 		AL.trust,
 		AL.query,//TODO: move this out to configurable schema and/or class properties with class specified in query!?
 		AL.click,//TODO: move all of the following out to news or name?

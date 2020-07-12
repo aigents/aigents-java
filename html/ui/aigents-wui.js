@@ -2183,7 +2183,7 @@ function talks_say_in(text) {
 		text = "Ok.";//return;
 	}
 	displayStatus(text);
-	$("#talks_log").append('<div class="log-in ui-widget ui-widget-content ui-corner-all">'+text+'</div>');
+	$("#talks_log").append('<div class="log-in ui-widget ui-widget-content ui-corner-all">'+encode_urls(text)+'</div>');
 	talks_scroll();
 }
 
