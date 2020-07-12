@@ -47,13 +47,11 @@ public abstract class Responser implements Intenter {
 	static final protected Set cancel_pattern = Reader.patterns(null,null,"{no not login logout [my login] [my logout] bye}");
 	
 //TODO: initialize list of intenters in Body/Farm and rearrange their order in Session 
-	/*Searcher searcher = new Searcher();
-	PatternResponser patternResponser = new PatternResponser();
-	ControlledResponser controlledResponser = new ControlledResponser();*/
 	private static Intenter[] intenters = new Intenter[]{
 				new Searcher(),
 				new ControlledResponser(),
 				new PatternResponser()
+				,new Answerer()
 	};
 
 	@Override
@@ -63,14 +61,6 @@ public abstract class Responser implements Intenter {
 
 	@Override
 	public boolean handleIntent(final Session session) {
-		/*
-		if (searcher.handleIntent(session))//if search is done successflly 
-			return true;
-		if (controlledResponser.handleIntent(session))
-			return true;
-		if (patternResponser.handleIntent(session))
-			return true;
-		*/
 //TODO user "controlled" OR "natural" in order according to Peer/Session "conversation" property?
 		for (Intenter i : getIntenters()) {
 			if (i.handleIntent(session))
@@ -126,14 +116,14 @@ public abstract class Responser implements Intenter {
 			if (!AL.empty(area)){
 				session.peer.addThing(AL.areas, session.sessioner.body.storager.getThing(area));
 			}
-			session.output("Ok.");
+			session.output(session.ok());
 			return true;
 		}
 		if (Reader.read(session.input(), Reader.pattern(AL.i_my,temp,new String[]{Peer.language}))){
 			if (session.peer == null)
 				session.peer = new Thing();
 			session.peer.setString(Peer.language,temp.getString(Peer.language));
-			session.output("Ok.");
+			session.output(session.ok());
 			return true;
 		}
 		return false;
@@ -198,11 +188,9 @@ public abstract class Responser implements Intenter {
 	}
 	
 	boolean answer(Session session) {
-		session.query = null;
 		if (handleIntent(session))//session.query is expected ot get filled by controlledResponser!  
-			return false;;
-		//session.output(session.query == null ? "No." : Writer.toPrefixedString(session,session.query,null));
-		session.output(Writer.capitalize(AL.not[0])+".");
+			return false;
+		session.output(session.no());
 		return false;
 	}
 

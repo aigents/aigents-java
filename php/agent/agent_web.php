@@ -854,7 +854,7 @@ function test_agent_web() {
 		get("No.");
 		//should not be able to read in range = 1
 		say("You reading '".$patt."' in '".$site."', range 1, minutes 10!");
-		get("Not.");
+		get("No.");
 		//should be able to read in range = 2
 		say("You reading '".$patt."' in '".$site."', range 2, minutes 10!");
 		get("My reading ".$patt." in ".$site.".");
@@ -865,7 +865,7 @@ function test_agent_web() {
 		say_thing($patt);
 		//should not be able to read in range = 2
 		say("You reading '".$patt."' in '".$site."', range 2, minutes 10!");
-		get("Not.");
+		get("No.");
 		//should be able to read in range = 3
 		say("You reading '".$patt."' in '".$site."', range 3, minutes 10!");
 		get("My reading ".$patt." in ".$site.".");
@@ -880,7 +880,7 @@ function test_agent_web() {
 		say_thing($patt);
 		//should not be reading target in range 2
 		say("You reading '".$patt."' in '".$site."', range 2, minutes 10!");
-		get("Not.");
+		get("No.");
 		say("What is '".$patt."' text?");
 		get("No.");
 		//should be able to read in default range = 3

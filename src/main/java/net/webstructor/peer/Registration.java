@@ -94,7 +94,7 @@ class Registration extends Responser {
 	}
 	
 	public boolean process(Session session) {
-		if (noSecretQuestion(session))
+		if (session.mood == AL.interrogation && noSecretQuestion(session))
 			return answer(session);
 
 		if (Reader.read(session.input(), cancel_pattern)) {

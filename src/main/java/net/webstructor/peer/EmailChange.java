@@ -46,7 +46,7 @@ class EmailChange extends Registration {
 			String email;
 			if (Reader.read(session.input(), seq) && (email = temp.getString(AL.email)) != null) {
 				if (oldmail.equalsIgnoreCase(email)) {
-					session.output("Ok.");
+					session.output(session.ok());
 					session.responser = session.sessioner.body.getResponser();
 					return false;
 				}	
@@ -78,7 +78,7 @@ class EmailChange extends Registration {
 				//session.sessioner.body.debug("New peer "+Writer.toString(session.peer)+".");
 				//session.sessioner.body.debug("Old peer "+Writer.toString(storedPeer)+".");
 				storedPeer.update(session.peer,null);
-				session.output("Ok. Your email "+session.peer.getString(AL.email)+".");
+				session.output(session.ok()+" Your email "+session.peer.getString(AL.email)+".");
 				return false;			
 			} else 
 			//reset verification
@@ -94,7 +94,7 @@ class EmailChange extends Registration {
 		}
 		if (Reader.read(session.input(), cancel_pattern)) {//TODO: get rid of 'my logout' and 'my login' here
 			session.responser = new Conversation();
-			session.output("Ok.");
+			session.output(session.ok());
 			return false;
 		}
 		session.output("What your verification code?");//TODO:if that is possible!?

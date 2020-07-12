@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,35 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.data;
+package net.webstructor.peer;
 
-class Emoticon {
-	String[] faces;
-}
+import java.util.Date;
 
-//https://apps.timwhitlock.info/emoji/tables/unicode
-//https://unicode.org/emoji/charts/full-emoji-list.html#1f642
-//https://lemire.me/blog/2018/06/15/emojis-java-and-strings/
-//https://www.branah.com/unicode-converter
-public class Emotioner {
-	public static final String positive = "\ud83d\ude0a";//😊0001f60a
-	public static final String negative = "\ud83d\ude1e";//😞0001f61e
-	public static final String emotion(int[] s) {//sentiment
-		return s[2] < -50 ? Emotioner.negative : s[2] > 50 ? Emotioner.positive : "";
-		/*
-		String val = "";
-		if (s[0] > 50) 
-			val += "postivie";
-		if (s[1] > 50) 
-			val += s.length > 0 ? ", " + "positive" : "negative";
-		t.setString("sentiment", val);
-		*/
+import net.webstructor.al.Time;
+import net.webstructor.core.Thing;
+
+class SearchContext {
+	Thing peer = null;
+	Thing arg = null;
+	String site = null;
+	String type = null;
+	String topic = null; 
+	String engine = null; 
+	String[] properties = null;
+	String[] graphs = null;
+	String cluster = null;
+	String format = null;
+	Date date = null;
+	int days = 0;
+	int limit = 0;
+	boolean sentiment = false;
+	boolean novelNew = false;
+	boolean scopeWeb = false;
+
+	public SearchContext(String topic,Thing peer,String engine) {
+		this.topic = topic;
+		this.peer = peer;
+		this.engine = engine;
+		this.date = Time.today();
 	}
-	public static void main(String args[]){
-		String x = positive;
-		System.out.println(x);
-		System.out.println(x.length());
-		char c = x.charAt(0);
-		System.out.format("%05X\n", (int)c);
-	}
-}
+};
+

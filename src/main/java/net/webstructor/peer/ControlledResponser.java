@@ -49,7 +49,7 @@ class ControlledResponser implements Intenter {
 	public boolean handleIntent(final Session session) {
 		Storager storager = session.getStorager();
 		if ((session.mood == AL.declaration || session.mood == AL.direction) && session.authenticated()) {
-			if (Reader.read(session.input(), new Any(1,AL.not)))
+			if (Reader.read(session.input(), new Any(1,AL.no)))
 			{
 				try {
 					Statement query = session.reader.parseStatement(session,session.input(),session.getStoredPeer());
@@ -70,7 +70,7 @@ class ControlledResponser implements Intenter {
 									session.getStorager().setUpdate();
 								}
 							}
-						session.output(skipped > 0 ? "No. There things." : "Ok.");
+						session.output(skipped > 0 ? "No. There things." : session.ok());
 					}
 				} catch (Exception e) {
 					session.output(Responser.statement(e));
@@ -89,7 +89,7 @@ class ControlledResponser implements Intenter {
 					int updated = q.setThings(query,storedPeer);
 					//int updated = q.setThings(query,storedPeer,true);//smart things creation, but "NL" chat is not working
 					if (updated > 0){
-						out.append(out.length() > 0 ? " " : "").append("Ok.");
+						out.append(out.length() > 0 ? " " : "").append(session.ok());
 						//TODO: do this peer saving and restoring more clever and not every time?
 						//get stored session peer pointer just in case it is changed in background
 						//get actual session peer parameters to access it another time

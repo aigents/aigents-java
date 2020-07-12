@@ -75,7 +75,7 @@ function test_agent_learn() {
 	say("Text john doe founder times 2015-01-01");//push event back
 	get("Ok.");
 	say("You reading person in http://localtest.com/test.html!");
-	get("Not.");
+	get("No.");
 	file_put_contents($basePath."html/test.html","<html><body>there is . john doe director appointed</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("My reading person in http://localtest.com/test.html.");
@@ -83,13 +83,13 @@ function test_agent_learn() {
 	get("There text john doe director, times today; text john doe founder, times 2015-01-01.");
 	file_put_contents($basePath."html/test.html","<html><body>there is . john doe founder re-elected</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
-	//get("Not.");
+	//get("No.");
 	get("My reading person in http://localtest.com/test.html.");
 	say("What is person text, times?");
 	get("There text john doe director, times today; text john doe founder, times 2015-01-01; text john doe founder, times today.");
 	file_put_contents($basePath."html/test.html","<html><body>there is . john doe director dismissed</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
-	get("Not.");
+	get("No.");
 	say("What is person text, times?");
 	//get("There text john doe founder, times 2015-01-01.");
 	get("There text john doe director, times today; text john doe founder, times 2015-01-01; text john doe founder, times today.");
@@ -101,7 +101,7 @@ function test_agent_learn() {
 	get("There text ali baba founder, times today; text john doe director, times today; text john doe founder, times 2015-01-01; text john doe founder, times today.");
 	file_put_contents($basePath."html/test.html","<html><body>there is . ali baba founder approved. john doe presented stuff. john doe director gave overview.</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
-	get("Not.");
+	get("No.");
 	say("What times today?");
 	get();	
 	say("Times today times yesterday.");
@@ -112,7 +112,7 @@ function test_agent_learn() {
 	say("What is http://localtest.com/test.html times, text?");
 	get("There text 'there is . ali baba founder approved. john doe presented stuff. john doe director gave overview.', times yesterday.");
 	say("You reading person in http://localtest.com/test.html!");
-	get("Not.");
+	get("No.");
 	file_put_contents($basePath."html/test.html","<html><body>there is . joe johns CTO appointed</body></html>");
 	say("You reading person in http://localtest.com/test.html!");
 	get("My reading person in http://localtest.com/test.html.");

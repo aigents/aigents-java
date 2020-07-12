@@ -75,7 +75,7 @@ class Login extends Responser {
 					session.getStoredPeer().setString(Body.google_key, enstir[5]);
 			} else { 
 				session.sessioner.body.debug("Google failed: "+session.peer);
-				session.output("Not.");
+				session.output(session.no());
 			}
 		}
 		return false;
@@ -110,7 +110,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				session.bind("vkontakte",id,enst[3],enst[0],enst[1],enst[2]);//offline token,email,name,surname
 			} else { 
 				session.sessioner.body.debug("vkontakte login failed: "+session.peer);
-				session.output("Not.");
+				session.output(session.no());
 			}
 		}
 		return false;
@@ -177,7 +177,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			}
 		}
 		session.sessioner.body.debug("Facebook fail:"+id+"/"+token);
-		session.output("Not.");
+		session.output(session.no());
 		return false;
 	}
 	
@@ -188,12 +188,9 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 		if (tryRSS(session.getStorager(),session))//if RSS feed tried successflly 
 			return false;//no further interaction is needed
 		
-		//if (noSecretQuestion(session))
-		//	return answer(session);
+		if (session.mood == AL.interrogation && noSecretQuestion(session))
+			return answer(session);
 		
-		if (handleIntent(session))
-			return false;//TODO: append login flow?
-
 		if (session.peer == null) {
 			session.peer = new Thing();//create dummy peer
 		}

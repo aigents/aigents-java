@@ -87,7 +87,7 @@ public class Writer extends AL {
 			if (names == null)
 				names = thing.getNamesAvailable();
 			if (names.length == 0)
-				out.append(AL.not[0]);
+				out.append(AL.no[0]);
 			else {
 				String[] sorted = new String[names.length];
 				for (int i=0, c=0;i<names.length;i++) {
@@ -349,7 +349,7 @@ public class Writer extends AL {
 				out.append(ref).append(' ');		
 			Collection things = (Collection)arg;
 			if (AL.empty(things)){
-				out.append(not[0]);
+				out.append(no[0]);
 			}else {
 				String[] sorted = new String[things.size()];
 				int c = 0;

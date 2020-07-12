@@ -550,7 +550,7 @@ public class Reader extends AL {
 		
 		String[] properties = storager.getNames(); 
 		String[] thing_names = storager.getNames(AL.name);
-		boolean negation = parser.parseAny(not,true) != null;
+		boolean negation = parser.parseAny(no,true) != null;
 		//TODO: check opening brackets
 		{
 			ArrayList terms = new ArrayList();
@@ -654,7 +654,7 @@ if (!AL.empty(thing_names)){
 				
 				//TODO: brackets
 				for (;;) {
-					String negation = parser.parseAny(not,true);
+					String negation = parser.parseAny(no,true);
 					//Object value = parser.parseNotIn(AL.punctuation);//was: single word parsing
 					StringBuilder sb = null;//new StringBuilder();
 					for (;;) {

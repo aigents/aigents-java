@@ -118,7 +118,7 @@ class PatternResponser implements Intenter {
 				s = Writer.capitalize(s);
 				if (!AL.periods.contains(s.substring(s.length()-1)))
 					s = s + ".";
-				session.output(s);
+				session.outputWithEmotions(s);
 				return true;
 			}
 		}

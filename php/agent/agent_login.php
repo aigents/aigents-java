@@ -296,14 +296,14 @@ function test_login_new() {
 	say("My email ali@baba.org.");
 	get("What your secret question, secret answer?");	
 	//failing scenario: specify secrets - cancel in the middle
-	say("Not.");
+	say("No.");
 	get("What your email, name, surname?");
 	say("My email ali@baba.org.");
 	get("What your secret question, secret answer?");
 	say("My secret question sezame, secret answer simsim.");
 	get("What your sezame?");
 	//failing scenario: verify login - cancel in the middle	
-	say("Not.");
+	say("No.");
 	get("What your email, name, surname?");
 	say("My email ali@baba.org.");
 	get("What your sezame?");
@@ -964,6 +964,8 @@ function test_login_sessions() {
 	get("Doe email doe@john.org.");
 	say("what email doe@john.org?");
 	get("No right.");
+	say("You forget!");
+	get("Ok.");
 	say("Your things count?");
 	get("My things count ".($base_things_count + 2).".");//count with 2 sessions
 	

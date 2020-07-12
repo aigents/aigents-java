@@ -129,7 +129,7 @@ public abstract class SocialBinder extends Communicator {
 			if (session.authenticated() && !session.isSecurityLocal()) {
 				String ok = session.bindAuthenticated(name+" id",id,name+" token",token);
         		body.debug("Reddit bind autheticated id="+id+" name="+username+" token="+token+" result="+ok);
-        		return ok.equals("Ok.") ? session.getStoredPeer() : null;
+        		return ok.equals(session.ok()) ? session.getStoredPeer() : null;
 			}else{
 				HashSet<String> emails = new HashSet<String>();
 				if (AL.empty(email))

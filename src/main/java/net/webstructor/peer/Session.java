@@ -34,6 +34,7 @@ import net.webstructor.core.Property;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.core.Updater;
+import net.webstructor.data.Emotioner;
 import net.webstructor.util.Str;
 import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
@@ -127,12 +128,25 @@ public class Session  {
 		this.output = output;
 	}
 	
+	public void outputWithEmotions(String output){
+		String emotion = Emotioner.emotion(getBody().languages.sentiment(input()));
+		this.output = !AL.empty(emotion) ? output + "\n" + emotion : output;
+	}
+	
 	public void addOutput(String output){
 		this.output += output;
 	}
 	
 	public String output(){
 		return output;
+	}
+	
+	//TODO: move out of session and apply translation!?
+	public String no(){
+		return Writer.capitalize(AL.no[0])+".";
+	}
+	public String ok(){
+		return Writer.capitalize(AL.ok[0])+".";
 	}
 	
 	public void unexpect(Thing context){
@@ -364,7 +378,7 @@ public class Session  {
 		sessioner.body.updateStatus(peer,null);//spawn status update process here asynchronously
 		authenticated = true;
 
-		return "Ok. Hello "+peer.getTitle(Peer.title)+"!"+"\nMy "+Body.notice();
+		return this.ok()+" Hello "+peer.getTitle(Peer.title)+"!"+"\nMy "+Body.notice();
 	}
 
 	protected void updateRegistration() {
@@ -416,7 +430,7 @@ public class Session  {
 		}			
 		session.getStoredPeer().set(idname, idvalue);
 		session.getStoredPeer().set(tokenname, tokenvalue);
-		return "Ok.";
+		return session.ok();
 	}
 
 	//bindNonAutheticated

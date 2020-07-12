@@ -120,7 +120,7 @@ public class GoogleSearch extends Serper {
 							}
 						}
 						t.setString("title",title);
-						t.setString("text",snippet);
+						t.setString("text",!AL.empty(snippet) ? snippet : title);
 						t.setString("sources",link);
 						if (!AL.empty(image) && AL.isURL(image))//isIMG may not work
 							t.setString(AL.image,image);

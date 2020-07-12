@@ -99,7 +99,7 @@ public class Conversation extends Responser {
 		} catch (Exception e) {
 			session.sessioner.body.error("Spidering peer manually "+name+" "+id+" error",e);
 		}
-		return report != null ? report : "Not.";
+		return report != null ? report : session.no();
 	}
 	
 	public boolean process(Session session) {
@@ -120,7 +120,7 @@ public class Conversation extends Responser {
 			return true;
 		} else
 		if (session.read(Reader.pattern(AL.i_my,logout)) || Array.contains(logout, session.input().toLowerCase())){//can logout at any point			
-			session.output("Ok.");
+			session.output(session.ok());
 			session.responser = new Login();
 			session.logout();
 			return false;			
@@ -139,7 +139,7 @@ public class Conversation extends Responser {
 	  } catch (Exception e) {
 		  if (!(e instanceof Mistake))
 			  session.sessioner.body.error("Error handling "+(session.peer != null ? session.peer.getTitle(Peer.title_email) : "null")+": "+session.input(), e);
-		  session.output("Not. "+e.getMessage());
+		  session.output(session.no()+" "+e.getMessage());
 		  return false;
 	  }
 	}
@@ -162,7 +162,7 @@ public class Conversation extends Responser {
 			//update VK login upon callback
 			String ensti[] = vk.verifyRedirect(session.input());
 			String ok = ensti == null ? null : session.bindAuthenticated(Body.vkontakte_id, ensti[4],Body.vkontakte_token, ensti[3]);
-			if (!ok.equals("Ok."))//TODO: fix hack!?
+			if (!ok.equals(session.ok()))//TODO: fix hack!?
 				ensti = null;
 			//TODO:restrict origin for better security if passing token?
 			session.output("<html><body onload=\"top.postMessage(\'"+(ensti == null ? "Error:" : "Success:")+session.input()+"\',\'*\');top.window.vkontakteLoginComplete();\"></body></html>");
@@ -176,7 +176,7 @@ public class Conversation extends Responser {
 			if (vk != null && ((enst = vk.verifyToken(id, token)) != null)) {
 				session.output(session.bindAuthenticated(Body.vkontakte_id, id,Body.vkontakte_token, enst[3]));
 			} else
-				session.output("Not.");
+				session.output(session.no());
 			return false;		
 		} else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
@@ -188,13 +188,13 @@ public class Conversation extends Responser {
 			if (gapi != null && ((enstir = gapi.verifyToken(id, token)) != null)) {
 				id = enstir[4];
 				session.output(session.bindAuthenticated(Body.google_id, id, Body.google_token, enstir[3]));
-				if ("Ok.".equals(session.output())) {//TODO: fix hack!?
+				if (session.ok().equals(session.output())) {//TODO: fix hack!?
 					session.getStoredPeer().set(Body.google_id,id);//TODO:straighten
 					if (!AL.empty(enstir[5]))//refresh_token as google_key
 						session.getStoredPeer().set(Body.google_key, enstir[5]);
 				}
 			} else
-				session.output("Not.");
+				session.output(session.no());
 			return false;		
 		} else
 		if (session.mood == AL.declaration && !session.isSecurityLocal() &&
@@ -205,7 +205,7 @@ public class Conversation extends Responser {
 			if (fb != null && (token = fb.verifyToken(id, token)) != null) {
 				session.output(session.bindAuthenticated(Body.facebook_id, id,Body.facebook_token, token));
 			} else
-				session.output("Not.");
+				session.output(session.no());
 			return false;		
 		} else
 			
@@ -216,7 +216,7 @@ public class Conversation extends Responser {
 			return true;			
 		} else 
 		if (session.input().length() == 0) { //repeated authentication seed for pre-authenticated session
-			session.output("Ok.");
+			session.output(session.ok());
 			return false;			
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
@@ -229,20 +229,20 @@ public class Conversation extends Responser {
 				if (session.sessioner.body.filecacher != null)
 					session.sessioner.body.filecacher.clear(true,null);//clear cache entirely 
 			}
-			session.output("Ok.");
+			session.output(session.ok());
 			return false;
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,new String[] {"think","thinking"}))) {
 			Peer.rethink(session.sessioner.body,session.getStoredPeer());//this does think along the way!
-			session.output("Ok.");
+			session.output(session.ok());
 			return false;			
 		} else
 			
 		if ((session.mood == AL.direction)// || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,spider))) {
 			Thing task = new Thing();
-			session.output("Not.");
+			session.output(session.no());
 			if (session.read(new Seq(new Object[]{
 					new Any(1,AL.you),"spidering",new Property(task,"network"),
 					"id",new Property(task,"id")
@@ -256,7 +256,7 @@ public class Conversation extends Responser {
 					Thing arg = new Thing();
 					session.read(arg,new String[]{"block"});			
 					long block = Long.parseLong(arg.getString("block","-1"));
-					session.output("Ok. Spidering.");
+					session.output(session.ok()+" Spidering.");
 					//TODO: run async
 					provider.resync(block);
 				}
@@ -304,17 +304,17 @@ public class Conversation extends Responser {
 		        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"));
 				writer.write(sb.toString());
 				writer.close();
-				session.output("Ok.");
+				session.output(session.ok());
 			} catch (Exception e) {
 				session.sessioner.body.error("Counting error ", e);
-				session.output("Not.");
+				session.output(session.no());
 			}
 			return false;
 		} else
 				
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.argsCount() <= 4 && session.read(Reader.pattern(AL.you,Self.saving))) {
-			session.output("Not.");
+			session.output(session.no());
 			Thing saver = new Thing();
 			if (!session.trusted())
 				;//TODO: "No right" handling
@@ -325,18 +325,18 @@ public class Conversation extends Responser {
 				new Property(saver,Body.store_path),
 				}))){
 				if (Self.save(session.getBody(), saver.getString(Body.store_path)))
-					session.output("Ok.");
+					session.output(session.ok());
 			}else{
 				if (session.sessioner.body.sitecacher != null)
 					session.sessioner.body.sitecacher.saveGraphs();//flush
 				if (Self.save(session.getBody(), session.sessioner.body.self().getString(Body.store_path)))
-					session.output("Ok.");
+					session.output(session.ok());
 			}
 			return false;			
 		} else	
 		if ((session.mood == AL.direction || session.mood == AL.declaration) 
 			&& session.read(Reader.pattern(AL.you,Self.loading))) {
-			session.output("Not.");
+			session.output(session.no());
 			Thing loader = new Thing();
 			if (session.read(new Seq(new Object[]{
 				new Any(1,AL.you),	
@@ -345,7 +345,7 @@ public class Conversation extends Responser {
 				})))
 				//TODO:do we really need clear here?
 				if (Self.load(session.getBody(), loader.getString(Body.store_path)))
-					session.output("Ok.");
+					session.output(session.ok());
 			return false;			
 		} else	
 		if ((session.mood == AL.direction || session.mood == AL.declaration) 
@@ -366,12 +366,12 @@ public class Conversation extends Responser {
 			}
 			boolean started = session.getBody().act("profile", task);
 			String output = "My "+Self.profiling[0]+".";
-			session.output(started ? "Ok. " : "Not. " + output); 
+			session.output(started ? session.ok()+" " : session.no()+" " + output); 
 			return false;			
 		} else	
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,Self.reading))) {
-			session.output("Not.");
+			session.output(session.no());
 			//TODO: understand context of 'knows': test_o("You reading 'sun flare' ... - must be test_o("You reading sun flare ...
 			Collection topics = (Collection) session.getStoredPeer().get(AL.topics);
 			if (!AL.empty(topics)) {
@@ -383,7 +383,7 @@ public class Conversation extends Responser {
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
 						session.output("My "+Self.reading[0]+" "+reader.getString("thingname")+
-							" in "+Writer.toString(reader.getString("url"))+".");//"Ok.";
+							" in "+Writer.toString(reader.getString("url"))+".");//session.ok();
 				}
 				else  
 				// can fail if thingname is not supplied
@@ -395,16 +395,16 @@ public class Conversation extends Responser {
 					reader.setString("range","3");//default, for test compatibility so far
 					session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", reader))
-						session.output("My "+Self.reading[0]+" site "+Writer.toString(reader.getString("url"))+".");//"Ok.";
+						session.output("My "+Self.reading[0]+" site "+Writer.toString(reader.getString("url"))+".");//session.ok();
 				}
 				else {
 					//NOTE range = 1
 					//TODO:use reader with arguments for async spawn!?
 					//session.read(reader,new String[]{"range","limit","minutes"});			
 					if (session.getBody().act("read", null))//just read all sites altogether
-						session.output("Ok. My "+Self.reading[0]+".");
+						session.output(session.ok()+" My "+Self.reading[0]+".");
 					else
-						session.output("No. My "+Self.reading[0]+".");
+						session.output(session.no()+" My "+Self.reading[0]+".");
 				}
 			}
 			return false;
@@ -412,7 +412,7 @@ public class Conversation extends Responser {
 
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",1000)}))) {
-			session.output("Not.");
+			session.output(session.no());
 			String text = reader.getString("text");
 			if (!AL.empty(text)){
 				String format = session.getString(AL.format);
@@ -443,7 +443,7 @@ public class Conversation extends Responser {
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(new Seq(new Object[]{new Any(1,AL.you),"cluster"}))) {
-			session.output("Not.");
+			session.output(session.no());
 			String json = null;
 			String[] texts = null;
 			
@@ -506,7 +506,7 @@ public class Conversation extends Responser {
 		{
 			if (handleIntent(session))
 				return false;;
-			session.output(Writer.capitalize(AL.not[0])+".");
+			session.output(session.no());
 			return false;
 		} 
 		//TODO: if such fallthrough is needed?
@@ -541,7 +541,7 @@ public class Conversation extends Responser {
 				//TODO: name and language for opendata/steemit?
 			   	String secret = provider.getTokenSecret(session.getStoredPeer());
 				String report = provider.cachedReport(id,token,secret,id,"",language,format,fresh,session.input(),threshold,period,areas);
-				session.output(report != null ? report : "Not.");
+				session.output(report != null ? report : session.no());
 				return true;			
 		} else	
 		if (session.read(new Seq(new Object[]{
@@ -562,7 +562,7 @@ public class Conversation extends Responser {
 			   	String token = peer.getString(provider.name()+" token");
 			   	String secret = provider.getTokenSecret(session.getStoredPeer());
 				String report = provider.cachedReport(id,token,secret,name,surname,language,format,fresh,session.input(),threshold,period,areas);
-				session.output(report != null ? report : "Not.");
+				session.output(report != null ? report : session.no());
 				return true;	
 		}
 		return false;
@@ -579,7 +579,7 @@ public class Conversation extends Responser {
 		if (Str.has(session.args(),"reputation","update")) {
 			session.read(new Seq(new Object[]{"update",new Property(arg,"network")}));
 			boolean updated = session.getBody().act("reputation update", arg);
-			session.output(updated ? "Ok." : "Not.");
+			session.output(updated ? session.ok() : session.no());
 			return true;
 		}
 			
@@ -611,7 +611,7 @@ public class Conversation extends Responser {
 		if (json)
 			session.output("{\"result\" : "+rs+(rs == 0 ? ", \"data\" : "+result : "")+"}");
 		else
-			session.output(rs == 0 ? "Ok.\n" + result : "Not.");
+			session.output(rs == 0 ? session.ok()+"\n" + result : session.no());
 		return true;
 	}
 
@@ -631,10 +631,10 @@ public class Conversation extends Responser {
 				if (peer == self || peer.hasThing(AL.trusts, self)){
 					try {
 						boolean updated = session.sessioner.body.update(peer, null, null, text, "- "+self.getTitle(Login.login_context));
-						session.output(updated ? "Ok." : "Not.");
+						session.output(updated ? session.ok() : session.no());
 					} catch (IOException e) {
 						session.sessioner.body.error("Alerting "+peer.getTitle(Login.login_context), e);
-						session.output("Not.");
+						session.output(session.no());
 					}
 					return true;
 				}
@@ -662,10 +662,10 @@ public class Conversation extends Responser {
 					text += "\n"+session.sessioner.body.signature();
 					Emailer e = Emailer.getEmailer();
 					e.email(from,to,subject,text);
-					session.output("Ok.");
+					session.output(session.ok());
 				} catch (IOException e) {
 					session.sessioner.body.error("Sending email from "+from+" to "+to, e);
-					session.output("Not.");
+					session.output(session.no());
 				}
 				return true;
 			}
@@ -735,7 +735,7 @@ public class Conversation extends Responser {
 					AL.empty(links) ? null : new String[]{links},
 					labeler,
 					members);
-			session.output(!AL.empty(graph) ? graph : "Not.");
+			session.output(!AL.empty(graph) ? graph : session.no());
 			return true;			
 		} 
 		return false;
@@ -783,7 +783,7 @@ public class Conversation extends Responser {
 		Thing arg = new Thing();
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 				&& session.read(Reader.pattern(AL.you,Self.parsing))) {
-			session.output("Not.");
+			session.output(session.no());
 			// AL: you parse <text>, format <format>, language <language>, features <words|phrases|emoticons> 
 			String sdist = session.read(new Seq(new Object[]{"distance",new Property(arg,"distance")})) ? arg.getString("distance") : null; 
 			String text = session.read(new Seq(new Object[]{AL.text,new Property(arg,AL.text)})) ? arg.getString(AL.text) : null; 

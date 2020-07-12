@@ -75,7 +75,7 @@ public class Chatter extends Communicator {
 			form(message.substring("What your ".length()));
 		} else
 		if (!logged) { 
-			if (message.startsWith("Ok.") || message.startsWith("Hello ")) {
+			if (message.startsWith(session.ok()) || message.startsWith("Hello ")) {
 				logged = true;
 				App.getApp().showWorkTabs();
 				//TODO: start checker for release or make it configurable for user!!!
@@ -98,7 +98,7 @@ public class Chatter extends Communicator {
 					requestor.update(message.substring("There ".length()));
 				}
 				else
-				if (message.startsWith("Ok.")) //if taken, repeat refresh
+				if (message.startsWith(session.ok())) //if taken, repeat refresh
 					requestor.confirm();
 				else {
 					String error = AL.error(message);

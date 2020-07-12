@@ -120,7 +120,7 @@ public class Redditer extends SocialBinder implements HTTPHandler {
 										String id = username;//oid?
 										if (session.authenticated() && !session.isSecurityLocal()) {
 											String ok = session.bindAuthenticated(Body.reddit_id,id,Body.reddit_token,refresh_token);
-											success = ok.equals("Ok.");
+											success = ok.equals(session.ok());
 						            		body.debug("Reddit bind autheticated id="+id+" name="+username+" token="+refresh_token+" result="+ok);
 										}else{
 											String lastname = username = username.toLowerCase();//silly defaults

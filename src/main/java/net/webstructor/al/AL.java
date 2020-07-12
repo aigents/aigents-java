@@ -121,15 +121,15 @@ public class AL {
 	public final static String[] doo  	= new String[] {"do"};
 	//TODO: decide what to do with true/false if appears as property value and breaks parsing as negation
 	//public final static String[] not  	= new String[] {"not","no","false","~"};
-	public final static String[] not  	= new String[] {"no","not","~"};
-	public final static String[] yes  	= new String[] {"ok","yes","true"};
+	public final static String[] no  	= new String[] {"no","not","~"};
+	public final static String[] ok  	= new String[] {"ok","yes","true"};
 	public final static String[] i_my 	= new String[] {"my","i","we","our","me"};	
 	public final static String[] you  	= new String[] {"your","you"};
 	public final static String[] there	= new String[] {"there","it","here","this","that","a","the"};
 	
 	public final static String[] lister = new String[] {",",";","and","or"};//TODO: have either AL.lister or AL.commas!
 	
-	public final static String[][] grammar = new String[][]{what,iff,doo,not,yes,i_my,you,there,lister};
+	public final static String[][] grammar = new String[][]{what,iff,doo,no,ok,i_my,you,there,lister};
 	
 	public static final String period = ".";
 	public static final String space = " ";
