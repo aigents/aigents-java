@@ -30,4 +30,10 @@ public class Mistake extends Exception {
 	public Mistake(String text){
 		super(text);
 	}
+	public static String message(Throwable e) {
+		if (e == null)
+			return "Unknown";
+		String m = e.getMessage();
+		return m != null ? m : e.getClass().getSimpleName();
+	}
 }

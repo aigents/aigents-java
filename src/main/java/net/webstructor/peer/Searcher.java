@@ -388,8 +388,9 @@ class Searcher implements Intenter {
 	}
 
 	Collection searchSTM(Session session, final SearchContext sc) {
-		Storager storager = session.getStorager();
+		Collection res = new ArrayList();
 		try {
+			Storager storager = session.getStorager();
 			for (int daysback = 0; daysback <= sc.days; daysback++){
 				Date day = Time.date(sc.date,-daysback);
 				//first see for instances of topic
@@ -397,8 +398,10 @@ class Searcher implements Intenter {
 						new All(new Object[]{new Seq(new Object[]{"is",sc.topic}),
 						new Seq(new Object[]{"times",day})})
 					,sc.properties});
-				Collection res = Responser.queryFilter(session,sc.peer,q,null);
-				if (!AL.empty(res))
+				Collection tmp = Responser.queryFilter(session,sc.peer,q,null);
+				if (!AL.empty(tmp))
+					res.addAll(tmp);
+				if (sc.limit > 0 && res.size() > sc.limit)
 					return res;
 				//if not found, extend for all texts and search in them with siter matcher
 				q = new Seq(new Object[]{new Seq(new Object[]{"times",day}),new String[]{"text","is"}});
@@ -406,7 +409,6 @@ class Searcher implements Intenter {
 				Collection texts = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(q,sc.peer);
 				session.sessioner.body.debug("Searcher "+sc.topic+" STM "+day+" found "+(texts == null ? 0 : texts.size()));
 				if (!AL.empty(texts)){
-					res = new ArrayList();
 					//iterate over collection of texts
 					for (Iterator it = texts.iterator(); it.hasNext();){
 						Thing t = (Thing)it.next();
@@ -417,22 +419,19 @@ class Searcher implements Intenter {
 							continue;
 						//add all findings to resulting collection
 						searchText(session, storager, source, image, text, sc.topic, res, sc.properties);
-						if (sc.limit > 0 && res.size() >sc.limit)
-							break;
+						if (sc.limit > 0 && res.size() > sc.limit)
+							return res;
 					}
-//TODO: fill up to the limit
-					//flush final collection to out
-					if (!AL.empty(res))
-						return res;
 				}
 			}
 		} catch (Throwable e) {
 			session.sessioner.body.error("Searcher "+session.input(), e);
 		}
-		return null;
+		return !AL.empty(res) ? res : null;
 	}
 	
 	Collection searchLTM(Session session, final SearchContext sc) {
+		Collection res = new ArrayList();
 		if (session.sessioner.body.sitecacher != null){
 			Storager storager = session.getStorager();
 			//1) break pattern into words
@@ -461,31 +460,26 @@ class Searcher implements Intenter {
 				session.sessioner.body.debug("Searcher "+sc.topic+" LTM "+day+" max "+max);
 				
 				//4) search in every mathched url in is-text
-				Collection res = new ArrayList();
 				for (int matches = max; matches > 0; matches--){//go down, relaxing count of index matches gradually
 					for (Iterator it = indexed.keys().iterator(); it.hasNext();){
 						String path = (String)it.next();
 						int count = ((Number)indexed.get(path)).intValue();
 						if (count == matches){
-							//TODO search
 							String text = session.sessioner.body.archiver.get(path);
 							if (AL.empty(text))
 								session.sessioner.body.error("Searcher empty path "+path, null);
 							else
 								searchText(session, storager, path, null, text, sc.topic, res, sc.properties);									
+							session.sessioner.body.debug("Searcher "+sc.topic+" LTM "+day+" found "+res.size());
+							//flush final collection to out ON the first day AND the first tie on matches
 							if (sc.limit > 0 && res.size() > sc.limit)
-								break;
+								return res;
 						}
 					}
-					session.sessioner.body.debug("Searcher "+sc.topic+" LTM "+day+" found "+res.size());
-//TODO: fill up to the limit
-					//flush final collection to out ON the first day AND the first tie on matches
-					if (!AL.empty(res))
-						return res;
 				}
 			}
 		}
-		return null;
+		return !AL.empty(res) ? res : null;
 	}
 	
 	boolean handleSearch(final String[] args, final Session session) {
@@ -493,7 +487,7 @@ class Searcher implements Intenter {
 		final SearchContext sc = new SearchContext(
 				Str.arg(args,"search",null),
 				session.getPeer(),
-				Str.argLower(args,"engine", null));
+				Str.argLower(args,"engine", null),10);
 		sc.site = Str.arg(args,Conversation.in_site, null);
 		sc.arg = new Thing();
 		sc.arg.set("thingname", sc.topic);//redundancy!?
@@ -510,7 +504,7 @@ class Searcher implements Intenter {
 		sc.arg.set(AL.time, time);
 		sc.arg.set("scope", scope);
 		String default_period = "3";//session.getBody().self().getString(Body.retention_period,"31");//search retention period by default
-		session.readArgs(sc.arg,new String[]{"period","range","limit","minutes"},new String[]{default_period,"2","100","10"});
+		session.readArgs(sc.arg,new String[]{"period","range","limit","minutes"},new String[]{default_period,"2","10","10"});
 		session.readArgs(sc.arg,new String[]{"mode","sort","order"},new String[]{"smart","text","asc"});//smart|track|find,text|category|...,asc|desc
 		sc.days = Integer.valueOf(sc.arg.getString("period")).intValue();
 		sc.limit = Integer.valueOf(sc.arg.getString("limit")).intValue();

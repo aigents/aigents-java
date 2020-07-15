@@ -129,7 +129,9 @@ public class Session  {
 	}
 	
 	public void outputWithEmotions(String output){
-		String emotion = Emotioner.emotion(getBody().languages.sentiment(input()));
+		String emotion = Emotioner.emotion(getBody().languages.sentiment(input()));//emotions on input?
+		if (AL.empty(emotion))//no emotions on input - provide emotions on output?
+			emotion = Emotioner.emotion(getBody().languages.sentiment(output));
 		this.output = !AL.empty(emotion) ? output + "\n" + emotion : output;
 	}
 	

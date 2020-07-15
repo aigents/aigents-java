@@ -139,7 +139,7 @@ public class Conversation extends Responser {
 	  } catch (Exception e) {
 		  if (!(e instanceof Mistake))
 			  session.sessioner.body.error("Error handling "+(session.peer != null ? session.peer.getTitle(Peer.title_email) : "null")+": "+session.input(), e);
-		  session.output(session.no()+" "+e.getMessage());
+		  session.output(session.no()+" "+Mistake.message(e));
 		  return false;
 	  }
 	}

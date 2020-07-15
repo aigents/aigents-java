@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Seq;
+import net.webstructor.al.Set;
 import net.webstructor.core.Environment;
 import net.webstructor.main.Mainer;
 import net.webstructor.util.Array;
@@ -189,7 +190,39 @@ public class LangPack {
 		}
 		return trim(sb.toString());
 	}
+
+	public static boolean excluded(String word, int min, LangPack languages) {
+		if (word.length() < 2)
+			return true;
+		/*if (exclusions != null && exclusions.contains(word))
+			return true;*/
+		if (languages != null && languages.scrub(word))
+			return true;
+		return false;
+	}
 	
+	public static void countWords(LangPack languages, Linker linker, String text, java.util.Set vocabulary) {
+		Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);
+		if (tokens != null) {
+			for (int j = 0; j < tokens.size(); j++){
+				String word = (String)tokens.get(j); 
+				if (AL.isURL(word))
+					continue;
+				if (languages != null)
+					word = languages.lowertrim(word);
+				//TODO: use real freqs for scrubs, because some of them may be used in patterns
+				if (vocabulary != null){//inclusion based on "best words"
+					if (!vocabulary.contains(word))
+						continue;
+				} else {//inclusion based on "scrub list" fo exclusions
+					if (excluded(word,2,languages))
+						continue;
+				}
+				linker.count(word);
+			}
+		}
+	}
+
 	String buildNGram(Seq seq, int pos, int n) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < n; i++) {

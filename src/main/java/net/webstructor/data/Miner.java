@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,6 @@ import java.util.Map;
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Any;
-import net.webstructor.al.Parser;
-import net.webstructor.al.Set;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.HttpFileReader;
@@ -533,16 +531,6 @@ if (mergee == null)//TODO:remove???
 		return null;
 	}
 
-	boolean excluded(String word) {
-		if (word.length() < 2)
-			return true;
-		if (exclusions != null && exclusions.contains(word))
-			return true;
-		if (languages != null && languages.scrub(word))
-			return true;
-		return false;
-	}
-	
 	public Map toGraph(String[] texts) {
 		return toGraph(texts,texts,null);
 	}
@@ -577,7 +565,7 @@ if (mergee == null)//TODO:remove???
 				
 				//punctuation, no regexp, lowercase, no quiting, no urls
 				//TODO: sort out punctuation together with Social Feeder!!!
-				Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);
+				/*Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);
 				if (tokens != null) {
 					for (int j = 0; j < tokens.size(); j++){
 						String word = (String)tokens.get(j); 
@@ -590,12 +578,13 @@ if (mergee == null)//TODO:remove???
 							if (!vocabulary.contains(word))
 								continue;
 						} else {//inclusion based on "scrub list" fo exclusions
-							if (excluded(word))
+							if (excluded(word,2,languages))
 								continue;
 						}
 						linker.count(word);
 					}
-				}
+				}*/
+				LangPack.countWords(languages, linker, text, vocabulary);
 				graph.put(key, linker);
 			}
 		}

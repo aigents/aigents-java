@@ -139,6 +139,7 @@ public class AL {
 	public static final String brackets = brackets_open + brackets_close;
 	public static final String commas = ",;";//TODO: union with 'separators' below
 	public static final String periods = ".!?";
+	public static final String delimiters = commas+periods;
 	public static final String negation = "~";
 	public static final String punctuation = brackets + commas + periods + negation;
 	public static final String separators = ".,:";//like decimal separators inside a word or colon in time

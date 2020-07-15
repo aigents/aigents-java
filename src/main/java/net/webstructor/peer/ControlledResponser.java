@@ -114,11 +114,16 @@ class ControlledResponser implements Intenter {
 		} else if (session.mood == AL.interrogation && (Responser.noSecretQuestion(session) || session.authenticated())) {
 			Thing peer = Responser.getSessionAreaPeer(session);
 			try {
-				session.query = session.reader.parseStatement(session,session.input(),peer);
+				String input = session.input();
+				session.query = session.reader.parseStatement(session,input,peer);
 				session.sessioner.body.output("Int:"+Writer.toString(session.query)+"?");
 				String out = Responser.queryFilterFormat(session, peer, session.query);
 				if (!AL.empty(out)){
 					session.output(out);
+					return true;
+				} else if (input != null && input.toLowerCase().startsWith("what ")) {
+//TODO fix ugly hack needed for "smart" bi-lingual AL/NL conversations
+					session.output(session.no());
 					return true;
 				}
 			} catch (Throwable e) {

@@ -2,7 +2,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2014-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2014-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,57 @@ function test_chat_cleanup() {
 }
 
 function test_freechat() {
+	//test contextual refinement
+	//TODO
+	/*
+			>Horses eat oats and hay.
+			Ок.
+			>Horses can swim.
+			Ok.
+			>Horses can neigh.
+			Ok.
+			>Volga rises in the Valdai Hills and flows into the Caspian Sea.
+			Ok.
+			>What do horses eat?
+			Horses eat oats and hay.
+			>What can horses do?
+			Horses can swim.
+			>What can horses do?
+			Horses can neigh.
+			>Where does the Volga rise?
+			Volga rises in the Valdai Hills.
+			>Where does the Volga flow?
+			Volga flows into the Caspian Sea.
+	//say("There text 'Horses eat oats and hay.', trust true.");
+	say("There text 'Horses eat oats.', trust true.");
+	say("There text 'Horses eat hay.', trust true.");
+	say("There text 'Horses can swin.', trust true.");
+	say("There text 'Horses can neigh.', trust true.");
+	*/
+	
+	
+	//test search-based replies
+	login();
+	say("There text 'Home, sweet home', is http://home.org.");
+	say("There text 'Outer space is a home for aliens', is http://aliens.org.");
+	say("There text 'Some aliens may be our friends', is http://enemies.org.");
+	say("aliens home");
+	get("Outer space is a home for aliens http://aliens.org");
+	//brk();
+	test_chat_cleanup();
+	
+	//test search-based replies with summary
+	login();
+	say("There text 'Homeland is motheland', is http://home.org.");
+	say("There text 'We live in the universe. The universe is the homeland of the extraterrestrial forms of life. These are called aliens. The aliens are our friends.', is http://aliens.org.");
+	say("There text 'Some aliens may be our friends', is http://enemies.org.");
+	say("aliens homeland");
+	get("The universe is the homeland of the extraterrestrial forms of life. These are called aliens. http://aliens.org");
+	say("Where is the homeland of aliens?");
+	get("The universe is the homeland of the extraterrestrial forms of life. These are called aliens. http://aliens.org");
+	test_chat_cleanup();
+	
+	//test pattern-based replies witj sentiment
 	login();
 	say("There patterns hi, hello, whatsup, greeting, responses 'hi!', 'hello!', 'whatsup?', 'greeting!'.");
 	get("Ok.");
@@ -249,7 +300,7 @@ function test_chat() {
 	say("   hi   ");
 	get("Greeting!",array("Hi!","Hello!","Whatsup?"));
 	say("how do you do");
-	get("I am ok.",array("I am fine.","I am great."));
+	get("I am ok.",array("I am fine.\n😊","I am great.\n😊"));
 	say("Привет");
 	get("Здорово!",array("Привет!","Здравствуй!"));
 	say("  \n help!  \n ");
@@ -484,10 +535,15 @@ function test_search() {
 	say("search whatever");
 	get("No.");
 	
-	
 	say("search products site http://localtest.com/sitea/products.html, range 3");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
-	say("search products, period 0");
+	say("what is products sources, text?");
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("search products, period 0, limit 1");
+	get("There sources http://localtest.com/sitea/personal.html, text our products make people happier.",array("There sources http://localtest.com/sitea/products.html, text about us products info contact us.","There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable."));
+	say("search products, period 0, limit 3");
+	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
+	say("search products, limit 3");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/sitea/products.html, text about us products info contact us.");
 	say("No there times today.");
 	get("Ok.");
@@ -507,6 +563,7 @@ function test_search() {
 	get("products worded http://localtest.com/sitea/corporate.html 100.\nproducts worded http://localtest.com/sitea/index.html 100.\nproducts worded http://localtest.com/sitea/personal.html 100.");
 	say("www id make graph date today, period 0");
 	get("make worded http://localtest.com/sitea/corporate.html 100.\nmake worded http://localtest.com/sitea/mission.html 100.\nmake worded http://localtest.com/sitea/personal.html 100.");
+//TODO actual use of the limit 
 	say("Search products, period 0");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/index.html, text about us products info contact us; sources http://localtest.com/sitea/personal.html, text our products make people happier.");
 	say("Search 'products make \$x', period 0");
@@ -581,8 +638,10 @@ function test_search() {
 	//test search in STM
 	say("what is products, times today text, sources");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
-	say("search products");
+	say("search products limit 2");
 	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
+//	say("search products limit 3");
+//	get("There sources http://localtest.com/sitea/products.html, text about us products info contact us; sources http://localtest.com/siteb/contact_info.html, text our products contact information about our company.");
 	say("search \"our products\"");
 	get("There sources http://localtest.com/sitea/corporate.html, text our products make corporations more profitable; sources http://localtest.com/sitea/personal.html, text our products make people happier; sources http://localtest.com/siteb/, text our products contact information about our company.");
 	say("search 'products make'");

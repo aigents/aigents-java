@@ -48,11 +48,11 @@ public class TextMiner extends Miner {
 		super(env, languages, debug);
 		this.tillTime = tillTime;
 	}
-	public TextMiner setDocuments(String[] documents, String[][] exclusions){
+	/*public TextMiner setDocuments(String[] documents, String[][] exclusions){
 		setExclusions(exclusions);
 		documentFeatures = toGraph(documents,documents);
 		return this;
-	}
+	}*/
 	public TextMiner setDocuments(String[] documents){
 		documentFeatures = toGraph(documents,documents);
 		return this;
@@ -69,7 +69,7 @@ public class TextMiner extends Miner {
 		documentFeatures = toGraph(names,documents,vocabulary);
 		return this;
 	}
-	private void setExclusions(String[][] exclusions){
+	/*private void setExclusions(String[][] exclusions){
 		this.exclusions = new HashSet();
 		if (!AL.empty(exclusions)){
 			for (int i = 0; i < exclusions.length; i++)
@@ -78,7 +78,7 @@ public class TextMiner extends Miner {
 						if (!AL.empty(exclusions[i][j]))
 							this.exclusions.add(exclusions[i][j]);
 		}
-	}
+	}*/
 	public TextMiner cluster(int similarityThreshold,int featureVolume,int maxCategories) {
 		Map[] out = cluster(documentFeatures,similarityThreshold,featureVolume,maxCategories,tillTime);
 		categoryDocuments = out[0];

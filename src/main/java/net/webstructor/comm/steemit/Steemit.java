@@ -127,8 +127,9 @@ wss://api.golos.blckchnd.com/ws
 wss://denisgolub.name/ws
 wss://api-full.golos.id/ws
 wss://lindsay-golos.cf/ws
-https://api-full.golos.id (OK) - expired certificate!?
+https://api-full.golos.id (OK) - hard rate limits, needs 10 seconds waits, resync takes 8 hours  
 https://api.golos.blckchnd.com (OK)
+https://golos.lexai.host (not tested yet)
 Тут же и размеры блоков можно посмотреть на разных нодах.
 
 Golos Support: 
@@ -235,11 +236,12 @@ public class Steemit extends SocialCacher {
 	//- keeping registry of "already spidered at date" accounts
 	//- keep "latest daily timestamp" per peer to prevent redundancy
 	protected static void resync(String name, Steemit api, Environment env, LangPack lp, GraphCacher gc, Set peers, Date since, Date until, String[] areas, int range, long timeout) {
+		String caps_name = Writer.capitalize(name);
 		if (AL.empty(peers))
 			return;
 		
 		long start = System.currentTimeMillis();
-		env.debug("Steemit resyncing "+name+" start "+new Date(start)+".");
+		env.debug(caps_name+" resyncing "+name+" start "+new Date(start)+".");
 		
 		gc.setAge(start);
 		
@@ -267,7 +269,7 @@ public class Steemit extends SocialCacher {
 				
 //TODO: make sure the peer id is not present in every daily graphs, unless it has to be fresh!?
 				
-				env.debug("Steemit crawling "+name+" user "+id);
+				env.debug(caps_name+" crawling "+name+" user "+id);
 				try {
 					//get feed (yearly period since postProcessPosts is overridden)
 					SteemitGraphFeeder feeder = new SteemitGraphFeeder(gc,env,api,id,lp,since,until,areas,365);
@@ -288,7 +290,7 @@ public class Steemit extends SocialCacher {
 				} catch (IOException e) {
 					env.error("Steemit resyncing error "+name, e);
 				}
-				env.debug("Steemit spidered "+name+" user "+id);
+				env.debug(caps_name+" spidered "+name+" user "+id);
 				//add name to processed list
 				done.add(id);
 			}
@@ -301,16 +303,19 @@ public class Steemit extends SocialCacher {
 		gc.saveGraphs();
 		
     	long end = System.currentTimeMillis();
-		env.debug("Steemit resyncing "+name+" end "+new Date(end)+", count "+count+", took "+Period.toHours(end-start)+", peer "+Period.toHours((end-start)/count)+".");
+		env.debug(caps_name+" resyncing "+name+" end "+new Date(end)+", count "+count+", took "+Period.toHours(end-start)+", peer "+Period.toHours((end-start)/count)+".");
 	}
 	
 	public static String retryPost(Environment env,String api_url,String par) throws Throwable {
+		return retryPost(env, api_url, par, 100L);
+	}
+	public static String retryPost(Environment env,String api_url,String par, long pause) throws Throwable {
 		String response = null;
 		for (int retry = 1; retry <= 10; retry++){
 			response = HTTP.simple(api_url,par,"POST",0);
 			if (response.startsWith("<html>")){
 				env.error("Steemit response "+api_url+" "+par+" "+response,null);
-				Thread.sleep(100 * retry);
+				Thread.sleep(pause * retry);
 			} else 
 				break;
 		}
@@ -385,6 +390,7 @@ public class Steemit extends SocialCacher {
 		Graph graph = null;
 		boolean pending_update = false;
 		long head = start_block > 0 ? start_block : headBlock(env, api_url, api_name);
+		long pause = "golos".equals(api_name) ? 1000 : 100;
 
 		long start = System.currentTimeMillis(); 
 		env.debug(caps_name+" crawling start");// since "+since+" until "+until);
@@ -419,7 +425,7 @@ public class Steemit extends SocialCacher {
 			try {
 				if (debug)
 					env.debug(Writer.capitalize(api_name)+" request "+api_url+" "+par);
-				response = retryPost(env, api_url, par);
+				response = retryPost(env, api_url, par, pause);
 				JsonReader res = Json.createReader(new StringReader(response));
 				JsonObject obj = res.readObject();
 				JsonObject result = JSON.getJsonObject(obj, "result");
@@ -737,7 +743,10 @@ if (block % 10 == 0){
 			*/
 			
 			//https://api-full.golos.id (OK)//5.829696165440641 blocks/minute at 38 blocks 
-			String url = "steemit".equals(name) ? "https://api.steemit.com" : "https://api-full.golos.id";
+			String url = "steemit".equals(name) ? "https://api.steemit.com" : 
+				//"https://api-full.golos.id";
+				"https://api-golos.blckchnd.com";
+				//"https://golos.lexai.host";
 			//https://api.golos.blckchnd.com (OK)//5.535906504690143 blocks/minute
 			//String url = "steemit".equals(name) ? "https://api.steemit.com" : "https://api.golos.blckchnd.com";
 			HTTP.init();

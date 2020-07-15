@@ -28,6 +28,10 @@ public class Tester {
 	private int total = 0;
 	private int failed = 0;
 	
+	public Tester () {
+		init();
+	}
+
 	public void init(){
 		total = 0;
 		failed = 0;
@@ -41,7 +45,7 @@ public class Tester {
 	
 	public void assume(String actual,String expected){
 		total++;
-		if (expected.equals(actual))
+		if (actual == expected || expected.equals(actual))
 			System.out.println(actual);
 		else{
 			System.out.println("FAILED:"+actual+" != "+expected);

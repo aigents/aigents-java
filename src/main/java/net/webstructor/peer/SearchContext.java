@@ -46,11 +46,12 @@ class SearchContext {
 	boolean novelNew = false;
 	boolean scopeWeb = false;
 
-	public SearchContext(String topic,Thing peer,String engine) {
+	public SearchContext(String topic,Thing peer,String engine,int limit) {
 		this.topic = topic;
 		this.peer = peer;
 		this.engine = engine;
 		this.date = Time.today();
+		this.limit = limit;
 	}
 };
 
