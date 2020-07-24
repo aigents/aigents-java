@@ -72,6 +72,7 @@ class Email {
 
 //TODO: split into JavaEmailer and LinuxEmailer
 public class Emailer extends Communicator implements Updater {
+	public static final String DEFAULT_EMAIL = "replace@this.email";
 	public static final String DEFAULT_PASSWORD = "replace this with proper password";
 	private static final long DEFAULT_EMAIL_CYCLE_MS = 60*Period.MINUTE;
 	private static final long MINIMUM_EMAIL_CYCLE_MS = 1*Period.MINUTE;

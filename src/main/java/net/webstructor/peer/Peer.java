@@ -235,8 +235,11 @@ public class Peer extends Agent {
 				//set the self email same as email as first owner
 				if (!testPeer) //TODO: why so? just to make tests passing?
 					if (AL.empty(self.getString(AL.email)) && AL.empty(self.getString(Body.email_login))) {
-						self.setString(AL.email,thisPeer.getString(AL.email));
-						self.setString(Body.email_login,thisPeer.getString(AL.email));
+						//using peer email for self email breaks email uniqueness!
+						//self.setString(AL.email,thisPeer.getString(AL.email));
+						//self.setString(Body.email_login,thisPeer.getString(AL.email));
+						self.setString(AL.email,Emailer.DEFAULT_EMAIL);
+						self.setString(Body.email_login,Emailer.DEFAULT_EMAIL);
 					}
 			}
 		}
@@ -291,8 +294,7 @@ public class Peer extends Agent {
 		ArrayList dels = new ArrayList();
 		Date today = Time.today(0);
 		int days = body.attentionDays();
-		//Date yesterday = Time.today(-1);
-		for (Iterator it = allNews.iterator(); it.hasNext();){
+		if (!AL.empty(trusts)) for (Iterator it = allNews.iterator(); it.hasNext();){
 			Thing t = (Thing)it.next();
 			Date day = t.getDate(AL.times,null);
 			int daysdiff = Period.daysdiff(day, today);

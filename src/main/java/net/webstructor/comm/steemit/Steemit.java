@@ -141,7 +141,8 @@ https://docs.google.com/document/d/1kms6fmzcUg18-SemUyJU9tRKt-853orXcdb16m1NGTE/
 https://golos.io/ru--golos/@goloscore/novosti-golos-core-status-razrabotki-na-05-02-2018-tekhnicheskie-izmeneniya-informaciya-o-bounty-programme
 Golos API Hosts:
 https://golos.id/nodes
-https://api.golos.blckchnd.com - public, working with new API on 2015-05-15
+https://api-golos.blckchnd.com - public, working with new API on 2020-07-20
+https://api.golos.blckchnd.com - not working with new API on 2020-07-20
 this.goloscore.org - Could not resolve host: this.goloscore.org
 https://ws.golos.io - worked in curl (with cert) - not working on 2015-05-15
 https://ws.golos.io - ask in chat golos.io, 
@@ -149,13 +150,14 @@ https://api.golos.cf - worked in curl (with cert) - not working on 2015-05-15
 https://api.golos.cf - ask @vikxx on Telegram 
 wss://ws17.golos.io/ - not working on 2015-05-15
 Golos Working:
-curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api.golos.blckchnd.com
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api-full.golos.id
+curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api-golos.blckchnd.com
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["33119661"]]}' https://api.golos.blckchnd.com/
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_block",["33119661"]]}' https://api-full.golos.id
 curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["database_api","get_dynamic_global_properties",[]]}' https://api-full.golos.id
 
 Golos Not Working:
+curl --data '{"jsonrpc":"2.0","id":"25","method":"call","params": ["account_history","get_account_history",["akolonin","-1","1000"]]}' https://api-full.golos.id
 curl --data '{"jsonrpc":"2.0","id":"25","method":"get_account_history","params": ["akolonin","-1","1000"]}' https://api.golos.cf
 curl --data '{"jsonrpc":"2.0","id":"25","method":"get_account_history","params": ["akolonin","-1","1000"]}' https://ws.golos.io
 
@@ -486,6 +488,12 @@ if (block % 10 == 0){
 							env.debug(caps_name+" crawling block "+block+" at "+timestamp+" transaction "+t+" operation "+o+" type "+type);
 						JsonObject args = operation.getJsonObject(1);
 						if (type.equals("claim_reward_balance") ||
+							type.equals("donate") ||//TODO!: Golos:["donate",{"from":"prizm","to":"id-ogon-sochi","amount":"1000.000 GOLOS","memo":{"app":"golos-id","version":1,"target":{"author":"id-ogon-sochi","permlink":"est-predlozhenie"},"comment":""},"extensions":[]}]
+							type.equals("claim") ||//TODO?: Golos:["claim",{"from":"sci-cards","to":"ksantoprotein","amount":"0.036 GOLOS","to_vesting":false,"extensions":[]}]
+							type.equals("transfer_from_tip") ||//Golos:["transfer_to_tip",{"from":"now","to":"now","amount":"16.500 GOLOS","memo":"","extensions":[]}]
+							type.equals("transfer_to_tip") ||//Golos:["transfer_from_tip",{"from":"lex","to":"lex","amount":"9764.987 GOLOS","memo":"","extensions":[]}]
+							type.equals("update_proposal_votes") ||//Steemit:["update_proposal_votes",{"voter":"kottalam","proposal_ids":[0],"approve":true,"extensions":[]}]
+							type.equals("account_update2") ||//Steemit:["account_update2",{"account":"olivepainting","json_metadata":"","posting_json_metadata":"{\"profile\":{\"name\":\"OlivePainting\",\"website\":\"https://www.instagram.com/olive_painting/\",\"version\":2}}","extensions":[]}]
 							type.equals("delete_comment") || //TODO: later!?
 							type.equals("comment_options") || //TODO: later!?
 							type.equals("custom_json") || //TODO: follows!?

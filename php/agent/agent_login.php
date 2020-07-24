@@ -26,9 +26,39 @@
 include_once("test_api.php");
 
 function test_login_debug() {
-	global $version;
-	global $copyright;
+	global $version, $copyright;
+	//debug registration and unregistration of a real non-test user
+	/*say("Login.");
+	get("What your email, name, surname?");
+	say("test@test.com, Firstname, Lastname");
+	get("What your secret question, secret answer?");
+	say("question, answer");
+	get("What your question?");
+	say("answer");
+	get("Ok. Hello Firstname Lastname!\nMy Aigents ".$version.$copyright);
+	logout("Firstname",true);
+	say("Login.");
+	get("What your email, name, surname?");
+	say("test@test.com, Firstname, Lastname");
+	get("What your secret question, secret answer?");
+	say("question, answer");
+	get("What your question?");
+	say("answer");
+	get("Ok. Hello Firstname Lastname!\nMy Aigents ".$version.$copyright);
+	logout("Firstname",true);
+	login();
+	//cleanup
+	say("You forget!");
+	get("Ok.");
+	say("Your email ''.");
+	get("Ok.");
+	say("Your things?");
+	get("My things activity time, aigents, areas, attention period, birth date, caching period, check cycle, clicks, clustering timeout, conversation, cookie domain, cookie name, copypastes, crawl range, currency, daytime, discourse id, discourse key, discourse url, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, format, friend, friends, golos id, golos url, google id, google key, google token, googlesearch key, http origin, http port, http secure, http threads, http timeout, http url, ignores, items limit, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paid term, paypal id, paypal key, paypal token, paypal url, peer, phone, queries, reddit id, reddit image, reddit key, reddit redirect, reddit token, registration time, reputation conservatism, reputation decayed, reputation default, reputation system, retention period, secret answer, secret question, selections, self, sensitivity threshold, serpapi key, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram name, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, twitter id, twitter image, twitter key, twitter key secret, twitter redirect, twitter token, twitter token secret, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+	say("Your things count?");
+	get("My things count 134.");
+	logout();*/
 	
+	//debug registration and unregistration conventional flow
 	say("My login.");
 	get("What your email, name, surname?");
 	say("john@doe.org, john, doe");
@@ -91,7 +121,6 @@ function test_login_new() {
 	get("Ok. Hello John Doe!\nMy Aigents ".$version.$copyright);
 	say("My logout.");
 	get("Ok.");
-	
 	//register by existing email -> login by email
 	say("My login.");
 	get("What your email, name, surname?");

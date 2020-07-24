@@ -26,6 +26,7 @@
 include_once("test_api.php");
 
 function test_chat_init() {
+	login();
 }
 
 function test_chat_cleanup() {
@@ -38,7 +39,107 @@ function test_chat_cleanup() {
 	get("Ok.");
 }
 
+function test_demochat() {
+	//main demo chat script
+	test_chat_init();
+	say("Hi");
+	get("No.");
+	say("Hello!");
+	get("No.");
+	say("There patterns hi, hello, whatsup, greeting, responses 'hi!', 'hello!', 'whatsup?', 'greeting!', trust true.");
+	get("Ok.");
+	say("There patterns 'how are you', 'whatsup', 'howdy', responses 'I am fine, thanks! And you?', 'I am great. What about you?', trust true.");
+	get("Ok.");
+	say("hi");
+	get("Greeting!",array("Hi!","Hello!","Whatsup?"));
+	say("How are you doing?");
+	get("I am fine, thanks! And you?\n😊",array("I am great. What about you?\n😊"));
+	say("I am fine as well!");
+	get("No.");
+	say("There patterns 'i am {ok okay fine good great}', responses 'Glad to hear that!', 'Good for you.', trust true.");
+	get("Ok.");
+	say("There patterns 'am not {ok okay good}', 'am {bad sad nervous}', responses 'Sorry about that!', 'Can I help you?', trust true.");
+	get("Ok.");
+	say("There patterns 'about yourself', 'who are you', responses 'I am a chatbot', 'I am an agent of artificial intelligence.', trust true.");
+	get("Ok.");
+	say("How are you doing?");
+	get("I am fine, thanks! And you?\n😊",array("I am great. What about you?\n😊"));
+	say("I am okay!");
+	get("Glad to hear that!\n😊", array("Good for you.\n😊"));
+	say("I am just ok!");
+	get("Glad to hear that!\n😊", array("Good for you.\n😊"));
+	say("I am pretty much fine!");
+	get("Glad to hear that!\n😊", array("Good for you.\n😊"));
+	say("I am nervous");
+	get("Can I help you?\n😞",array("Sorry about that!\n😞"));
+	say("Tell me about yourself");
+	get("I am a chatbot.",array("I am an agent of artificial intelligence."));
+	say("What's a chatbot?");
+	get("No.");
+	say("There patterns 'chatbot', 'chat-bot', 'chat bot', responses 'It is kind of artificial intelligence.', 'chat-bot it is a software mimicking human ability to chat', trust true.");
+	get("Ok.");
+	say("There patterns 'what {ai [arificial intelligence]}', responses 'AI or artificial intelligence is artificially created ability to behave intelligently, fair enough?', trust true.");
+	get("Ok.");
+	say("There patterns '{bye cheers bye-bye [good bye]}', responses 'Talk to you later', 'Cheers!', 'See you soon!', trust true.");
+	get("Ok.");
+	say("What's a chatbot?");
+	get("Chat-bot it is a software mimicking human ability to chat.",array("It is kind of artificial intelligence."));
+	say("Thanks, good bye now");
+	get("Cheers!\n😊",array("Talk to you later.\n😊","See you soon!\n😊"));
+	say("What is a chatbot?");
+	get("Chat-bot it is a software mimicking human ability to chat.",array("It is kind of artificial intelligence."));
+	say("What is a chatbot");
+	get("Chat-bot it is a software mimicking human ability to chat.",array("It is kind of artificial intelligence."));
+	say("What does arificial intelligence mean?");
+	get("AI or artificial intelligence is artificially created ability to behave intelligently, fair enough?\n😊");
+	test_chat_cleanup();
+	
+	//test demo chat script issues
+	test_chat_init();
+	say("What does chatbot mean?");
+	get("No.");
+	say("There patterns '{chatbot chat-bot [chat-bot]} ?', '{chatbot chat-bot [chat-bot]} mean ?', responses 'chat-bot it is a software mimicking human ability to chat', 'It is kind of artificial intelligence'.");
+	get("Ok.");
+	say("What does chatbot mean?");
+	get("Chat-bot it is a software mimicking human ability to chat.",array("It is kind of artificial intelligence."));
+	test_chat_cleanup();
+}
+
 function test_freechat() {
+	global $version, $copyright;
+	/**/
+	//test registration and unregistration of a real non-test user
+	say("Login.");
+	get("What your email, name, surname?");
+	say("test@test.com, Firstname, Lastname");
+	get("What your secret question, secret answer?");
+	say("question, answer");
+	get("What your question?");
+	say("answer");
+	get("Ok. Hello Firstname Lastname!\nMy Aigents ".$version.$copyright);
+	logout("Firstname",true);
+	say("Login.");
+	get("What your email, name, surname?");
+	say("test@test.com, Firstname, Lastname");
+	get("What your secret question, secret answer?");
+	say("question, answer");
+	get("What your question?");
+	say("answer");
+	get("Ok. Hello Firstname Lastname!\nMy Aigents ".$version.$copyright);
+	logout("Firstname",true);
+	login();
+	//cleanup
+	say("You forget!");
+	get("Ok.");
+	say("Your email ''.");
+	get("Ok.");
+	say("Your things?");
+	get("My things activity time, aigents, areas, attention period, birth date, caching period, check cycle, clicks, clustering timeout, conversation, cookie domain, cookie name, copypastes, crawl range, currency, daytime, discourse id, discourse key, discourse url, email, email cycle, email login, email notification, email password, email retries, ethereum id, ethereum key, ethereum period, ethereum url, facebook challenge, facebook id, facebook key, facebook notification, facebook token, format, friend, friends, golos id, golos url, google id, google key, google token, googlesearch key, http origin, http port, http secure, http threads, http timeout, http url, ignores, items limit, john, language, login count, login time, login token, mail.pop3.starttls.enable, mail.pop3s.host, mail.pop3s.port, mail.smtp.auth, mail.smtp.host, mail.smtp.port, mail.smtp.ssl.enable, mail.smtp.starttls.enable, mail.store.protocol, money, name, news, news limit, number, paid term, paypal id, paypal key, paypal token, paypal url, peer, phone, queries, reddit id, reddit image, reddit key, reddit redirect, reddit token, registration time, reputation conservatism, reputation decayed, reputation default, reputation system, retention period, secret answer, secret question, selections, self, sensitivity threshold, serpapi key, share, shares, sites, slack id, slack key, slack notification, slack token, steemit id, steemit url, store cycle, store path, surname, tcp port, tcp timeout, telegram id, telegram name, telegram notification, telegram offset, telegram token, there, things, things count, time, topics, trusts, trusts limit, twitter id, twitter image, twitter key, twitter key secret, twitter redirect, twitter token, twitter token secret, update time, version, vkontakte id, vkontakte key, vkontakte token, word.");
+	say("Your things count?");
+	get("My things count 134.");
+	logout();
+//TODO: move out the above to login test
+	
 	//test contextual refinement
 	//TODO
 	/*
@@ -67,7 +168,6 @@ function test_freechat() {
 	say("There text 'Horses can neigh.', trust true.");
 	*/
 	
-	
 	//test search-based replies
 	login();
 	say("There text 'Home, sweet home', is http://home.org.");
@@ -75,7 +175,6 @@ function test_freechat() {
 	say("There text 'Some aliens may be our friends', is http://enemies.org.");
 	say("aliens home");
 	get("Outer space is a home for aliens http://aliens.org");
-	//brk();
 	test_chat_cleanup();
 	
 	//test search-based replies with summary
@@ -598,7 +697,8 @@ function test_search() {
 	say("what is temperature");
 	get("There about is 22 c°, context the outside, is temperature, sources http://localtest.com/test/, text the outside temperature is 22 c°, times today, title 'Aigents Test Page'.");
 	say("what is test");
-	get("No.");
+	get("This is a test page. http://localtest.com/test/");//fallback to free chat
+	//get("No.");//if not fallback to free chat
 	say("search test in http://localtest.com/test/Test.pdf");
 	get("There sources 'http://localtest.com/test/Test.pdf', text this is a test page.");
 	say("what is test");
@@ -727,11 +827,12 @@ function test_groups() {
 
 
 test_init();
-test_freechat();
+test_demochat();
+/*test_freechat();
 test_help();
 test_chat();
 test_groups();
-test_search();
+test_search();*/
 test_summary();
 
 ?>

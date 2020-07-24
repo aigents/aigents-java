@@ -123,8 +123,10 @@ class ControlledResponser implements Intenter {
 					return true;
 				} else if (input != null && input.toLowerCase().startsWith("what ")) {
 //TODO fix ugly hack needed for "smart" bi-lingual AL/NL conversations
-					session.output(session.no());
-					return true;
+					if (session.query.complex()){//not a parsed query complex enough to be answered?
+						session.output(session.no());
+						return true;
+					}	
 				}
 			} catch (Throwable e) {
 				session.output(Responser.statement(e));

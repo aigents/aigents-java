@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,22 @@ public class Statement extends Seq {
 		super(set);
 		this.mood = mood;
 		is(is);//not a negation
+	}
+	public boolean complex() {
+		if (size() > 1)
+			return true;
+		Object first = get(0);
+		if (first instanceof Seq) {//just a key-value pair
+			/*Seq seq = (Seq)first;
+			if (seq.size() > 1){
+				Object name = seq.get(0);
+				if (!(AL.name.equals(name) || AL.is.equals(name)))
+					return true;
+			}*/
+			return false;
+		}
+		else //All/Any
+			return true;
 	}
 }
 

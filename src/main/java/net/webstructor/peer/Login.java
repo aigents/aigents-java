@@ -245,6 +245,8 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 			session.sessioner.body.output("Login:"+Writer.toString(session.peer)+".");
 		}
 		
+		//Identification by email is expexted to be unique
+		//Collection peers = session.sessioner.body.storager.get(session.peer,login_context);
 		Collection peers = null;
 		if (!AL.empty(session.peer.getString(AL.email))){//checking by email only!!!
 			peers = session.sessioner.body.storager.get(session.peer,new String[]{AL.email});
@@ -297,6 +299,7 @@ session.sessioner.body.debug("vkontakte: "+id+" "+token);
 				//TODO: do this default initialization in some other place!
 				//must initialize parameter sheets for peers anyway otherwise they can't be quaried by ALL-kind "open" queries
 				storedPeer.setString(Peer.check_cycle,"3 hours");//TODO:move out of here?
+
 				session.responser = new Registration();
 				session.expect(null);
 				return true;

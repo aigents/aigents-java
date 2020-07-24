@@ -334,16 +334,18 @@ function test_agent_agglomerate() {
 	get("Ok.");
 	say("no there times today.");
 	get("Ok.");
-	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
+//TODO: note that witohiut of "text", non-complex query handling will fallback to chat mode!
+	//say("What is '\$firstname \$lastname {CEO CTO Founder Director}' text?");
+	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' text?");
 	get("No.");
 	say("You reading!");
 	sleep($timeout);
-	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
+	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' text?");
 	get("No.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder adviced</body></html>");
 	say("You reading!");
 	sleep($timeout);
-	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
+	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' text?");
 	get("No.");
 	say("You forget everything!");
 	get("Ok.");
@@ -351,7 +353,7 @@ function test_agent_agglomerate() {
 	get("There is http://localtest.com/sitea/test.html, text 'there is . john doe founder joined', times today; is http://localtest.com/siteb/test.html, text 'there is . john doe founder adviced', times today.");
 	say("You reading!");
 	sleep($timeout);
-	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
+	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' text?");
 	get("No.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . john doe founder declared</body></html>");
 	say("You reading!");

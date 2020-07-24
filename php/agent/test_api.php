@@ -103,7 +103,7 @@ function curl_test($url) {
 	CURLOPT_URL => $url,
 	CURLOPT_HEADER => 1,
 	CURLOPT_VERBOSE => 1,
-	CURLOPT_TIMEOUT => 60,
+	CURLOPT_TIMEOUT => 120,//60
 	CURLOPT_CONNECTIONTIMEOUT => 60,	
 	CURLOPT_USERAGENT => 'Codular Sample cURL Request'	
 	));
