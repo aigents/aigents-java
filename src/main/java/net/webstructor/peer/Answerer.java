@@ -33,6 +33,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Set;
 import net.webstructor.al.Writer;
+import net.webstructor.core.Mistake;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Counter;
@@ -48,8 +49,8 @@ class Answerer extends Searcher {
 	
 	@Override
 	public boolean handleIntent(final Session session){
-		//if (session.mood != AL.interrogation)
-		//	return false;
+		try {
+
 		String query = session.input();
 		SearchContext sc = new SearchContext(query, session.getPeer(), "any",1);
 		session.getPeer();
@@ -76,6 +77,12 @@ class Answerer extends Searcher {
 			session.outputWithEmotions(text);
 		} else
 			session.output(session.no());
+
+		} catch (Throwable e) {
+			session.output(session.no()+" "+Responser.statement(e));
+			if (!(e instanceof Mistake))
+				session.sessioner.body.error("Answerer error " + e.toString(), e);
+		}
 		return true;
 	}
 

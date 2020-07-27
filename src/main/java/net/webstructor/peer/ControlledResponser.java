@@ -48,11 +48,12 @@ class ControlledResponser implements Intenter {
 	@Override
 	public boolean handleIntent(final Session session) {
 		Storager storager = session.getStorager();
+		String input = session.input();
+		try {
 		if ((session.mood == AL.declaration || session.mood == AL.direction) && session.authenticated()) {
 			if (Reader.read(session.input(), new Any(1,AL.no)))
 			{
-				try {
-					Statement query = session.reader.parseStatement(session,session.input(),session.getStoredPeer());
+					Statement query = session.reader.parseStatement(session,input,session.getStoredPeer());
 					session.sessioner.body.output("Dec:"+Writer.toString(query)+".");
 					if (!AL.empty(query)) {
 						int skipped = 0;
@@ -72,16 +73,11 @@ class ControlledResponser implements Intenter {
 							}
 						session.output(skipped > 0 ? "No. There things." : session.ok());
 					}
-				} catch (Exception e) {
-					session.output(Responser.statement(e));
-					session.sessioner.body.error(e.toString(), e);
-				}
-				return true;
-			} else
-			try {
+					return true;
+			} else {
 				Thing storedPeer = session.getStoredPeer();
 				StringBuilder out = new StringBuilder();
-				Collection message = session.reader.parseStatements(session,session.input(),session.getStoredPeer());
+				Collection message = session.reader.parseStatements(session,input,storedPeer);
 				for (Iterator it = message.iterator(); it.hasNext();) {
 					Statement query = (Statement)it.next();
 					session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
@@ -100,22 +96,12 @@ class ControlledResponser implements Intenter {
 					return false;//not handled
 				session.output(out.toString());
 				return true;//handled
-			} catch (Exception e) {
-				
-				//TODO: letting Responser handle that!?
-				if (e instanceof Mistake && e.getMessage().equals(Mistake.no_thing))
-					return false;
-				
-				session.output(Responser.statement(e));
-				if (!(e instanceof Mistake))
-					session.sessioner.body.error(e.toString(), e);
-				return true;
 			}
 		} else if (session.mood == AL.interrogation && (Responser.noSecretQuestion(session) || session.authenticated())) {
+//TODO: handle multiple (and mixed) statments in interrogation?
 			Thing peer = Responser.getSessionAreaPeer(session);
-			try {
-				String input = session.input();
-				session.query = session.reader.parseStatement(session,input,peer);
+			session.query = session.reader.parseStatement(session,input,peer);
+			if (!AL.empty(session.query)){
 				session.sessioner.body.output("Int:"+Writer.toString(session.query)+"?");
 				String out = Responser.queryFilterFormat(session, peer, session.query);
 				if (!AL.empty(out)){
@@ -128,14 +114,20 @@ class ControlledResponser implements Intenter {
 						return true;
 					}	
 				}
-			} catch (Throwable e) {
-				session.output(Responser.statement(e));
-				if (!(e instanceof Mistake))
-					session.sessioner.body.error(e.toString(), e);
-				return true;
 			}
-	  } 
-	  return false;
+		} 
+		} catch (Throwable e) {
+			
+			//TODO: letting Responser handle that!?
+			if (e instanceof Mistake && e.getMessage().equals(Mistake.no_thing))
+				return false;
+			
+			session.output(session.no()+" "+Responser.statement(e));
+			if (!(e instanceof Mistake))
+				session.sessioner.body.error("Controller error " + e.toString(), e);
+			return true;
+		}
+		return false;
 	}
 
 }

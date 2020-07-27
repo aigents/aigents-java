@@ -52,7 +52,7 @@ class EmailChange extends Registration {
 				}	
 				try {
 					if (!AL.empty(session.sessioner.body.storager.getByName(AL.email, email))){
-						session.output("Email "+email+" is owned.");
+						session.output(session.no() + " Email "+email+" is owned.");
 						return false;				
 					}
 				}catch(Exception e){

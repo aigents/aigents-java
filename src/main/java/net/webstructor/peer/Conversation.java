@@ -136,10 +136,10 @@ public class Conversation extends Responser {
 			session.responser = new Login();//TODO: really, just back to login?
 			return true;
 		}
-	  } catch (Exception e) {
-		  if (!(e instanceof Mistake))
-			  session.sessioner.body.error("Error handling "+(session.peer != null ? session.peer.getTitle(Peer.title_email) : "null")+": "+session.input(), e);
+	  } catch (Throwable e) {
 		  session.output(session.no()+" "+Mistake.message(e));
+		  if (e instanceof Mistake)
+			  session.sessioner.body.error("Conversation error "+(session.peer != null ? session.peer.getTitle(Peer.title_email) : "null")+": "+session.input(), e);
 		  return false;
 	  }
 	}

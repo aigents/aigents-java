@@ -96,6 +96,40 @@ function test_demochat() {
 	
 	//test demo chat script issues
 	test_chat_init();
+	say("There patterns robot destiny, responses creating other robots, 'joy and well-being', trust true.");
+	say("what patterns robot destiny?");
+	get("There patterns robot destiny, responses creating other robots, joy and well-being.");
+	say("what responses creating other robots?");
+	get("There patterns robot destiny, responses creating other robots, joy and well-being.");
+	say("what responses creating other robots patterns?");
+	get("There patterns robot destiny.");
+	say("what patterns robot destiny responses?");
+	get("There responses creating other robots, joy and well-being.");
+	say("what is the robot destiny?");
+	get("Joy and well-being.\n😊",array("Creating other robots.\n😊"));
+	//'joy and happiness' is quoted because of 'and' !!!
+	say("There patterns human destiny, responses creating robots, 'joy and happiness', trust true.");
+	say("what is the human destiny?");
+	get("Joy and happiness.\n😊",array("Creating robots.\n😊"));
+	say("And what is the human destiny?");
+	get("Joy and happiness.\n😊",array("Creating robots.\n😊"));
+	say("And what is the human destiny");
+	get("Joy and happiness.\n😊",array("Creating robots.\n😊"));
+	say("what patterns 'human destiny' responses?");
+	get("There responses creating robots, joy and happiness.");
+	say("what patterns human destiny responses?");
+	get("There responses creating robots, joy and happiness.");
+	say("there text 'everyone talks about the artificial intelligence', sources 'http://news.mit.edu/topic/quest-intelligence', trust true");
+	say("Tell us something about artificial intelligence?");
+	get("Everyone talks about the artificial intelligence http://news.mit.edu/topic/quest-intelligence");
+	say("Tell us something about artificial intelligence");
+	get("Everyone talks about the artificial intelligence http://news.mit.edu/topic/quest-intelligence");
+	say("there patterns 'water', responses 'Of the liquid surface fresh water, 87% is contained in lakes, 11% in swamps, and only 2% in rivers', trust true");  
+	say("there text 'Meat is animal flesh that is eaten as food. Humans have hunted and killed animals for meat since prehistoric times.', sources 'https://en.wikipedia.org/wiki/Meat', trust true");
+	say("I want to drink water. What should I do?");
+	get("Of the liquid surface fresh water, 87% is contained in lakes, 11% in swamps, and only 2% in rivers.\n😊");
+	say("I want to eat meat. What should I do?");
+	get("Meat is animal flesh that is eaten as food. https://en.wikipedia.org/wiki/Meat");
 	say("What does chatbot mean?");
 	get("No.");
 	say("There patterns '{chatbot chat-bot [chat-bot]} ?', '{chatbot chat-bot [chat-bot]} mean ?', responses 'chat-bot it is a software mimicking human ability to chat', 'It is kind of artificial intelligence'.");
@@ -486,7 +520,7 @@ function test_chat() {
 	say("what your name, email?");
 	get("My email '', name aigents.");
 	say("your email john@doe.org.");
-	get("Email john@doe.org is owned.");
+	get("No. Email john@doe.org is owned.");
 	say("what your email?");
 	get("My email ''.");
 	say("My logout");
@@ -828,11 +862,11 @@ function test_groups() {
 
 test_init();
 test_demochat();
-/*test_freechat();
+test_freechat();
 test_help();
 test_chat();
 test_groups();
-test_search();*/
+test_search();
 test_summary();
 
 ?>

@@ -425,7 +425,7 @@ public class Session  {
 		try {
 			Collection owners = session.sessioner.body.storager.getByName(idname,idvalue);
 			if (!AL.empty(owners) && (owners.size()>1 || !idvalue.equals(session.getStoredPeer().getString(idname,null))))
-				return Writer.capitalize(idname+" "+idvalue+" is owned.");
+				return session.no() + " " + Writer.capitalize(idname+" "+idvalue+" is owned.");
 		}catch(Exception e){
 			session.sessioner.body.error("Social bind",e);
 			return e.getMessage();

@@ -161,9 +161,9 @@ test_i("There email '', phone ''.");
 test_o("Is peer, name Ali, surname Baba email ali@BABA.com, secret question sesame, secret answer simsim.");
 test_i("Ok.");
 test_o("Is peer, name Ali, surname Baba secret question '', secret answer ''.");
-test_i("No right.");
+test_i("No. No right.");
 test_o("What is peer, surname Baba email, phone?");
-test_i("No right.");
+test_i("No. No right.");
 test_o("My logout.");
 test_i("Ok.");
 test_o("My name ali.");
@@ -710,7 +710,7 @@ test_i("Ok.");
 test_o("No name http://weather.yahoo.com, name http://www.weather.com, name john.");
 test_i("Ok.");
 test_o("What your things count?");
-test_i("No right.");//no observer exists to count
+test_i("No. No right.");//no observer exists to count
 
 //TODO: still need gc implementation and test!?
 //check garbage collection

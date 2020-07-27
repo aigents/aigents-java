@@ -415,13 +415,13 @@ function test_login_new() {
 	say("My email ali@baba.com.");
 	get("Ok.");
 	say("My email john@doe.com.");
-	get("Email john@doe.com is owned.");
+	get("No. Email john@doe.com is owned.");
 	say("What is peer, name test email?");
 	get("No.");
 	say("There is peer, name test, email ali@baba.org.");
 	get("Ok.");
 	say("Is peer, name test email john@doe.com.");
-	get("Email john@doe.com is owned.");
+	get("No. Email john@doe.com is owned.");
 	say("What is peer, name test email?");
 	get("There email ali@baba.org.");	
 	say("Is peer, name test email baba@ali.org.");
@@ -450,10 +450,10 @@ function test_login_new() {
 	get("Ok. Hello Ali Baba!\nMy Aigents ".$version.$copyright);
 	//bind google => fail
 	say("My google id 'testid1', google token 'testcode1'.");
-	get("Google id testid1 is owned.");
+	get("No. Google id testid1 is owned.");
 	//set google to other => fail
 	say("Is peer, name test google id 'testid1'.");
-	get("Google id testid1 is owned.");
+	get("No. Google id testid1 is owned.");
 	//success => check later
 	say("Is peer, name test google id 'testid2'.");
 	get("Ok.");
@@ -553,9 +553,9 @@ function test_login_old() {
 	say("What your name?");
 	get("My name aigents.");
 	say("What your name, email password?");
-	get("No right.");
+	get("No. No right.");
 	say("Your name dummy.");
-	get("No right.");
+	get("No. No right.");
 	say("What your name?");
 	get("My name aigents.");
 	test_o("My logout.");
@@ -908,11 +908,11 @@ function test_login_areas() {
 	say("What email john@doe.org areas?");
 	get("There areas academgorodok.");
 	say("What email doe@john.org areas?");
-	get("No right.");
+	get("No. No right.");
 	say("What email ali@baba.xxx areas?");
-	get("No right.");
+	get("No. No right.");
 	say("What email baba@ali.xxx areas?");
-	get("No right.");
+	get("No. No right.");
 	say("What areas academgorodok email?");
 	get("There email ali@baba.xxx; email john@doe.org.");
 	say("What areas stock market email?");
@@ -971,11 +971,11 @@ function test_login_sessions() {
 	say("what name john surname?");
 	get("John surname doe.");
 	say("what name john?");
-	get("No right.");
+	get("No. No right.");
 	say("what is doe is?");
 	get("There is doe.");
 	say("what is john?");
-	get("No right.");
+	get("No. No right.");
 	say("what john surname?");
 	get("John surname doe.");
 	
@@ -986,13 +986,13 @@ function test_login_sessions() {
 	say("what is john is?");
 	get("There is john.");
 	say("what is doe is?");
-	get("No right.");
+	get("No. No right.");
 	say("what name doe?");
-	get("No right.");
+	get("No. No right.");
 	say("what name doe email?");
 	get("Doe email doe@john.org.");
 	say("what email doe@john.org?");
-	get("No right.");
+	get("No. No right.");
 	say("You forget!");
 	get("Ok.");
 	say("Your things count?");

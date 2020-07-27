@@ -596,7 +596,7 @@ public class Reader extends AL {
 					String[] scope = head instanceof Thing ? ((Thing)head).getNamesPossible() : properties;
 					scope = Str.concat(scope, session.getBody().getActions());
 //TODO:may need to make sure there is no nulls or empty strings in thing_names but do it in the other place!!!???
-if (!AL.empty(thing_names)){
+/*if (!AL.empty(thing_names)){
 	ArrayList f = new ArrayList();
 	for (int i = 0 ; i < thing_names.length; i++)
 		if (!AL.empty(thing_names[i]))
@@ -604,10 +604,15 @@ if (!AL.empty(thing_names)){
 		else
 			body.error("Reader has no thing name", null);
 	thing_names = (String[])f.toArray(new String[]{});
-}
+}*/
 					Object step = parseExpression(terms,parser,scope,thing_names,storager);					
-					if (step == null)
-						break;
+					if (step == null) {
+						//break;
+						if (parser.parseAny(AL.periods,false) != null || parser.end())// just stop parsing
+							break;
+						else
+							return null;//break on incomplete parsing
+					}
 					terms.add(step);
 					
 				} else {

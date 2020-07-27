@@ -381,13 +381,14 @@ public class Graph implements Serializable {
 	}
 	
 	/**
-	 * @return array of two longs for counts of nodes and links in the graph
+	 * @return array of two longs for counts of nodes and links in the graph (SLOW!!!)
 	 */
 	//TODO: lazy initialize and incrementally update transient variables!?
 	public long[] size(){
 		long links = 0;
 		HashSet nodes = new HashSet();
-		Set contexts = binders.keySet(); 
+		//Set contexts = binders.keySet(); 
+		ArrayList contexts = new ArrayList(binders.keySet());//preventing ConcurrentModificationException 
 		for (Iterator c = contexts.iterator(); c.hasNext();){
 			Object context = c.next();
 			nodes.add(context);
@@ -402,12 +403,6 @@ public class Graph implements Serializable {
 						if (!AL.empty(sources)){
 							nodes.addAll(sources);
 							links += sources.size();
-							/*
-							for (Iterator s = sources.iterator(); s.hasNext();){
-								s.next();
-								links++;
-							}
-							*/
 						}
 					}
 				}
