@@ -381,7 +381,7 @@ class Searcher implements Intenter {
 				}
 				return filtered;
 			} catch (Throwable e) {
-				session.sessioner.body.error("Searcher "+session.input(), e);
+				session.sessioner.body.error("Searcher error site "+session.input(), e);
 			}
 		}
 		return null;
@@ -407,7 +407,7 @@ class Searcher implements Intenter {
 				q = new Seq(new Object[]{new Seq(new Object[]{"times",day}),new String[]{"text","is"}});
 				//query for all texts
 				Collection texts = new Query(session.sessioner.body,session.getStorager(),session.sessioner.body.self(),session.sessioner.body.thinker).getThings(q,sc.peer);
-				session.sessioner.body.debug("Searcher "+sc.topic+" STM "+day+" found "+(texts == null ? 0 : texts.size()));
+				session.sessioner.body.debug("Searcher searching STM "+sc.topic+" "+day+" found "+(texts == null ? 0 : texts.size()));
 				if (!AL.empty(texts)){
 					//iterate over collection of texts
 					for (Iterator it = texts.iterator(); it.hasNext();){
@@ -425,7 +425,7 @@ class Searcher implements Intenter {
 				}
 			}
 		} catch (Throwable e) {
-			session.sessioner.body.error("Searcher "+session.input(), e);
+			session.sessioner.body.error("Searcher error STM "+session.input(), e);
 		}
 		return !AL.empty(res) ? res : null;
 	}
@@ -457,7 +457,7 @@ class Searcher implements Intenter {
 						max = number.intValue();
 				}
 
-				session.sessioner.body.debug("Searcher "+sc.topic+" LTM "+day+" max "+max);
+				session.sessioner.body.debug("Searcher searching LTM "+sc.topic+" "+day+" max "+max);
 				
 				//4) search in every mathched url in is-text
 				for (int matches = max; matches > 0; matches--){//go down, relaxing count of index matches gradually
@@ -470,7 +470,7 @@ class Searcher implements Intenter {
 								session.sessioner.body.error("Searcher empty path "+path, null);
 							else
 								searchText(session, storager, path, null, text, sc.topic, res, sc.properties);									
-							session.sessioner.body.debug("Searcher "+sc.topic+" LTM "+day+" found "+res.size());
+							session.sessioner.body.debug("Searcher checking LTM "+sc.topic+" "+day+" found "+res.size());
 							//flush final collection to out ON the first day AND the first tie on matches
 							if (sc.limit > 0 && res.size() > sc.limit)
 								return res;

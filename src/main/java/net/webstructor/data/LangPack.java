@@ -71,7 +71,7 @@ public class LangPack {
 					"am", "i", "into", "its", "same", "with", "if", "most", "so", "thus", "hence", "how",
 					"as", "do", "what", "for", "to", "of", "be", "will", "was", "were", "here", "there",
 					"you", "your", "our", "my", "her", "his", "just", "have", "but", "not", "that",
-					"their", "we", "by", "any", "some", "dont", "do", "does", "of", "they", "them",
+					"their", "we", "by", "any", "anything", "some", "something", "dont", "do", "does", "of", "they", "them",
 					"been", "even", "etc", "this", "that", "those", "these", "from", "he", "she",
 					"no", "yes", "own", "may", "mine", "me", "each", "can", "could", "would", "should", "had", "has",
 					"when", "out", "also", "only", "about", "us", "via", "then", "who", "which"

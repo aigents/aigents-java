@@ -157,7 +157,7 @@ class Answerer extends Searcher {
 					return res;
 			}
 		} catch (Throwable e) {
-			session.sessioner.body.error("Searcher "+session.input(), e);
+			session.sessioner.body.error("Answerer error "+session.input(), e);
 		}
 		return null;
 	}
@@ -247,6 +247,8 @@ class Answerer extends Searcher {
 					}
 				}
 			}
+			if (new_start == 0 && new_end == n_tokens - 1)
+				break;
 		}
 		//4) well-form the sentence
 		for (; start > 0 && AL.periods.indexOf((String)tokens.get(start - 1)) == -1; start--);
@@ -268,9 +270,10 @@ class Answerer extends Searcher {
 	public static void main(String args[]) {
 		Tester t = new Tester();
 		java.util.Set w = new java.util.HashSet();
+		String s;
+/**/
 		w.add("aliens");
 		w.add("homeland");
-		String s;
 		s = summarize(w,"The universe is the homeland of aliens who came to earth.");
 		t.assume(s, "The universe is the homeland of aliens who came to earth.");
 		s = summarize(w,"Here we go. The universe is the homeland of aliens who came to earth. Here we are.");
@@ -301,8 +304,28 @@ class Answerer extends Searcher {
 		w.add("душат");
 		s = summarize(w,"246 россию душат столетиями! Соловьев в шоке! Резонансное выступление жириновского.");
 		t.assume(s, "246 россию душат столетиями!");
-		
-		//System.out.println(s);
+/**/
+		w.clear();
+		w.add("artificial");
+		w.add("intelligence");
+		w.add("disaster");
+		s = summarize(w,"artificial intelligence disaster");
+		t.assume(s, "Artificial intelligence disaster");
+		s = summarize(w,"dogs eat meat . artificial general intelligence . internet of things . storage it's not a windows 10 release without disaster . tuna is a fish");
+		t.assume(s, "Artificial general intelligence. Internet of things. Storage it's not a windows 10 release without disaster.");
+//TODO:
+		//s = summarize(w,"dogs eat meat . artificial intelligence . internet of things . storage it's not a windows 10 release without disaster . tuna is a fish");
+		//t.assume(s, "Artificial intelligence. Internet of things. Storage it's not a windows 10 release without disaster.");
+//TODO
+		//it hangs
+		//s = summarize(w,"black hole destroys corona . artificial intelligence . internet of things . . sec drags silicon valley ai upstart to court over claims of made-up revenues, investors swindled out of $11m . uk formally abandons europe's unified patent court, germany plans to move forward nevertheless . world health organisation ai chatbot goes deaf when asked for the latest covid-19 figures for taiwan, hong kong . germany bans tesla from claiming its autopilot software is potentially autonomous . verity stob . . incredible artifact – or vital component after civilization ends? rare nazi enigma m4 box sells for £350,000 . from 'queen of the skies' to queen of the scrapheap: british airways chops 747 fleet as folk stay at home . see you after the commercial breakdown: cert expiry error message more entertaining than the usual advert tripe . motorbike ride-share app ceo taken to pieces in grisly new york dismemberment . storage . storage it's not a windows 10 release without disaster breaking so here's a troubleshooter for your onedrive woes .");
+		//s = summarize(w,"black hole destroys corona . artificial intelligence . internet of things . . sec drags silicon valley ai upstart to court over claims of made-up revenues, investors swindled out of $11m . uk formally abandons europe's unified patent court, germany plans to move forward nevertheless . world health organisation ai chatbot goes deaf when asked for the latest covid-19 figures for taiwan, hong kong . germany bans tesla from claiming its autopilot software is potentially autonomous . verity stob . . incredible artifact – or vital component after civilization ends? rare nazi enigma m4 box sells for £350,000 . from 'queen of the skies' to queen of the scrapheap: british airways chops 747 fleet as folk stay at home . see you after the commercial breakdown: cert expiry error message more entertaining than the usual advert tripe . motorbike ride-share app ceo taken to pieces in grisly new york dismemberment . storage . storage it's not a windows 10 release without disaster .");
+		//s = summarize(w,"artificial intelligence . internet of things . . sec drags silicon valley ai upstart to court over claims of made-up revenues, investors swindled out of $11m . uk formally abandons europe's unified patent court, germany plans to move forward nevertheless . world health organisation ai chatbot goes deaf when asked for the latest covid-19 figures for taiwan, hong kong . germany bans tesla from claiming its autopilot software is potentially autonomous . verity stob . . incredible artifact – or vital component after civilization ends? rare nazi enigma m4 box sells for £350,000 . from 'queen of the skies' to queen of the scrapheap: british airways chops 747 fleet as folk stay at home . see you after the commercial breakdown: cert expiry error message more entertaining than the usual advert tripe . motorbike ride-share app ceo taken to pieces in grisly new york dismemberment . storage . storage it's not a windows 10 release without disaster .");
+		//s = summarize(w,"artificial intelligence . internet of things . storage it's not a windows 10 release without disaster .");
+		//s = summarize(w,"artificial intelligence . not a windows 10 release without disaster .");
+		//s = summarize(w,"artificial intelligence . without disaster .");
+		//s = summarize(w,"artificial intelligence without disaster .");
+		//s = summarize(w,"artificial intelligence disaster .");
 		
 		t.check();
 	}
