@@ -432,7 +432,7 @@ class Searcher implements Intenter {
 	
 	Collection searchLTM(Session session, final SearchContext sc) {
 		Collection res = new ArrayList();
-		if (session.sessioner.body.sitecacher != null){
+		if (session.sessioner.body.sitecacher != null) try {
 			Storager storager = session.getStorager();
 			//1) break pattern into words
 			Seq patseq = Reader.pattern(storager,null,sc.topic);
@@ -444,7 +444,7 @@ class Searcher implements Intenter {
 				//2) get subgraph from www graph on 'worded'
 				GraphCacher grapher = session.sessioner.body.sitecacher;
 				Graph g = grapher.getGraph(day);
-				if (g.size()[0] == 0)
+				if (g.empty())
 					continue;
 				Counter indexed = new Counter();
 				g.countTargets(words, null, indexed);
@@ -478,6 +478,8 @@ class Searcher implements Intenter {
 					}
 				}
 			}
+		} catch (Throwable e) {
+			session.sessioner.body.error("Searcher error LTM "+session.input(), e);
 		}
 		return !AL.empty(res) ? res : null;
 	}

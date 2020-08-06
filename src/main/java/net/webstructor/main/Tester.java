@@ -45,7 +45,7 @@ public class Tester {
 	
 	public void assume(String actual,String expected){
 		total++;
-		if (actual == expected || expected.equals(actual))
+		if (actual == expected || (expected != null && expected.equals(actual)))
 			System.out.println(actual);
 		else{
 			System.out.println("FAILED:"+actual+" != "+expected);

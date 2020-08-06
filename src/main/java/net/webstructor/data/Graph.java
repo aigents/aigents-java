@@ -45,6 +45,9 @@ import net.webstructor.core.Filer;
 public class Graph implements Serializable {
 	private static final long serialVersionUID = 3671961535358554573L;
 	
+//TODO sync it!?
+	//http://tutorials.jenkov.com/java-util-concurrent/readwritelock.html
+	//transient ReadWriteLock lock = ...
 	transient private boolean modified = false;//not modified on load and creation blank
 	private long age = 0;
 	private HashMap binders = new HashMap();
@@ -378,6 +381,10 @@ public class Graph implements Serializable {
 	public String toJSON(){
 		//TODO:
 		return "[]";
+	}
+	
+	public boolean empty(){
+		return binders.isEmpty();
 	}
 	
 	/**

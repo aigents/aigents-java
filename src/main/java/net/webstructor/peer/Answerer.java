@@ -33,11 +33,13 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Set;
 import net.webstructor.al.Writer;
+import net.webstructor.core.Environment;
 import net.webstructor.core.Mistake;
 import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
+import net.webstructor.main.Mainer;
 import net.webstructor.main.Tester;
 
 class Answerer extends Searcher {	
@@ -148,7 +150,7 @@ class Answerer extends Searcher {
 								src = t.getString(AL.is);
 							found.setString(AL.sources, src);
 //TODO: find fragments - build summary
-							found.setString(AL.text,summarize(textWords.keySet(),t.getString(AL.text)));
+							found.setString(AL.text,summarize(textWords.keySet(),t.getString(AL.text),languages));
 							res.add(found);
 						}
 					}
@@ -162,12 +164,44 @@ class Answerer extends Searcher {
 		return null;
 	}
 	
-//TODO remove hack		
-	String summarize1(java.util.Set words, String text) {
-		return text;
+//TODO sentence wise summarizer skipping "irrelevant" sentences with "..."		
+	public static String summarize(java.util.Set words, String text, LangPack languages) {
+		return summarizeAsAWhole(words, text, languages);
+		/*
+//TODO: split preserving delimiters!?
+		String sentences[] = Parser.split(text, ".?!");
+		if (AL.empty(sentences))
+			return summarizeAsAWhole(words, text, languages);
+		StringBuilder sb = new StringBuilder();
+		int matches[] = new int[sentences.length];
+		int max = 0;
+		for (int i = 0; i < sentences.length; i++) {
+			Set tokens = Parser.parse(sentences[i]);
+			for (int j = 0; j < tokens.size(); j++)
+				if (words.contains(tokens.get(j)))
+					matches[i]++;
+			if (max < matches[i])
+				max = matches[i];
+		}
+		if (max == 0)
+			return null;
+		int last_i = -1;
+		for (int i = 0; i < sentences.length; i++) {
+			String sentence = sentences[i];
+			if (matches[i] == max) {
+				sb.append( sb.length() > 0 && (i - last_i) > 1 ? " ... " : " ").append(sentence);
+				last_i = i;
+			}
+		}
+		
+		return sb.toString();
+		*/
 	}
 
 	public static String summarize(java.util.Set words, String text) {
+		return summarize(words, text, null);
+	}
+	public static String summarizeAsAWhole(java.util.Set words, String text, LangPack languages) {
 		//IDEA A:
 		//1) create list of "seeds" for every postions of "words", with map position->missedSeeds
 		//2) start expanding every seed to right and left over tokens till any seed has zero missedSeeds
@@ -250,9 +284,30 @@ class Answerer extends Searcher {
 			if (new_start == 0 && new_end == n_tokens - 1)
 				break;
 		}
-		//4) well-form the sentence
-		for (; start > 0 && AL.periods.indexOf((String)tokens.get(start - 1)) == -1; start--);
-		for (; end < n_tokens - 1 && AL.periods.indexOf((String)tokens.get(end)) == -1; end++);
+		
+		//4) check if we are language-agnostic 
+		boolean specific_language = false;
+		if (languages != null) for (Object word : words)
+			if (languages.words().containsKey(word)) {
+				specific_language = true;
+				break;
+			}
+		
+		//5) well-form the sentence
+		for (; start > 0; start--) {
+			if (AL.periods.indexOf((String)tokens.get(start - 1)) != -1)//token before the first one is period-kind
+				break;
+//TODO: check for specific language unsupported chars and allowing unfamiliar words using these chars like "coronavirus"
+			if (specific_language && start > 0 && !languages.validWord((String)tokens.get(start - 1)))//previous token is out-of-dictionary
+				break;
+		}
+		for (; end < n_tokens - 1; end++) {
+			if (AL.periods.indexOf((String)tokens.get(end)) != -1)//last token is period-kind
+				break;
+			if (specific_language && end < n_tokens - 2 && !languages.validWord((String)tokens.get(end)))//next token is out-of-dictionary
+				break;
+				
+		}
 		//6) glue things up
 		StringBuilder sb = new StringBuilder();
 		boolean capitalize = true;
@@ -268,10 +323,13 @@ class Answerer extends Searcher {
 	}
 
 	public static void main(String args[]) {
+		Environment env = new Mainer();
+		LangPack languages = new LangPack(env);
 		Tester t = new Tester();
 		java.util.Set w = new java.util.HashSet();
 		String s;
 /**/
+		//basic test
 		w.add("aliens");
 		w.add("homeland");
 		s = summarize(w,"The universe is the homeland of aliens who came to earth.");
@@ -299,12 +357,27 @@ class Answerer extends Searcher {
 		s = summarize(w,"We live in the universe. The universe is the homeland of the alien forms of life. These are called aliens. The aliens are our friends.");
 		t.assume(s, "The universe is the homeland of the alien forms of life. These are called aliens.");
 		
+		//test various kinds of periods
 		w.clear();
 		w.add("россию");
 		w.add("душат");
-		s = summarize(w,"246 россию душат столетиями! Соловьев в шоке! Резонансное выступление жириновского.");
+		s = summarize(w,"246 россию душат столетиями! Соловьев в шоке? Резонансное выступление жириновского.");
 		t.assume(s, "246 россию душат столетиями!");
-/**/
+		s = summarize(w,"Соловьев в шоке! россию все столетиями душат? Резонансное выступление жириновского.");
+		t.assume(s, "Россию все столетиями душат?");
+		
+		//test non-periodic segmantation
+		w.clear();
+		w.add("искусственный");
+		w.add("интеллект");
+		s = summarize(w,"02.05.2020 в якутии выявили сразу 3 тысячи заражённых коронавирусом вахтовиков 02.05.2020 сегодня искусственный интеллект помогает определить наличие коронавируса по рентгеновскому снимку 02.05.2020 выкарабкалась из страшной ситуации : победившая коронавирус надежда бабкина обратилась к поклонникам 02.05.2020",languages);
+		t.assume(s, "Сегодня искусственный интеллект помогает определить наличие коронавируса по рентгеновскому снимку 02.05.2020");
+		w.clear();
+		w.add("хитрая");
+		w.add("куздра");
+		s = summarize(w,"02.05.2020 в якутии выявили сразу 3 тысячи заражённых коронавирусом вахтовиков 02.05.2020 зрябко чавкая, глобкая хитрая куздра курдячит хлипкого бакренка 02.05.2020 выкарабкалась из страшной ситуации : победившая коронавирус надежда бабкина обратилась к поклонникам 02.05.2020",languages);
+		t.assume(s, "Глобкая хитрая куздра курдячит хлипкого бакренка 02.05.2020");
+
 		w.clear();
 		w.add("artificial");
 		w.add("intelligence");
@@ -313,7 +386,22 @@ class Answerer extends Searcher {
 		t.assume(s, "Artificial intelligence disaster");
 		s = summarize(w,"dogs eat meat . artificial general intelligence . internet of things . storage it's not a windows 10 release without disaster . tuna is a fish");
 		t.assume(s, "Artificial general intelligence. Internet of things. Storage it's not a windows 10 release without disaster.");
+/**/
+		
+		
 //TODO:
+		w.clear();
+		w.add("artificial");
+		w.add("intelligence");
+//w.add("drags");
+		//s = summarize(w,"Artificial intelligence. Internet of things.. Sec drags silicon valley ai upstart to court over claims of made-up revenues, investors swindled out of $11m. Uk formally abandons europe's unified patent court, germany plans to move forward nevertheless. World health organisation ai chatbot goes deaf when asked for the latest covid-19 figures for taiwan, hong kong. Germany bans tesla from claiming its autopilot software is potentially autonomous. Verity stob.. Incredible artifact – or vital component after civilization ends? Rare nazi enigma m4 box sells for £350,000. From queen of the skies to queen of the scrapheap: british airways chops 747 fleet as folk stay at home. See you after the commercial breakdown: cert expiry error message more entertaining than the usual advert tripe. Motorbike ride-share app ceo taken to pieces in grisly new york dismemberment. Security. You've had your pandemic holiday, now microsoft really is going to kill off tls 1.0, 1.1. Plus: skype plays catch-up, barracuda goes azure, and winui slings another preview. Mon 20 jul 2020 // 15:23 utc 7 got tips? Richard speed bio email twitter share copy. In brief having issued an all-too-brief stay of execution on the decidedly whiffy transport layer security ( tls ) 1.0 and 1.1 protocols in microsoft 365, the windows giant has announced that deprecation enforcement will kick off again from 15 october... The protocols were actually deprecated back in 2018 but microsoft halted enforcement earlier this year, recognising that it departments had quite a bit of unexpected work on their hands thanks to the covid-19 pandemic. Now, as supply chains have adjusted and certain countries open back up, a visit from microsoft's axeman is due... There has been plenty of notice – microsoft went public with its plans in december 2017 and killing off tls 1.0 and 1.1 once and for all is a long-held dream of the industry... The impact should be minimal on end users. The office client can use tls 1.2 if it is configured on the local computer, and most modern operating systems will happily support the later, more secure version. Windows 7, however, requires an update to make things work.. Late to the zoom party, skype rolls out backgrounds and adds more squares.. Redmond-owned messaging veteran skype has shuffled into the chat party, proffering gifts that rivals ( including zoom ) have enjoyed for quite a while... Microsoft emitted version 8.62 last week, replete with custom backgrounds and support for more chums in a video call. Exactly how many pals will be tiled is tricky to ascertain. Microsoft's release notes state there may be up to 10 in the new grid view, while its documentation on the matter reckons the number is nine... This is quite some way behind rival services. Zoom permits up to 49 participants at a time, should you be fortunate enough to have that many friends... The updates for windows, mac, linux and web are rolling out now.. Barracuda comes to azure.. No sooner had the ink dried on hpe's plan to snap up sd-wan darling silver peak, rival barracuda announced plans to run its service on microsoft azure... Sitting atop the microsoft global network and azure's virtual wan, barracuda's cloudgen wan ( modestly described by barracuda as the first secure global sd-wan service built natively on microsoft azure ) is aimed at hooking up locations with minimal fuss and faff... Rather than having to use relatively costly and inflexible network circuits for the corporate wan, the team reckoned that running in virtual fashion on microsoft's backbone will lead to reduced costs and a network that scales to match traffic... Naturally, there is also the option to be billed hourly through the azure marketplace.. Winui 3 hits preview 2, adds more detail for this year's goalpost dance.. Having pushed out the first preview of its latest attempt to persuade developers that windows desktop apps are still worth coding, no matter how whiffy the original universal windows platform ( uwp ) dream may be nowadays, microsoft has had popped more flesh on the bones... Winui is the gui framework and, recognising that devs cannot live on uwp alone, includes win32 support... While preview 1 brought forth all manner of bells and whistles, preview 2 is a quality and stability-driven release and deals with bugs that couldn't be squashed ahead of the build 2020 release. It is also compatible with .net 5 preview 5 for desktop apps. However, microsoft is at pains to point out that it is not ready for the production primetime yet... The release, part of microsoft's project reunion vision, was accompanied by an update on the project, including some key roadmap dates... The most notable is a preview 3 in time for the company's september ignite event and open-sourcing by autumn. November will see a version released that could be used in production apps, although a final release looks to be in the early part of the spring 2021. ®. Tips and corrections 7 comments more. Microsoft. Azure. Coronavirus.. Share copy most read twitter hackers busted 2fa to access accounts and then reset user passwords.. Cisco restores evidence of its funniest fail – ethernet cable presses switch's reset button.. Daas-appearing trick: netflix teases desktops-as-a-service product.. Nokia 5310: retro feature phone shamelessly panders to nostalgia, but is charming enough to be forgiven.. Mainframe madness as the snowflakes take control – and the on-duty operator hasn't a clue how to stop the blizzard.. Subscribe to our weekly tech newsletter. Subscribe keep reading skype for windows 10 and skype for desktop duke it out: only electron left standing. Updated i just can't quit you, skype. Oh maybe i can... They've tweaked the close function official: microsoft will take an axe to skype for business online. Teams is your new normal. Blade to swing in 2021, but onboarding for new office 365ers starts in september britain's courts lurch towards skype and conference calls for trials as covid-19 distancing kicks in. Coronavirus forces judges to join the 21st century more or less overnight friends, it's fine. Don't worry about randomers listening to your skype convos. Microsoft has tweaked an faq a bit. Automated and manual data processing – so humans, yeah? Using microsoft's dynamics 365 finance and operations? Using skype? Not for long!. Upcoming update could bork on-prem logins, warns redmond skype for web arrives to bring the world together. As long as the world is on chrome and... Edge?. Hello? Is this thing on? Microsoft takes a pruning axe to skype's forest of features. Say farewell to highlights... If you even noticed it was there microsoft gets ready to kill skype classic once again: this time we mean it. Remember remember the first of november tech resources. Navigating the cti noise. We all want better threat intelligence,");
+		//s = summarize(w,"Artificial intelligence. Internet of things.. Sec drags silicon valley ai upstart. Navigating the cti noise. We all want better threat intelligence,");
+		//t.assume(s, "???");
+		
+		//w.clear();
+		//w.add("artificial");
+		//w.add("intelligence");
+		////w.add("disaster");
 		//s = summarize(w,"dogs eat meat . artificial intelligence . internet of things . storage it's not a windows 10 release without disaster . tuna is a fish");
 		//t.assume(s, "Artificial intelligence. Internet of things. Storage it's not a windows 10 release without disaster.");
 //TODO

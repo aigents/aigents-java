@@ -24,6 +24,7 @@
 package net.webstructor.data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
@@ -43,6 +44,7 @@ public class LangPack {
 	private Counter words = null; 
 	private Counter positives = null; 
 	private Counter negatives = null; 
+	private HashSet<Character> chars = new HashSet<Character>();
 	
 	public LangPack(Environment env){
 		
@@ -87,6 +89,10 @@ public class LangPack {
 		return words;
 	}
 	
+	public java.util.Set chars(){
+		return chars;
+	}
+	
 	public Lang get(String name){
 		if (AL.empty(name))
 			return null;
@@ -110,6 +116,25 @@ public class LangPack {
 		return counter;
 	}
 
+	void setChars(String chars) {
+		for (int i = 0 ; i < chars.length(); i++)
+			this.chars.add(chars.charAt(i));
+	}
+	
+	boolean validChars(String chars) {
+		//TODO checke languages individually!?
+		for (int i = 0 ; i < chars.length(); i++)
+			if (!this.chars.contains(chars.charAt(i)))
+					return false;
+		return true;
+	}
+	
+	public boolean validWord(String word) {
+		if (words.containsKey(word))
+			return true;
+		return validChars(word);
+	}
+	
 	void loadLexicon(Environment env){
 		for (int l = 0; l < langs.length; l++){
 			/*
@@ -126,6 +151,9 @@ public class LangPack {
 			words = loadCounter(env, words, "lexicon", langs[l].name);
 			positives = loadCounter(env, positives, "lexicon_positive", langs[l].name);
 			negatives = loadCounter(env, negatives, "lexicon_negative", langs[l].name);
+			setChars(langs[l].vowels);
+			setChars(langs[l].consonants);
+			setChars(langs[l].spec);
 		}
 	}
 	

@@ -76,7 +76,8 @@ public abstract class Responser implements Intenter {
 	public abstract boolean process(Session session);
 	static protected String statement(Throwable e) {
 		String message = e.getMessage();
-		return Writer.capitalize(message != null ? message : e.toString())+".";		
+		//return Writer.capitalize(message != null ? message : e.toString())+".";		
+		return Writer.capitalize(message != null ? message : e.getClass().getSimpleName())+".";		
 	}	
 
 	static boolean noSecretQuestion(Session session) {

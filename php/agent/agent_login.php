@@ -61,9 +61,16 @@ function test_login_debug() {
 	//debug registration and unregistration conventional flow
 	say("My login.");
 	get("What your email, name, surname?");
+
+	say("Why are you asking this?");//trying to screw things up 
+	get("What your email, name, surname?");
+	
 	say("john@doe.org, john, doe");
 	get("What your secret question, secret answer?");
 
+	say("Why do you keep asking this?");
+	get("What your secret question, secret answer?");
+	
 	//say("sky color, red");
 	//get("What your sky color?");
 	

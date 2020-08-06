@@ -120,7 +120,7 @@ class Registration extends Responser {
 			Property pa = new Property(session.peer,Peer.secret_answer);
 			Seq seq = new Seq(new Object[]{new Any(1,AL.i_my),new Any(new Object[]{new Seq(new Object[]{"secret","question",pq}),new Seq(new Object[]{"secret", "answer"  ,pa})})});
 //TODO rewrite this with AL pattern!?
-			if (!Reader.read(session.input(), seq))//well-formed AL for q and a
+			if (session.mood != AL.interrogation && !Reader.read(session.input(), seq))//well-formed AL for q and a
 				if (session.expected() != null){
 					//free-text like "passport number, 123456 querty"
 					if (!Reader.read(session.input(), Reader.pattern(session.peer, session.expected(),",")))
