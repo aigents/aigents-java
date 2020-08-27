@@ -88,7 +88,6 @@ public class SerpAPI extends Serper {
 			String response = checkCached(request);
 			if (response == null) {
 				response = HTTP.simple(request,null,"GET",0,"application/json",null);
-				putCached(request,response);
 			}
 			if (debug) env.debug("Serpapi crawling response "+Str.first(response,200));
 			if (!AL.empty(response)) {
@@ -98,6 +97,7 @@ public class SerpAPI extends Serper {
 						: "vid".equals(tbm) ? JSON.getJsonArray(json,"video_results")
 						: JSON.getJsonArray(json,"organic_results");
 				if (results != null) {
+					putCached(request,response);//if parsed results successfully!
 					ArrayList<Thing> things = new ArrayList<Thing>();
 					for (int i = 0; i < results.size(); i++) {
 						JsonObject item = results.getJsonObject(i);

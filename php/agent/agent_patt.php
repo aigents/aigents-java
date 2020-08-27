@@ -385,7 +385,6 @@ function test_agent_patterns() {
 //TODO:	
 	//get("There text объявляются торги земельных участков; text там состоится аукцион земельного участка.");
 	get();
-//brk();	
 	say("No there is '".$text."'.");
 	say_thing($land,false);
 	

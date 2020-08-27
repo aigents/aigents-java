@@ -51,6 +51,7 @@ public abstract class Responser implements Intenter {
 				new Searcher(),
 				new ControlledResponser(),
 				new PatternResponser()
+				,new Finder()
 				,new Answerer()
 	};
 
@@ -62,10 +63,15 @@ public abstract class Responser implements Intenter {
 	@Override
 	public boolean handleIntent(final Session session) {
 //TODO user "controlled" OR "natural" in order according to Peer/Session "conversation" property?
-		for (Intenter i : getIntenters()) {
+		Thing peer = session.getStoredPeer();
+		String conversation = peer != null ? peer.getString(AL.conversation) : null;
+		if (!AL.empty(conversation))
+			for (Intenter i : getIntenters())
+				if (conversation.contains(i.name()) && i.handleIntent(session))
+					return true;
+		for (Intenter i : getIntenters())
 			if (i.handleIntent(session))
 				return true;
-		}
 		return false;
 	}
 

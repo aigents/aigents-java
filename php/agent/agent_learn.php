@@ -30,7 +30,8 @@ function test_agent_learn() {
 	global $basePath;
 	global $version;
 	global $copyright;
-
+	global $base_things_count;
+	
 	//login, registration, verification
 	say("My name john, email john@doe.org, surname doe.");
 	get("What your secret question, secret answer?");
@@ -59,8 +60,10 @@ function test_agent_learn() {
 	get("Person has firstname, lastname, name person, patterns '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("Person?");
 	get("Person has firstname, lastname, name person, patterns '\$firstname \$lastname {CEO CTO Founder Director}'.");
+	say("What your things count?");
+	get("My things count ".($base_things_count+4).".");
 	say("Path?");
-	get();
+	get("No.");
 	say("What person path?");
 	get("No.");
 	
@@ -387,12 +390,14 @@ function test_agent_agglomerate() {
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text xx xxx founder; text yy yyy cto.");
 	say("New true new false.");//discard news
+	get("Ok.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared . yy yyy cto said . zz zzz cto announced .</body></html>");
 	say("You reading!");
 	sleep($timeout);
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text zz zzz cto.");
 	say("New true new false.");//discard news	
+	get("Ok.");
 //TODO:make this working!
 	//file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. finally, yy yyy cto shouted. later, zz zzz cto spelled.</body></html>");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . xx xxx founder declared. yy yyy cto shouted. zz zzz cto spelled.</body></html>");
@@ -401,6 +406,7 @@ function test_agent_agglomerate() {
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("No.");
 	say("New true new false.");//discard news
+	get("No. No thing.");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' times, text?");
 	get("There text xx xxx founder, times today; text yy yyy cto, times today; text zz zzz cto, times today.");	
 //TODO: make this working
@@ -411,6 +417,7 @@ function test_agent_agglomerate() {
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}', new true text?");
 	get("There text vv vvv cto; text ww www cto.");
 	say("New true new false.");//discard news
+	get("Ok.");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}' times, text?");
 	get("There text vv vvv cto, times today; text ww www cto, times today; text xx xxx founder, times today; text yy yyy cto, times today; text zz zzz cto, times today.");
 	file_put_contents($basePath."html/siteb/test.html","<html><body>there is . yy yyy founder declared. zz zzz director shouted. ww www cto spelled.</body></html>");
@@ -421,9 +428,12 @@ function test_agent_agglomerate() {
 	
 	//Test snapshotting in LTM:
 	say("new true new false.");
+	get("Ok.");
 	say("no there is '\$firstname \$lastname {CEO CTO Founder Director}'.");
 	say("no there times today.");
+	get("Ok.");
 	say("You forget everything!");
+	get("Ok.");
 	file_put_contents($basePath."html/sitea/test.html","<html><body></body></html>");
 	say("What is '\$firstname \$lastname {CEO CTO Founder Director}'?");
 	get("No.");

@@ -63,6 +63,8 @@ public class Storager {
 
     //TODO: make Storager implementor of Anything?
 	public Object get(String name) {
+		if (name == null)
+			return null;
 		if (name.equals(things_count))
 			return String.valueOf(getThings().size());
 		else

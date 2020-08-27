@@ -76,7 +76,7 @@ public class LangPack {
 					"their", "we", "by", "any", "anything", "some", "something", "dont", "do", "does", "of", "they", "them",
 					"been", "even", "etc", "this", "that", "those", "these", "from", "he", "she",
 					"no", "yes", "own", "may", "mine", "me", "each", "can", "could", "would", "should", "had", "has",
-					"when", "out", "also", "only", "about", "us", "via", "then", "who", "which"
+					"when", "out", "also", "only", "about", "us", "via", "than", "then", "who", "which"
 					})};
 		loadLexicon(env);
 	}
@@ -93,12 +93,16 @@ public class LangPack {
 		return chars;
 	}
 	
-	public Lang get(String name){
+	public String getName(String name){
 		if (AL.empty(name))
 			return null;
-		for (int i = 0; i < langs.length; i++)
-			if (langs[i].prefix.contentEquals(name) || langs[i].prefix.contentEquals(name))
-				return langs[i];
+		//for (int i = 0; i < langs.length; i++)//try by full name
+		//	if (langs[i].prefix.contentEquals(name))
+		//		return langs[i].name;
+		name = name.toLowerCase();
+		for (int i = 0; i < langs.length; i++)//try by prefix
+			if (name.startsWith(langs[i].prefix))
+				return langs[i].name;
 		return null;
 	}
 	
@@ -220,7 +224,7 @@ public class LangPack {
 	}
 
 	public static boolean excluded(String word, int min, LangPack languages) {
-		if (word.length() < 2)
+		if (word.length() < min)
 			return true;
 		/*if (exclusions != null && exclusions.contains(word))
 			return true;*/
@@ -230,20 +234,34 @@ public class LangPack {
 	}
 	
 	public static void countWords(LangPack languages, Linker linker, String text, java.util.Set vocabulary) {
+		countWords(languages, linker, text, vocabulary, 2, false);
+	}
+	
+	public static void countWords(LangPack languages, Linker linker, String text, java.util.Set vocabulary, int min, boolean number) {
 		Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);
 		if (tokens != null) {
 			for (int j = 0; j < tokens.size(); j++){
-				String word = (String)tokens.get(j); 
-				if (AL.isURL(word))
+				String token = (String)tokens.get(j); 
+				if (AL.isURL(token))
 					continue;
-				if (languages != null)
-					word = languages.lowertrim(word);
+			
+				String word;
+				if (languages == null)
+					word = token;
+				else {
+					word = languages.lowertrim(token);
+					if (AL.empty(word)) try {
+						Integer.parseInt(token);
+						word = token;
+					} catch (NumberFormatException e) {}
+				}
+				
 				//TODO: use real freqs for scrubs, because some of them may be used in patterns
 				if (vocabulary != null){//inclusion based on "best words"
 					if (!vocabulary.contains(word))
 						continue;
 				} else {//inclusion based on "scrub list" fo exclusions
-					if (excluded(word,2,languages))
+					if (excluded(word,min,languages))
 						continue;
 				}
 				linker.count(word);
@@ -279,6 +297,8 @@ public class LangPack {
 	boolean sentiment_logarithmic = false;
 	boolean sentiment_maximized = true;
 	public int[] sentiment(String input, ArrayList pc, ArrayList nc) {
+		if (AL.empty(input) || AL.empty(positives) || AL.empty(negatives))
+			return new int[] {0,0,0};
 		Seq seq = Parser.parse(input);
 		double p = 0;
 		double n = 0;

@@ -463,11 +463,6 @@ function test_agent_cat() {
 	4-4) 'You think life, is, good, bad!'
 	4-5) Implicit inference - infer only of no answer on query!?
 	*/
-	
-			
-	
-	
-	//brk();
 
 	say("No there is good.");
 	get("Ok.");

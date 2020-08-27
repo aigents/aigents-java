@@ -70,7 +70,7 @@ class Answerer extends Searcher {
 		if (AL.empty(res) && sc.peer != null && Peer.paid(sc.peer))
 			res = searchEngine(session, sc);
 
-		if (res != null) {
+		if (!AL.empty(res)) {
 			Thing t = (Thing)res.iterator().next();
 			String text = t.getString(AL.text);
 			String source = t.getString(AL.sources);
@@ -78,7 +78,8 @@ class Answerer extends Searcher {
 				text += ' ' + source;
 			session.outputWithEmotions(text);
 		} else
-			session.output(session.no());
+			//session.output(session.no());
+			return false;
 
 		} catch (Throwable e) {
 			session.output(session.no()+" "+Responser.statement(e));

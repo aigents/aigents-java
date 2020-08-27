@@ -152,17 +152,17 @@ body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" group_name "+gr
 			if (!AL.empty(m)) for (Iterator mit = m.iterator(); mit.hasNext();){
 				Thing p = (Thing)mit.next();
 				//6) get all user topics, do for each
-				Collection k = p.getThings(AL.topics);
-				Collection t = p.getThings(AL.trusts);
-				if (!AL.empty(k) && !AL.empty(t)){//keep trusted topics only
-					t = new HashSet(t);
-					t.retainAll(k);
+				Collection topics = p.getThings(AL.topics);
+				Collection trusts = p.getThings(AL.trusts);
+				if (!AL.empty(topics) && !AL.empty(trusts)){//keep trusted topics only
+					topics = new HashSet(topics);
+					topics.retainAll(trusts);
 				}
 				//7) match text against topic
 				MapMap thingPaths = new MapMap();//collector
 				Date today = Time.today(0);
 				Iter parse = new Iter(Parser.parse(text));
-				if (!AL.empty(t)) for (Iterator tit = t.iterator(); tit.hasNext();)
+				if (!AL.empty(topics)) for (Iterator tit = topics.iterator(); tit.hasNext();)
 					matcher.match(parse, null, (Thing)tit.next(), today, full_group_name, null, thingPaths, null, null, null);
 				//8) send update if topic is matched
 //TODO: exclude sender in the news update

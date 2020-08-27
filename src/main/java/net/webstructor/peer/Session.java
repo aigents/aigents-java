@@ -56,6 +56,8 @@ public class Session  {
 	transient int fails = 0;
 	transient Statement query = null;
 
+	public String language = null;
+	
 	private boolean authenticated = false;
 	
 	private String input = null;//raw input
@@ -66,6 +68,8 @@ public class Session  {
 
 	private String[] expected = null;
 
+	transient private HashMap<String,Object> contexts = new HashMap<String,Object>();//keep handler-specific contexts
+	
 	public Session(Sessioner sessioner,Communicator communicator,String type,String key) {
 		this.sessioner = sessioner;
 		this.communicator = communicator;
@@ -98,8 +102,19 @@ public class Session  {
 		this.peer = null;
 		this.session = null;
 		this.authenticated = false;
+		contexts.clear();
 	}
-	
+
+	public Object context(String name){
+		return contexts.get(name);
+	}
+
+	public void context(String name, Object context){
+		if (context == null)
+			contexts.remove(name);
+		contexts.put(name, context);
+	}
+
 	public void expect(String[] expected){
 		this.expected = expected;
 	}

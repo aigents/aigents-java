@@ -421,7 +421,7 @@ public class Query
 	/**
 	 * Linkable/reversibel attributes that don't require real writing
 	 */
-	boolean writeable(String args[]) {
+	static boolean writeable(String args[]) {
 		if (!AL.empty(args)){
 			int count = 0;
 			for (int i = 0; i < args.length; i++)
@@ -435,7 +435,7 @@ public class Query
 	/**
 	 * Any keys and linkable/reversible attributes.
 	 */
-	boolean readable(String args[]) {
+	static boolean readable(String args[]) {
 		if (!AL.empty(args)){
 			int count = 0;
 			for (int i = 0; i < args.length; i++)
@@ -452,7 +452,7 @@ public class Query
 	 * @param stack - check for recursion
 	 * @return
 	 */
-	boolean registered(Thing thing,java.util.Set stack){//TODO make generic with validator interface
+	static boolean registered(Thing thing,java.util.Set stack){//TODO make generic with validator interface
 		if (Peer.registered(thing))
 			return true;
 		if (stack == null)
@@ -475,6 +475,9 @@ public class Query
 	// - self body, unless trusted 
 	// - peers with authorization setup, unless trusted
 	boolean accessible(Thing thing, Thing peer, String args[], boolean write) {
+		return accessible(thing, self, peer, args, write);
+	}
+	public static boolean accessible(Thing thing, Thing self, Thing peer, String args[], boolean write) {
 		boolean readable = readable(args);
 		if (write == false && readable)
 			return true;

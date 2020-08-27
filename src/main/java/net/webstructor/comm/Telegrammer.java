@@ -84,13 +84,8 @@ public class Telegrammer extends Mediator {
 	
 	protected static final String[] key_names = new String[] {Body.telegram_id,Body.telegram_name};
 	
-	//TODO: remove the map because use we keep in peers!?
-	//private static HashMap<String,String> username_ids = new HashMap<String,String>();
 	String getIdByUsername(String username) {
 		String id = null;
-		/*synchronized (username_ids) {
-			id = username_ids.get(username);
-		}*/
 		if (AL.empty(id)) {
 			try {
 				Collection by_name = body.storager.getByName(Body.telegram_name,username);
@@ -105,22 +100,23 @@ public class Telegrammer extends Mediator {
 	}
 	
 	//update usernames on the fly because users may change them!!!
-	void putIdByUsername(String username, String id) {
-		/*if (!AL.empty(username) && !AL.empty(id)) synchronized (username_ids) {
-			username_ids.put(username,id);
-		}*/
+	Thing putIdByUsername(String username, String id) {
+		Thing peer = null;
 		try {
 			Collection by_id = body.storager.getByName(Body.telegram_id,id);
 			if (AL.single(by_id)) for (Object o : by_id)
-				((Thing)o).setString(Body.telegram_name,username);
+				(peer = (Thing)o).setString(Body.telegram_name,username);
 //TODO: if we do this, how do we register/bind them later?
 			else {
-				Thing peer = new Thing(body.storager.getNamed(Schema.peer),null,null);
+				peer = new Thing(body.storager.getNamed(Schema.peer),null,null);
 				peer.setString(Body.telegram_name, username);
 				peer.setString(Body.telegram_id, id);
 				peer.storeNew(body.storager);
 			}
-		} catch (Exception e) {}
+		} catch (Throwable e) {
+			body.error("Telegram error",e);
+		}
+		return peer;
 	}
 	
 	public Telegrammer(Body env) {
@@ -177,7 +173,7 @@ public class Telegrammer extends Mediator {
 				if (!HTTP.getJsonBoolean(result, "ok", false))
 					throw new Exception("Telegram error sendDocument: "+result.toString());
 			}
-		} catch (Exception e){
+		} catch (Throwable e){
 			body.error("Telegram error",e);
 		}
 	}
@@ -234,14 +230,17 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				//String from_name = HTTP.getJsonString(from, "first_name", null);
 				//String from_surname = HTTP.getJsonString(from, "last_name", null);
 //TODO: use for set-language
-				//String from_language = HTTP.getJsonString(from, "language_code", null);
+				String from_language = HTTP.getJsonString(from, "language_code", null);
 				String chat_id = String.valueOf(HTTP.getJsonLong(chat, "id", 0L));
 //TODO: distinguish private and group chats
 				//String chat_type = HTTP.getJsonString(chat, "type", "private");//TODO:private by default!?
-				if (AL.empty(from_username) || AL.empty(from_id))
+
+				//if (AL.empty(from_username) || AL.empty(from_id))
+				if (AL.empty(from_id))//from_username may be null!?
 					continue;
 				
-				putIdByUsername(from_username,from_id);
+				if (!AL.empty(from_username))
+					putIdByUsername(from_username,from_id);
 				
 				if (from_bot)//skipping replies from bots so far
 					continue;
@@ -263,13 +262,13 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 //TODO: autoregister:
 				//telegram id = from_id
 				//name, surname, username@telegram.org
-				body.debug("Telegram date "+date+" from_username "+from_username+" text "+text);			
+				body.debug("Telegram date "+date+" from_id "+from_id+" from_username "+from_username+" text "+text);			
 				
 				HashSet<String> mention_usernames = getMentions(text);//get mentions
 				if (mention_usernames != null && !AL.empty(botname) && mention_usernames.contains(botname))//remove mention to bot self from text
 					text = text.replace("@"+botname, "");
 
-				if (!from_id.equals(chat_id)){
+				if (!from_id.equals(chat_id) && !AL.empty(from_username)){
 					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false; 
 					updateGroup(chat_id, chat_title, from_id, from_username, true, is_bot, text);
 					
@@ -297,6 +296,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				//from_id - for private authenticated sessions
 				//chat_id - for public anonymous sessions
             	Session session = body.sessioner.getSession(this,key(chat_id,from_id));
+            	session.language = body.languages.getName(from_language);
 
             	if (!from_id.equals(chat_id)) {//group chat
                 	if (!session.authenticated()) {//first user encounter

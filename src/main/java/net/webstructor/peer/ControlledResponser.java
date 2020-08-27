@@ -29,6 +29,7 @@ import java.util.Iterator;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Any;
+import net.webstructor.al.Parser;
 import net.webstructor.al.Reader;
 import net.webstructor.al.Statement;
 import net.webstructor.al.Writer;
@@ -49,6 +50,7 @@ class ControlledResponser implements Intenter {
 	public boolean handleIntent(final Session session) {
 		Storager storager = session.getStorager();
 		String input = session.input();
+		boolean complex = false;
 		try {
 		if ((session.mood == AL.declaration || session.mood == AL.direction) && session.authenticated()) {
 			if (Reader.read(session.input(), new Any(1,AL.no)))
@@ -72,36 +74,51 @@ class ControlledResponser implements Intenter {
 								}
 							}
 						session.output(skipped > 0 ? "No. There things." : session.ok());
-					}
-					return true;
+						return true;
+					} else
+						return false;//not handled
 			} else {
+				int totalUpdated = 0;
 				Thing storedPeer = session.getStoredPeer();
 				StringBuilder out = new StringBuilder();
-				Collection message = session.reader.parseStatements(session,input,storedPeer);
-				for (Iterator it = message.iterator(); it.hasNext();) {
-					Statement query = (Statement)it.next();
-					session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
-					Query q = new Query(session.sessioner.body,storager,session.sessioner.body.self());
-					int updated = q.setThings(query,storedPeer);
-					//int updated = q.setThings(query,storedPeer,true);//smart things creation, but "NL" chat is not working
-					if (updated > 0){
-						out.append(out.length() > 0 ? " " : "").append(session.ok());
-						//TODO: do this peer saving and restoring more clever and not every time?
-						//get stored session peer pointer just in case it is changed in background
-						//get actual session peer parameters to access it another time
-						session.peer.update(storedPeer,Login.login_context);
+				Parser parser = new Parser(input);
+				while (parser.check() != null) {
+					Statement statement = session.reader.parseStatement(storager,session,parser,storedPeer);
+					if (!AL.empty(statement)) {
+						Statement query = statement;
+						complex = complex | query.complex();
+						session.sessioner.body.output("Dec:"+Writer.toString(query)+".");			
+						Query q = new Query(session.sessioner.body,storager,session.sessioner.body.self());
+						int updated = q.setThings(query,storedPeer);
+						//int updated = q.setThings(query,storedPeer,true);//smart things creation, but "NL" chat is not working
+						//if (updated > 0) {
+						if (updated > 0)
+							totalUpdated += updated;
+						{
+							//out.append(out.length() > 0 ? " " : "").append(session.ok());
+							out.append(out.length() > 0 ? " " : "").append(updated > 0 ? session.ok() : session.no());
+							//TODO: do this peer saving and restoring more clever and not every time?
+							//get stored session peer pointer just in case it is changed in background
+							//get actual session peer parameters to access it another time
+							session.peer.update(storedPeer,Login.login_context);
+						}
 					}
+					if (parser.parseAny(AL.periods,true) == null)
+						break;
 				}
-				if (out.length() == 0)
+				//if (out.length() > 0 || complex) {//have results or complex query with no results
+				if (totalUpdated > 0 || complex) {//have results or complex query with no results
+					session.output(out.length() > 0 ? out.toString() : session.no());
+					return true;//handled
+				} else //simple query with no results
 					return false;//not handled
-				session.output(out.toString());
-				return true;//handled
 			}
 		} else if (session.mood == AL.interrogation && (Responser.noSecretQuestion(session) || session.authenticated())) {
 //TODO: handle multiple (and mixed) statments in interrogation?
 			Thing peer = Responser.getSessionAreaPeer(session);
 			session.query = session.reader.parseStatement(session,input,peer);
 			if (!AL.empty(session.query)){
+				complex = session.query.complex();
 				session.sessioner.body.output("Int:"+Writer.toString(session.query)+"?");
 				String out = Responser.queryFilterFormat(session, peer, session.query);
 				if (!AL.empty(out)){
@@ -109,7 +126,7 @@ class ControlledResponser implements Intenter {
 					return true;
 				} else if (input != null && input.toLowerCase().startsWith("what ")) {
 //TODO fix ugly hack needed for "smart" bi-lingual AL/NL conversations
-					if (session.query.complex()){//not a parsed query complex enough to be answered?
+					if (complex){//not a parsed query complex enough to be answered?
 						session.output(session.no());
 						return true;
 					}	
@@ -119,10 +136,10 @@ class ControlledResponser implements Intenter {
 		} catch (Throwable e) {
 			
 			//TODO: letting Responser handle that!?
-			if (e instanceof Mistake && e.getMessage().equals(Mistake.no_thing))
+			if (!complex && e instanceof Mistake && e.getMessage().equals(Mistake.no_thing))
 				return false;
 			
-			session.output(session.no()+" "+Responser.statement(e));
+			session.output(session.no()+" "+Responser.statement(e));//we do need such level of details on error!
 			if (!(e instanceof Mistake))
 				session.sessioner.body.error("Controller error " + e.toString(), e);
 			return true;

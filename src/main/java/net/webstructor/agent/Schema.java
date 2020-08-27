@@ -101,6 +101,8 @@ public class Schema {
 	}
 
 	public static String reverse(String name) {
+		if (name == null)
+			return null;
 		if (name.equals(AL.ignore))
 			return AL.ignores;
 		if (name.equals(AL.trust))

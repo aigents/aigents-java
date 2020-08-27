@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,9 @@ public class Translator {
 		HashMap r = new HashMap();
 		r.put("activity","активность");
 		r.put("all","все");
+		r.put("or","или");
+		r.put("yes","да");
+		r.put("no","нет");
 		r.put("report","отчет");
 		r.put("for","для");
 		r.put("rank","ранг");

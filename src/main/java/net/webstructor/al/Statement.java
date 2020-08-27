@@ -35,7 +35,7 @@ public class Statement extends Seq {
 		this.mood = mood;
 		is(is);//not a negation
 	}
-	public boolean complex() {
+	public boolean complex0() {
 		if (size() > 1)
 			return true;
 		Object first = get(0);
@@ -47,6 +47,24 @@ public class Statement extends Seq {
 					return true;
 			}*/
 			return false;
+		}
+		else //All/Any
+			return true;
+	}
+	public boolean complex() {
+		if (size() < 1)
+			return false;
+		Object first = get(0);
+		if (first instanceof Seq) {//just a key-value pair
+			if (size() < 2)
+				return false;
+			if (size() > 2)
+				return true;
+			Seq seq = (Seq)first;
+			Object second = get(1);
+			if (seq.size() == 2 && AL.name.equals(seq.get(0)) && second instanceof String[] && ((String[])second).length == 1)
+				return false;
+			return true;
 		}
 		else //All/Any
 			return true;

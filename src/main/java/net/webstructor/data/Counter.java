@@ -312,7 +312,7 @@ public class Counter extends HashMap implements Linker {
 		for (Iterator it = counter.keySet().iterator(); it.hasNext();){
 			Object key = it.next();
 			float val = ((Integer)counter.get(key)).floatValue();
-			Object denVal = denominator.get(key);
+			Object denVal = denominator == null ? null : denominator.get(key);
 			float den = denVal != null ? ((Integer)denVal).floatValue() : defaultValue;
 			norm.put(key, new Integer(Math.round( val * 100 / den )));
 		}
