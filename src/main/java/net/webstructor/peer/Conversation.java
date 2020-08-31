@@ -77,7 +77,8 @@ import net.webstructor.util.Str;
 public class Conversation extends Responser {
 	
 	public static final String[] spider = new String[] {"spider","spidering","crawl","crawling"};
-	public static final String[] logout = new String[] {"logout","bye"};
+	public static final String[] logout = new String[] {"logout","bye","cancel","stop"};
+	public static final String[] login = new String[] {"login","relogin","start","restart"};
 	public static final String[] in_site = new String[] {"site","in","url"};
 	
 	private String spidering(Session session, String name, String id) {
@@ -124,6 +125,13 @@ public class Conversation extends Responser {
 			session.responser = new Login();
 			session.logout();
 			return false;			
+		} else
+//TODO: start
+		if (session.argsCount() == 1 && Array.contains(login, session.args()[0])){//login/relogin/start/restart
+			session.output(session.ok());
+			session.responser = new Login();
+			session.logout();
+			return true;//move on login process
 		} else
 		if (!session.authenticated() && !session.isSecurityLocal() &&
 			session.read(Reader.pattern(AL.i_my,new String[] {"secret question","secret answer"}))){

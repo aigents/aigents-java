@@ -69,14 +69,14 @@ public class LangPack {
 					"чо", "если", "нас", "нам", "нами", "какие", "каких"
 					}),
 			new Lang("en","english","aeiou","bcdfghjklmnpqrstvwxyz","-",new String[]{
-					"-", "&","a", "an", "and", "or", "the", "in", "on", "at", "it", "is", "after", "are", "me",
+					"-", "&","a", "an", "and", "because", "else", "or", "the", "in", "on", "at", "it", "is", "after", "are", "me",
 					"am", "i", "into", "its", "same", "with", "if", "most", "so", "thus", "hence", "how",
-					"as", "do", "what", "for", "to", "of", "be", "will", "was", "were", "here", "there",
+					"as", "do", "what", "for", "to", "of", "over", "be", "will", "was", "were", "here", "there",
 					"you", "your", "our", "my", "her", "his", "just", "have", "but", "not", "that",
 					"their", "we", "by", "any", "anything", "some", "something", "dont", "do", "does", "of", "they", "them",
 					"been", "even", "etc", "this", "that", "those", "these", "from", "he", "she",
-					"no", "yes", "own", "may", "mine", "me", "each", "can", "could", "would", "should", "had", "has",
-					"when", "out", "also", "only", "about", "us", "via", "than", "then", "who", "which"
+					"no", "yes", "own", "may", "mine", "me", "each", "can", "could", "would", "should", "since", "had", "has",
+					"when", "out", "also", "only", "about", "us", "via", "than", "then", "up", "who", "which"
 					})};
 		loadLexicon(env);
 	}

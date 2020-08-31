@@ -296,6 +296,10 @@ public class Session  {
 	}
 
 	protected void comprehend(String input) {
+		if (input.startsWith("/"))//eliminate the leading slash for the case when it is a Telegram/Slack bot command
+			input = input.substring(1);
+		if (input.startsWith("my_") || input.startsWith("what_"))//hack for Telegram/Slack bot command
+			input = input.replaceAll("_", " ");
 		this.mood = reader.readMood(input);
 		this.input = input; 
 		//this.args = Parser.split(this.input, " \t,;");//"compile it"

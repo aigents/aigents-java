@@ -59,6 +59,7 @@ function test_once() {
 	test_chat();
 	test_groups();
 	test_search();
+	test_bot();
 	
 	//test adaptive learning capabilities
 	test_agent_learn();

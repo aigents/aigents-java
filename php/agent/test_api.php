@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "3.0.4";
+$version = "3.0.5";
 $copyright = " Copyright © 2020 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -249,11 +249,13 @@ function del_news_today($when = "today"){
 	say("No there times ".$when.".");
 }
 
-function login($name = "john", $email = "john@doe.org", $surname = "doe", $question = "q", $answer = "a"){
+function login($name = "john", $email = "john@doe.org", $surname = "doe", $question = "q", $answer = "a", $reg = true){
 	global $version, $copyright;
 	say("My name ".$name.", email ".$email.", surname ".$surname.".");
-	get("What your secret question, secret answer?");
-	say("My secret question ".$question.", secret answer ".$answer.".");
+	if ($reg){
+		get("What your secret question, secret answer?");
+		say("My secret question ".$question.", secret answer ".$answer.".");
+	}
 	get("What your ".$question."?");
 	say("My ".$question." ".$answer.".");
 	get("Ok. Hello ".ucwords($name)." ".ucwords($surname)."!\nMy Aigents " . $version . $copyright);

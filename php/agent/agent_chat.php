@@ -1184,15 +1184,47 @@ function test_groups() {
 	logout();
 }
 
+function test_bot() {//slash commands: help, start, settings
+	test_chat_init();
+	
+	say("start");
+	get("What your email, name, surname?");
+	login( "john", "john@doe.org", "doe", "q", "a", false);
+	say("/start");
+	get("What your email, name, surname?");
+	login( "john", "john@doe.org", "doe", "q", "a", false);
+	say("login");
+	get("What your email, name, surname?");
+	login( "john", "john@doe.org", "doe", "q", "a", false);
+	
+	say("There trust true, patterns help; responses 'Help yourself! ;-)");
+	get("Ok.");
+	say("help");
+	get("Help yourself! ;-).");
+	say("/help");
+	get("Help yourself! ;-).");
+	
+	say("What my email, name, surname, check cycle, items limit, trusts limit, news limit, email notification, discourse id, steemit id, golos id, ethereum id?");
+	get("Your check cycle 3 hours, email john@doe.org, items limit 100, name john, news limit 10, surname doe, trusts limit 20.");
+	say("There trust true, patterns settings; responses 'To check your settings, ask something like \"What my email, name, surname, check cycle, items limit, trusts limit, news limit, email notification, telegram notification, facebook notification?\".\nTo update your settings, tell something like \"My items limit 50, trusts limit 10, news 5, email notification false, telegram notification true, facebook notification false\".'");
+	get("Ok.");
+	say("settings");
+	get("To check your settings, ask something like \"What my email, name, surname, check cycle, items limit, trusts limit, news limit, email notification, telegram notification, facebook notification?\".\nTo update your settings, tell something like \"My items limit 50, trusts limit 10, news 5, email notification false, telegram notification true, facebook notification false\".\n😊");
+	say("/settings");
+	get("To check your settings, ask something like \"What my email, name, surname, check cycle, items limit, trusts limit, news limit, email notification, telegram notification, facebook notification?\".\nTo update your settings, tell something like \"My items limit 50, trusts limit 10, news 5, email notification false, telegram notification true, facebook notification false\".\n😊");
+	
+	test_chat_cleanup();
+}
 
 test_init();
 test_findchat();
-/*test_demochat();
+test_demochat();
 test_freechat();
 test_help();
 test_chat();
 test_groups();
-test_search();*/
+test_search();
+test_bot();
 test_summary();
 
 ?>
