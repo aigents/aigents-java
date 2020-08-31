@@ -2,7 +2,7 @@
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
 
-The follwing document extends [Aigents configuration](https://github.com/aigents/aigents-java/blob/master/doc/README.md) making the Aigents Server functions availabe as a chat bot under messengers such as Telegram, Facebook Messenger or slack. 
+The following document extends [Aigents configuration](https://github.com/aigents/aigents-java/blob/master/doc/README.md) making the Aigents Server functions availabe as a chat bot under messengers such as Telegram, Facebook Messenger or slack. 
 
 ## 1. General information
 
@@ -20,9 +20,12 @@ In addion to the integration on the Aigents side, the follwing Telegram bot prop
 
 **About**:
 Aigents personal AI helps you to deal with online information and social connections, see https://medium.com/@aigents
+
 **Description**: 
 Aigents personal artificial intelligence helps you to deal with online information and social connections, monitoring and searching the Web, tracking your interactions with friends and colleagues, and analyzing them for you, as you can read at https://medium.com/@aigents blog. The data collected from you is not re-distributed to any third party and it is protected by privacy policy: https://aigents.com/en/license.html
-**Botpic**: ![https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent.png](https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent.png)
+
+**Botpic**: ![https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent.png](https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent32.png)
+
 **Commands**:
 help - Get help on some commands 
 search - Do web search, see https://medium.com/@aigents/custom-web-search-with-aigents-eb50767fc44c
