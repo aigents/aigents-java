@@ -2,12 +2,12 @@
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
 
-The following document extends [Aigents configuration](https://github.com/aigents/aigents-java/blob/master/doc/README.md) making the Aigents Server functions availabe as a chat bot under messengers such as Telegram, Facebook Messenger or slack. 
+The following document extends Aigents configuration making the Aigents Server functions available as a chatbot under messengers such as Telegram, Facebook Messenger, or Slack.
 
 ## 1. General information
 
-1. [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
-1. [Aigents® on Messengers — Monitoring and Searching Web Sites and Group Chats](https://medium.com/@aigents/aigents-on-messengers-monitoring-and-searching-web-sites-and-group-chats-f5d585e0355e)
+1.1. [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
+1.2. [Aigents® on Messengers — Monitoring and Searching Web Sites and Group Chats](https://medium.com/@aigents/aigents-on-messengers-monitoring-and-searching-web-sites-and-group-chats-f5d585e0355e)
 
 ## 2. Chat Bot Integration
 
@@ -16,7 +16,7 @@ The following document extends [Aigents configuration](https://github.com/aigent
 
 Telegram integration with Aigents is the most simple and functionally rich at the moment and described in [very details]((https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)). In particular, the Aigents bot for Telegram can support interactons in groups.    
 
-In addion to the integration on the Aigents side, the follwing Telegram bot properties should be set, referring to the followin as an example:
+In addion to the integration on the Aigents side, the following Telegram bot properties should be set, referring to the following as an example:
 
 **About**:
 Aigents personal AI helps you to deal with online information and social connections, see https://medium.com/@aigents
