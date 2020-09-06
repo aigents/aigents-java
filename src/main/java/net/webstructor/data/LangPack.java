@@ -238,7 +238,8 @@ public class LangPack {
 	}
 	
 	public static void countWords(LangPack languages, Linker linker, String text, java.util.Set vocabulary, int min, boolean number) {
-		Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);
+		//Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);//no quoting
+		Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,true,true);//quoting
 		if (tokens != null) {
 			for (int j = 0; j < tokens.size(); j++){
 				String token = (String)tokens.get(j); 

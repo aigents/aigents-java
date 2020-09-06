@@ -687,6 +687,8 @@ public class Reader extends AL {
 					if (!AL.empty(scope) && scope.get(scope.size()-1) instanceof Thing) // so it is like "Whet my topics name, trust?"
 						if (storager.isThing(name)) // so it is a reference to a thing
 							if (Array.contains(properties, value)) {
+//TODO: this makes it possible to handle "there is animal, has name, color, size." but makes impossible to deal with "What my news text?"
+							//if (Array.contains(properties, value) && values.size() > 0) {
 								parser.set(value_position);	//rollback to handle value as chained stuff			
 								break;
 							}

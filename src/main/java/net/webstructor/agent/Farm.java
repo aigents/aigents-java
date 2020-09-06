@@ -446,9 +446,13 @@ public class Farm extends Body {
 			Timer timer = new Timer();
 			final Runnable task = new TimerTask() {
 			    public void run() {
-			    	updateStatus(peer, profilers, true);//have to be fresh
-			    	//thinker.think(peer);
-					Peer.rethink(Farm.this,peer);//this does think along the way!
+			    	try {
+				    	updateStatus(peer, profilers, true);//have to be fresh
+				    	//thinker.think(peer);
+						Peer.rethink(Farm.this,peer);//this does think along the way!
+			    	} catch (Throwable e) {
+			    		error("Farm updateStatus "+peer.getTitle(Peer.title),e);
+			    	}
 			    }
 			};
 			//TODO: all threads for profiles and spidereres to be run under the same Executor with given number of threads in the pool 

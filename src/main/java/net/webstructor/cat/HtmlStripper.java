@@ -79,7 +79,7 @@ import net.webstructor.util.Str;
         //http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
         //http://www.degraeve.com/reference/specialcharacters.php
         private static final String[] etokens = {"&times;","&quot;","&ndash;","&mdash;", "&minus;", "&amp;","&lt;","&gt;","&nbsp;","&nbsp","&euro;","&cent;","&pound;","&yen;","&copy;","&#169;","&reg;","&#174;","&deg;","&#8482;","&#39;","&#039;","&rarr;","&sbquo;","&laquo;"  ,"&raquo;"  ,"&lsquo;"  ,"&rsquo;"  ,"&ldquo;"  ,"&rdquo;"  ,"&bdquo;","&ldquor;", "&#x3D;","‘" ,"’" ,"“" ,"”" ,"&hellip;"};
-        private static char[] echars =          {'*',		'\"',    '–',	    '—',	   '−',		  '&',	'<'   ,'>'   ,' '     ,' '    ,'€'	   ,'¢'     ,'£'      ,'¥'    ,'©'     ,'©'     ,'®'    ,'®'     ,'°'    ,'™'	,	'\'',	'\'', 	'→'      ,'‚'      ,'\"'/*'«'*/,'\"'/*'»'*/,'\''/*'‘'*/,'\''/*'’'*/,'\"'/*'“'*/,'\"'/*'”'*/,'„' 	 ,'„'       , '='     ,'\'','\'','\"','\"','…'};
+        private static char[] echars =          {'*',		'\"',    '–',	    '—',	   '−',		  '&',	'<'   ,'>'   ,' '     ,' '    ,'€'	   ,'¢'     ,'£'      ,'¥'    ,'©'     ,'©'     ,'®'    ,'®'     ,'°'    ,'™'	,	'\'',	'\'', 	'→'      ,'‚'      ,'\"'/*'«'*/,'\"'/*'»'*/,'\''/*'‘'*/,'\''/*'’'*/,'\"'/*'“'*/,'\"'/*'”'*/,'\"'/*'„'*/,'\"'/*'„'*/, '='  ,'\'','\'','\"','\"','…'};
         private static String[] charmappings = {"«»“”‘’","\"\"\"\"\'\'"};
         
         public static String cleanHtmlRegExp(String text)

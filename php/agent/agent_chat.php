@@ -105,11 +105,12 @@ there is вылет, trust true, рейс 414, аэропорт берлин, а
 	say("there is новость, текст трамп отправился в поездку, дата 2020-08-07, источник kommersant.");
 	//check data presense
 	say("what is сотрудник?");
-	get();
+	get("There is сотрудник, комната 123, отдел кадров, человек мария ивановна сидорова; is сотрудник, комната 312, отдел бухгалтерия, человек мария ивановна петрова.");
 	say("what is покупка?");
-	get();
+	get("There is покупка, магазин рыбалка и охота, назначение для туризма, товар кроссовки; is покупка, магазин спортмастер, назначение для бега, товар кроссовки; is покупка, магазин чемпион, назначение для бега, товар кроссовки.");
 	//setup session
 	say("my language russian");
+	get("Ok.");
 	
 	//basic search
 	say("где сидит петрова");
@@ -131,7 +132,7 @@ there is вылет, trust true, рейс 414, аэропорт берлин, а
 	say("для туризма");
 	get("Магазин рыбалка и охота, назначение для туризма, товар кроссовки?");
 	say("нет");
-	get("?");
+	get("Так что?");
 	say("что нибудь для бега");
 	get("Магазин спортмастер или чемпион?");
 	say("мастер");
@@ -168,7 +169,7 @@ there is вылет, trust true, рейс 414, аэропорт берлин, а
 	say("для бега");
 	get("Магазин рыбалка и охота или спортмастер или чемпион?");
 	say("нет");
-	get("?");
+	get("Так что?");
 
 //TODO resolve товар and назначение at once 
 	say("Хочу кроссовки для бега");
@@ -1216,6 +1217,122 @@ function test_bot() {//slash commands: help, start, settings
 	test_chat_cleanup();
 }
 
+function test_load() {//loading csv data
+	global $base_things_count;
+	
+	test_chat_init();
+	
+//TODO: NPE, fix Reader for what makes it possible to handle "there is animal, has name, color, size." but makes impossible to deal with "What my news text?"
+//	say("there is animal, has name, color, size.");
+	say("there name animal, has color, size.");
+	get("Ok.");
+	say("what is animal");
+	get("No.");
+	file_put_contents($basePath."html/test.csv","name,weight,color,size\nelephant,heaviy,gray,huge\nmouse,light,gray,small");
+	say("load file ".$basePath."html/test.csv"." as animal");
+	get("Ok. 2 things.");
+	say("what is animal name, size, color");
+	get("There color gray, name elephant, size huge; color gray, name mouse, size small.");
+	say("what is a gray animal?");
+	get("Size huge or small?");
+	say("better huge");
+	get("Color gray, name elephant, size huge?");
+	say("yes");
+	get("Ok.");
+	say("is animal trust false.");
+	get("Ok.");
+	say("no there is animal");
+	get("Ok.");
+	say("what is animal");
+	get("No.");
+	say("load file http://localtest.com/test.csv as animal");
+	get("Ok. 2 things.");
+	say("what is animal name, size, color");
+	get("There color gray, name elephant, size huge; color gray, name mouse, size small.");
+	say("what is a small animal?");
+	get("Color gray, name mouse, size small?");
+	say("Yes.");
+	get("Ok.");
+
+	//using https://www.kaggle.com/datafiniti/fast-food-restaurants
+//TODO make name readable with no NPE
+	//say("there name restraunt, has address, city, country, name, province");
+	say("there name restraunt, has address, city, country, province");
+	get("Ok.");
+	//say("load file /Users/akolonin/Documents/data/Datafiniti/FastFoodRestaurants.csv as restraunt");
+	say("load file ./data/us-restraunt-data.csv as restraunt");
+	get("Ok. 10000 things.");
+	say("I need a food nearby the martin luther king");
+	get("Province AL or AR or CA or FL or GA or IA or LA or MI or NC or OH or OK or TX?");
+	say("TX");
+	get("Address 414 W Martin Luther King Jr Blvd, city Austin, country US, name McDonald's, province TX?");
+	say("yes");
+	get("Ok.");
+	say("I am looking for burger king");
+	get("Province AL or AR or AZ or CA or CO or CT or Co Spgs or DE or FL or GA or HI or IA or ID or IL or IN or KS or KY or LA or MA or MD or ME or MI or MN or MO or MS or NC or ND or NE or NH or NJ or NM or NV or NY or OH or OK or OR or PA or RI or SC or SD or TN or TX or UT or VA or VT or WA or WI or WV or WY?");
+	say("TX");
+	get("City Alamo or Arlington or Balch Springs or Boerne or Brownfield or Columbus or Corpus Christi or Dallas or Edinburg or El Paso or Fort Stockton or Fort Worth or Frisco or Grapevine or Harlingen or Hidalgo or Hillsboro or Houston or Irving or Kerrville or Kingsville or Laredo or Lewisville or Mcallen or Midland or Mission or Nacogdoches or Port Isabel or Randolph A F B or Rio Grande City or Rockwall or Roma or San Antonio or Spring or Sugar Land or Uvalde?");
+	say("Randolph");
+	get("Address 0 Randolph AFB,, city Randolph A F B, country US, name Burger King, province TX?");
+	say("Yes");
+	get("Ok.");
+	say("can I find McDonald's?");
+	get("Province AK or AL or AR or CA or CO or CT or Co Spgs or FL or GA or IL or IN or KS or KY or LA or MA or MD or MI or MN or MO or NC or NE or NM or NV or NY or OH or OR or PA or SC or SD or TN or TX or VA or VT or WA or WI or WV?");
+	say("FL");
+	get("City Crestview or Fort Lauderdale or Miami or Naples or Palm Bay or Port Saint Lucie or Tallahassee or Wellington?");
+	say("Crestview");
+	get("Address 3201 S Ferdon Blvd, city Crestview, country US, name McDonalds, province FL?");
+	say("yes");
+	get("Ok.");
+	
+	//test saving/loading/forgetting	
+	say("You forget!");
+	get("Ok.");
+	say("You save test1.txt!");
+	get("Ok.");
+	say("What your things count?");
+	get("My things count ".($base_things_count + 10000 + 10).".");
+	say("You forget!");
+	get("Ok.");
+	say("What your things count?");
+	get("My things count ".($base_things_count + 10000 + 10).".");
+	say("is restraunt trust false");
+	get("Ok.");
+	say("No there is restraunt");
+	get("Ok.");
+	say("What your things count?");
+	get("My things count ".($base_things_count + 10).".");
+	say("You load test1.txt!");
+	get("Ok.");
+	say("What your things count?");
+	get("My things count ".($base_things_count + 10000 + 10 - 4).".");//with duplicates
+	
+	//using https://data.mos.ru/datasets/1788
+	say("there name ресторан, has название, округ, район, адрес, телефон");
+	get("Ok.");
+	//say("load file /Users/akolonin/Documents/data/data.mos.ru/moscow-restraunt-data-2901-2020-07-14-3.csv as ресторан");
+	say("load file ./data/moscow-restraunt-data.csv as ресторан");
+	get("Ok. 2274 things.");
+	say("my language russian");
+	get("Ok.");
+	say("где поесть хинкали");
+	get("Округ Северо-Западный или Центральный или Юго-Восточный или Юго-Западный?");
+	say("центральный");
+	get("Адрес город Москва, улица Остоженка, дом 19, строение 1, название Есть хинкали, пить вино, округ Центральный, район Хамовники, телефон (495) 975-55-35?");
+	say("да");
+	get("Ok.");
+	say("нужна пицца");
+	get("Округ Западный или Новомосковский или Северный или Северо-Восточный или Северо-Западный или Центральный или Юго-Восточный или Юго-Западный или Южный?");
+	say("южный");
+	get("Район Братеево или Донской?");
+	say("донской");
+	get("Адрес город Москва, улица Вавилова, дом 3, название Пицца Хат, округ Южный, район Донской, телефон (906) 079-01-23?");
+	say("да");
+	get("Ok.");
+	
+	test_chat_cleanup();
+}
+
 test_init();
 test_findchat();
 test_demochat();
@@ -1225,6 +1342,7 @@ test_chat();
 test_groups();
 test_search();
 test_bot();
+test_load();
 test_summary();
 
 ?>

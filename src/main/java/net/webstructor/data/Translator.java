@@ -39,6 +39,8 @@ public class Translator {
 		r.put("activity","активность");
 		r.put("all","все");
 		r.put("or","или");
+		r.put("so","так");
+		r.put("so what","так что");
 		r.put("yes","да");
 		r.put("no","нет");
 		r.put("report","отчет");

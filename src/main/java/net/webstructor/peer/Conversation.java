@@ -71,6 +71,7 @@ import net.webstructor.data.ReputationSystem;
 import net.webstructor.data.TextMiner;
 import net.webstructor.data.Transcoder;
 import net.webstructor.self.Self;
+import net.webstructor.self.Streamer;
 import net.webstructor.util.Array;
 import net.webstructor.util.Str;
 
@@ -158,6 +159,25 @@ public class Conversation extends Responser {
 		Thing curPeer = session.getStoredPeer();
 		if (curPeer != null)//TODO:cleanup as it is just in case for post-mortem peer operations in tests
 			curPeer.set(Peer.activity_time,Time.day(Time.today));
+
+//TODO cleanup hack		
+		/*if ("debug".equals(session.input())) {
+			try {
+				Collection iss = session.getStorager().getByName(AL.name, "restraunt");
+				if (!AL.empty(iss)) {
+					Collection instances = session.getStorager().getByName(AL.is, iss.iterator().next());
+					Collection trusts = curPeer.getThings(AL.trusts);
+					java.util.HashSet ts = new java.util.HashSet(instances);
+					ts.retainAll(trusts);
+					session.output(session.ok());
+					return false;		
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			session.output(session.no());
+			return false;		
+		}*/
 		
 		VK vk = (VK)session.sessioner.body.getSocializer("vkontakte");//TODO: validate type or make type-less 
 		if (session.mood == AL.interrogation) {
@@ -418,6 +438,33 @@ public class Conversation extends Responser {
 			return false;
 		} else
 
+		if ((session.mood == AL.direction || session.mood == AL.declaration)
+			&& (session.argsCount() > 2 && "load".equals(session.args()[0]))) {
+			//&& session.read(new Seq(new Object[]{"load","file",new Property(reader,"file",1000),"as",new Property(reader,"file",50)}))) {
+//TODO: fix reader to skip commas so we can read arguments into thing
+//TODO: support formats: csv/tsv/json/html
+			String file = Str.arg(session.args(), "file", null);
+			String as = Str.arg(session.args(), "as", null);
+			if (!AL.empty(file) && !AL.empty(as)) {
+				Collection ases = session.getStorager().getNamed(as);
+				if (AL.single(ases)) {
+					try {
+						//default is csv
+//TODO: delimiter: ","/"\t"
+						int loaded = new Streamer(session.getBody()).loadCSV(file, (Thing)ases.iterator().next(), curPeer);
+						if (loaded > 0) {
+							session.output(session.ok()+" "+loaded+" things.");
+							return false;
+						}
+					} catch (Exception e) {
+						session.getBody().error("Loading "+file+" as "+as,e);
+					}
+				}
+			}
+			session.output(session.no());
+			return false;
+		} else
+			
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",1000)}))) {
 			session.output(session.no());

@@ -35,6 +35,11 @@ function hear_voice(oninput,onerror,lang,nonstop){
             //recognition = new webkitSpeechRecognition();
             recognition = new SpeechRecognition();
             recognition.nonstop = nonstop;
+            if (get_locale) {
+            	var l = get_locale();
+            	if (l == 'ru')
+            		lang = 'ru-RU';
+            }
             recognition.lang = lang ? lang : 'en-US';
             startHearing();
             recognition.onstart = function() {

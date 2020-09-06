@@ -56,6 +56,10 @@ class Finder implements Intenter {
 	public String name() {
 		return "objective";
 	}
+
+	public boolean searchable(String name){
+		return AL.name.equals(name) || !Array.contains(AL.foundation, name);
+	}
 	
 	@Override
 	public boolean handleIntent(final Session session){
@@ -63,25 +67,12 @@ class Finder implements Intenter {
 			Thing peer = session.getStoredPeer();
 			if (peer == null)//TODO make working anonymously?
 				return false;
-			Storager storager = session.getStorager();
+			//Storager storager = session.getStorager();
 			LangPack languages = session.getBody().languages;
-			String lang = peer.getString(Peer.language);
-//TODO make rather session language override use language in session.getLanguage()?
-			if (AL.empty(lang)) 
-				lang = session.language;
-			Translator trans = session.getBody().translator(lang);
+			Translator trans = session.getBody().translator(session.language());
 			String yes = trans.loc("yes");
 			String no = trans.loc("no");
 			String input = session.input().trim().toLowerCase();
-
-//TODO: extra search for "is" class being searched and keep it in context?
-			
-//TODO: get searchable attributes only, have them app-configured before
-			
-//TODO: explicitly say "name is text" to identify Full-Text-Searchable attributes only?
-			
-			String[] names = storager.getNames();
- 			//String[] has =storager.getNames(AL.has);
 
 //TODO: keep this in session or context object/array
 			FinderContext fc = (FinderContext)session.context(name());
@@ -90,63 +81,8 @@ class Finder implements Intenter {
 			
 			///////////////// start finding /////////////////
 			if (AL.empty(fc.res)) {
-				//find matches in attributed strings
-				Counter words = new Counter();
-				HashSet<String> attributes = new HashSet<String>();
-				LangPack.countWords(languages, words, input, null);
-				words.normalizeBy(languages.words(), 1);
-				HashMap<String,Counter> textMatches = new HashMap<String,Counter>();
-				int maxMatches = 0;
-				for (String name : names) {
-					if (Array.contains(AL.foundation, name))//skip special attributes
-						continue;
-					Object values[] = storager.getObjects(name);
-					if (!AL.empty(values)) for (Object v : values) {
-//TODO dates, numbers, Things with names 
-						if (!(v instanceof String))
-							continue;
-						String s = (String)v;
-						if (AL.empty(s))
-							continue;
-						Set tokens = Parser.parse(s,AL.punctuation+AL.spaces,false,true,false,true);
-						Counter textWords = new Counter(); 
-						for (int i = 0; i < tokens.size(); i++) {
-							String token = (String)tokens.get(i);
-							Number n = words.value(token);
-							if (n != null)
-								textWords.count(token, n.doubleValue()); 
-						}
-						if (textWords.size() == 0 || textWords.size() < maxMatches)//have better matches already
-							continue;
-						if (maxMatches < textWords.size()) {//just found better matches
-							maxMatches = textWords.size();
-							textMatches.clear();
-							fc.attributes.clear();
-						}
-						textMatches.put(s, textWords);//keep counting matches
-						attributes.add(name);
-					}
-				}
-				if (textMatches.size() > 0) {
-					for (String str : textMatches.keySet()) {
-						for (String attr : attributes) {
-							//add to lisf of findings
-							Collection coll = storager.getByName(attr, str);
-							if (!AL.empty(coll)) {
-								Object values[] = storager.getObjects(attr);
-								fc.attributes.put(attr, values.length);
-								for (Object c : coll) if (c instanceof Thing) {
-									if (Query.accessible((Thing)c, (Thing)session.sessioner.body.getSelf(), peer, null, false))
-										fc.res.addAll(coll);
-								}
-							}
-						}
-					}
-				}
-
 //TODO: if not found, fallback to fuzzy search based on letter bigrams or levenstain difference			
-				
-				if (AL.empty(fc.res)) {
+				if (!initialSearch(session, trans, fc, input, peer)) {
 					return false;
 				} else if (fc.res.size() == 1) {
 					askConfirmation(session,(Thing)fc.res.iterator().next());
@@ -162,7 +98,7 @@ class Finder implements Intenter {
 			} else if (fc.res.size() > 1) {
 				
 				if (input.equals(no)) {
-					session.output("?");
+					session.output(session.so());
 					reset(session);
 					return true;
 				} else
@@ -209,22 +145,22 @@ class Finder implements Intenter {
 				if (textMatches.size() > 1) {//multiple matches
 					fc.res.retainAll(textMatches);
 					if (!askQuestion(session,trans,fc)) {
-						session.output("?");
+						session.output(session.so());
 					}
 				} else {//no matches
 					if (!askQuestion(session,trans,fc)) {
-						session.output("?");
+						session.output(session.so());
 					}
 				}
 				
 			} else {//res.size() == 1
 //TODO: start over
-				if (input.equals(yes)) {
+				if (input.startsWith(yes)) {
 					session.output("Ok.");
 					reset(session);
 				} else
-				if (input.equals(no)) {
-					session.output("?");
+				if (input.startsWith(no)) {
+					session.output(session.so());
 					reset(session);
  				} else {
  					if (fc.retries++ <= 1)
@@ -240,12 +176,81 @@ class Finder implements Intenter {
 			session.output(session.no()+" "+Responser.statement(e));
 			if (!(e instanceof Mistake))
 				session.sessioner.body.error("Finder error " + e.toString(), e);
+			reset(session);
 		}
 		return true;
 	}
 
 	void reset(Session session) {
 		session.context(name(),null);
+	}
+
+	boolean initialSearch(Session session, Translator trans, FinderContext fc, String input, Thing peer) throws Exception {
+		LangPack languages = session.getBody().languages;
+		Storager storager = session.getStorager();
+
+//TODO: extra search for "is" class being searched and keep it in context?
+		
+//TODO: get searchable attributes only, have them app-configured before
+					
+//TODO: explicitly say "name is text" to identify Full-Text-Searchable attributes only?
+					
+		String[] names = storager.getNames();
+		//String[] has =storager.getNames(AL.has);
+
+		//find matches in attributed strings
+		Counter words = new Counter();
+		LangPack.countWords(languages, words, input, null);
+		words.normalizeBy(languages.words(), 1);
+		HashMap<String,Counter> textMatches = new HashMap<String,Counter>();
+		int maxMatches = 0;
+		for (String name : names) {
+			if (!searchable(name))//skip special attributes
+				continue;
+			Object values[] = storager.getObjects(name);
+			if (!AL.empty(values)) for (Object v : values) {
+//TODO dates, numbers, Things with names 
+				if (!(v instanceof String))
+					continue;
+				String s = (String)v;
+				if (AL.empty(s))
+					continue;
+				Collection coll = storager.getByName(name, s);
+				if (AL.empty(coll))
+					continue;
+				HashSet things = new HashSet();
+				for (Object c : coll)
+					if (c instanceof Thing)
+						if (((Thing)c).get(AL.has) == null && ((Thing)c).get(AL.is) != null)//if pure instance
+							if (Query.accessible((Thing)c, (Thing)session.sessioner.body.getSelf(), peer, null, false))
+								things.addAll(coll);
+				if (things.size() == 0)
+					continue;
+				//Set tokens = Parser.parse(s,AL.punctuation+AL.spaces,false,true,false,true);//no quoting
+				Set tokens = Parser.parse(s,AL.punctuation+AL.spaces,false,true,true,true);//quoting to avoid searching patterns 
+				Counter textWords = new Counter(); 
+				for (int i = 0; i < tokens.size(); i++) {
+					String token = (String)tokens.get(i);
+					Number n = words.value(token);
+					if (n != null)
+						textWords.count(token, n.doubleValue()); 
+				}
+				if (textWords.size() == 0 || textWords.size() < maxMatches)//have better matches already
+					continue;
+				if (maxMatches < textWords.size()) {//just found better matches
+					maxMatches = textWords.size();
+					textMatches.clear();
+					fc.attributes.clear();
+					fc.res.clear();
+				}
+				fc.res.addAll(things);
+				textMatches.put(s, textWords);//keep counting matches
+//TODO: use things, not value
+				//fc.attributes.put(name, things.size());
+				fc.attributes.put(name, values.length);
+			}
+		}
+		return !AL.empty(fc.res);
 	}
 	
 	boolean askQuestion(Session session, Translator trans, FinderContext fc) {
@@ -279,30 +284,35 @@ class Finder implements Intenter {
 	boolean askQuestionInternal(Session session, Translator trans, FinderContext fc) {
 		//find the most cardinal attribute
 		HashMap<String,java.util.Set> nameValues = new HashMap<String,java.util.Set>();
+		Counter thingsByAttr = new Counter();
 		for (Object r : fc.res) {
 			if (r instanceof Thing) {
 				Thing t = (Thing)r;
 				String[] t_names = t.getNamesAvailable();
-				for (String n : t_names) {
-					if (fc.attributes.containsKey(n))//skip resolved attribute
+				for (String name : t_names) {
+					if (fc.attributes.containsKey(name))//skip resolved attribute
 						continue;
-					if (Array.contains(AL.foundation, n))//skip special attributes
+					if (!searchable(name))//skip special attributes
 						continue;
-					String v = t.getString(n);
+					String v = t.getString(name);
 					if (!AL.empty(v)) {
-						java.util.Set s = nameValues.get(n);
+						java.util.Set s = nameValues.get(name);
 						if (s == null) {
-							nameValues.put(n, s = new java.util.TreeSet());//need them sorted
+							nameValues.put(name, s = new java.util.TreeSet());//need them sorted
 						}
 						s.add(v);//count unique value;
+						thingsByAttr.count(name);
 					}
 				}
 			}
 		}
+		thingsByAttr.normalize();//normalize to see which one covers more objects of the question
 		fc.keyAttribute = null;
 		int min = 0;
 		fc.options = null;
 		for (String n : nameValues.keySet()) {
+			if (thingsByAttr.value(n).intValue() != 100)
+				continue;
 			java.util.Set s = nameValues.get(n);
 			if (s.size() == 1)
 				fc.attributes.put(fc.keyAttribute,1);
@@ -335,14 +345,14 @@ class Finder implements Intenter {
 	void askConfirmation(Session session, Thing thing) {
 		StringBuilder sb = new StringBuilder();
 		String[] t_names = thing.getNamesAvailable();
-		for (String n : t_names) {
-			if (Array.contains(AL.foundation, n))//skip special attributes
+		for (String name : t_names) {
+			if (!searchable(name))//skip special attributes
 				continue;
-			String v = thing.getString(n);
+			String v = thing.getString(name);
 			if (!AL.empty(v)) {
 				if (sb.length() > 0)
 					sb.append(", ");
-				sb.append(n).append(' ').append(v);
+				sb.append(name).append(' ').append(v);
 			}
 		}
 //TODO sb.length() == 0

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
@@ -136,22 +137,32 @@ class Answerer extends Searcher {
 							if (n != null)
 								textWords.count(token, n.doubleValue()); 
 						}
-						textMatches.put(thing, textWords);
-						if (maxMatches < textWords.size())
+						if (maxMatches > textWords.size())
+							continue;
+						if (maxMatches < textWords.size()) {
+							textMatches.clear();
 							maxMatches = textWords.size();
+						}
+						textMatches.put(thing, textWords);
 					}
 				}
-				if (maxMatches > 0 && textMatches.size() > 0) {
+				if (maxMatches > 0) {// && textMatches.size() > 0) {
 					for (Thing t : textMatches.keySet()) {
 						Counter textWords = textMatches.get(t);
-						if (maxMatches == textWords.size()) {
+						{//if (maxMatches == textWords.size()) {
 							Thing found = new Thing();
+//TODO: find fragments - build summary
+							String text = t.getString(AL.text);
+							String summary = summarize(textWords.keySet(),text,languages);
 							String src = t.getString(AL.sources);
 							if (AL.empty(src))
 								src = t.getString(AL.is);
+							if (AL.empty(summary)) {
+								session.sessioner.body.error("Answerer no summary "+words+" "+src+" "+text, null);
+								continue;
+							}
+							found.setString(AL.text, summary);
 							found.setString(AL.sources, src);
-//TODO: find fragments - build summary
-							found.setString(AL.text,summarize(textWords.keySet(),t.getString(AL.text),languages));
 							res.add(found);
 						}
 					}
@@ -211,8 +222,9 @@ class Answerer extends Searcher {
 
 		//IDEA B
 		//1) compute multiplicative heat map based on distribution of n_words matched words over n_tokens;
-		//Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);
-		Set tokens = Parser.parse(text);
+//TODO We don't deal with quotes, should we do!?
+		//Set tokens = Parser.parse(text);
+		Set tokens = Parser.parse(text,(String)null,false,true,false,true,null,(List)null);//quoting=false,urling=true
 		double total_heats[] = null;
 		int n_tokens = tokens.size();
 		int n_words = 0;//words.size();

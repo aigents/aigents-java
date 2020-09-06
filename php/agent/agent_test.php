@@ -60,6 +60,7 @@ function test_once() {
 	test_groups();
 	test_search();
 	test_bot();
+	test_load();
 	
 	//test adaptive learning capabilities
 	test_agent_learn();

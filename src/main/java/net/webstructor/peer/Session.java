@@ -162,9 +162,21 @@ public class Session  {
 	public String no(){
 		return Writer.capitalize(AL.no[0])+".";
 	}
+
 	public String ok(){
 		return Writer.capitalize(AL.ok[0])+".";
 	}
+
+	public String so(){
+		return Writer.capitalize(getBody().translator(language()).loc("so what"))+"?";
+	}
+
+	public String language(){
+		String lang = getStoredPeer().getString(Peer.language);
+//TODO make rather session language override use language in session.getLanguage()?
+		return !AL.empty(lang) ? lang : this.language;
+	}
+	
 	
 	public void unexpect(Thing context){
 		if (peer != null && !AL.empty(expected)){

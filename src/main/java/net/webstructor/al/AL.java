@@ -108,6 +108,7 @@ public class AL {
 	public final static String time 	= "time";//date and daytime
 	public final static String word 	= "word";//single token
 	public final static String email 	= "email";//email address
+	public final static String address 	= "address";//physical address
 	
 	public final static String[] foundation = new String[]{	//TODO have this in Schema, not here and in Thing
 		id,name,is,has,does,times,trust,trusts,ignores,share,shares,friend,friends,_new,news,things,topics,sites,areas,sources,patterns,responses,text

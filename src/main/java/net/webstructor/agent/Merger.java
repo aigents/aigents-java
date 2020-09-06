@@ -51,6 +51,7 @@ public class Merger {
 		for (Iterator it = mergees.iterator(); it.hasNext();) {
 			Thing thing = (Thing)it.next();
 			//find twins
+//TODO: figure out the merge keys dynamically!?
 			Collection twins = storager.get(thing,Schema.keys);
 			if (AL.empty(twins)) { //must have at least itself
 				//throw new Mistake("no thing for "+Writer.toString(thing));

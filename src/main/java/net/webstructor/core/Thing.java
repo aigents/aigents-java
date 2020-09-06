@@ -57,8 +57,6 @@ public class Thing extends Anything implements Named { // implements ORObject
 		AL.selection,
 		AL.copypaste,
 		AL._new,
-		//AL.image,
-		//AL.title,
 		AL.text
 	};
 	
@@ -329,22 +327,25 @@ public class Thing extends Anything implements Named { // implements ORObject
     	return names;
     }
 
-    /*
-    public String[] getNamesPossible1() {
-    	Object has = get(AL.has);
+    //TODO: use this instead of the earlier one
+    public java.util.Set<String> getNamesPossible(java.util.Set<String> set) {
+       	Object has = get(AL.has);
     	if (has instanceof Collection) {
-    		Collection coll = (Collection)has;
-    		String[] has_names = new String[coll.size()];
-    		int i = 0;
-    		for (Iterator it = coll.iterator();it.hasNext();)
-    			has_names[i++] = ((Thing)it.next()).getName();
-    		return Array.union(new String[][]{getNamesAvailable(), names, has_names});
+    		Collection properties = (Collection)has;
+      		for (Object p : properties)
+    			set.add(((Thing)p).name());
     	}
-    	else
-    		return Array.union(getNamesAvailable(), names);
+       	Object is = get(AL.is);
+    	if (is instanceof Collection) {
+    		Collection classes = (Collection)is;
+      		for (Object c : classes)
+      			((Thing)c).getNamesPossible(set);
+    	}
+    	for (String n : names)//TODO: eliminate this hack, do this my means of Schema and inheritance
+    		set.add(n);
+    	return set;
     }
-    */
-
+    
     public String[] getNamesPossible() {
     	ArrayList has_names = new ArrayList();
        	Object has = get(AL.has);
