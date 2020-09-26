@@ -110,7 +110,7 @@ public abstract class Mediator extends Communicator implements Updater {
 //TODO: move to Grouper under Conversation scope for Slack and WeChat unification 
 	// - adding session attributes?
 	// - adding dedicated unauthorized chat sessions?
-	protected void updateGroup(String group_id, String group_name, String peer_id, String peer_name, boolean is_in, boolean is_bot, String text){
+	protected void updateGroup(String group_id, String group_name, String peer_id, boolean is_in, boolean is_bot, String text){
 		try {
 			//1) get group by id (eg. "telegram_id")
 			String name_id = name+" id";

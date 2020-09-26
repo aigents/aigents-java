@@ -268,9 +268,10 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				if (mention_usernames != null && !AL.empty(botname) && mention_usernames.contains(botname))//remove mention to bot self from text
 					text = text.replace("@"+botname, "");
 
-				if (!from_id.equals(chat_id) && !AL.empty(from_username)){
-					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false; 
-					updateGroup(chat_id, chat_title, from_id, from_username, true, is_bot, text);
+//TODO handle skip if from_username == null
+				if (!from_id.equals(chat_id)){
+					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false;
+					updateGroup(chat_id, chat_title, from_id, true, is_bot, text);
 					
 					//process group interactions
 					if (telegram != null) {
@@ -292,6 +293,8 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					else
 						continue;//skip message
 				} 
+
+				body.debug("Telegram handling "+date+" from_id "+from_id+" chat_id "+chat_id+" from_username "+from_username+" reply_to_from_username "+reply_to_from_username+" mention_usernames "+mention_usernames+" text "+text);			
 				
 				//from_id - for private authenticated sessions
 				//chat_id - for public anonymous sessions

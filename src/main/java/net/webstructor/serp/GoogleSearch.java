@@ -61,8 +61,10 @@ public class GoogleSearch extends Serper {
 	@Override
 	public Collection<Thing> search(String type, String text, String lang, int limit) {
 		//https://stackoverflow.com/questions/34035422/google-image-search-says-api-no-longer-available
+		//https://developers.google.com/custom-search/v1/reference/rest/v1/cse/list
 		//"template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&relatedSite={relatedSite?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
 
+		String response = null;
 		String api_key = api_key();
 		//String cx = env.getSelf() == null ? null : env.getSelf().getString(Body.googlesearch_code);//TODO: not needed?
 		if (AL.empty(api_key) || AL.empty(text))
@@ -70,10 +72,11 @@ public class GoogleSearch extends Serper {
 		String searchType = type == null ? null : (type = type.toLowerCase()).startsWith("image") ? "image" : type.startsWith("video") ? "video" : null;
 		//String hl = lang == null ? null : (lang = lang.toLowerCase()).startsWith("en") ? "en" : lang.startsWith("ru") ? "ru" : null;
 		try {
-			String request = "https://www.googleapis.com/customsearch/v1?key="+api_key+"&q="+URLEncoder.encode(text,"UTF-8");
+			//limit quesry text to to 100 (10000 works but let some room for UTF-8 encoding			
+			String request = "https://www.googleapis.com/customsearch/v1?key="+api_key+"&q="+URLEncoder.encode(Str.first(text, 1000),"UTF-8");
 			if (limit > 0) {
 				if (limit > 10)
-					limit = 10;
+					limit = 10;//Valid values are integers between 1 and 10, inclusive (API restriction)
 //TODO: pagination
 				request += "&num="+String.valueOf(limit);
 			}
@@ -83,7 +86,7 @@ public class GoogleSearch extends Serper {
 				request += "&searchType="+String.valueOf(searchType);
 					
 			if (debug) env.debug("Googlesearch crawling request "+request);
-			String response = checkCached(request);
+			response = checkCached(request);
 			if (response == null) {
 				response = HTTP.simple(request,null,"GET",0,null,null);
 				putCached(request,response);
@@ -131,7 +134,10 @@ public class GoogleSearch extends Serper {
 			}
 			
 		} catch (IOException e) {
-			if (debug) env.error("Googlesearch crawling "+text,e);
+			String r = AL.empty(response) ? null : Str.parseBetween(response, "<title>", "</title>");
+			if (r == null)
+				r = response;
+			env.error("Googlesearch crawling error "+Str.first(text,200)+(r == null ? "" : " " + r),e);
 		}
 		
 		return null;

@@ -90,6 +90,8 @@ public class Session  {
 	public void clone(Session origin) {
 		this.peer = origin.peer;
 		this.authenticated = origin.authenticated;
+		if (authenticated)
+			responser = sessioner.body.getResponser();
 	}
 	
 	public boolean authenticated(){
