@@ -25,7 +25,9 @@ package net.webstructor.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /*
 https://elgoog.im/breakout/
@@ -53,17 +55,20 @@ Yb(0-2)	Xb(0-4)	X(1-3)	Mr(L|R|S)	Happy(0-1)	Sad	Note
 0	1	3	0	0	1	may stop
  */
 abstract class Game {
+    static Random random = new Random();
 	abstract void init();
 	abstract void next();
 	abstract void printHeader();
 	abstract void printState();
+	abstract String toString(State s);
 	public static int random(int[] states) {
 	    Random random = new Random();
 	    return states[random.nextInt(states.length)];
 	}
-	public int random(int min, int max) {
-	    Random random = new Random();
-	    return random.nextInt(max - min) + min;
+	public static int random(int min, int max) {
+		int arg = max - min + 1;
+	    int rand = random.nextInt(arg) + min;
+	    return rand;
 	}
 }
 
@@ -73,11 +78,48 @@ class State {
 		p.put(key, value);
 		return this;
 	}
+	boolean sameAs(State other,Set<String> feelings) {
+		for (String key : feelings) {
+			Integer value = other.p.get(key); 
+			Integer thisValue = p.get(key);
+			if (thisValue == null || !thisValue.equals(value))
+				return false;
+		}
+		return true;
+	}
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (String key : p.keySet()) {
+			if (sb.length() > 0)
+				sb.append('\t');
+			sb.append(key).append(':').append(p.get(key));
+		}
+		return sb.toString();
+	}
+	static Integer mostUsable(List<State> states, String key) {
+		int max = 0;
+		HashMap<Integer,Integer> options = new HashMap<Integer,Integer>();
+		for (State s : states) {
+			Integer value = s.p.get(key);
+			Integer count = options.get(value);
+			count = count == null ? 1 : count + 1;
+			options.put(value, count);
+			if (max < count)
+				max = count;
+		}
+		for (Integer option : options.keySet()) {
+			Integer count = options.get(option);
+			if (count == max)
+				return option;
+		}
+		return null;
+	}
 }
 
 abstract class Player {
 	ArrayList<State> states = new ArrayList<State>();
-	abstract int move(State s);
+	abstract int move(Game g,State s);
 }
 
 
@@ -106,15 +148,23 @@ class BreakoutStripped extends Game {
 	}
 	
 	@Override
+	String toString(State s) {
+		return String.format("%s\t%s\t%s\t%s\t%s\t%s\n",s.p.get("Yball"),s.p.get("Xball"),s.p.get("Xrocket"),s.p.get("Move"),s.p.get("Happy"),s.p.get("Sad"));
+	}
+	
+	@Override
 	void init() {
 		Yball = 0;//start from the floor
 		int[] states = new int[Xmax/2];
 		for (int i = 0; i < states.length; i++)
 			states[i] = 1 + i*2;
-		Xball = random(states);//1,3,5,7,...
+//TODO: randomise
+		//Xdir = random(0,1) == 0 ? -1 : +1;
+		//Xball = random(states);//1,3,5,7,...
+		Xdir = -1;
+		Xball = 1;
 		Xrocket = Xball;
 		Ydir = 1;//strike to ceiling
-		Xdir = random(0,1) == 0 ? -1 : +1;
 		move = 0;
 	}
 	
@@ -160,22 +210,22 @@ class BreakoutStripped extends Game {
 			sad = happy = 0;
 		}
 		State s = new State();
-		s.add("Yball", Yball).add("Xball", Xball).add("sad", sad).add("happy", happy).add("Xrocket", Xrocket);
-		move = p.move(s);	
+		s.add("Yball", Yball).add("Xball", Xball).add("Sad", sad).add("Happy", happy).add("Xrocket", Xrocket);
+		move = p.move(this,s);	
 	}
 }
 
 
 class StalePlayer extends Player {//Stays in place, sometimes lucky
 	@Override
-	int move(State s) {
+	int move(Game g,State s) {
 		return 0;
 	}
 }
 
 class ReactivePlayer extends Player {//Follows the ball, lose always
 	@Override
-	int move(State s) {
+	int move(Game g,State s) {
 		int Xball = s.p.get("Xball");
 		int Xrocket = s.p.get("Xrocket");
 		return Xball < Xrocket ? -1 : Xball > Xrocket ? + 1 : 0;
@@ -185,7 +235,7 @@ class ReactivePlayer extends Player {//Follows the ball, lose always
 class SimplePredictivePlayer extends Player {//Follows the ball, lose always
 	State old = null;
 	@Override
-	int move(State s) {
+	int move(Game g,State s) {
 		int move = 0;
 		if (old != null) {
 			int oldXball = old.p.get("Xball");
@@ -198,13 +248,71 @@ class SimplePredictivePlayer extends Player {//Follows the ball, lose always
 	}
 }
 
+//TODO: seei if it works as long as direction of move is not accounted 
+class BruteforceUniquePlayer extends Player {//Makes decisions based on past experiences
+	ArrayList<State> history = new ArrayList<State>();
+	@Override
+	int move(Game g,State state) {
+		int move = Game.random(-1,+1);//default
+		Set<String> feelings = state.p.keySet(); 
+		ArrayList<State> possibilities = new ArrayList<State>();
+		//find identical states in history
+		int histories = history.size();
+		if (histories > 1 && state.p.get("Sad") <= 0) {
+			State pstate = history.get(histories - 1);
+			for (int i = histories - 1; i > 0; i--) {
+				State ppast = history.get(i-1);
+				State past = history.get(i);
+				//evaluate the outcome of this state
+				if (past.sameAs(state,feelings) && ppast.sameAs(pstate,feelings)) {
+					for (int j = i + 1; j < history.size(); j++) {
+						State o = history.get(j);
+						if (o.p.get("Sad") > 0)
+							break;
+						//if state is good, retain in history of good states
+						if (o.p.get("Happy") > 0) {
+							possibilities.add(past);
+//System.out.println("------------------------------------------"+g.toString(past));
+							break;
+						}
+					}
+				}
+			}
+			//check all good states and select the decision made in most of them
+			//return the decision
+			if (possibilities.size() == 1)
+				move = possibilities.get(0).p.get("Move");
+			else if (possibilities.size() > 1) {
+				Integer mostUsable = State.mostUsable(possibilities,"Move");
+				if (mostUsable != null)
+					move = mostUsable; 
+			}
+		}
+		state.add("Move", move);
+		history.add(state);
+		return move;
+	}
+	
+	boolean evaluateForward(int i){
+		for (; 0 < history.size(); i++) {
+			
+		}
+		return false;
+	}
+}
+
 
 /*
+DONE:
+1. Learning without compression
 TODO:
-1. Learning
-2. Add energy consumption
-3. Add restarts on failures
- */
+2. Refactor with "State move(State)"
+3. Both increase happiness and decrease pain
+4. Learning with compression
+5. Unit test
+6. Add energy consumption
+7. Add restarts on failures
+*/
 public class AgiTester {
 
 	void run(Game g, int times) {
@@ -212,16 +320,16 @@ public class AgiTester {
 		g.init();
 		for (int t = 0; t < times; t++) {
 			g.next();
-//TODO: decide
 			g.printState();
 		}
 	}
 	
 	public static void main(String[] args) {
 		AgiTester at = new AgiTester();
-		Player p = new SimplePredictivePlayer();
-		Game g = new BreakoutStripped(2,4,p); at.run(g,18);
-		//Game g = new BreakoutStripped(4,6,p); at.run(g,100);
-		//Game g = new BreakoutStripped(6,8,p); at.run(g,200);
+		Player p = new BruteforceUniquePlayer();
+		//Player p = new SimplePredictivePlayer();
+		Game g = new BreakoutStripped(2,4,p); at.run(g,50);//18);
+		//Game g = new BreakoutStripped(4,6,p); at.run(g,500);
+		//Game g = new BreakoutStripped(6,8,p); at.run(g,1000);
 	}
 }
