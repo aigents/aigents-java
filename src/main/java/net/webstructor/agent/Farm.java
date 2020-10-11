@@ -45,7 +45,7 @@ import net.webstructor.comm.RSSer;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.comm.CmdLiner;
 import net.webstructor.comm.Crawler;
-import net.webstructor.comm.Telegrammer;
+import net.webstructor.comm.telegram.Telegrammer;
 import net.webstructor.comm.discourse.Discourse;
 import net.webstructor.comm.eth.Ethereum;
 import net.webstructor.comm.fb.FB;

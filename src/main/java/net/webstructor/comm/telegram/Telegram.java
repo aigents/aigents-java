@@ -147,9 +147,48 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		}
 	}
 
-	//TODO: make this protected once Telegrammer is moced to net.webstructor.comm.telegram
-	//TODO: move to SocialCacher to handle all messengers
-	public void updateInteraction(Date date, String type, String from_id, String to_id, int value) {
+	protected void updateInteraction(Date date, String group_id, String message_id, String from_id, String reply_to_from_id, java.util.Set<String> mention_ids, String text) {
+		//mentions
+		//comments
+		int logvalue = 1 + (AL.empty(text) ? 0 : (int)Math.round(Math.log10(text.length())));
+		if (!AL.empty(reply_to_from_id))
+			updateInteraction(date,"comments",from_id,reply_to_from_id,logvalue);//update from->reply_to_from
+		if (mention_ids != null) for (String mention_id : mention_ids) {
+			if (!AL.empty(mention_id))
+				updateInteraction(date,"mentions",from_id,mention_id,logvalue);// update from->mentions
+		}
+		/*//TODO abstract graph DB layer: time + chat_id + message_id -> type -> value
+		String id = group_id + ":" + message_id; 
+		ArrayList<Object[]> links = new ArrayList<Object[]>();
+		//links.add(new Object[] {from_id,id,"authors"});//author authors messages
+		links.add(new Object[] {id,from_id,"authored"});//message authored by author
+		links.add(new Object[] {id,text,"text"});
+		links.add(new Object[] {group_id,id,"groups"});//group groups messages
+		//links.add(new Object[] {id,group_id,"grouped"});//messages grouped by group
+		//TODO sources
+		//TODO: comments - reply_to
+		//TODO: mentions
+		//TODO times
+		updateGraph(date,links,1);*/
+	}
+
+	/*private void updateGraph(Date date, ArrayList<Object[]> links, int value) {
+		Date day = Time.date(date);
+		synchronized (this) {
+			if (this.date != day) {
+				if (graph != null)
+					updateGraph(this.date, graph, System.currentTimeMillis());
+				graph = getGraph(day);
+				this.date = day;
+//TODO: auto-save pending graphs on exit!? 
+			}
+			for (Object[] link : links)
+				graph.addValue(link[0], link[1], link[2], value);
+		}
+	}*/
+	
+	//TODO: move to Mediator/SocialCacher to handle all messengers
+	private void updateInteraction(Date date, String type, String from_id, String to_id, int value) {
 		if (debug)
 			body.debug("Telegram crawling "+from_id+" "+type+" "+to_id);
 

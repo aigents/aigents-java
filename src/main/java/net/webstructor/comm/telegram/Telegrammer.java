@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.webstructor.comm;
+package net.webstructor.comm.telegram;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -39,6 +39,9 @@ import net.webstructor.agent.Body;
 import net.webstructor.agent.Schema;
 import net.webstructor.al.AL;
 import net.webstructor.al.Period;
+import net.webstructor.comm.HTTP;
+import net.webstructor.comm.Mediator;
+import net.webstructor.comm.Socializer;
 import net.webstructor.comm.telegram.Telegram;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
@@ -84,6 +87,19 @@ public class Telegrammer extends Mediator {
 	
 	protected static final String[] key_names = new String[] {Body.telegram_id,Body.telegram_name};
 	
+
+	java.util.Set<String> getIdsByUsernames(java.util.Set<String> usernames) {
+		if (usernames == null)
+			return null;
+		java.util.Set<String> ids = new HashSet<String>();
+		for (String username : usernames) {
+			String id = getIdByUsername(username);
+			if (!AL.empty(id))
+				ids.add(id);
+		}
+		return ids;
+	}
+
 	String getIdByUsername(String username) {
 		String id = null;
 		if (AL.empty(id)) {
@@ -215,6 +231,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				JsonObject reply_to = HTTP.getJsonObject(m, "reply_to_message");
 				long unix = m.getInt("date");
 				String text = HTTP.getJsonString(m, "text", null);
+				String message_id = JSON.getJsonLongString(m, "message_id", "");
 				String chat_title = chat.containsKey("title")? chat.getString("title") : null;
 				if (from == null || chat == null || unix == 0 || AL.empty(text))
 					continue;
@@ -268,13 +285,13 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				if (mention_usernames != null && !AL.empty(botname) && mention_usernames.contains(botname))//remove mention to bot self from text
 					text = text.replace("@"+botname, "");
 
-//TODO handle skip if from_username == null
 				if (!from_id.equals(chat_id)){
 					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false;
 					updateGroup(chat_id, chat_title, from_id, true, is_bot, text);
 					
 					//process group interactions
 					if (telegram != null) {
+						/*
 						int logvalue = 1 + (AL.empty(text) ? 0 : (int)Math.round(Math.log10(text.length())));
 						if (!AL.empty(reply_to_from_id))
 							telegram.updateInteraction(date,"comments",from_id,reply_to_from_id,logvalue);//update from->reply_to_from
@@ -284,9 +301,10 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 							if (!AL.empty(mention_id))
 								telegram.updateInteraction(date,"mentions",from_id,mention_id,logvalue);// update from->mentions
 						}
-					}
-					
+						*/
 //TODO: update from->text for profiling and reporting
+						telegram.updateInteraction(date,chat_id,message_id,from_id,reply_to_from_id,getIdsByUsernames(mention_usernames),text);
+					}
 					
 					if (botname.equals(reply_to_from_username) || (mention_usernames != null && mention_usernames.contains(botname)))
 						;//address group message to bot
@@ -319,6 +337,10 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				telegram.save();
 		}
 		return offset;
+	}
+	
+	protected void updateContent() {
+		
 	}
 	
 	protected static HashSet<String> getMentions(String text) {
