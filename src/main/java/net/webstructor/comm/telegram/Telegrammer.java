@@ -45,6 +45,7 @@ import net.webstructor.comm.Socializer;
 import net.webstructor.comm.telegram.Telegram;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Thing;
+import net.webstructor.data.Emotioner;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Session;
 import net.webstructor.util.JSON;
@@ -159,14 +160,21 @@ public class Telegrammer extends Mediator {
 	}
 	
 	private void output(String chat_id, String message) throws IOException {
+		output(chat_id, null, message);
+	}
+	private void output(String chat_id, String reply_to_msg_id, String message) throws IOException {
 		String token = self.getString(Body.telegram_token,null);
 		try {
 			if (!message.startsWith("<html>")) {
 				if (message.length() > 4096)
 					message = message.substring(0,4093) + "...";
 				//send text message
+				//https://core.telegram.org/bots/api
 				String url = base_url+token+"/sendMessage";
 				String par = "chat_id="+chat_id+"&text="+URLEncoder.encode(message,"UTF-8");
+				if (!AL.empty(reply_to_msg_id))
+//TODO: make silent an optional argument
+					par = "reply_to_message_id="+reply_to_msg_id+"&disable_notification=true&" + par;
 				HTTP.simple(url,par,"POST",timeout);
 			} else {
 				//https://habr.com/sandbox/103022/
@@ -308,8 +316,25 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					
 					if (botname.equals(reply_to_from_username) || (mention_usernames != null && mention_usernames.contains(botname)))
 						;//address group message to bot
-					else
+					else {
+						//group message
+						if (!is_bot) {
+							String emotions = "";
+							int sentiment = body.languages.sentiment(text)[2];
+//TODO: configuration
+							int sentiment_threshold = 90;
+							if (Math.abs(sentiment) >= sentiment_threshold) {
+								emotions = Emotioner.emotion(sentiment);
+							}
+							int rudeness = body.languages.rudeness(text,null);
+							if (rudeness > 0) {
+								emotions += Emotioner.flushed;
+							}
+							if (!AL.empty(emotions))
+								output(chat_id, message_id, emotions);
+						}
 						continue;//skip message
+					}
 				} 
 
 				body.debug("Telegram handling "+date+" from_id "+from_id+" chat_id "+chat_id+" from_username "+from_username+" reply_to_from_username "+reply_to_from_username+" mention_usernames "+mention_usernames+" text "+text);			

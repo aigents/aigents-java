@@ -170,6 +170,12 @@ function test_agent_expereinces() {
 	init();
 	say("Classify sentiment text 'good pleasant nasty guy'!");
 	get("Negative 25, negatives nasty, positives good, pleasant, postivie 50, sentiment 50, text good pleasant nasty guy.");
+	say("Classify rudeness text 'you are an idiot'!");
+	get("Rudeness 25, rudenesses idiot, text you are an idiot.");
+	say("Classify rudeness text 'you jerk and idiot'!");
+	get("Rudeness 50, rudenesses idiot, jerk, text you jerk and idiot.");
+	say("Classify rudeness text 'you are a  good guy'!");
+	get("Rudeness 0, text you are a  good guy.");
 	say("my format json");
 	get("Ok.");
 	say("classify sentiment text bad good nasty guy!");

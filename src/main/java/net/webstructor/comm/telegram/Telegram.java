@@ -144,6 +144,7 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		synchronized (this) {
 			if (graph != null)
 				updateGraph(this.date, graph, System.currentTimeMillis());
+			try {logger.close();} catch (IOException e) {body.error("Telegram crawling logger",e);}//TODO: move it to updateGraphs in SocialCacher
 		}
 	}
 

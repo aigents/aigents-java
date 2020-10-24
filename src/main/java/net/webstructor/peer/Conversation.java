@@ -464,7 +464,32 @@ public class Conversation extends Responser {
 			session.output(session.no());
 			return false;
 		} else
-			
+
+		if ((session.mood == AL.direction || session.mood == AL.declaration)
+			&& session.read(new Seq(new Object[]{"classify","rudeness","text",new Property(reader,"text",1000)}))) {
+			session.output(session.no());
+			String text = reader.getString("text");
+			if (!AL.empty(text)){
+				String format = session.getString(AL.format);
+				//text = AL.unquote(text);//TODO: unquoting is overkill here?
+				ArrayList rc = new ArrayList();
+				int rudeness = session.sessioner.body.languages.rudeness(text, rc);
+				//HACK: "reuse" reader
+				reader.setString("text", text);
+				reader.setString("rudeness", String.valueOf(rudeness));
+//TODO do format conversion inside format(...) below
+				if ("json".equals(format)) {
+					reader.set("rudenesses", rc.toArray());
+				} else {
+					if (rc.size() > 0)
+						reader.set("rudenesses", Array.toSet(rc.toArray()));
+				}
+				Collection rs = new ArrayList();
+				rs.add(reader);
+				session.output(Responser.format(null, session, curPeer, null, rs));
+			}
+			return false;	
+		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",1000)}))) {
 			session.output(session.no());

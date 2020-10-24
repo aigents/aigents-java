@@ -28,55 +28,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-
-/*
-https://elgoog.im/breakout/
-https://gym.openai.com/envs/Breakout-v0/
-http://blog.jzhanson.com/blog/rl/project/2018/05/28/breakout.html
-
-Yb(0-2)	Xb(0-4)	X(1-3)	Mr(L|R|S)	Happy(0-1)	Sad	Note
-0	1	1	0	0	0	started right
-1	0	1	1	0	0	
-2	1	2	1	0	0	
-1	2	3	0	0	0	
-0	3	3	0	1	0	
-1	4	3	-1	0	0	
-2	3	2	-1	0	0	
-1	2	1	0	0	0	
-0	1	1	0	1	0	cont
-0	1	1	0	0	0	kept right
-1	0	1	0	0	0	
-2	1	1	0	0	0	
-1	2	1	0	0	0	
-0	3	1	0	0	1	may stop
-1	4	1	1	0	0	
-2	3	2	1	0	0	
-1	2	3	1	0	0	
-0	1	3	0	0	1	may stop
- */
-abstract class Game {
-    static Random random = new Random();
-	abstract void init();
-	abstract void next();
-	abstract void printHeader();
-	abstract void printState();
-	abstract String toString(State s);
-	public static int random(int[] states) {
-	    Random random = new Random();
-	    return states[random.nextInt(states.length)];
-	}
-	public static int random(int min, int max) {
-		int arg = max - min + 1;
-	    int rand = random.nextInt(arg) + min;
-	    return rand;
-	}
-}
+import java.util.concurrent.ThreadLocalRandom;
 
 class State {
 	HashMap<String,Integer> p = new HashMap<String,Integer>();
 	State add(String key, Integer value) {
 		p.put(key, value);
 		return this;
+	}
+	void add(State other) {
+		for (String key : other.p.keySet()) {
+			Integer value = other.p.get(key); 
+			Integer thisValue = p.get(key);
+			p.put(key,thisValue != null ? thisValue + value : value);
+		}
+	}
+	void add(State other, String[] keys) {
+		for (String key : keys) {
+			Integer value = other.p.get(key);
+			if (value == null)
+				continue;
+			Integer thisValue = p.get(key);
+			p.put(key,thisValue != null ? thisValue + value : value);
+		}
 	}
 	boolean sameAs(State other,Set<String> feelings) {
 		for (String key : feelings) {
@@ -117,6 +91,51 @@ class State {
 	}
 }
 
+/*
+https://elgoog.im/breakout/
+https://gym.openai.com/envs/Breakout-v0/
+http://blog.jzhanson.com/blog/rl/project/2018/05/28/breakout.html
+
+Yb(0-2)	Xb(0-4)	X(1-3)	Mr(L|R|S)	Happy(0-1)	Sad	Note
+0	1	1	0	0	0	started right
+1	0	1	1	0	0	
+2	1	2	1	0	0	
+1	2	3	0	0	0	
+0	3	3	0	1	0	
+1	4	3	-1	0	0	
+2	3	2	-1	0	0	
+1	2	1	0	0	0	
+0	1	1	0	1	0	cont
+0	1	1	0	0	0	kept right
+1	0	1	0	0	0	
+2	1	1	0	0	0	
+1	2	1	0	0	0	
+0	3	1	0	0	1	may stop
+1	4	1	1	0	0	
+2	3	2	1	0	0	
+1	2	3	1	0	0	
+0	1	3	0	0	1	may stop
+ */
+abstract class Game {
+    //static Random random = new Random();
+	static Random random = ThreadLocalRandom.current();
+	abstract void init();
+	abstract State next();
+	abstract void printHeader();
+	abstract void printState();
+	abstract void printFooter();
+	abstract String toString(State s);
+	public static int random(int[] states) {
+	    Random random = new Random();
+	    return states[random.nextInt(states.length)];
+	}
+	public static int random(int min, int max) {
+		int arg = max - min + 1;
+	    int rand = random.nextInt(arg) + min;
+	    return rand;
+	}
+}
+
 abstract class Player {
 	ArrayList<State> states = new ArrayList<State>();
 	abstract int move(Game g,State s);
@@ -131,10 +150,15 @@ class BreakoutStripped extends Game {
 	
 	Player p;
 	
-	BreakoutStripped(int Ymax, int Xmax,Player p){
+	private boolean random;
+
+	private int totalHappy = 0, totalSad = 0;
+	
+	BreakoutStripped(int Ymax, int Xmax, Player p, boolean random){
 		this.Ymax = Ymax;
 		this.Xmax = Xmax;
 		this.p = p;
+		this.random = random;
 	}
 	
 	@Override
@@ -148,6 +172,12 @@ class BreakoutStripped extends Game {
 	}
 	
 	@Override
+	void printFooter() {
+		System.out.format("\t\t\t\t%s\t%s\n",totalHappy,totalSad);
+		
+	}
+	
+	@Override
 	String toString(State s) {
 		return String.format("%s\t%s\t%s\t%s\t%s\t%s\n",s.p.get("Yball"),s.p.get("Xball"),s.p.get("Xrocket"),s.p.get("Move"),s.p.get("Happy"),s.p.get("Sad"));
 	}
@@ -155,21 +185,22 @@ class BreakoutStripped extends Game {
 	@Override
 	void init() {
 		Yball = 0;//start from the floor
-		int[] states = new int[Xmax/2];
-		for (int i = 0; i < states.length; i++)
-			states[i] = 1 + i*2;
-//TODO: randomise
-		//Xdir = random(0,1) == 0 ? -1 : +1;
-		//Xball = random(states);//1,3,5,7,...
-		Xdir = -1;
-		Xball = 1;
+		Xdir = -1;//strike to left
+		Xball = 1;//leftmost position
+		if (random) {
+			int[] states = new int[Xmax/2];
+			for (int i = 0; i < states.length; i++)
+				states[i] = 1 + i*2;
+			Xdir = random(0,1) == 0 ? -1 : +1;
+			Xball = random(states);//1,3,5,7,...
+		}
 		Xrocket = Xball;
 		Ydir = 1;//strike to ceiling
-		move = 0;
+		move = 0;//not decided
 	}
 	
 	@Override
-	void next() {
+	State next() {
 		//change ball state
 		if (Yball == Ymax) {//change Yball
 			Ydir = -1;
@@ -199,9 +230,11 @@ class BreakoutStripped extends Game {
 			Xrocket++;
 		if (Yball == 0) {//check if rocket is matching ball
 			if (Xrocket == Xball) {
+				totalHappy++;
 				happy = 1;
 				sad = 0;
 			} else {
+				totalSad++;
 				happy = 0;
 				sad = 1;
 				//TODO init(); //start the game over
@@ -211,7 +244,8 @@ class BreakoutStripped extends Game {
 		}
 		State s = new State();
 		s.add("Yball", Yball).add("Xball", Xball).add("Sad", sad).add("Happy", happy).add("Xrocket", Xrocket);
-		move = p.move(this,s);	
+		move = p.move(this,s);
+		return s;
 	}
 }
 
@@ -293,43 +327,53 @@ class BruteforceUniquePlayer extends Player {//Makes decisions based on past exp
 		return move;
 	}
 	
-	boolean evaluateForward(int i){
-		for (; 0 < history.size(); i++) {
-			
-		}
-		return false;
-	}
 }
 
 
 /*
 DONE:
 1. Learning without compression
+2. Make random
 TODO:
-2. Refactor with "State move(State)"
-3. Both increase happiness and decrease pain
-4. Learning with compression
-5. Unit test
-6. Add energy consumption
-7. Add restarts on failures
+3. Add approximating
+4. Unit test!
+5. Add forgetting
+6. Both increase happiness and decrease pain
+7. Learning with compression
+8. Add energy consumption
+9. Add restarts on failures
+10. Do computation of derivative?
 */
 public class AgiTester {
 
-	void run(Game g, int times) {
-		g.printHeader();
+	void run(Game g, State score, boolean debug, int times) {
+		if (debug)
+			g.printHeader();
 		g.init();
 		for (int t = 0; t < times; t++) {
-			g.next();
-			g.printState();
+			State s = g.next();
+			score.add(s,new String[] {"Happy","Sad"});
+			if (debug)
+				g.printState();
 		}
+		if (debug)
+			g.printFooter();
 	}
 	
 	public static void main(String[] args) {
 		AgiTester at = new AgiTester();
-		Player p = new BruteforceUniquePlayer();
+		State score = new State();
+		boolean debug = false;
 		//Player p = new SimplePredictivePlayer();
-		Game g = new BreakoutStripped(2,4,p); at.run(g,50);//18);
-		//Game g = new BreakoutStripped(4,6,p); at.run(g,500);
-		//Game g = new BreakoutStripped(6,8,p); at.run(g,1000);
+		int loops = 100;
+		int h = 2, w = 4, epochs = 400;
+		//int h = 4, w = 6, epochs = 1400;
+		//int h = 6, w = 8, epochs = 5000;
+		for (int i = 0; i < loops; i++) {
+			Player p = new BruteforceUniquePlayer();
+			Game g = new BreakoutStripped(h,w,p,true);
+			at.run(g,score,debug,epochs);
+		}
+		System.out.println(score);
 	}
 }

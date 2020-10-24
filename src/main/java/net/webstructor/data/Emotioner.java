@@ -34,16 +34,12 @@ class Emoticon {
 public class Emotioner {
 	public static final String positive = "\ud83d\ude0a";//😊0001f60a
 	public static final String negative = "\ud83d\ude1e";//😞0001f61e
+	public static final String flushed = "\ud83d\ude33";//😳0001F633 
+	public static final String emotion(int s) {//sentiment
+		return s < -50 ? Emotioner.negative : s > 50 ? Emotioner.positive : "";
+	}
 	public static final String emotion(int[] s) {//sentiment
-		return s[2] < -50 ? Emotioner.negative : s[2] > 50 ? Emotioner.positive : "";
-		/*
-		String val = "";
-		if (s[0] > 50) 
-			val += "postivie";
-		if (s[1] > 50) 
-			val += s.length > 0 ? ", " + "positive" : "negative";
-		t.setString("sentiment", val);
-		*/
+		return emotion(s[2]);
 	}
 	public static void main(String args[]){
 		String x = positive;

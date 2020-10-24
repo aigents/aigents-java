@@ -44,6 +44,7 @@ public class LangPack {
 	private Counter words = null; 
 	private Counter positives = null; 
 	private Counter negatives = null; 
+	private Counter rudes = null; 
 	private HashSet<Character> chars = new HashSet<Character>();
 	
 	public LangPack(Environment env){
@@ -155,6 +156,7 @@ public class LangPack {
 			words = loadCounter(env, words, "lexicon", langs[l].name);
 			positives = loadCounter(env, positives, "lexicon_positive", langs[l].name);
 			negatives = loadCounter(env, negatives, "lexicon_negative", langs[l].name);
+			rudes = loadCounter(env, rudes, "lexicon_rude", langs[l].name);
 			setChars(langs[l].vowels);
 			setChars(langs[l].consonants);
 			setChars(langs[l].spec);
@@ -295,8 +297,50 @@ public class LangPack {
 		}
 		return new Seq(items);
 	}
+
+	//TODO: make configuable
 	boolean sentiment_logarithmic = false;
 	boolean sentiment_maximized = true;
+	int gram_arity = 3;
+
+	public int rudeness(String input, ArrayList rc) {
+		if (AL.empty(input) || AL.empty(rudes))
+			return 0;
+		Seq seq = Parser.parse(input);
+		double r = 0;
+		//double c = 0;
+		for (int N = gram_arity; N >=1; N--) {//iterate N of N-grams
+			Seq seqNgrams = buildNGrams(seq, N);
+			if (!AL.empty(seqNgrams)) for (int i = 0; i < seqNgrams.size();) {
+				String w = (String)seqNgrams.get(i);//some may be null seing consumed earlier
+				if (w == null || scrub(w)) {
+					i++;
+					continue;
+				}
+				//c += N;//weighted
+				boolean found = false; 
+				if (rudes.get(w) != null) {
+					r += N;//weighted
+					if (rc != null)
+						rc.add(w);
+					found = true;
+				}
+				if (found) {
+					for (int Ni = 0; Ni < N; Ni++)
+						seq.set(i + Ni, null);
+					i += N;
+				} else
+					i++;
+			}
+		}
+		if (sentiment_logarithmic) {
+			r = Math.log10(1 + 100 * r / seq.size())/2;
+		}else {
+			r = r / seq.size();
+		}
+		return (int)Math.round(r*100);
+	}
+	
 	public int[] sentiment(String input, ArrayList pc, ArrayList nc) {
 		if (AL.empty(input) || AL.empty(positives) || AL.empty(negatives))
 			return new int[] {0,0,0};
@@ -304,7 +348,7 @@ public class LangPack {
 		double p = 0;
 		double n = 0;
 		//double c = 0;
-		for (int N = 3; N >=1; N--) {//iterate N of N-grams
+		for (int N = gram_arity; N >=1; N--) {//iterate N of N-grams
 			Seq seqNgrams = buildNGrams(seq, N);
 			if (!AL.empty(seqNgrams)) for (int i = 0; i < seqNgrams.size();) {
 				String w = (String)seqNgrams.get(i);//some may be null seing consumed earlier
