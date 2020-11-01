@@ -201,6 +201,57 @@ public class Telegrammer extends Mediator {
 			body.error("Telegram error",e);
 		}
 	}
+
+	private void forward(String forward_chat_or_user_id, String from_chat_id, String msg_id) throws IOException {
+		String token = self.getString(Body.telegram_token,null);
+		try {
+			//https://core.telegram.org/bots/api#forwardmessage
+			String url = base_url+token+"/forwardMessage";
+			String par = "chat_id="+forward_chat_or_user_id+"&from_chat_id="+from_chat_id+"&message_id="+msg_id;
+			HTTP.simple(url,par,"POST",timeout);
+		} catch (Throwable e){
+			body.error("Telegram error",e);
+		}
+	}
+	
+	private void report(String chat_id, String msg_id) throws IOException {
+		String token = self.getString(Body.telegram_token,null);
+		try {
+			//https://core.telegram.org/bots/api#getchatadministrators
+			String url = base_url+token+"/getChatAdministrators";
+			String par = "chat_id="+chat_id;
+			String res = HTTP.simple(url,par,"POST",timeout);
+			if (!AL.empty(res)) {
+				JsonReader jr = Json.createReader(new StringReader(res));
+				JsonObject o = jr.readObject();
+				JsonArray array = o.getJsonArray("result");
+				if (array.size() > 0) {
+					for (int i = 0; i < array.size(); i++) {
+						JsonObject admin = array.getJsonObject(i);
+						JsonObject user = admin.getJsonObject("user");
+						String user_id = JSON.getJsonLongString(user, "id", null);
+						boolean is_bot = HTTP.getJsonBoolean(user, "is_bot", false);
+						if (!is_bot && !AL.empty(user_id))
+							forward(user_id,chat_id,msg_id);
+					}
+				}
+			}
+		} catch (Throwable e){
+			body.error("Telegram error",e);
+		}
+	}
+	
+	//https://core.telegram.org/bots/api#deletemessage
+	private void delete(String chat_id, String msg_id) throws IOException {
+		String token = self.getString(Body.telegram_token,null);
+		try {
+			String url = base_url+token+"/deleteMessage";
+			String par = "chat_id="+chat_id+"&message_id="+msg_id;
+			HTTP.simple(url,par,"POST",timeout);
+		} catch (Throwable e){
+			body.error("Telegram error",e);
+		}
+	}
 	
 	private long handle(String response) throws IOException{
 		String botname = body.getSelf().getString(Body.telegram_name);
@@ -299,17 +350,6 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					
 					//process group interactions
 					if (telegram != null) {
-						/*
-						int logvalue = 1 + (AL.empty(text) ? 0 : (int)Math.round(Math.log10(text.length())));
-						if (!AL.empty(reply_to_from_id))
-							telegram.updateInteraction(date,"comments",from_id,reply_to_from_id,logvalue);//update from->reply_to_from
-						
-						if (mention_usernames != null) for (String username : mention_usernames) {
-							String mention_id = getIdByUsername(username);
-							if (!AL.empty(mention_id))
-								telegram.updateInteraction(date,"mentions",from_id,mention_id,logvalue);// update from->mentions
-						}
-						*/
 //TODO: update from->text for profiling and reporting
 						telegram.updateInteraction(date,chat_id,message_id,from_id,reply_to_from_id,getIdsByUsernames(mention_usernames),text);
 					}
@@ -319,17 +359,20 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					else {
 						//group message
 						if (!is_bot) {
-							String emotions = "";
-							int sentiment = body.languages.sentiment(text)[2];
 //TODO: configuration
 							int sentiment_threshold = 90;
-							if (Math.abs(sentiment) >= sentiment_threshold) {
+							int rudeness_threshold = 30;
+							String emotions = "";
+							int sentiment = body.languages.sentiment(text)[2];
+							if (Math.abs(sentiment) >= sentiment_threshold)
 								emotions = Emotioner.emotion(sentiment);
-							}
 							int rudeness = body.languages.rudeness(text,null);
 							if (rudeness > 0) {
 								emotions += Emotioner.flushed;
+								report(chat_id, message_id);
 							}
+							if (rudeness >= rudeness_threshold)
+								delete(chat_id, message_id);
 							if (!AL.empty(emotions))
 								output(chat_id, message_id, emotions);
 						}
