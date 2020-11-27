@@ -149,12 +149,13 @@ var Schema = {
 	_true : "true",
 	text : "text",
 	email_password : "email password",
+	name : "name",
 	boolean : function(name) {
 		return name == this.trust || name == this.share;
 	},
 	quotable : function(name) {
 		var lower = name.toLowerCase();
-		return lower == this.email_password || lower == this.text;
+		return lower == this.email_password || lower == this.text || lower == this.name;
 	}	
 };
 

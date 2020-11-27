@@ -148,17 +148,39 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		}
 	}
 
-	protected void updateInteraction(Date date, String group_id, String message_id, String from_id, String reply_to_from_id, java.util.Set<String> mention_ids, String text) {
-		//mentions
+	protected void updateInteraction(Date date, String group_id, String group_name, String message_id, String reply_to_message_id, String from_id, String reply_to_from_id, java.util.Set<String> mention_ids, String text_body) {
+		if (debug)
+//TODO: debug
+			body.debug("Telegram crawling from "+from_id+" to "+reply_to_from_id+" mentions "+mention_ids);
+
+		String to_id = !AL.empty(reply_to_from_id) ? reply_to_from_id : group_id;
+		int intvalue = text_body != null ? text_body.length() : 1;//empty comment still counts
+		String weight = text_body != null ? String.valueOf(intvalue) : null;
+		//https://t.me/agirussia/8855 (public - agirussia, 8855)
+		//https://t.me/c/1410910487/75 (private -1001410910487, 75)
+		if (AL.empty(group_name))
+			group_name = group_id;
+		group_name += "/";
+		String permlink = group_name + String.valueOf(message_id);
+		String parent_permlink = AL.empty(reply_to_message_id) ? null : group_name + String.valueOf(reply_to_message_id);
+		
 		//comments
-		int logvalue = 1 + (AL.empty(text) ? 0 : (int)Math.round(Math.log10(text.length())));
-		if (!AL.empty(reply_to_from_id))
+		//mentions
+		int logvalue = 1 + (AL.empty(text_body) ? 0 : (int)Math.round(Math.log10(text_body.length())));
+		if (logger != null)
+			SocialCacher.write(logger, name, date, date.getTime(), "comment", from_id, to_id, weight, null, permlink, parent_permlink, null, text_body, null, null);
+		if (!AL.empty(reply_to_from_id)) {
 			updateInteraction(date,"comments",from_id,reply_to_from_id,logvalue);//update from->reply_to_from
+		}
 		if (mention_ids != null) for (String mention_id : mention_ids) {
+			if (logger != null)
+				SocialCacher.write(logger, name, date, date.getTime(), "mention", from_id, to_id, weight, null, null, null, null, null, null, null);
 			if (!AL.empty(mention_id))
 				updateInteraction(date,"mentions",from_id,mention_id,logvalue);// update from->mentions
 		}
-		/*//TODO abstract graph DB layer: time + chat_id + message_id -> type -> value
+		
+//TODO abstract graph DB layer: time + chat_id + message_id -> type -> value
+		/*
 		String id = group_id + ":" + message_id; 
 		ArrayList<Object[]> links = new ArrayList<Object[]>();
 		//links.add(new Object[] {from_id,id,"authors"});//author authors messages
@@ -170,7 +192,8 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		//TODO: comments - reply_to
 		//TODO: mentions
 		//TODO times
-		updateGraph(date,links,1);*/
+		updateGraph(date,links,1);
+		*/
 	}
 
 	/*private void updateGraph(Date date, ArrayList<Object[]> links, int value) {
@@ -190,11 +213,6 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 	
 	//TODO: move to Mediator/SocialCacher to handle all messengers
 	private void updateInteraction(Date date, String type, String from_id, String to_id, int value) {
-		if (debug)
-			body.debug("Telegram crawling "+from_id+" "+type+" "+to_id);
-
-		if (logger != null)
-			SocialCacher.write(logger, name, date, date.getTime(), type, from_id, to_id, String.valueOf(value), null, null, null, null, null, null, null);
 //TODO: alert on comments and mentions in Telegram?
 		//alert(date,0,"comments",from_id,to_id,"1",getUrl());
 		

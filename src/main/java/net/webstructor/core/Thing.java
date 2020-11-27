@@ -395,11 +395,6 @@ public class Thing extends Anything implements Named { // implements ORObject
 		return obj != null ? obj : storager != null ? storager.get(name) : null;
 	}
 	
-	public final boolean getBoolean(String name) {
-		String str = getString(name);
-		return AL._true.equals(str);
-	}
-	
 	public final Date getDate(String name,Date def) {
 		Object o = get(name);
 		if (o instanceof Date)

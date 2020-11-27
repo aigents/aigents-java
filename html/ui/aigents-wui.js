@@ -591,7 +591,7 @@ function trusts_menu(event) {
     		else
     			//use data instead of element text because it may be escaped incorrectly
     			//q = 'name '+AL.toString(element.text(),name)+' trust ' + (!checked ? 'true' : 'false') + '.';
-				q = 'name '+AL.toString(menu_data[index][0],name)+' trust ' + (!checked ? 'true' : 'false') + '.';
+				q = 'name '+AL.toString(menu_data[index][0],'name')+' trust ' + (!checked ? 'true' : 'false') + '.';
 			cmd += q;
     	}});
 		requestBase(null,cmd);
@@ -791,7 +791,7 @@ function trusts_init(list,data,filter) {
 			data[id][1] = this.checked;
  			//use data instead of element text because it may be escaped incorrectly
 			//var q = 'name '+AL.toString($(this).parent().text(),name)+' trust ' + (this.checked ? 'true' : 'false') + '.';
-			var q = 'name '+AL.toString(data[id][0],name)+' trust ' + (this.checked ? 'true' : 'false') + '.';
+			var q = 'name '+AL.toString(data[id][0],'name')+' trust ' + (this.checked ? 'true' : 'false') + '.';
 			requestBase(null,q);
 			trusts_sort(list);
 //TODO:ensure it is not needed!

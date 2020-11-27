@@ -34,6 +34,7 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Iter;
 import net.webstructor.al.Parser;
+import net.webstructor.al.Period;
 import net.webstructor.comm.Crawler;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
@@ -48,12 +49,12 @@ public class WebCrawler implements Crawler {
 		matcher = body.getMatcher();
 	}
 
-//TODO eliminate all extra arguments 
 	@Override
 	public int crawl(Siter siter) {
 		if (AL.empty(siter.rootPath) || AL.isIMG(siter.rootPath))//don't check AL.isURL because it can expectedly handle plain texts 
 			return -1;
 		int hits = 0;
+		long start = System.currentTimeMillis(); 
 		for (Object topic : siter.targetTopics){
 			Thing t = (Thing)topic;
 			if (siter.expired())
@@ -61,14 +62,16 @@ public class WebCrawler implements Crawler {
 			Collection goals = new ArrayList(1);
 			goals.add(t);
 			String name = t.name();
-			siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" in "+siter.rootPath+".");
+			siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" begin, remains "+Period.toHours(siter.tillTime - start)+" hour.");;
 			try {
 				boolean found = new PathTracker(siter,goals,siter.range).run(siter.rootPath);
-				siter.body.debug("Site crawling start root "+siter.rootPath+" "+name+" "+(found ? "found" : "missed")+".");
+				long now = System.currentTimeMillis();
+				siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" "+(found ? "found" : "missed")+", took "+Period.toHours(now - start)+".");
+				start = now;
 				if (found)
 					hits++;
 			} catch (Throwable e) {
-				siter.body.error("Site crawling stop root "+siter.rootPath+" "+name+" falied",e);
+				siter.body.error("Site crawling root "+siter.rootPath+" "+name+" falied.",e);
 			}
 		}
 		return hits;

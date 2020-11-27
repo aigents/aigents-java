@@ -23,6 +23,8 @@
  */
 package net.webstructor.core;
 
+import net.webstructor.al.AL;
+
 //TODO: consider interface and Entity at some point!?
 public abstract class Anything { // implements ORObject
 
@@ -74,4 +76,14 @@ public abstract class Anything { // implements ORObject
 		return this;
 	}
 
+	public final boolean getBoolean(String name) {
+		String str = getString(name);
+		return AL._true.equals(str);
+	}
+	
+	public final boolean getBoolean(String name, boolean def) {
+		String str = getString(name);
+		return AL.empty(str) ? def : AL._true.equals(str);
+	}
+	
 }

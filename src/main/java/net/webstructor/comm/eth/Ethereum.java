@@ -80,7 +80,7 @@ public class Ethereum extends SocialCacher {
 		}
 	}
 
-	//TODO: move to separate Updater class, don't rely on Body here!?
+	//TODO: move to separate Updater class (currently SocialCacher.write), don't rely on Body here!?
 	void log(Date time, long block, String type, String from, String to, String value, String input){
 		if (body == null)
 			return;

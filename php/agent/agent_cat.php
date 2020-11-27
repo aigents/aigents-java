@@ -182,6 +182,36 @@ function test_agent_expereinces() {
 	get("[{\"negative\":\"50\",\"negatives\":[\"bad\",\"nasty\"],\"positives\":[\"good\"],\"postivie\":\"25\",\"sentiment\":\"-50\",\"text\":\"bad good nasty guy\"}]");
 	say("My format text");
 	get("Ok.");
+	
+	say("Classify sentiment text 'good pleasant happy nasty guy'!");
+	get("Negative 20, negatives nasty, positives good, happy, pleasant, postivie 60, sentiment 67, text good pleasant happy nasty guy.");
+	say("your sentiment maximized false");
+	get("Ok.");
+	say("Classify sentiment text 'good pleasant happy nasty guy'!");
+	get("Negative 20, negatives nasty, positives good, happy, pleasant, postivie 60, sentiment 40, text good pleasant happy nasty guy.");
+	say("your sentiment logarithmic true");
+	get("Ok.");
+	say("Classify sentiment text 'good pleasant happy nasty guy'!");
+	get("Negative 66, negatives nasty, positives good, happy, pleasant, postivie 89, sentiment 23, text good pleasant happy nasty guy.");
+	say("your sentiment maximized true");
+	get("Ok.");
+	say("Classify sentiment text 'good pleasant happy nasty guy'!");
+	get("Negative 66, negatives nasty, positives good, happy, pleasant, postivie 89, sentiment 26, text good pleasant happy nasty guy.");
+	say("your sentiment logarithmic false");
+	get("Ok.");
+	say("your sentiment maximized, sentiment logarithmic?");
+	get("My sentiment logarithmic false, sentiment maximized true.");
+	say("Classify sentiment text 'happy lucky winter day'!");
+	get("Negative 0, positives happy, lucky, postivie 50, sentiment 100, text happy lucky winter day.");
+	say("Classify sentiment text 'just happy winter day'!");
+	get();
+	say("Your sentiment logarithmic true, sentiment maximized false.");
+	say("Classify sentiment text 'happy lucky winter day'!");
+	get("Negative 0, positives happy, lucky, postivie 85, sentiment 85, text happy lucky winter day.");
+	say("Classify sentiment text 'just happy winter day'!");
+	get();
+	say("Your sentiment logarithmic false, sentiment maximized true.");
+	
 	cleanup();
 	
 //TODO trainable sentiment mining (with either "there text 'good stuff', is good." or "there text 'good stuff', good true." !?)

@@ -65,7 +65,7 @@ import net.webstructor.util.Array;
 public abstract class Body extends Anything implements Environment, Updater
 {
 	public final static String APPNAME = "Aigents";
-	public final static String VERSION = "3.1.2";
+	public final static String VERSION = "3.1.4";
 	public final static String COPYRIGHT = "Copyright © 2020 Anton Kolonin, Aigents®.";
 	public final static String ORIGINSITE = "https://aigents.com";
 	public final static String DEFAULT_API_URL = "/al";
@@ -162,6 +162,10 @@ public abstract class Body extends Anything implements Environment, Updater
 	public static final String reputation_decayed = "reputation decayed";
 	public static final String reputation_conservatism = "reputation conservatism";
 	public static final String clustering_timeout = "clustering timeout";
+	public static final String rudeness_threshold = "rudeness threshold";
+	public static final String sentiment_threshold = "sentiment threshold";
+	public static final String sentiment_logarithmic = "sentiment logarithmic";
+	public static final String sentiment_maximized = "sentiment maximized";
     
 	public static final String[] strings = new String[] {
 		AL.name,
@@ -187,6 +191,7 @@ public abstract class Body extends Anything implements Environment, Updater
 		telegram_token, telegram_offset, telegram_name,
 		steemit_url, golos_url, ethereum_url, ethereum_key, ethereum_period,
 		reputation_system, reputation_conservatism, reputation_decayed, reputation_default, clustering_timeout,
+		rudeness_threshold, sentiment_threshold, sentiment_logarithmic, sentiment_maximized,
 		AL.version
 	};
 

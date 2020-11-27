@@ -26,10 +26,12 @@ package net.webstructor.data;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
+import net.webstructor.core.Anything;
 import net.webstructor.core.Environment;
 import net.webstructor.main.Mainer;
 import net.webstructor.util.Array;
@@ -40,15 +42,20 @@ import net.webstructor.util.Array;
  * 
  */
 public class LangPack {
-	Lang[] langs;
+	private Environment env;
+	private Lang[] langs;
 	private Counter words = null; 
 	private Counter positives = null; 
 	private Counter negatives = null; 
 	private Counter rudes = null; 
 	private HashSet<Character> chars = new HashSet<Character>();
 	
+	private boolean sentiment_logarithmic = false;
+	private boolean sentiment_maximized = true;
+	private int gram_arity = 3;//TODO: make configuable
+
 	public LangPack(Environment env){
-		
+		this.env = env;
 		langs = new Lang[]{
 			new Lang("ru","russian","аеёиоуыэюя","бвгджзйклмнпрстфхцчшщ","ьъ-",new String[]{
 					"почему","можно","надо","теперь", "пока", "также", "которые", "который",
@@ -80,6 +87,15 @@ public class LangPack {
 					"when", "out", "also", "only", "about", "us", "via", "than", "then", "up", "who", "which"
 					})};
 		loadLexicon(env);
+		updateParameters();
+	}
+
+	void updateParameters() {
+		Anything self = env.getSelf();
+		if (self != null) {
+			sentiment_logarithmic = self.getBoolean(Body.sentiment_logarithmic,sentiment_logarithmic);
+			sentiment_maximized = self.getBoolean(Body.sentiment_maximized,sentiment_maximized);
+		}
 	}
 	//TODO: unify '-' and '&' as either scrub, special and splitters!!!
 	
@@ -298,14 +314,10 @@ public class LangPack {
 		return new Seq(items);
 	}
 
-	//TODO: make configuable
-	boolean sentiment_logarithmic = false;
-	boolean sentiment_maximized = true;
-	int gram_arity = 3;
-
 	public int rudeness(String input, ArrayList rc) {
 		if (AL.empty(input) || AL.empty(rudes))
 			return 0;
+		updateParameters();
 		Seq seq = Parser.parse(input);
 		double r = 0;
 		//double c = 0;
@@ -344,6 +356,7 @@ public class LangPack {
 	public int[] sentiment(String input, ArrayList pc, ArrayList nc) {
 		if (AL.empty(input) || AL.empty(positives) || AL.empty(negatives))
 			return new int[] {0,0,0};
+		updateParameters();
 		Seq seq = Parser.parse(input);
 		double p = 0;
 		double n = 0;

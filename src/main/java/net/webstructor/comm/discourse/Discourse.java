@@ -492,6 +492,7 @@ public class Discourse extends SocialCacher implements Crawler {
 					}
 					if (new_age < age)
 						new_age = age;
+//TODO: get text
 					Integer length = new Integer(AL.empty(a.text) ? 1 : a.text.length());
 					switch (a.action_type) {
 //TODO: sentiment analysis  
@@ -573,6 +574,7 @@ public class Discourse extends SocialCacher implements Crawler {
 						String to = (String)l[2];
 						long stamp = ((Date)l[4]).getTime();
 						if (l[1].equals("vote")) {
+//TODO: store text
 							write(logger, name, date, stamp, type, from, to, "1", null, null, null, null, null, null, null);
 							alert(date,0,"votes",from,to,"1",getUrl());
 							graph.addValue(from,to, "votes", 1);//out

@@ -208,7 +208,8 @@ public class Telegrammer extends Mediator {
 			//https://core.telegram.org/bots/api#forwardmessage
 			String url = base_url+token+"/forwardMessage";
 			String par = "chat_id="+forward_chat_or_user_id+"&from_chat_id="+from_chat_id+"&message_id="+msg_id;
-			HTTP.simple(url,par,"POST",timeout);
+			String response = HTTP.simple(url,par,"POST",timeout);
+			body.debug("Telegram report response "+response);
 		} catch (Throwable e){
 			body.error("Telegram error",e);
 		}
@@ -258,6 +259,9 @@ public class Telegrammer extends Mediator {
 		Socializer socializer = body.getSocializer(name);
 		Telegram telegram =  socializer != null && socializer instanceof Telegram? (Telegram)socializer : null;
 		
+		int rudeness_threshold = ((Thing)body.getSelf()).getInt(Body.rudeness_threshold, 30);// 30;
+		int sentiment_threshold = ((Thing)body.getSelf()).getInt(Body.sentiment_threshold, 90);// 90;
+		
 		long offset = -1;
 		JsonReader jr = Json.createReader(new StringReader(response));
 		JsonObject result = jr.readObject();
@@ -292,6 +296,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				String text = HTTP.getJsonString(m, "text", null);
 				String message_id = JSON.getJsonLongString(m, "message_id", "");
 				String chat_title = chat.containsKey("title")? chat.getString("title") : null;
+				String chat_username = chat.containsKey("username")? chat.getString("username") : null;
 				if (from == null || chat == null || unix == 0 || AL.empty(text))
 					continue;
 				
@@ -323,7 +328,9 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				
 				String reply_to_from_id = null;
 				String reply_to_from_username = null;
+				String reply_to_message_id = null;
 				if (reply_to != null) {
+					reply_to_message_id = JSON.getJsonLongString(reply_to, "message_id", null);
 					JsonObject reply_to_from = HTTP.getJsonObject(reply_to, "from");
 					if (reply_to_from != null) {
 						reply_to_from_id = JSON.getJsonLongString(reply_to_from, "id", null);
@@ -351,7 +358,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					//process group interactions
 					if (telegram != null) {
 //TODO: update from->text for profiling and reporting
-						telegram.updateInteraction(date,chat_id,message_id,from_id,reply_to_from_id,getIdsByUsernames(mention_usernames),text);
+						telegram.updateInteraction(date,chat_id,chat_username,message_id,reply_to_message_id,from_id,reply_to_from_id,getIdsByUsernames(mention_usernames),text);
 					}
 					
 					if (botname.equals(reply_to_from_username) || (mention_usernames != null && mention_usernames.contains(botname)))
@@ -359,9 +366,6 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					else {
 						//group message
 						if (!is_bot) {
-//TODO: configuration
-							int sentiment_threshold = 90;
-							int rudeness_threshold = 30;
 							String emotions = "";
 							int sentiment = body.languages.sentiment(text)[2];
 							if (Math.abs(sentiment) >= sentiment_threshold)
@@ -373,8 +377,9 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 							}
 							if (rudeness >= rudeness_threshold)
 								delete(chat_id, message_id);
+							String s = "\u200A";//Hair Space https://emptycharacter.com/
 							if (!AL.empty(emotions))
-								output(chat_id, message_id, emotions);
+								output(chat_id, message_id, s+emotions);
 						}
 						continue;//skip message
 					}
