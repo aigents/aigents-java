@@ -176,7 +176,7 @@ public class Siter {
 	protected boolean expired(){
 		boolean expired = tillTime > 0 && System.currentTimeMillis() > tillTime;
 		if (expired)
-			body.debug("Site crawling time out:"+rootPath);
+			body.debug("Site crawling time out path finding:"+rootPath);
 		return expired;
 	}
 	

@@ -48,14 +48,16 @@ public class Translator {
 		r.put("rank","ранг");
 		r.put("contragent","контрагент");
 		r.put("contragents","контрагенты");
-		r.put("calls","обращения");
+		r.put("calls","вызовы");
 		r.put("paid","мои платежи");
 		r.put("pays","платежи");
 		r.put("payments","платежи");//TODO:ambiguity?
 		r.put("number","число");
 		r.put("friend","друг");	
-		r.put("connections","связи");	
+		r.put("mentions","упоминания");	
+		r.put("replies","ответы");	
 		r.put("crosses","пересечений");
+		r.put("my","мои");
 		r.put("my likes","мои одобрения");
 		r.put("friend likes","одобряют друзья");
 		r.put("comments","комментарии");
@@ -95,6 +97,7 @@ public class Translator {
 		r.put("attention spent","потрачено внимания");
 		r.put("my karma by periods","моя карма за периоды");
 		r.put("my words by periods","мои слова за периоды");
+		r.put("words of my friends","слова моих друзей");
 		r.put("my friends by periods","мои друзья за периоды");
 		r.put("my posts liked and commented","мои публикации - одобряемые и комментируемые");
 		r.put("my posts for the period","мои публикации за период");

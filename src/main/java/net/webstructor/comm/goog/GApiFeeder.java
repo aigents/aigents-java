@@ -78,7 +78,7 @@ class GApiFeeder extends SocialFeeder {
 			Counter period = getWordsPeriod(getPeriodKey(times));
 			countPeriod(times,likers.size(),countCommentsFromOthers(comments));
 		
-			String[] sources = extractUrls(text,null,like,likes,commentsCount,period);
+			String[] sources = countPost(text,null,like,likes,commentsCount,period);
 			if (sources != null)
 				for (int i = 0; i < sources.length; i++)
 					allLinks.add(sources[i]);

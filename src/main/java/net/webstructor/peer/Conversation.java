@@ -803,7 +803,7 @@ public class Conversation extends Responser {
 			//apply group filter to non-admin sessions if not open data and group filtering is supported
 			//java.util.Set<String> members = !session.trusted() && socializer != null && !socializer.opendata() && socializer instanceof Grouper 
 			java.util.Set<String> members = !session.trusted() && socializer != null && socializer instanceof Grouper 
-					? ((Grouper)socializer).getGroup(id) : null;
+					? ((Grouper)socializer).getGroupPeerIds(id) : null;
 			
 			String graph = graphQuery(session,network,new String[]{labeler != null ? (String)labeler.recovercode(id) : id},
 					date,

@@ -106,7 +106,7 @@ if (vkdebug) body.debug("Spidering peer vkontakte out:"+out);
 					user_likes = extractLikes(token, "comment", comment.getInt("cid"), likers);
 					processLikes(likers,date_day);//count who liked my comment
 				}
-				extractUrls(text, null, new Boolean(user_likes > 0),new Integer(likes_count - user_likes), new Integer(0), period);
+				countPost(text, null, new Boolean(user_likes > 0),new Integer(likes_count - user_likes), new Integer(0), period);
 			}else{//texts by others
 				//TODO: process "unfamiliar" users (obtained with "extended=1" which is now not working with VK) 
 				Object[] user = getUser(from_id,null);
@@ -117,10 +117,10 @@ if (vkdebug)
 body.debug("Spidering peer vkontakte "+user_id+" other user text:"+from_id+" "+name);
 				if (user_likes == 0)//maybe just VK bug
 					user_likes = extractLikes(token, "comment", comment.getInt("cid"), null);				
-				countComments(from_id,name,text,date_day);
+				countComment(from_id,name,text,date_day);
 				if (user_likes > 0){//if likedb by me, count links on author and acquire liked words
 					countMyLikes(from_id,name);
-					extractUrls(text, null, new Boolean(user_likes > 0),new Integer(likes_count - user_likes), new Integer(0), period);
+					countPost(text, null, new Boolean(user_likes > 0),new Integer(likes_count - user_likes), new Integer(0), period);
 				}
 			}
 			collected.add(new Object[]{from_id,name,text,new Boolean(user_likes == 1),new Integer(likes_count - user_likes)});

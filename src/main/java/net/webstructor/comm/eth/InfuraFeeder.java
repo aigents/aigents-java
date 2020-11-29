@@ -289,14 +289,14 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 						String key = (String)it.next();
 						int amount = payin.value(key).intValue();
 						countLikes(key,key,date,amount);
-						countPeriod(date,amount,0);
+						countPeriod(date,amount != 0 ? amount : 1,0);
 					}
 				if (callin != null)
 					for (Iterator it = callin.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int amount = callin.value(key).intValue();
-						countComments(key,key,null,date,amount);
-						countPeriod(date,0,amount);
+						countComment(key,key,null,date,amount);
+						countPeriod(date,0,amount != 0 ? amount : 1);
 					}
 				if (payout != null)
 					for (Iterator it = payout.keys().iterator(); it.hasNext();){

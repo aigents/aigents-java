@@ -26,5 +26,6 @@ package net.webstructor.peer;
 import java.util.Set;
 
 public interface Grouper { 
-	public Set<String> getGroup(String user_id);
+	public Set<String> getGroupPeerIds(String user_id);
+	public Set<String> getGroupIds(String user_id);
 }

@@ -54,7 +54,8 @@ public class WebCrawler implements Crawler {
 		if (AL.empty(siter.rootPath) || AL.isIMG(siter.rootPath))//don't check AL.isURL because it can expectedly handle plain texts 
 			return -1;
 		int hits = 0;
-		long start = System.currentTimeMillis(); 
+		long start = System.currentTimeMillis();
+		int items = siter.targetTopics.size();
 		for (Object topic : siter.targetTopics){
 			Thing t = (Thing)topic;
 			if (siter.expired())
@@ -62,14 +63,16 @@ public class WebCrawler implements Crawler {
 			Collection goals = new ArrayList(1);
 			goals.add(t);
 			String name = t.name();
-			siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" begin, remains "+Period.toHours(siter.tillTime - start)+" hour.");;
+			siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" begin, remains "+Period.toHours(siter.tillTime - start)+".");;
 			try {
-				boolean found = new PathTracker(siter,goals,siter.range).run(siter.rootPath);
+				long tillTime = start + (siter.tillTime - start)/items;//local individual tillTime for given topic item
+				boolean found = new PathTracker(siter,goals,siter.range,tillTime).run(siter.rootPath);
 				long now = System.currentTimeMillis();
 				siter.body.debug("Site crawling root "+siter.rootPath+" "+name+" "+(found ? "found" : "missed")+", took "+Period.toHours(now - start)+".");
 				start = now;
 				if (found)
 					hits++;
+				items--;
 			} catch (Throwable e) {
 				siter.body.error("Site crawling root "+siter.rootPath+" "+name+" falied.",e);
 			}

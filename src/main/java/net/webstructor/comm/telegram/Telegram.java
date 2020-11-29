@@ -35,6 +35,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.comm.SocialCacher;
+import net.webstructor.comm.InteractionItem;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
 import net.webstructor.data.SocialFeeder;
@@ -43,9 +44,11 @@ import net.webstructor.data.DataLogger;
 import net.webstructor.data.Graph;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.Linker;
+import net.webstructor.data.OrderedStringSet;
 import net.webstructor.peer.Grouper;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
+import net.webstructor.util.Reporter;
 
 class TelegramFeeder extends SocialFeeder {
 	Telegram api;
@@ -53,8 +56,10 @@ class TelegramFeeder extends SocialFeeder {
 		super(body,user_id,langPack,false,since,until);
 		this.api = api;
 	}
-	public void getFeed(Date since, Date until, StringBuilder detail) throws IOException {
+	public void getFeed(Date since, Date until, final StringBuilder detail) throws IOException {
 		body.debug("Telegram crawling graph for "+user_id);
+
+		final Set<String> groups = api.getGroupIds(user_id);//get groups of the user
 		
 		for (Date date = until; date.compareTo(since) >= 0; date = Time.date(date,-1)){
 			body.debug("Telegram crawling graph "+user_id+" at "+date+", memory "+body.checkMemory());
@@ -62,7 +67,45 @@ class TelegramFeeder extends SocialFeeder {
 			if (graph == null)
 				continue;//skip unknown dates
 			
-			//TODO: calculate similarity based on comments/mentions correspondents AND texts 
+			//get user groups
+			if (SocialCacher.load(api.logger, api.name(), date, new DataLogger.StringConsumer() {
+				@Override
+				public boolean read(String text) {
+					InteractionItem ii = new InteractionItem(text);
+					if ("comment".equals(ii.type) && !AL.empty(ii.child)) {
+						String[] ids = ii.child.split("/");
+						if (groups.contains(ids[0])) {
+							Date time = new Date(ii.timestamp);
+							OrderedStringSet urls = new OrderedStringSet();
+							String url = !AL.empty(ii.title) ? "https://t.me/" + ii.title + "/" + ids[1] : null;
+							if (!AL.empty(url))
+								urls.add(url);
+							if (user_id.equals(ii.from)) {
+								processItem(time,ii.from,ii.input,urls,null,0,false);
+								String img = urls.getImage();
+								String imghtml = img != null ? Reporter.img(url != null ? url : img, img) : null;
+								reportDetail(detail,
+										ii.from,//getUserName(from),
+										url,//uri
+										ii.child,//id
+										ii.input,
+										time,
+										null,//comments,
+										urls,
+										null,//getLikers(permlink),//likers,
+										0,// snews_likes[1],//likes_count-user_likes,
+										0,//news_likes[0],//user_likes,
+										0,//othersComments,
+										imghtml);//image HTML
+							} else {
+								countComment(ii.from,api.userName(ii.from),ii.input,time);
+							}
+						}
+					}
+					return true;
+				}}))
+				;//success!
+			
 			
 //TODO: optimize use of api.userName(key)!?
 			synchronized (graph) {
@@ -74,28 +117,29 @@ class TelegramFeeder extends SocialFeeder {
 					for (Iterator it = mentioned.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int amount = mentioned.value(key).intValue();
-						countLikes(key,api.userName(key),date,amount);
+						countLikes(key,api.userName(key),date,amount);//mention me => like me 
 						countPeriod(date,amount,0);
 					}
 				if (commented != null)
 					for (Iterator it = commented.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int amount = commented.value(key).intValue();
-						countComments(key,api.userName(key),null,date,amount);
+//TODO: use only one way to count comments
+						countComment(key,api.userName(key),null,date,amount);//reply to me => comment on me
 						countPeriod(date,0,amount);
 					}
-//TODO: split my mentions and my comments
+//TODO: split my mentions and my comments - later in report form!
 				if (mentions != null)
 					for (Iterator it = mentions.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int v = mentions.value(key).intValue();//TODO: this properly, expected payments can not be zero
-						countMyLikes(key,api.userName(key),v > 0 ? v : 1);
+						countMyLikes(key,api.userName(key),v > 0 ? v : 1);//my mention => my like
 					}
 				if (comments != null)
 					for (Iterator it = comments.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int v = comments.value(key).intValue();//TODO: this properly, expected values of smart contract calls are always zero
-						countMyLikes(key,api.userName(key),v > 0 ? v : 1);
+						countMyLikes(key,api.userName(key),v > 0 ? v : 1);//my reply => my like
 					}
 			}
 		}
@@ -158,17 +202,15 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		String weight = text_body != null ? String.valueOf(intvalue) : null;
 		//https://t.me/agirussia/8855 (public - agirussia, 8855)
 		//https://t.me/c/1410910487/75 (private -1001410910487, 75)
-		if (AL.empty(group_name))
-			group_name = group_id;
-		group_name += "/";
-		String permlink = group_name + String.valueOf(message_id);
-		String parent_permlink = AL.empty(reply_to_message_id) ? null : group_name + String.valueOf(reply_to_message_id);
+		//String url = !AL.empty(group_name) ? "https://t.me/" + group_name + "/" + message_id : null; 
+		String permlink = group_id + "/" + message_id;
+		String parent_permlink = AL.empty(reply_to_message_id) ? null : group_id + "/" + reply_to_message_id;
 		
 		//comments
 		//mentions
 		int logvalue = 1 + (AL.empty(text_body) ? 0 : (int)Math.round(Math.log10(text_body.length())));
 		if (logger != null)
-			SocialCacher.write(logger, name, date, date.getTime(), "comment", from_id, to_id, weight, null, permlink, parent_permlink, null, text_body, null, null);
+			SocialCacher.write(logger, name, date, date.getTime(), "comment", from_id, to_id, weight, null, permlink, parent_permlink, group_name/*title*/, text_body, null, null);
 		if (!AL.empty(reply_to_from_id)) {
 			updateInteraction(date,"comments",from_id,reply_to_from_id,logvalue);//update from->reply_to_from
 		}
@@ -244,7 +286,27 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 	}
 	
 	@Override
-	public Set<String> getGroup(String user_id) {
+	public Set<String> getGroupIds(String user_id) {
+		//get all groups of id and get all mambers of all these groups
+		HashSet<String> res = new HashSet<String>();
+		try {
+			Collection users = body.storager.getByName(Body.telegram_id, user_id);
+			if (!AL.empty(users)) for (Object user : users) {
+				Collection groups = ((Thing)user).getThings(AL.groups);
+				if (!AL.empty(groups)) for (Object group : groups) {
+					String group_id = ((Thing)group).getString(Body.telegram_id);
+					if (!AL.empty(group_id))
+						res.add(group_id);
+				}
+			}
+		} catch (Exception e) {
+			body.error("Telegram crawling group for "+user_id,e);
+		}
+		return res;
+	}
+
+	@Override
+	public Set<String> getGroupPeerIds(String user_id) {
 		//get all groups of id and get all mambers of all these groups
 		HashSet<String> res = new HashSet<String>();
 		try {
@@ -261,7 +323,7 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 				}
 			}
 		} catch (Exception e) {
-			body.error("Telegram crawling group for "+user_id,e);
+			body.error("Telegram crawling group peers for "+user_id,e);
 		}
 		return res;
 	}

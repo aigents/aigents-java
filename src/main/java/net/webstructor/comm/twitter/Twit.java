@@ -104,13 +104,14 @@ class Twit {
 		score = favorite_count - (favorited ? 1 : 0) + retweet_count - (retweeted ? 1 : 0);
 		scored = favorited | retweeted;
 		OrderedStringSet image_candidates = !AL.empty(media) ? media : links;
-		for (int l = 0; l < image_candidates.size(); l++) {
+		image = image_candidates.getImage();
+		/*for (int l = 0; l < image_candidates.size(); l++) {
 			String link = (String)image_candidates.get(l);
 			if (AL.isIMG(link)) {
 				image = link;
 				break;
 			}
-		}
+		}*/
 	}
 }
 

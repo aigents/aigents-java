@@ -314,13 +314,13 @@ public abstract class SocialFeeder {
 		Iterator it = values.iterator();
 		Object[][] norm = new Object[values.size() + (includingSelf ? 1 : 0)][];
 		Counter self = new Counter();
-		if (normalized)
-			self = normalizeByWords(self);
 		//fill from my words
 		for (Iterator wit = words.values().iterator(); wit.hasNext();){
 			Object[] word = (Object[])wit.next();
 			self.count(word[0],((Integer)word[5]).intValue());
 		} 
+		if (normalized)
+			self = normalizeByWords(self);
 		for (int i = 0; i < norm.length; i++){
 			Object[] item;
 			Counter user;
@@ -351,6 +351,42 @@ public abstract class SocialFeeder {
 				String list = Counter.toString(cross);
 				norm[i] = new Object[]{crosses,getUserName(item),crosses,item[1],item[2],item[3],new Object[]{list,user.toRanked()},item[8]};
 			}
+		}
+		for (int i = 0; i < norm.length; i++){
+			norm[i][0] = new Integer( Math.round( ((Number)norm[i][0]).floatValue() * 100 / max) );
+		}
+		Arrays.sort(norm,new ArrayPositionComparator(0));
+		return norm;
+	}
+
+	/*Similar to getSimilarPeers but lists raw word ranks on per-peer basis*/
+	public final Object[][] getWordsByPeers(boolean normalized){
+		boolean includingSelf = false;
+		float max = 0;
+		Collection values = users.values();
+		Iterator it = values.iterator();
+		Object[][] norm = new Object[values.size() + (includingSelf ? 1 : 0)][];
+		Counter self = new Counter();
+		//fill from my words
+		for (Iterator wit = words.values().iterator(); wit.hasNext();){
+			Object[] word = (Object[])wit.next();
+			self.count(word[0],((Integer)word[5]).intValue());
+		} 
+		if (normalized)
+			self = normalizeByWords(self);
+		for (int i = 0; i < norm.length; i++){
+			Object[] item = (Object[])it.next();
+			Counter user = (Counter)item[4];
+			if (normalized)
+				user = normalizeByWords(user);
+			//corellate self words with peer words
+			Object[] cross = self.crossOverlap(user);
+			Number value = (Number)cross[0];//crosses
+			if (max < value.floatValue())
+				max = value.floatValue();
+			Object[][] ranked  = ((Counter)user).toRanked();
+			Integer nonzero = new Integer( AL.empty(ranked)? 0 : ranked.length );
+			norm[i] = new Object[]{value,getUserName(item),nonzero,item[1],item[2],item[3],new Object[]{ranked,user.toRanked()},item[8]};			
 		}
 		for (int i = 0; i < norm.length; i++){
 			norm[i][0] = new Integer( Math.round( ((Number)norm[i][0]).floatValue() * 100 / max) );
@@ -665,7 +701,7 @@ public abstract class SocialFeeder {
 			user[1] = new Integer(((Integer)user[1]).intValue()+amount);
 	}
 
-	//TODO: reuse it in extractUrls etc., re-using its logic for counting
+	//TODO: reuse it in countPost etc., re-using its logic for counting
 	public static void countWords(LangPack langPack,String text,Counter counter){
 		Set tokens = Parser.parse(text,AL.commas+AL.periods+AL.spaces,false,false,false,true);
 		if (!AL.empty(tokens)) {
@@ -680,10 +716,10 @@ public abstract class SocialFeeder {
 		}
 	}
 	
-	protected int countComments(String id,String name,String message,Date time){
-		return countComments(id,name,message,time,0);
+	protected int countComment(String id,String name,String message,Date time){
+		return countComment(id,name,message,time,0);
 	}
-	protected int countComments(String id,String name,String message,Date time,int amount){
+	protected int countComment(String id,String name,String message,Date time,int amount){
 		if (user_id.equals(id))
 			return 0;
 		Object[] user = getUser(id,name);
@@ -705,7 +741,7 @@ public abstract class SocialFeeder {
 	}
 
 	//TODO: count word use, likes and comments along the way!!!
-	public final String[] extractUrls(String text, String[] links, Boolean like, Integer likes, Integer comments, Counter period){
+	public final String[] countPost(String text, String[] links, Boolean like, Integer likes, Integer comments, Counter period){
 		OrderedStringSet urls = new OrderedStringSet();
 		if (!AL.empty(links)){
 			for (int l = 0; l < links.length; l++)
@@ -962,7 +998,7 @@ public abstract class SocialFeeder {
 			Integer comments = new Integer(commentsCount);
 			Integer likes = new Integer(otherLikesCount);
 			Boolean like = new Boolean(myLike); 
-			String[] sources = extractUrls(text,null,like,likes,comments,period);
+			String[] sources = countPost(text,null,like,likes,comments,period);
 			if (sources != null)
 				for (int i = 0; i < sources.length; i++)
 					links.add(sources[i]);
@@ -970,7 +1006,7 @@ public abstract class SocialFeeder {
 				if (myLike)
 					countMyLikes(from,null);
 				//TODO: fix null
-				countComments(from,null,text,times);
+				countComment(from,null,text,times);
 			}else{
 				sources = (String[])links.toArray(new String[]{});
 				Object[] news_item = new Object[]{like,likes,comments,times,text,sources};

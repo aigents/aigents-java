@@ -49,12 +49,14 @@ public class PathFinder {
 	HashSet readPaths = new HashSet();
 	ArrayList pathSeqs = new ArrayList();
 	protected Collection goals;
+	long tillTime;
 
-	PathFinder(Siter siter, Collection goals, int hopLimit) {
+	PathFinder(Siter siter, Collection goals, int hopLimit, long tillTime) {
 		this.siter = siter;
 		this.goals = goals;
 		this.hopLimit = hopLimit;
 		this.exhaustive = siter.newsLimit > 1;//TODO: fix hack!?
+		this.tillTime = tillTime;
 	}
 
 	//TODO: move this out of specific Parser-based functionality!? 
@@ -68,6 +70,13 @@ public class PathFinder {
 		for (int i = 0; i < iter.size(); i++)
 			seq[i] = iter.next();
 		return new Seq(seq);
+	}
+	
+	protected boolean expired(){
+		boolean expired = tillTime > 0 && System.currentTimeMillis() > tillTime;
+		if (expired)
+			siter.body.debug("Site crawling time out:"+siter.rootPath);
+		return expired;
 	}
 	
 	//append the tail
@@ -109,7 +118,7 @@ public class PathFinder {
 	}
 	
 	boolean run(String path,Seq pathSeq) {
-		if (siter.expired())
+		if (expired())
 			return false;
 		//get the goal
 		//get the “page context”
@@ -159,7 +168,7 @@ public class PathFinder {
 	}
 	
 	boolean runParallel(String pathBase,Seq basePath) {
-		if (siter.expired())
+		if (expired())
 			return false;
 		
 		Queue q = new LinkedList();

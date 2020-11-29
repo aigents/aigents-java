@@ -294,6 +294,8 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				JsonObject reply_to = HTTP.getJsonObject(m, "reply_to_message");
 				long unix = m.getInt("date");
 				String text = HTTP.getJsonString(m, "text", null);
+				if (AL.empty(text))
+					text = HTTP.getJsonString(m, "caption", null);
 				String message_id = JSON.getJsonLongString(m, "message_id", "");
 				String chat_title = chat.containsKey("title")? chat.getString("title") : null;
 				String chat_username = chat.containsKey("username")? chat.getString("username") : null;

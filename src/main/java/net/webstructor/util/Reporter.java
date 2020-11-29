@@ -72,6 +72,10 @@ public class Reporter {
 		}
 	}
 	
+	public static final String imgStyle = "height:auto;width:140px;"; 
+	public static String img(String url, String src) {
+		return img(url, imgStyle, src);
+	}
 	public static String img(String url, String style, String src) {
 		String s = style == null ? "" : "style=\""+style+"\"";
 		return url != null

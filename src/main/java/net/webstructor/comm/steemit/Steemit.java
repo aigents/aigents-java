@@ -623,7 +623,7 @@ if (block % 10 == 0){
 										OrderedStringSet links = new OrderedStringSet();
 										String text = SocialFeeder.parsePost(title,body,links);
 										if (!AL.empty(text)) {//Skip edits//api.body.debug(caps_name+" empty text:"+operation);
-//TODO extractUrls(...)?
+//TODO countPost(...)?
 											String imgurl = null;//TODO extract
 											for (Object s : links) if (AL.isIMG((String)s)) {
 												imgurl = (String)s;

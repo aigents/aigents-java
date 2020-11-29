@@ -105,7 +105,7 @@ class RedditFeeder extends SocialFeeder {
 						JsonObject item = children.getJsonObject(i);
 						item = JSON.getJsonObject(item,"data");
 						RedditItem ri = new RedditItem(item);
-						countComments(ri.author,ri.author,ri.text,ri.time);
+						countComment(ri.author,ri.author,ri.text,ri.time);
 						comments[i] = new Object[]{ri.author,ri.author,ri.text,false,new Integer(ri.score)};
 					}
 				}

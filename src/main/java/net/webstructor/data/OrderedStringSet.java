@@ -145,5 +145,13 @@ public class OrderedStringSet extends ArrayList implements Comparable {
 		return thisS - otherS;//TODO: otherS - thisS ? 
 	}
 
+	public String getImage() {
+		for (int l = 0; l < this.size(); l++) {
+			String link = (String)this.get(l);
+			if (AL.isIMG(link))
+				return link;
+		}
+		return null;
+	}
 }
 

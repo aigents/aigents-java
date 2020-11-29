@@ -96,7 +96,7 @@ class PayPalFeeder extends SocialFeeder {
 			for (Object date : dates) {
 //TODO:filter in since-until range
 				String payment = (String)api.payments.getObject(user_id, date, false);
-				countComments(payment,payment,null,(Date)date,1);
+				countComment(payment,payment,null,(Date)date,1);
 				countPeriod((Date)date,0,1);
 				items[i++] = new Object[] {date,payment};
 			}

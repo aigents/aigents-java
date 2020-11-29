@@ -254,7 +254,7 @@ class SteemitFeeder extends SocialFeeder {
 				countVotes(commentlink,commenter,date_day);
 				permlinksToVotes.remove(commentlink);
 				//TODO: user name
-				countedComments += countComments(commenter,(String)comment[1],(String)comment[2],date_day);//id,name,text
+				countedComments += countComment(commenter,(String)comment[1],(String)comment[2],date_day);//id,name,text
 				nonOrphanedComments.add(commentlink);
 			}
 			
@@ -263,7 +263,7 @@ class SteemitFeeder extends SocialFeeder {
 			Counter period = getWordsPeriod(getPeriodKey(date_day));
 			countPeriod(date_day,news_likes[1],countedComments);
 			
-			sources = extractUrls(text,sources,(Boolean)news_item[0],(Integer)news_item[1],(Integer)news_item[2],period);
+			sources = countPost(text,sources,(Boolean)news_item[0],(Integer)news_item[1],(Integer)news_item[2],period);
 			news_item[5] = sources;
 
 			//build uri from permlink
@@ -315,12 +315,12 @@ class SteemitFeeder extends SocialFeeder {
 					Date time = (Date)comment[6];
 					int countedVotes = countVotes(permlink,commenter,time);
 					permlinksToVotes.remove(permlink);
-					int countedComments = countComments(commenter,(String)comment[1],(String)comment[2],time);//id,name,text
+					int countedComments = countComment(commenter,(String)comment[1],(String)comment[2],time);//id,name,text
 					if (countedComments > 0)//if other user
 						countPeriod(time,countedVotes,countedComments);
 					else {//if this user
 						countPeriod(time,countedVotes,0);
-						extractUrls((String)comment[2], null, new Boolean(false),new Integer(0), new Integer(0), getWordsPeriod( getPeriodKey((Date)comment[6])));
+						countPost((String)comment[2], null, new Boolean(false),new Integer(0), new Integer(0), getWordsPeriod( getPeriodKey((Date)comment[6])));
 					}
 
 				}

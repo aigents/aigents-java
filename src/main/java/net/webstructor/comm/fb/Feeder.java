@@ -128,7 +128,7 @@ class Feeder extends SocialFeeder {
 		boolean like = comment.containsKey("user_likes") ? comment.getBoolean("user_likes") : false;
 		if (like)
 			countMyLikes(id,name);
-		countComments(id,name,message,time);
+		countComment(id,name,message,time);
 		//TODO:move to countComments across system!?
 		if (!user_id.equals(id) && getUser(id,name) != null)
 			countPeriod(time,0,1);//count comment by other
@@ -184,7 +184,7 @@ class Feeder extends SocialFeeder {
 			//countPeriod(times,likes.intValue() - (like.booleanValue()? 1 : 0), commentsCount);
 			
 			Integer comments = new Integer(commentsCount);
-			String[] sources = extractUrls(text,new String[]{url,link},like,likes,comments,period);
+			String[] sources = countPost(text,new String[]{url,link},like,likes,comments,period);
 			Object[] news_item = new Object[]{like,likes,comments,times,text,sources};
 			news.add(news_item);
 		}		

@@ -37,8 +37,8 @@ import net.webstructor.self.Siter.Mode;
 
 public class PathTracker extends PathFinder {
 
-	PathTracker(Siter siter, Collection goals, int hopLimit) {
-		super(siter, goals, hopLimit);
+	PathTracker(Siter siter, Collection goals, int hopLimit, long tillTime) {
+		super(siter, goals, hopLimit, tillTime);
 	}
 
 	boolean run(String path) {
@@ -62,7 +62,7 @@ public class PathTracker extends PathFinder {
 				//if no results, then spawn PathFinder   
 			}
 		}
-		return siter.mode != Mode.TRACK ? new PathFinder(this.siter,goals,hopLimit).run(path) : false;//try to find if not in TRACK mode
+		return siter.mode != Mode.TRACK ? new PathFinder(this.siter,goals,hopLimit,tillTime).run(path) : false;//try to find if not in TRACK mode
 	}
 
 	//possible inputs:

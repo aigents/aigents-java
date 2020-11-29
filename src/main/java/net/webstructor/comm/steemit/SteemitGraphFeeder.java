@@ -78,7 +78,7 @@ class SteemitGraphFeeder extends SteemitFeeder {
 	}
 	
 	//TODO:@Override
-	protected int countComments(String id,String name,String message,Date time,int amount){
+	protected int countComment(String id,String name,String message,Date time,int amount){
 		if (user_id.equals(id))
 			return 0;
 		

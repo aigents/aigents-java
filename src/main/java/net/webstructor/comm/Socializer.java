@@ -364,6 +364,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 		my_interests = "my interests",
 		interests_of_my_friends = "interests of my friends",
 		similar_to_me = "similar to me",
+		words_of_my_friends = "words of my friends",
 		best_friends = "best friends",
 		fans = "fans",
 		all_connections = "all connections",
@@ -399,6 +400,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 		my_best_words,
 		my_words_liked_and_commented,
 		words_liked_by_me,
+		words_of_my_friends,
 		my_posts_for_the_period,
 		reputation,
 		social_graph
@@ -659,17 +661,38 @@ public abstract class Socializer extends HTTP implements Crawler {
 		return result;
 	}
 	
-	private String heading(String heading){
-		return !name().equals("ethereum") ? heading 
-			: "Likes".equals(heading) ? "Pays" : "Comments".equals(heading) ? "Calls" : "Friends".equals(heading) ? "Contragents" : heading;
+	private static HashMap<String,String> ethereumHeadings = new HashMap<String,String>();
+	private static HashMap<String,String> messengerHeadings = new HashMap<String,String>();
+	static {
+		ethereumHeadings.put("Friend", "Contragent");
+		ethereumHeadings.put("Friends", "Contragents");
+		ethereumHeadings.put("My likes", "My pays & calls");
+		ethereumHeadings.put("Likes", "Pays");
+		ethereumHeadings.put("Comments", "Calls");
+		ethereumHeadings.put("Likes & Comments", "Pays & Calls");
+		messengerHeadings.put("My likes", "My mentions & replies");
+		messengerHeadings.put("Likes", "Mentions");
+		messengerHeadings.put("Comments", "Replies");
+		messengerHeadings.put("Likes & Comments", "Mentions & Replies");
 	}
+	
+	private String[] transcode(String[] header) {
+		HashMap<String,String> t = name().equals("ethereum") ? ethereumHeadings :
+			name().equals("telegram") || name().equals("slack") ? messengerHeadings : null;
+		if (t != null) {
+			String[] h = new String[header.length];
+			for (int i = 0; i < h.length; i++) {
+				String s = t.get(header[i]);
+				h[i] = s != null ? s : header[i];
+			}
+			return h;
+		}
+		return header;
+	}
+	
 	private String[] peersHeadings(Reporter rep){
-		if (!name().equals("ethereum"))
-			return rep.needsId() ? new String[]{"Rank,%","Friend","My likes","Likes","Comments", "Id"}
-								 : new String[]{"Rank,%","Friend","My likes","Likes","Comments"};
-		else 
-			return rep.needsId() ? new String[]{"Rank,%","Contragent","Paid","Pays","Calls", "Id"}
-		 						 : new String[]{"Rank,%","Contragent","Paid","Pays","Calls"};
+		return transcode(rep.needsId() ? new String[]{"Rank,%","Friend","My likes","Likes","Comments", "Id"}
+		 							   : new String[]{"Rank,%","Friend","My likes","Likes","Comments"});
 	}
 	
 	protected void reportPeer(Reporter rep, Translator t, SocialFeeder feeder,String title, String user_id, String name, String surname, java.util.Set options, int minPercent, int minCount, Object[][] cross_peers) {	
@@ -693,8 +716,8 @@ public abstract class Socializer extends HTTP implements Crawler {
 				feeder.getPeerCats(),1,0);
 		if (options.isEmpty() || options.contains(similar_to_me))
 			rep.table(similar_to_me,t.loc(similar_to_me),
-				t.loc(rep.needsId() ? new String[]{"Rank,%","Friend","Crosses","My likes","Likes","Comments","Words","Id"}
-									: new String[]{"Rank,%","Friend","Crosses","My likes","Likes","Comments","Words"}),
+				t.loc(transcode(rep.needsId() ? new String[]{"Rank,%","Friend","Crosses","My likes","Likes","Comments","Words","Id"}
+									: new String[]{"Rank,%","Friend","Crosses","My likes","Likes","Comments","Words"})),
 				feeder.getSimilarPeers(true,false,true),minPercent,minCount);//is the best!!!
 		if (options.isEmpty() || options.contains(best_friends))
 			rep.table(best_friends,t.loc(best_friends),
@@ -732,40 +755,48 @@ public abstract class Socializer extends HTTP implements Crawler {
 				feeder.getLikedPeers(),minPercent,minCount);
 		if (!options.isEmpty() && options.contains(my_karma_by_periods))
 			rep.table(my_karma_by_periods,t.loc(my_karma_by_periods),
-				t.loc(new String[]{"Period","Karma,%","Likes","Comments"}),
+				t.loc(transcode(new String[]{"Period","Karma,%","Likes","Comments"})),
 				feeder.getWordsPeriods(),0,0);
 		if (options.isEmpty() || options.contains(my_words_by_periods))
 			rep.table(my_words_by_periods,t.loc(my_words_by_periods),
-				t.loc(new String[]{"Period","Karma,%",heading("Likes"),heading("Comments"),"Words"}),
+				t.loc(transcode(new String[]{"Period","Karma,%","Likes","Comments","Words"})),
 				feeder.getWordsPeriods(),0,0);
 		if (options.isEmpty() || options.contains(my_friends_by_periods))
 			rep.table(my_friends_by_periods,t.loc(my_friends_by_periods),
-				t.loc(new String[]{"Period","Karma,%",heading("Likes"),heading("Comments"),heading("Friends")}),
+				t.loc(transcode(new String[]{"Period","Karma,%","Likes","Comments","Friends"})),
 				feeder.getFriendsPeriods(),0,0);
 		if (options.isEmpty() || options.contains(my_favorite_words))
 			rep.table(my_favorite_words,t.loc(my_favorite_words),
-				t.loc(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences"/*,"All likes & comments/Posts"*/}),
+				t.loc(transcode(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences"/*,"All likes & comments/Posts"*/})),
 				feeder.getWordsUsedAndLikedByMe(500,1),minPercent,minCount);
 		if (options.isEmpty() || options.contains(my_posts_liked_and_commented))
 			rep.table(my_posts_liked_and_commented,t.loc(my_posts_liked_and_commented),
-				t.loc(new String[]{"Rank,%","My likes","Likes","Comments","Date","Text","Links"}),
+				t.loc(transcode(new String[]{"Rank,%","My likes","Likes","Comments","Date","Text","Links"})),
 				feeder.getNews(),minPercent,minCount);	
 		if (!options.isEmpty() && options.contains(my_best_words))
 			rep.table(my_best_words,t.loc(my_best_words),
-				t.loc(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","All likes & comments/Posts"}),
+				t.loc(transcode(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","All likes & comments/Posts"})),
 				feeder.getBestWordsLikedAndCommentedByAll(500,1),minPercent,minCount);
 		if (!options.isEmpty() && options.contains(my_words_liked_and_commented))
 			rep.table(my_words_liked_and_commented,t.loc(my_words_liked_and_commented),
-				t.loc(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","Likes & comments/Posts"}),
+				t.loc(transcode(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","Likes & comments/Posts"})),
 				feeder.getWordsLikedAndCommentedByOthers(500),minPercent,minCount);
 		if (!options.isEmpty() && options.contains(words_liked_by_me))
 			rep.table(words_liked_by_me,t.loc(words_liked_by_me),
-				t.loc(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","My likes/Posts"}),
+				t.loc(transcode(new String[]{"Rank,%","Word","My likes","Likes","Comments","Posts","Occurences","My likes/Posts"})),
 				feeder.getWordsLikedByMe(500,1),minPercent,minCount);
+		
+		if (options.isEmpty() || options.contains(words_of_my_friends))
+			rep.table(words_of_my_friends,t.loc(words_of_my_friends),
+				t.loc(transcode(rep.needsId() ? new String[]{"Rank,%","Friend","Crosses","My likes","Likes","Comments","Words","Id"}
+									: new String[]{"Rank,%","Friend","Crosses","My likes","Likes","Comments","Words"})),
+				feeder.getWordsByPeers(true),minPercent,minCount);//is the best!!!
+		
+		
 		Object[][] details;
 		if ((options.isEmpty() || options.contains(my_posts_for_the_period)) && !AL.empty(details = feeder.getDetails())) {
 			rep.table(my_posts_for_the_period,t.loc(my_posts_for_the_period),
-				t.loc(new String[]{"Date","Likes & Comments","Image","Text & Comments","Links","Comments"}),
+				t.loc(transcode(new String[]{"Date","Likes & Comments","Image","Text & Comments","Links","Comments"})),
 				details,0,0);
 		}
 		rep.closePeer();

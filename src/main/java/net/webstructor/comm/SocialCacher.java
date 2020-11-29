@@ -182,7 +182,7 @@ public abstract class SocialCacher extends Socializer {
 				break;
 		}
 		//list all peers across all my communtities
-		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroup(user_id) : null;
+		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroupPeerIds(user_id) : null;
 		Transcoder transcoder = this instanceof Transcoder ? (Transcoder)this : null;
 		if (data.size() > 0) {
 			ArrayList norm = new ArrayList();
@@ -209,15 +209,22 @@ public abstract class SocialCacher extends Socializer {
 		int threshold = 0; 
 		int limit = 1000;
 		int period = Period.daysdiff(since, until);
-		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroup(user_id) : null;
+		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroupPeerIds(user_id) : null;
 		GraphCacher grapher = getGraphCacher();
 		return grapher.getSubgraph(new String[] {user_id}, until, period, range, threshold, limit, null, community, Socializer.links);
 	}
 	
+	public static String path(String name, Date time) {
+		return name+"/"+name+"_"+Time.day(time,false)+".tsv";
+	}
+	
 	public static void write(DataLogger logger, String name, Date time, long block, String type, String from, String to, String value, String unit, String child, String parent, String title, String input, String tags, String format){
 		//network,timestamp,from,to,value,unit,type,input,title,parent,child,tags,format
-		logger.write(name+"/"+name+"_"+Time.day(time,false)+".tsv",
-				new Object[]{name,Time.linux(time),type,from,to,value,unit,child,parent,title,input,tags,format,new Long(block)});
+		logger.write(path(name,time),new Object[]{name,Time.linux(time),type,from,to,value,unit,child,parent,title,input,tags,format,new Long(block)});
+	}
+
+	public static boolean load(DataLogger logger, String name, Date time, DataLogger.StringConsumer consumer) {
+		return logger.load(path(name,time), consumer);
 	}
 	
 	//TODO replace this with Farm.getReputationer(network) for the purpose of Body-controlled memory management!?
