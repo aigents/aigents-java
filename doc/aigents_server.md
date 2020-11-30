@@ -240,14 +240,15 @@ The following presents various scenarios of Aigents use demonstrated with Aigent
 	```
 	#nohup java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm store path "''", cookie domain localtest.com, console off &
 	```
-1. Create separate test folder for tests and download PHP test suote to it from http://aigents.com/download/latest/aigents_php.zip
-1. Unzip contents of aigents_php.zip file in tests folder, with http subfolder created.
-1. Host Web server in the http subfolder created above as root Web folder, on port 80 under domain localtset.com. For other domain, will need to create respective URL-s in PHP files. For hosting Wev server, Python SimpleHTTPServer application can be used, as in the following example:
-	1. Make sure you have Python with SimpleHTTPServer downloaded and installed.
-	1. Run Python web server as the following command:
-		```
-		#python -m SimpleHTTPServer 80
-		```
+1. Create separate test folder for tests and copy PHP test suite files to it from https://github.com/aigents/aigents-java/tree/master/php/agent
+1. Create separate http folder for test Web server contents and copy test data files to it from https://github.com/aigents/aigents-java/tree/master/html
+1. Host Web server in the http folder created above as a root Web folder, on port 80 under domain localtset.com. For other domain, will need to create respective URL-s in PHP files. 
+	* For hosting Web server, Python SimpleHTTPServer application can be used, as in the following example:
+		* Make sure you have Python with SimpleHTTPServer downloaded and installed.
+		* Run Python web server as the following command:
+			```
+			#python -m SimpleHTTPServer 80
+			```
 1. Run Aigents tests as the following command:
 	```
 	#php -f agent_test.php
@@ -258,8 +259,8 @@ The following presents various scenarios of Aigents use demonstrated with Aigent
 	GET:Ok.
 	SUCCESS!
 	```
-1. Study PHP files involved in tests for different use cases.
-1. Feel free to changhe or customize Aigents PHP code as distributed under [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE).
+1. Study PHP code involved in tests for different use cases.
+1. Change or PHP code to explore possible scenarios.
 
 ## Aigents® Social Network Integration with Web API
 
@@ -272,7 +273,7 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 * Using [Aigents Facebook Messenger Bot](https://www.messenger.com/t/aigents) - available for Aigents Web Demo server users or any users of the any other Aigents Server deployment configured for Facebook;
 * Using [Aigents Telegram Bot](https://web.telegram.org/#/im?p=@AigentsBot) - available for Aigents Web Demo server users or any users of the any other Aigents Server deployment configured for Telegram;
 * Using raw TCP/IP protocols via sockets, as discussed earlier - available at **aigents.com:1123** and for proprietary servers both;
-* Using HTTP/HTTPS web servcice as discussed earlier - available at https://aigents.com/al? and for proprietary servers both - as discussed below:
+* Using HTTP/HTTPS web servcice as discussed earlier - available at ```"https://aigents.com/al?"``` and for proprietary servers both - as discussed below:
 
 1. To get reports on any user analytics on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:
 	\
