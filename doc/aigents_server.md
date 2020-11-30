@@ -274,7 +274,7 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 * Using raw TCP/IP protocols via sockets, as discussed earlier - available at **aigents.com:1123** and for proprietary servers both;
 * Using HTTP/HTTPS web servcice as discussed earlier - available at https://aigents.com/al? and for proprietary servers both - as discussed below:
 
-1. To get reports on any user analytivs on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:\
+1. To get reports on any user analytics on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:\
 	Logout prompt (recommended to do in the beginning of the session since long idle time to start new session unconditionally):
 	```
 	https://aigents.com/al?my logout
@@ -385,29 +385,29 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 		<JSON>
 	```
 1. Extended command options may be used for fine tuning contents and format of analytics:\
-	format <file type>\
-	<file type> := html | json\
+	format \<file type>\
+	\<file type> := html | json\
 	(whether to encode report in html or json)\
 	Example:
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json
 	```
 	threshold \<percents>\
-	<percents> := 0  - 100\
+	\<percents> := 0  - 100\
 	(number of percents of importance to hide least important items)\
 	Example:
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50
 	```
 	period \<days>\
-	<days> := 0  - 1000\
+	\<days> := 0  - 1000\
 	(number of days to include in analysis from current date)\
 	Example: 
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365
 	```
 	areas \<tag>\
-	<tag> := <keyword>\
+	\<tag> := \<keyword>\
 	(tag to restrict scope of analysis, only one tag may be used; multiple tags will be enabled later)\
 	Example:
 	```
@@ -421,7 +421,8 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 		https://aigents.com/al?steemit id akolonin report
 
 1. For access of personal analytics and single-sign-on for users on Facebook, Reddit, Twitter, VKontakte and Google+, it is required to use proprietary application server configued with respect to policies of these social networks in respect to personal data and privacy protection, with the following options:
-	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes. Examples:\\
+	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes. Examples:
+		\
 		Facebook:
 		```
 		your facebook id <facebook_id>, facebook key <facebook_key>.
