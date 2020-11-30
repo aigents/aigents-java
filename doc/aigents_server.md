@@ -392,21 +392,21 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json
 	```
-	threshold <percents>\
+	threshold \<percents>\
 	<percents> := 0  - 100\
 	(number of percents of importance to hide least important items)\
 	Example:
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50
 	```
-	period <days>\
+	period \<days>\
 	<days> := 0  - 1000\
 	(number of days to include in analysis from current date)\
 	Example: 
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365
 	```
-	areas <tag>\
+	areas \<tag>\
 	<tag> := <keyword>\
 	(tag to restrict scope of analysis, only one tag may be used; multiple tags will be enabled later)\
 	Example:
@@ -415,22 +415,22 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 	```
 	* _**Note: When using https://golos.io/, only English encodings of tags is supported, so if need to use tag “разум”, should use “ru--razum” instead.**_
 	* _**Note: To change report parameters, each time need to do 2 or more calls, depending on amount of data to be included in report, like in the following.**_
-		- First call - request report with parameters, for example: 
-		https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai
-		- Next calls - request report data in polling manner, each 10-30 seconds, until it returns valid json or html data, for example:
+		First call - request report with parameters, for example: 
+		https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai\
+		Next calls - request report data in polling manner, each 10-30 seconds, until it returns valid json or html data, for example:
 		https://aigents.com/al?steemit id akolonin report
 
 1. For access of personal analytics and single-sign-on for users on Facebook, Reddit, Twitter, VKontakte and Google+, it is required to use proprietary application server configued with respect to policies of these social networks in respect to personal data and privacy protection, with the following options:
-	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes. Examples:
-		- Facebook:
+	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes. Examples:\\
+		Facebook:
 		```
 		your facebook id <facebook_id>, facebook key <facebook_key>.
 		```
-		- Google+:
+		Google+:
 		```
 		your google id <google_id>, google key <google_key>.
 		```
-		- VKontakte (with __server token__ required):
+		VKontakte (with __server token__ required):
 		```
 		your vkontakte id <vkontakte_id>, vkontakte key <vkontakte_key>, vkontakte token <vkontakte_token>.
 		```
