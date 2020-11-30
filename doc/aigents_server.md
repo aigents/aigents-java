@@ -1,5 +1,7 @@
 # Aigents Server requirements configuration, operation and API use
 
+![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
+
 The following describes configuration and operation of Aigents server as a console application or a server deamon (so called “Aigents Farm”) with no user interface.
 
 ## Aigents Requirements
@@ -261,171 +263,209 @@ The following presents various scenarios of Aigents use demonstrated with Aigent
 
 ## Aigents Social Network Integration with Web API
 
-Aigents Server can be used to collect and analyse information in social networks, as it is described in articles How to get your personal analytics for Steemit social network with help of Aigents bot, Using Aigents bot service to get social network analytics for Facebook, Google+ and VKontakte, Personal social graph analysis for Steemit and Golos and Social Graph as Mirror in the Net.
+Aigents Server can be used to collect and analyse information in social networks, as it is described in articles [How to get your personal analytics for Steemit social network with help of Aigents bot](https://steemit.com/ai/@akolonin/how-to-get-your-personal-analytics-for-steemit-social-network-with-help-of-aigents-bot), [Using Aigents bot service to get social network analytics for Facebook, Google+ and VKontakte](https://steemit.com/ai/@akolonin/using-aigents-bot-service-to-get-social-network-analytics-for-facebook-google-and-vkontakte), [Personal social graph analysis for Steemit and Golos](https://steemit.com/psychology/@aigents/personal-social-graph-analysis-for-steemit-and-golos) and [Social Graph as Mirror in the Net](https://steemit.com/psychology/@aigents/social-graph-as-mirror-in-the-net).
 
 The following describes how it can be configured and used to access social analytics functions of Aigents, either using existing demo Aigetns service at https://aigents.com/al?what your name (as Aigents-branded application) or proprietary servers configured as described above (under brand of your own).
 
 There are many protocols can be used to access the Aigents Social Analytics, such as the following:
 * Using Aigents Chat - available for Aigents users at https://aigents.com/ only;
-* Using Aigents Facebook Messenger Bot - available for Aigents users only;
-* Using Aigents Telegram Bot - available for Aigents users only;
-* Using raw TCP/IP protocols via sockets, as discussed earlier - available at aigents.com:1123 and for proprietary servers both;
+* Using [Aigents Facebook Messenger Bot](https://www.messenger.com/t/aigents) - available for Aigents users only;
+* Using [Aigents Telegram Bot](https://web.telegram.org/#/im?p=@AigentsBot) - available for Aigents users only;
+* Using raw TCP/IP protocols via sockets, as discussed earlier - available at **aigents.com:1123** and for proprietary servers both;
 * Using HTTP/HTTPS web servcice as discussed earlier - available at https://aigents.com/al? and for proprietary servers both - as discussed below:
 
 1. To get reports on any user analytivs on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:
-Logout prompt (recommended to do in the beginning of the session since long idle time to start new session unconditionally):
+	Logout prompt (recommended to do in the beginning of the session since long idle time to start new session unconditionally):
+	```
+	https://aigents.com/al?my logout
+	```
+	Login prompt:
+	```
 	https://aigents.com/al?my login
+		What your email, name, surname?
+	```
+	Enter login email accordingly to registration:
+	```
+	https://aigents.com/al?my email <your email>
+		What your <secret question>?
+	```
+	Confirm login email accordingly to configured secret question and answer:
+	```
+	https://aigents.com/al?my <secret question> <secret answer>
+		Ok. Hello <your name>! My Aigents 1.2.0 Copyright © 2018 Anton Kolonin, Aigents Group.
+	```
+	Request fresh report on at Steemit user (in HTML):
+	```
+	https://aigents.com/al?steemit id akolonin report fresh
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Steemit user requested earlier in HTML format:
+	```
+	https://aigents.com/al?steemit id akolonin report
+		<HTML>
+	```
+	Request fresh report on at Steemit user in JSON format, for period of given number of days:
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format json, period 365
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Steemit user requested earlier in JSON format:
+	```
+	https://aigents.com/al?steemit id akolonin report, format json
+		<JSON>
+	```
+	Request fresh report on at Steemit user in HTML format, for period of given number of days, with specific tag tag (e.g. “psychology”) with specific options:
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format html, period 365, areas psychology 
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Steemit user requested earlier in HTML format (refresh if in browser):
+	```
+	https://aigents.com/al?steemit id akolonin report, format html
+		<HTML>
+	```
+	Request fresh report on at Steemit user in HTML format, for period of given number of days, with specific tag tag (e.g. “ai”) with specific options:
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format html, period 365, areas ai, best friends, my words by periods, my karma by periods 
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Steemit user requested earlier in HTML format (refresh if in browser):
+	```
+	https://aigents.com/al?steemit id akolonin report, format html
+		<HTML>
+	```
+	Request fresh report on at Steemit user in JSON format, for period of given number of days, with specific tag tag (e.g. “ai”) with specific option:
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format json, period 365, areas ai, my karma by periods 
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Steemit user requested earlier in JSON format (refresh if in browser):
+	https://aigents.com/al?steemit id akolonin report, format json
+		<JSON>
+	```
+	Request fresh report on at Golos user in JSON format, for period of given number of days, with specific options:
+	```
+	https://aigents.com/al?golos id akolonin report fresh, format json, period 365, my karma by periods 
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
+	```
+	https://aigents.com/al?steemit id akolonin report, format json
+		<JSON>
+	```
+	Request fresh report on at Golos user in JSON format, for period of given number of days, with specific tag (Russian tag names are transliterated like “поиск” => “ru--poisk”) with specific options:
+	```
+	https://aigents.com/al?golos id akolonin report fresh, format json, areas ru--poisk, period 365, my karma by periods 
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
+	```
+	https://aigents.com/al?steemit id akolonin report, format json
+		<JSON>
+	```
+	Request fresh report on at Golos user in JSON format, for period of given number of days, with specific option - best friends, listing only top of them above 20% threshold:
+	```
+	https://aigents.com/al?golos id akolonin report fresh, format json, period 365, best friends, threshold 20
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
+	```
+	https://aigents.com/al?steemit id akolonin report, format json
+		<JSON>
+	```
+	Request fresh report on at Golos user in JSON format, for period of given number of days, with specific option - best friends, listing all of them above 0% threshold:
+	```
+	https://aigents.com/al?golos id akolonin report fresh, format json, period 365, best friends, threshold 0
+		Your report is being prepared, please check back in few minutes… 
+	```
+	Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
+	```
+	https://aigents.com/al?steemit id akolonin report, format json
+		<JSON>
+	```
+1. Extended command options may be used for fine tuning contents and format of analytics:
+	format <file type>
+	<file type> := html | json
+	(whether to encode report in html or json)
+	Example: 
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format json
+	```
+	threshold <percents> 
+	<percents> := 0  - 100
+	(number of percents of importance to hide least important items)
+	Example:
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50
+	```
+	period <days>
+	<days> := 0  - 1000
+	(number of days to include in analysis from current date)
+	Example: 
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365
+	```
+	areas <tag> 
+	<tag> := <keyword>
+	(tag to restrict scope of analysis, only one tag may be used; multiple tags will be enabled later)
+	Example:
+	```
+	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai
+	```
+	* _**Note: When using https://golos.io/, only English encodings of tags is supported, so if need to use tag “разум”, should use “ru--razum” instead.**_
+	* _**Note: To change report parameters, each time need to do 2 or more calls, depending on amount of data to be included in report, like in the following.**_
+		First call - request report with parameters, for example: 
+		https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai
+		Next calls - request report data in polling manner, each 10-30 seconds, until it returns valid json or html data, for example:
+		https://aigents.com/al?steemit id akolonin report
 
-Login prompt:
-https://aigents.com/al?my logout
-	What your email, name, surname?
+1. For access of personal analytics of users on Facebook, VKontakte and Google+, it is required to use proprietary application server configued with respect to policies of these social networks in respect to personal data and privacy protection, with the following options:
+	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes.
+	Facebook:
+	```
+	your facebook id <facebook_id>, facebook key <facebook_key>.
+	```
+	Google+:
+	```
+	your google id <google_id>, google key <google_key>.
+	```
+	VKontakte (with __server token__ required):
+	```
+	your vkontakte id <vkontakte_id>, vkontakte key <vkontakte_key>, vkontakte token <vkontakte_token>.
+	```
+1. For any user of these social networks, the user should accept account binding for respective proprietary application with given social network account. The proritetary application should maintain user tokens obtained in the course of account binding and provide these tokens to the engine upon request for analytics with expra __token__ property, as in the following examples:
+	```
+	facebook id 10203057937968601, token <token>, report
+	google id 113174676192873877221, token <token>, report, format json
+	```
+1. The proritetary application should maintain security measures necessary to secure application keys and user tokens so they are not transmitted over public networks without encryption and are not stored in publicly available databases. It is responsibility of prorietary application to ensure protection of personal data of social network users, securing access to respective keys and tokens stored in application itself, in the Aigents server and being transmitted between them.
 
-Enter login email accordingly to registration:
-https://aigents.com/al?my email <your email>
-	What your <secret question>?
+## Aigents Web UI Customization
 
-Confirm login email accordingly to configured secret question and answer:
-https://aigents.com/al?my <secret question> <secret answer>
-	Ok. Hello <your name>! My Aigents 1.2.0 Copyright © 2018 Anton Kolonin, Aigents Group.
+	For custom Aigents Web User Interface (UI), download the http://aigents.com/download/latest/aigents_web.zip archive containing basic set of JavaScript files and HTML/CSS templates and feel free to override or replace them with account to __Aigents branding__ requirement below.
 
-Request fresh report on at Steemit user (in HTML):
-https://aigents.com/al?steemit id akolonin report fresh
-	Your report is being prepared, please check back in few minutes… 
+	Feel free to changhe or customize Aigents Web UI code as distributed under [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE).
 
-Get completed report on any Steemit user requested earlier in HTML format:
-https://aigents.com/al?steemit id akolonin report
-	<HTML>
+## Aigents Branding
 
-Request fresh report on at Steemit user in JSON format, for period of given number of days:
-https://aigents.com/al?steemit id akolonin report fresh, format json, period 365
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Steemit user requested earlier in JSON format:
-https://aigents.com/al?steemit id akolonin report, format json
-	<JSON>
-	
-Request fresh report on at Steemit user in HTML format, for period of given number of days, with specific tag tag (e.g. “psychology”) with specific options:
-https://aigents.com/al?steemit id akolonin report fresh, format html, period 365, areas psychology 
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Steemit user requested earlier in HTML format (refresh if in browser):
-https://aigents.com/al?steemit id akolonin report, format html
-	<HTML>
-
-Request fresh report on at Steemit user in HTML format, for period of given number of days, with specific tag tag (e.g. “ai”) with specific options:
-https://aigents.com/al?steemit id akolonin report fresh, format html, period 365, areas ai, best friends, my words by periods, my karma by periods 
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Steemit user requested earlier in HTML format (refresh if in browser):
-https://aigents.com/al?steemit id akolonin report, format html
-	<HTML>
-
-Request fresh report on at Steemit user in JSON format, for period of given number of days, with specific tag tag (e.g. “ai”) with specific option:
-https://aigents.com/al?steemit id akolonin report fresh, format json, period 365, areas ai, my karma by periods 
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Steemit user requested earlier in JSON format (refresh if in browser):
-https://aigents.com/al?steemit id akolonin report, format json
-	<JSON>
-
-Request fresh report on at Golos user in JSON format, for period of given number of days, with specific options:
-https://aigents.com/al?golos id akolonin report fresh, format json, period 365, my karma by periods 
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
-https://aigents.com/al?steemit id akolonin report, format json
-	<JSON>
-
-Request fresh report on at Golos user in JSON format, for period of given number of days, with specific tag (Russian tag names are transliterated like “поиск” => “ru--poisk”) with specific options:
-https://aigents.com/al?golos id akolonin report fresh, format json, areas ru--poisk, period 365, my karma by periods 
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
-https://aigents.com/al?steemit id akolonin report, format json
-	<JSON>
-
-Request fresh report on at Golos user in JSON format, for period of given number of days, with specific option - best friends, listing only top of them above 20% threshold:
-https://aigents.com/al?golos id akolonin report fresh, format json, period 365, best friends, threshold 20
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
-https://aigents.com/al?steemit id akolonin report, format json
-	<JSON>
-
-Request fresh report on at Golos user in JSON format, for period of given number of days, with specific option - best friends, listing all of them above 0% threshold:
-https://aigents.com/al?golos id akolonin report fresh, format json, period 365, best friends, threshold 0
-	Your report is being prepared, please check back in few minutes… 
-
-Get completed report on any Golos user requested earlier in JSON format (refresh if in browser):
-https://aigents.com/al?steemit id akolonin report, format json
-	<JSON>
-	
-Extended command options may be used for fine tuning contents and format of analytics:
-format <file type>
-<file type> := html | json
-(whether to encode report in html or json)
-Example: 
-https://aigents.com/al?steemit id akolonin report fresh, format json
-
-threshold <percents> 
-<percents> := 0  - 100
-(number of percents of importance to hide least important items)
-Example:
-https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50
-
-period <days>
-<days> := 0  - 1000
-(number of days to include in analysis from current date)
-Example: 
-https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365
-
-areas <tag> 
-<tag> := <keyword>
-(tag to restrict scope of analysis, only one tag may be used; multiple tags will be enabled later)
-Example:
-https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai
-
-Note: When using https://golos.io/, only English encodings of tags is supported, so if need to use tag “разум”, should use “ru--razum” instead.
-
-Note: To change report parameters, each time need to do 2 or more calls, depending on amount of data to be included in report, like in the following.
-First call - request report with parameters, for example: 
-https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai
-Next calls - request report data in polling manner, each 10-30 seconds, until it returns valid json or html data, for example:
-https://aigents.com/al?steemit id akolonin report
-For access of personal analytics of users on Facebook, VKontakte and Google+, it is required to use proprietary application server configued with respect to policies of these social networks in respect to personal data and privacy protection, with the following options:
-Application id, key and token for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes.
-
-Facebook:
-your facebook id <facebook_id>, facebook key <facebook_key>.
-
-Google+:
-your google id <google_id>, google key <google_key>.
-
-VKontakte (with server token required):
-your vkontakte id <vkontakte_id>, vkontakte key <vkontakte_key>, vkontakte token <vkontakte_token>.
-
-For any user of these social networks, the user should accept account binding for respective proprietary application with given social network account. The proritetary application should maintain user tokens obtained in the course of account binding and provide these tokens to the engine upon request for analytics with expra token property, as in the following examples:
-facebook id 10203057937968601, token <token>, report
-google id 113174676192873877221, token <token>, report, format json
-
-The proritetary application should maintain security measures necessary to secure application keys and user tokens so they are not transmitted over public networks without encryption and are not stored in publicly available databases. It is responsibility of prorietary application to ensure protection of personal data of social network users, securing access to respective keys and tokens stored in application itself, in the Aigents server and being transmitted between them.
-Aigents Web UI Customization
-For custom Aigents Web User Interface (UI), download the http://aigents.com/download/latest/aigents_web.zip archive containing basic set of JavaScript files and HTML/CSS templates and feel free to override or replace them with account to Aigents branding requirement below.
-Feel free to changhe or customize Aigents Web UI code as distributed under MIT License.
-Aigents Branding
 For any academic, non-commercial or commercial use of Aigents service or user interface, it is required to provide Aigents branding information in the form of text "Powered by Aigents" accompanied with one of the following icons, all linked to the https://aigents.com web site:
   
-Aigents Contact Information
-To stay in touch with Aigetns creators and maintainers for help and feedback, use the following channels:
-Via email (contact at aigents dot com): 
-On Facebook:
-Aigents page
-Artificial General Intelligence in Russia group
-Social Intelligence group
-Aigents chat on Messenger
-On Google+
-On YouTube
-On Steemit
-On Golos
-On VKontakte
+## Aigents Contact Information
 
+To stay in touch with Aigetns creators and maintainers for help and feedback, use the following channels:
+
+1. Via email (contact at aigents dot com): 
+1. On Facebook:
+	Aigents page
+	Artificial General Intelligence in Russia group
+	Social Intelligence group
+	Aigents chat on Messenger
+1. On Telegram
+	TBD 1
+	TBD 2
+1. On YouTube
+1. On Steemit
+1. On Golos
+1. On VKontakte
+
+![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
