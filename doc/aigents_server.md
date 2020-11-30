@@ -274,7 +274,7 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 * Using raw TCP/IP protocols via sockets, as discussed earlier - available at **aigents.com:1123** and for proprietary servers both;
 * Using HTTP/HTTPS web servcice as discussed earlier - available at https://aigents.com/al? and for proprietary servers both - as discussed below:
 
-1. To get reports on any user analytivs on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:
+1. To get reports on any user analytivs on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:\
 	Logout prompt (recommended to do in the beginning of the session since long idle time to start new session unconditionally):
 	```
 	https://aigents.com/al?my logout
@@ -388,27 +388,27 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 	format <file type>\
 	<file type> := html | json\
 	(whether to encode report in html or json)\
-	Example:\
+	Example:
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json
 	```
-	threshold <percents> 
-	<percents> := 0  - 100
-	(number of percents of importance to hide least important items)
+	threshold <percents>\
+	<percents> := 0  - 100\
+	(number of percents of importance to hide least important items)\
 	Example:
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50
 	```
-	period <days>
-	<days> := 0  - 1000
-	(number of days to include in analysis from current date)
+	period <days>\
+	<days> := 0  - 1000\
+	(number of days to include in analysis from current date)\
 	Example: 
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365
 	```
-	areas <tag> 
-	<tag> := <keyword>
-	(tag to restrict scope of analysis, only one tag may be used; multiple tags will be enabled later)
+	areas <tag>\
+	<tag> := <keyword>\
+	(tag to restrict scope of analysis, only one tag may be used; multiple tags will be enabled later)\
 	Example:
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai
