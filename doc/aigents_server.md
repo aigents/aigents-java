@@ -421,19 +421,19 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 		https://aigents.com/al?steemit id akolonin report
 
 1. For access of personal analytics of users on Facebook, VKontakte and Google+, it is required to use proprietary application server configued with respect to policies of these social networks in respect to personal data and privacy protection, with the following options:
-	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes.
-	- Facebook:
-	```
-	your facebook id <facebook_id>, facebook key <facebook_key>.
-	```
-	- Google+:
-	```
-	your google id <google_id>, google key <google_key>.
-	```
-	- VKontakte (with __server token__ required):
-	```
-	your vkontakte id <vkontakte_id>, vkontakte key <vkontakte_key>, vkontakte token <vkontakte_token>.
-	```
+	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes. Examples:
+		- Facebook:
+		```
+		your facebook id <facebook_id>, facebook key <facebook_key>.
+		```
+		- Google+:
+		```
+		your google id <google_id>, google key <google_key>.
+		```
+		- VKontakte (with __server token__ required):
+		```
+		your vkontakte id <vkontakte_id>, vkontakte key <vkontakte_key>, vkontakte token <vkontakte_token>.
+		```
 1. For any user of these social networks, the user should accept account binding for respective proprietary application with given social network account. The proritetary application should maintain user tokens obtained in the course of account binding and provide these tokens to the engine upon request for analytics with expra __token__ property, as in the following examples:
 	```
 	facebook id 10203057937968601, token <token>, report
