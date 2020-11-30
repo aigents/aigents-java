@@ -27,7 +27,7 @@ The following describes very basic steps of Aigents server setup.
 	```
 	java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm
 	```
-	_**Note: To avoid [known issue with Java 8](https://bugs.java.com/view_bug.do?bug_id=8156179), you need to add the option to Java command line: 
+	* _**Note: To avoid [known issue with Java 8](https://bugs.java.com/view_bug.do?bug_id=8156179), you need to add the option to Java command line: 
 	-Dsun.zip.disableMemoryMapping=true**_
 1. Setup administrative account (need to fill properties **email, name, surname, secret question, secret answer**) - from Aigents command line interface:
 	```
@@ -183,6 +183,7 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 	Your knows “goole $topic”, “dow jones $value”.
 	```
 	Listing news is done with “what times …, is … sources … ” statement, for example:
+	```
 	URL:http://aigents.mysite.org:1180/?what times yesterday is “google $topic”, text?
 	There text google chrome helper; text google chrome helper.
 	URL:http://aigents.mysite.org:1180/?what times 2014-10-18 is “google $topic”, topic?
