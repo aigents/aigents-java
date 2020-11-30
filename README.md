@@ -46,8 +46,8 @@ org
 6. If needed, build Aigents Desktop for Windows Executable from Jar using [Excelsior JET Technology](https://www.excelsiorjet.com/kb/35/howto-create-a-single-exe-from-your-java-application)  
 
 ## Manuals
-1. If needed, configure Aigents Power Server following [Aigents Server requirements configuration, operation and API use instructions](https://aigents.com/download/latest/readme.html)
-2. If needed, integrate Aigents Power Server in your own application following [Aigents Server Documentation](https://github.com/aigents/aigents-java/blob/master/doc/README.md) 
+1. If needed, configure Aigents Power Server following [Aigents Server requirements configuration, operation and API use instructions](doc/aigents_server.md)
+2. If needed, integrate Aigents Power Server in your own application following [Aigents Server Documentation](doc/README.md) 
 
 ## Credits and Attributions
 1. English and Russian positive and negative sentiment lexicons are created relying on works of [SentiWordNet](https://github.com/aesuli/SentiWordNet), [Bing Liu](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#lexicon), [РуСентиЛекс](https://www.labinform.ru/pub/rusentilex/index.htm) and [Linis Crowd](http://www.linis-crowd.org/).    

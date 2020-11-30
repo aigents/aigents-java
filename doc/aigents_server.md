@@ -173,7 +173,7 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 	Ok. Hello Admin Admin!
 	My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 	```
-1. Operations with sites, things and news used for web monitoring are performed accordingly to belief ontology of Aigents for Web (https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentWatchingKolonin.pdf), as described below. All of the following operations are possible after user is authenticated (logged in) as shown above.
+1. Operations with sites, things and news used for web monitoring are performed accordingly to [belief ontology of Aigents for Web](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentWatchingKolonin.pdf), as described below. All of the following operations are possible after user is authenticated (logged in) as shown above.
 	Listing sites is done with “my sites ...” statement, for example:
 	```
 	URL:http://aigents.mysite.org:1180/?what%20my%20sites?
