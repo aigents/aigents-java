@@ -265,12 +265,12 @@ The following presents various scenarios of Aigents use demonstrated with Aigent
 
 Aigents Server can be used to collect and analyse information in social networks, as it is described in articles [How to get your personal analytics for Steemit social network with help of Aigents bot](https://steemit.com/ai/@akolonin/how-to-get-your-personal-analytics-for-steemit-social-network-with-help-of-aigents-bot), [Using Aigents bot service to get social network analytics for Facebook, Google+ and VKontakte](https://steemit.com/ai/@akolonin/using-aigents-bot-service-to-get-social-network-analytics-for-facebook-google-and-vkontakte), [Personal social graph analysis for Steemit and Golos](https://steemit.com/psychology/@aigents/personal-social-graph-analysis-for-steemit-and-golos) and [Social Graph as Mirror in the Net](https://steemit.com/psychology/@aigents/social-graph-as-mirror-in-the-net).
 
-The following describes how it can be configured and used to access social analytics functions of Aigents, either using existing demo Aigetns service at https://aigents.com/al?what your name (as Aigents-branded application) or proprietary servers configured as described above (under brand of your own).
+The following describes how it can be configured and used to access social analytics functions of Aigents, either using existing demo Aigents service at ```"https://aigents.com/al?what your name"``` (as Aigents-branded application) or proprietary servers configured as described above (under brand of your own).
 
 There are many protocols can be used to access the Aigents Social Analytics, such as the following:
-* Using Aigents Chat - available for Aigents users at https://aigents.com/ only;
-* Using [Aigents Facebook Messenger Bot](https://www.messenger.com/t/aigents) - available for Aigents users only;
-* Using [Aigents Telegram Bot](https://web.telegram.org/#/im?p=@AigentsBot) - available for Aigents users only;
+* Using Aigents Chat at https://aigents.com/ - available for Aigents Web users at the Aigents Web Demo server or users of any other server hosting the Aigents Server deployment with Web UI;
+* Using [Aigents Facebook Messenger Bot](https://www.messenger.com/t/aigents) - available for Aigents Web Demo server users or any users of the any other Aigents Server deployment configured for Facebook;
+* Using [Aigents Telegram Bot](https://web.telegram.org/#/im?p=@AigentsBot) - available for Aigents Web Demo server users or any users of the any other Aigents Server deployment configured for Telegram;
 * Using raw TCP/IP protocols via sockets, as discussed earlier - available at **aigents.com:1123** and for proprietary servers both;
 * Using HTTP/HTTPS web servcice as discussed earlier - available at https://aigents.com/al? and for proprietary servers both - as discussed below:
 
@@ -340,6 +340,7 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 		Your report is being prepared, please check back in few minutes… 
 	```
 	Get completed report on any Steemit user requested earlier in JSON format (refresh if in browser):
+	```
 	https://aigents.com/al?steemit id akolonin report, format json
 		<JSON>
 	```
@@ -451,6 +452,7 @@ Feel free to changhe or customize Aigents Web UI code as distributed under [MIT 
 Aigents® code is desitrubuted under the terms of [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE), so the code can be used in any commercial and non-commercial applications in form of the open or closed source as long as the original Aigents® license is preserved. 
 
 For any academic, non-commercial or commercial use of Aigents service or user interface, it is required to provide Aigents branding information in the form of text "Powered by Aigents®" accompanied with one of the following icons, all linked to the https://aigents.com web site:
+
 ![](https://aigents.com/ui/img/aigent32.png) ![](https://aigents.com/img/aigent64wb.png) ![](https://aigents.com/ui/img/aigent.png)
   
 ## Aigents® Contact Information
