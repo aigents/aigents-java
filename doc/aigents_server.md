@@ -161,10 +161,8 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 		}
 	}
 	```
-	_**
-	Note 1: While the following examples are given using AL over HTTP/HTTPS protocol, the same interactions can be performed over TCP/IP protocol using Telnet or any other client.
-	Note 2: When submitting AL requests over HTTP/HTTPS, space and its escaped version %20 are interchangeable, so "my%20name%20admin" is equivalent for "my name admin".
-	**_
+	_**Note 1: While the following examples are given using AL over HTTP/HTTPS protocol, the same interactions can be performed over TCP/IP protocol using Telnet or any other client.**_
+	_**Note 2: When submitting AL requests over HTTP/HTTPS, space and its escaped version %20 are interchangeable, so "my%20name%20admin" is equivalent for "my name admin".**_
 1. Requests and response are currently processed as HTTP GET requests, so the response is submitted to URL including domain name and optional port, followed by slash and question mark with following URI-encoded text of complete statement in [Agent Language](http://aigents.com/papers/2014AgentLanguageKolonin.pdf), to be parsed accordingly to language defintion (http://aigents.com/papers/2014AgentLanguageKolonin.pdf) while response is written to the stream, for example – the authentication is done as shown below:
 	```
 	**URL:**http://aigents.mysite.org:1180/?my%20name%20admin
