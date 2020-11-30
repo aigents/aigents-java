@@ -165,7 +165,7 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 	```
 	* _**Note 1: While the following examples are given using AL over HTTP/HTTPS protocol, the same interactions can be performed over TCP/IP protocol using Telnet or any other client.**_
 	* _**Note 2: When submitting AL requests over HTTP/HTTPS, space and its escaped version %20 are interchangeable, so "my%20name%20admin" is equivalent for "my name admin".**_
-1. Requests and response are currently processed as HTTP GET requests, so the response is submitted to URL including domain name and optional port, followed by slash and question mark with following URI-encoded text of complete statement in [Agent Language](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentLanguageKolonin.pdf), to be parsed accordingly to [language defintion](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentLanguageKolonin.pdf) while response is written to the stream, for example – the authentication is done as shown below:
+1. Requests and response are currently processed as HTTP GET requests, so the response is submitted to URL including domain name and optional port, followed by slash and question mark with following URI-encoded text of complete statement in [Aigents Language](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentLanguageKolonin.pdf), to be parsed accordingly to [language defintion](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentLanguageKolonin.pdf) while response is written to the stream, for example – the authentication is done as shown below:
 	```
 	URL:http://aigents.mysite.org:1180/?my%20name%20admin
 	What your password?
@@ -234,7 +234,15 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 
 The following presents various scenarios of Aigents use demonstrated with Aigents server test suite implemented in PHP.
 
-1. Download English lexicon to application folder http://aigents.com/download/latest/lexicon_english.txt
+1. Download English and Russian lexicon files to application folder
+	```
+	https://github.com/aigents/aigents-java/blob/master/lexicon_english.txt
+	https://github.com/aigents/aigents-java/blob/master/lexicon_negative_english.txt
+	https://github.com/aigents/aigents-java/blob/master/lexicon_positive_english.txt
+	https://github.com/aigents/aigents-java/blob/master/lexicon_russian.txt
+	https://github.com/aigents/aigents-java/blob/master/lexicon_negative_russian.txt
+	https://github.com/aigents/aigents-java/blob/master/lexicon_positive_russian.txt
+	```
 1. Make sure Aigents server can be started on the localhost at port 1080 as described above.
 1. Run Aigents server in application folder with no storage mode (with store path '' option):
 	```
