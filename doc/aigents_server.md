@@ -119,9 +119,9 @@ The following describes very basic steps of Aigents server setup.
 	```
 1. If HTTP/HTTPS web service is configured, check access to Aigents Web service API HTTP/HTTPS protocol on TCP/IP port specified above to connect to Aigents server via Web brower or any HTTP client:
 	```
-	**URL:**http://aigents.mysite.org:1180/?my%20name%20admin
+	URL:http://aigents.mysite.org:1180/?my%20name%20admin
 	What your password?
-	**URL:**http://aigents.mysite.org:1180/?my%20password%2012345
+	URL:http://aigents.mysite.org:1180/?my%20password%2012345
 	Ok. Hello Admin Admin!
 	My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 	...
@@ -135,7 +135,7 @@ Logging files named such as aigents-log-2020-11-30-log.txt should be cleaned up 
 The following describes basics of Aigents Web API over HTTP/HTTPS protocol for the purpose of Web monitoring and news collection.
 
 1. Consider that Aigents Web API is similar to plain HTTP/HTTPS REST service API with few differences:
-	* Request is submitted in [Aigents Language (AL)](http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf)
+	* Request is submitted in [Aigents Language (AL)](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentLanguageKolonin.pdf)
 	* Response is returned in either AL or JSON (in specific cases)
 	* GET and POST methods can be used interchangeably, PUT and DELETE are not supported
 	Authentication is based on cookies (configured with properties cookie domain and cookie name, as described in previous section). That is, respective fields of the HTTP header should be filled. When Aigents server parses the HTTP request, it reads Cookie field of HTTP header. If filled in, it keeps it to maintain the session. If not filled in, it generates new one to create new session.
@@ -161,101 +161,117 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 		}
 	}
 	```
-	_**Note 1: While the following examples are given using AL over HTTP/HTTPS protocol, the same interactions can be performed over TCP/IP protocol using Telnet or any other client.**_
-	_**Note 2: When submitting AL requests over HTTP/HTTPS, space and its escaped version %20 are interchangeable, so "my%20name%20admin" is equivalent for "my name admin".**_
-1. Requests and response are currently processed as HTTP GET requests, so the response is submitted to URL including domain name and optional port, followed by slash and question mark with following URI-encoded text of complete statement in [Agent Language](http://aigents.com/papers/2014AgentLanguageKolonin.pdf), to be parsed accordingly to language defintion (http://aigents.com/papers/2014AgentLanguageKolonin.pdf) while response is written to the stream, for example – the authentication is done as shown below:
+	* _**Note 1: While the following examples are given using AL over HTTP/HTTPS protocol, the same interactions can be performed over TCP/IP protocol using Telnet or any other client.**_
+	* _**Note 2: When submitting AL requests over HTTP/HTTPS, space and its escaped version %20 are interchangeable, so "my%20name%20admin" is equivalent for "my name admin".**_
+1. Requests and response are currently processed as HTTP GET requests, so the response is submitted to URL including domain name and optional port, followed by slash and question mark with following URI-encoded text of complete statement in [Agent Language](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentLanguageKolonin.pdf), to be parsed accordingly to [language defintion](https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentLanguageKolonin.pdf) while response is written to the stream, for example – the authentication is done as shown below:
 	```
-	**URL:**http://aigents.mysite.org:1180/?my%20name%20admin
+	URL:http://aigents.mysite.org:1180/?my%20name%20admin
 	What your password?
-	**URL:**http://aigents.mysite.org:1180/?my%20password%2012345
+	URL:http://aigents.mysite.org:1180/?my%20password%2012345
 	Ok. Hello Admin Admin!
 	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
 	```
-1. Operations with sites, things and news used for web monitoring are performed accordingly to belief ontology of Aigents for Web (http://aigents.com/papers/2014AgentWatchingKolonin.pdf), as described below. All of the following operations are possible after user is authenticated (logged in) as shown above.
+1. Operations with sites, things and news used for web monitoring are performed accordingly to belief ontology of Aigents for Web (https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentWatchingKolonin.pdf), as described below. All of the following operations are possible after user is authenticated (logged in) as shown above.
+	Listing sites is done with “my sites ...” statement, for example:
+	```
+	URL:http://aigents.mysite.org:1180/?what%20my%20sites?
+	Your sites http://money.cnn.com/data/markets/dow/, http://wired.com, http://www.nytimes.com/pages/business/, http://www.reuters.com/.
+	```
+	Listing things is done with “my knows ...” statement, for example:
+	```
+	URL:http://aigents.mysite.org:1180/?what%20my%20knows?
+	Your knows “goole $topic”, “dow jones $value”.
+	```
+	Listing news is done with “what times …, is … sources … ” statement, for example:
+	URL:http://aigents.mysite.org:1180/?what times yesterday is “google $topic”, text?
+	There text google chrome helper; text google chrome helper.
+	URL:http://aigents.mysite.org:1180/?what times 2014-10-18 is “google $topic”, topic?
+	There topic chrome helper; topic chrome helper.
+	URL:http://aigents.mysite.org:1180/?what times 2014-10-18 is “google $topic”, text, sources?
+	There sources http://www.reuters.com/, text google chrome helper; sources http://www.wired.com/ text google chrome helper.
+	URL:http://aigents.mysite.org:1180/?what sources http://www.reuters.com/ is “google $topic”, text, times?
+	There text google chrome helper, times 2014-10-18; text google glass technology, times 2017-10-19; text google now intelligence, times 2017-10-20.
+	```
+	Adding sites is done with “my sites … ” statement, for example:
+	```
+	URL:http://aigents.mysite.org:1180/?my%20sites%20http://www.reuters.com/,%20http://www.wired.com/.
+	Ok.
+	```
+	Adding things is done with “my knows … ” statement, for example:
+	```
+	URL:http://aigents.mysite.org:1180/?my%knows%kung-fu,%20'google $topic',%20“dow jones $value”.
+	Ok.
+	```
+	Configuring extra patterns for things is done with “... patterns …” statement, for example:
+	```
+	URL:http://aigents.mysite.org:1180/?kung-fu patterns bruce-lee, kung-fu, “kung fu”, shaolin.
+	Ok.
+	```
+	Configuring typed variables (of types such as word, time, number and money) for patterns is done having variables explicitly specified for a thing with “... has ...” statement, for example:
+	```
+	URL:http://aigents.mysite.org:1180/?dow jones $value” has value.
+	Ok.
+	URL:http://aigents.mysite.org:1180/?value is number.
+	Ok.
+	URL:http://aigents.mysite.org:1180/?Trump $action Putin” has action.
+	Ok.
+	URL:http://aigents.mysite.org:1180/?action is word.
+	Ok.
+	URL:http://aigents.mysite.org:1180/?Operation starts at $hour_x” has hour_x.
+	Ok.
+	URL:http://aigents.mysite.org:1180/?hour_x is time.
+	Ok.
+	URL:http://aigents.mysite.org:1180/?offer_price pas patterns “offer price $price” has price_y.
+	Ok.
+	URL:http://aigents.mysite.org:1180/?price_y is money.
+	Ok.
+	```
 
-Listing sites is done with “my sites ...” statement, for example:
-URL:http://aigents.mysite.org:1180/?what%20my%20sites?
-Your sites http://money.cnn.com/data/markets/dow/, http://wired.com, http://www.nytimes.com/pages/business/, http://www.reuters.com/.
+## Aigents Extended Web API examples
 
-Listing things is done with “my knows ...” statement, for example:
-URL:http://aigents.mysite.org:1180/?what%20my%20knows?
-Your knows “goole $topic”, “dow jones $value”.
-
-Listing news is done with “what times …, is … sources … ” statement, for example:
-URL:http://aigents.mysite.org:1180/?what times yesterday is “google $topic”, text?
-There text google chrome helper; text google chrome helper.
-URL:http://aigents.mysite.org:1180/?what times 2014-10-18 is “google $topic”, topic?
-There topic chrome helper; topic chrome helper.
-URL:http://aigents.mysite.org:1180/?what times 2014-10-18 is “google $topic”, text, sources?
-There sources http://www.reuters.com/, text google chrome helper; sources http://www.wired.com/ text google chrome helper.
-URL:http://aigents.mysite.org:1180/?what sources http://www.reuters.com/ is “google $topic”, text, times?
-There text google chrome helper, times 2014-10-18; text google glass technology, times 2017-10-19; text google now intelligence, times 2017-10-20.
-
-Adding sites is done with “my sites … ” statement, for example:
-URL:http://aigents.mysite.org:1180/?my%20sites%20http://www.reuters.com/,%20http://www.wired.com/.
-Ok.
-
-Adding things is done with “my knows … ” statement, for example:
-URL:http://aigents.mysite.org:1180/?my%knows%kung-fu,%20'google $topic',%20“dow jones $value”.
-Ok.
-
-Configuring extra patterns for things is done with “... patterns …” statement, for example:
-URL:http://aigents.mysite.org:1180/?kung-fu patterns bruce-lee, kung-fu, “kung fu”, shaolin.
-Ok.
-
-Configuring typed variables (of types such as word, time, number and money) for patterns is done having variables explicitly specified for a thing with “... has ...” statement, for example:
-URL:http://aigents.mysite.org:1180/?dow jones $value” has value.
-Ok.
-URL:http://aigents.mysite.org:1180/?value is number.
-Ok.
-URL:http://aigents.mysite.org:1180/?Trump $action Putin” has action.
-Ok.
-URL:http://aigents.mysite.org:1180/?action is word.
-Ok.
-URL:http://aigents.mysite.org:1180/?Operation starts at $hour_x” has hour_x.
-Ok.
-URL:http://aigents.mysite.org:1180/?hour_x is time.
-Ok.
-URL:http://aigents.mysite.org:1180/?offer_price pas patterns “offer price $price” has price_y.
-Ok.
-URL:http://aigents.mysite.org:1180/?price_y is money.
-Ok.
-
-Aigents Extended Web API examples
 The following presents various scenarios of Aigents use demonstrated with Aigents server test suite implemented in PHP.
-Download English lexicon to application folder http://aigents.com/download/latest/lexicon_english.txt
-Make sure Aigents server can be started on the localhost at port 1080 as described above.
-Run Aigents server in application folder with no storage mode (with store path '' option):
-#nohup java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm store path "''", cookie domain localtest.com, console off &
 
-Create separate test folder for tests and download PHP test suote to it from http://aigents.com/download/latest/aigents_php.zip
-Unzip contents of aigents_php.zip file in tests folder, with http subfolder created.
-Host Web server in the http subfolder created above as root Web folder, on port 80 under domain localtset.com. For other domain, will need to create respective URL-s in PHP files. For hosting Wev server, Python SimpleHTTPServer application can be used, as in the following example:
-Make sure you have Python with SimpleHTTPServer downloaded and installed.
-Run Python web server as the following command:
-#python -m SimpleHTTPServer 80
+1. Download English lexicon to application folder http://aigents.com/download/latest/lexicon_english.txt
+1. Make sure Aigents server can be started on the localhost at port 1080 as described above.
+1. Run Aigents server in application folder with no storage mode (with store path '' option):
+	```
+	#nohup java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm store path "''", cookie domain localtest.com, console off &
+	```
+1. Create separate test folder for tests and download PHP test suote to it from http://aigents.com/download/latest/aigents_php.zip
+1. Unzip contents of aigents_php.zip file in tests folder, with http subfolder created.
+1. Host Web server in the http subfolder created above as root Web folder, on port 80 under domain localtset.com. For other domain, will need to create respective URL-s in PHP files. For hosting Wev server, Python SimpleHTTPServer application can be used, as in the following example:
+	1. Make sure you have Python with SimpleHTTPServer downloaded and installed.
+	1. Run Python web server as the following command:
+		```
+		#python -m SimpleHTTPServer 80
+		```
+1. Run Aigents tests as the following command:
+	```
+	#php -f agent_test.php
+	```
+1. Wait till tests are succeeded with success:
+	```
+	...
+	GET:Ok.
+	SUCCESS!
+	```
+1. Study PHP files involved in tests for different use cases.
+1. Feel free to changhe or customize Aigents PHP code as distributed under [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE).
 
-Run Aigents tests as the following command:
-#php -f agent_test.php
+## Aigents Social Network Integration with Web API
 
-Wait till tests are succeeded with success:
-...
-GET:Ok.
-SUCCESS!
-
-Study PHP files involved in tests for different use cases.
-Feel free to changhe or customize Aigents PHP code as distributed under MIT License.
-
-Aigents Social Network Integration with Web API
 Aigents Server can be used to collect and analyse information in social networks, as it is described in articles How to get your personal analytics for Steemit social network with help of Aigents bot, Using Aigents bot service to get social network analytics for Facebook, Google+ and VKontakte, Personal social graph analysis for Steemit and Golos and Social Graph as Mirror in the Net.
+
 The following describes how it can be configured and used to access social analytics functions of Aigents, either using existing demo Aigetns service at https://aigents.com/al?what your name (as Aigents-branded application) or proprietary servers configured as described above (under brand of your own).
+
 There are many protocols can be used to access the Aigents Social Analytics, such as the following:
-Using Aigents Chat - available for Aigents users at https://aigents.com/ only;
-Using Aigents Facebook Messenger Bot - available for Aigents users only;
-Using Aigents Telegram Bot - available for Aigents users only;
-Using raw TCP/IP protocols via sockets, as discussed earlier - available at aigents.com:1123 and for proprietary servers both;
-Using HTTP/HTTPS web servcice as discussed earlier - available at https://aigents.com/al? and for proprietary servers both - as discussed below:
-To get reports on any user analytivs on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:
+* Using Aigents Chat - available for Aigents users at https://aigents.com/ only;
+* Using Aigents Facebook Messenger Bot - available for Aigents users only;
+* Using Aigents Telegram Bot - available for Aigents users only;
+* Using raw TCP/IP protocols via sockets, as discussed earlier - available at aigents.com:1123 and for proprietary servers both;
+* Using HTTP/HTTPS web servcice as discussed earlier - available at https://aigents.com/al? and for proprietary servers both - as discussed below:
+
+1. To get reports on any user analytivs on public networks based on blockchain technology such as Steemit, Golos or Ethereum with demo Aigents service, use the following flow:
 Logout prompt (recommended to do in the beginning of the session since long idle time to start new session unconditionally):
 	https://aigents.com/al?my login
 
