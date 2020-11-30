@@ -27,7 +27,8 @@ The following describes very basic steps of Aigents server setup.
 	```
 	java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm
 	```
-	_**Note: To avoid [known issue with Java 8](https://bugs.java.com/view_bug.do?bug_id=8156179), you need to add the option to Java command line: -Dsun.zip.disableMemoryMapping=true**_
+	_**Note: To avoid [known issue with Java 8](https://bugs.java.com/view_bug.do?bug_id=8156179), you need to add the option to Java command line: 
+	-Dsun.zip.disableMemoryMapping=true**_
 1. Setup administrative account (need to fill properties **email, name, surname, secret question, secret answer**) - from Aigents command line interface:
 	```
 	I:Started TCP at 1123.
@@ -85,7 +86,7 @@ The following describes very basic steps of Aigents server setup.
 	...
 	I:Ended.
 	```
-1. Start Aigetns over per step 8 above, but now better using it as daemon with nohup Linux command or console application with screen Linux command so that server keeps running uninterruptedly upon current session termination:
+1. Start Aigetns over per step 8 above, but now better using it as daemon with **nohup** Linux command or console application with **screen** Linux command so that server keeps running uninterruptedly upon current session termination:
 	```
 	#nohup java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm console off &
 	[1] 12345
@@ -110,7 +111,7 @@ The following describes very basic steps of Aigents server setup.
 	What your password?
 	my password 12345
 	Ok. Hello Admi Admin!
-	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 	...
 	bye
 	No thing.
@@ -122,54 +123,57 @@ The following describes very basic steps of Aigents server setup.
 	What your password?
 	**URL:**http://aigents.mysite.org:1180/?my%20password%2012345
 	Ok. Hello Admin Admin!
-	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 	...
 	```
-1. Check location of storage and logging files in application folder (containing Aigents.jar file):
+1. Check location of storage and logging files in application folder (containing **Aigents.jar** file):
 Storage al.txt file sfould be backed up - either using either Dropbox folder to host the entire application folder or by custom backing up scripts.
-Logging files named such as aigents-log-2017-12-31-log.txt should be cleaned up periodically - manually or using custom backing up scripts.
+Logging files named such as aigents-log-2020-11-30-log.txt should be cleaned up periodically - manually or using custom backing up scripts.
 
 ## Aigents Basic Web API use
 
 The following describes basics of Aigents Web API over HTTP/HTTPS protocol for the purpose of Web monitoring and news collection.
-Consider that Aigents Web API is similar to plain HTTP/HTTPS REST service API with few differences:
-Request is submitted in Aigents Language (AL)
-Response is returned in either AL or JSON (in specific cases)
-GET and POST methods can be used interchangeably, PUT and DELETE are not supported
 
-Authentication is based on cookies (configured with properties cookie domain and cookie name, as described in previous section). That is, respective fields of the HTTP header should be filled. When Aigents server parses the HTTP request, it reads Cookie field of HTTP header. If filled in, it keeps it to maintain the session. If not filled in, it generates new one to create new session.
-When Aigents server builds the HTTP response, it fills Set-Cookie field of HTTP header with value of existing on newly created session cookie. On the client side, the sessions and cookies may be maintained, for PHP example, with PEST wrapper of CURL functions (https://github.com/educoder/pest):
-$baseURL = "http://aigents.mysite.org:1180/?";
-$cookie;
-function url_pest( $url ) {
-	global $baseURL, $cookie;
-	$pest = new Pest($baseURL);
-	try {
-		$url = $baseURL.urlencode($url);
-		if (isset($cookie)) {
-			$pest->curl_opts[CURLOPT_COOKIE] = $cookie;
+1. Consider that Aigents Web API is similar to plain HTTP/HTTPS REST service API with few differences:
+	* Request is submitted in [Aigents Language (AL)](http://aigents.com/papers/2015/ZONT-2015-Agent-Language-Kolonin.pdf)
+	* Response is returned in either AL or JSON (in specific cases)
+	* GET and POST methods can be used interchangeably, PUT and DELETE are not supported
+	Authentication is based on cookies (configured with properties cookie domain and cookie name, as described in previous section). That is, respective fields of the HTTP header should be filled. When Aigents server parses the HTTP request, it reads Cookie field of HTTP header. If filled in, it keeps it to maintain the session. If not filled in, it generates new one to create new session.
+	When Aigents server builds the HTTP response, it fills Set-Cookie field of HTTP header with value of existing on newly created session cookie. On the client side, the sessions and cookies may be maintained, for PHP example, with PEST wrapper of CURL functions (https://github.com/educoder/pest):
+	```
+	$baseURL = "http://aigents.mysite.org:1180/?";
+	$cookie;
+	function url_pest( $url ) {
+		global $baseURL, $cookie;
+		$pest = new Pest($baseURL);
+		try {
+			$url = $baseURL.urlencode($url);
+			if (isset($cookie)) {
+				$pest->curl_opts[CURLOPT_COOKIE] = $cookie;
+			}
+			$result = $pest->get($url);
+			$cookie=$pest->last_headers['set-cookie'];
+			unset($pest);
+			return $result;
+		} catch( Exception $e ) {
+			unset($pest);
+			throw($e);
 		}
-		$result = $pest->get($url);
-		$cookie=$pest->last_headers['set-cookie'];
-		unset($pest);
-		return $result;
-	} catch( Exception $e ) {
-		unset($pest);
-		throw($e);
 	}
-}
-Note 1: While the following examples are given using AL over HTTP/HTTPS protocol, the same interactions can be performed over TCP/IP protocol using Telnet or any other client.
-Note 2: When submitting AL requests over HTTP/HTTPS, space and its escaped version %20 are interchangeable, so "my%20name%20admin" is equivalent for "my name admin".
-
-Requests and response are currently processed as HTTP GET requests, so the response is submitted to URL including domain name and optional port, followed by slash and question mark with following URI-encoded text of complete statement in Agent Language, to be parsed accordingly to language defintion (http://aigents.com/papers/2014AgentLanguageKolonin.pdf) while response is written to the stream, for example – the authentication is done as shown below:
-
-URL:http://aigents.mysite.org:1180/?my%20name%20admin
-What your password?
-URL:http://aigents.mysite.org:1180/?my%20password%2012345
-Ok. Hello Admin Admin!
-My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
-
-Operations with sites, things and news used for web monitoring are performed accordingly to belief ontology of Aigents for Web (http://aigents.com/papers/2014AgentWatchingKolonin.pdf), as described below. All of the following operations are possible after user is authenticated (logged in) as shown above.
+	```
+	_**
+	Note 1: While the following examples are given using AL over HTTP/HTTPS protocol, the same interactions can be performed over TCP/IP protocol using Telnet or any other client.
+	Note 2: When submitting AL requests over HTTP/HTTPS, space and its escaped version %20 are interchangeable, so "my%20name%20admin" is equivalent for "my name admin".
+	**_
+1. Requests and response are currently processed as HTTP GET requests, so the response is submitted to URL including domain name and optional port, followed by slash and question mark with following URI-encoded text of complete statement in [Agent Language](http://aigents.com/papers/2014AgentLanguageKolonin.pdf), to be parsed accordingly to language defintion (http://aigents.com/papers/2014AgentLanguageKolonin.pdf) while response is written to the stream, for example – the authentication is done as shown below:
+	```
+	**URL:**http://aigents.mysite.org:1180/?my%20name%20admin
+	What your password?
+	**URL:**http://aigents.mysite.org:1180/?my%20password%2012345
+	Ok. Hello Admin Admin!
+	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	```
+1. Operations with sites, things and news used for web monitoring are performed accordingly to belief ontology of Aigents for Web (http://aigents.com/papers/2014AgentWatchingKolonin.pdf), as described below. All of the following operations are possible after user is authenticated (logged in) as shown above.
 
 Listing sites is done with “my sites ...” statement, for example:
 URL:http://aigents.mysite.org:1180/?what%20my%20sites?
