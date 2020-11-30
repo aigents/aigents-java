@@ -384,11 +384,11 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 	https://aigents.com/al?steemit id akolonin report, format json
 		<JSON>
 	```
-1. Extended command options may be used for fine tuning contents and format of analytics:
-	format <file type>
-	<file type> := html | json
-	(whether to encode report in html or json)
-	Example: 
+1. Extended command options may be used for fine tuning contents and format of analytics:\
+	format <file type>\
+	<file type> := html | json\
+	(whether to encode report in html or json)\
+	Example:\
 	```
 	https://aigents.com/al?steemit id akolonin report fresh, format json
 	```
@@ -415,12 +415,12 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 	```
 	* _**Note: When using https://golos.io/, only English encodings of tags is supported, so if need to use tag “разум”, should use “ru--razum” instead.**_
 	* _**Note: To change report parameters, each time need to do 2 or more calls, depending on amount of data to be included in report, like in the following.**_
-		First call - request report with parameters, for example: 
+		- First call - request report with parameters, for example: 
 		https://aigents.com/al?steemit id akolonin report fresh, format json, threshold 50, days 365, areas ai
-		Next calls - request report data in polling manner, each 10-30 seconds, until it returns valid json or html data, for example:
+		- Next calls - request report data in polling manner, each 10-30 seconds, until it returns valid json or html data, for example:
 		https://aigents.com/al?steemit id akolonin report
 
-1. For access of personal analytics of users on Facebook, VKontakte and Google+, it is required to use proprietary application server configued with respect to policies of these social networks in respect to personal data and privacy protection, with the following options:
+1. For access of personal analytics and single-sign-on for users on Facebook, Reddit, Twitter, VKontakte and Google+, it is required to use proprietary application server configued with respect to policies of these social networks in respect to personal data and privacy protection, with the following options:
 	* Application __id__, __key__ and __token__ for proprietery application obtained for respective social networks, accordingly to their API and developer policies. Obtained application keys and tokens should be configured with the following commands with command line, telnet or web chat with counfuguration saved and server restarted after changes. Examples:
 		- Facebook:
 		```
