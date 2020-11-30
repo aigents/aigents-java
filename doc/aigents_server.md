@@ -2,7 +2,7 @@
 
 The following describes configuration and operation of Aigents server as a console application or a server deamon (so called “Aigents Farm”) with no user interface.
 
-##Aigents Requirements
+## Aigents Requirements
 
 Aigents Server can be installed on any Java-friendly operating environment fulfilling the following requirements.
 
@@ -12,7 +12,7 @@ Aigents Server can be installed on any Java-friendly operating environment fulfi
 1. Ability to open ports for HTTP/HTTPS and TCP/IP (telnet) connections.
 1. Optionally - ability to access email servers for incoming and outgoing email.
 
-##Aigents Basic configuration
+## Aigents Basic configuration
 
 The following describes very basic steps of Aigents server setup.
 
@@ -27,103 +27,110 @@ The following describes very basic steps of Aigents server setup.
 	```
 	java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm
 	```
-	_Note: To avoid known issue with Java 8, you need to add the option to Java command line: -Dsun.zip.disableMemoryMapping=true_
-1. Setup administrative account (need to fill properties email, name, surname, secret question, secret answer) - from Aigents command line interface:
-```
-I:Started TCP at 1123.
-I:Started HTTP at 1180.
-my email admin@admin.org, name admin, surname admin.
-Login:email admin@admin.org, name admin, surname admin.
-I:What your secret question, secret answer?
-my secret question password, secret answer 12345.
-I:What your password?
-my password 12345.
-...
-I:Ok. Hello Admin Admin!
-My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
-...
-```
-
-Optionally, for telnet terminal access, re-configure TCP/IP port, filling tcp port property (default is port 1123) - from Aigents command line interface:
-...
-your tcp port 1123.
-Dec:Dec:[aigents [tcp port 1123]]. I:Ok.
-what your tcp port?
-Int:[aigents tcp port]?
-I:My tcp port 1123.
-...
-
-Optionally, for HTTP/HTTPS web service access, re-configure web site parameters http origin, http port, cookie domain, cookie name (needed for Web API access only, default port is 1180):
-...
-your http origin http://aigents.mysite.org, http port 1180, cookie domain aigents.mysite.org, cookie name myaigent.
-Dec:[aigents ([http origin http://aigents.mysite.org] [http port 1180] [cookie domain aigents.mysite.org] [cookie name myaigent])].
-I:Ok.
-your http origin, http port, cookie domain, cookie name?
-Int:[aigents (http origin http port cookie domain cookie name)]?
-I:My cookie domain aigents.mysite.org, cookie name myaigent, http origin http://aigents.mysite.org, http port 1180.
-...
-
-Optionally, for email access, setup email account (POP3 and SMTP) and for sending notifications (SMTP), filling properties email, email login, email password, mail.pop3s.host, mail.smtp.host (for example, based on mysite.org) - from Aigents command line interface:
-...
-your email aigent@mysite.org, email login aigent, email password qwerty, mail.pop3s.host mail.mysite.org, mail.smtp.host mysite.org.
-Dec:[aigents ([email aigent@mysite.org] [email login aigent] [email password qwerty] [mail.pop3s.host mail.mysite.org] [mail.smtp.host mysite.org])].
-I:Ok.
-what your email, email login, email password, mail.pop3s.host, mail.smtp.host?
-Int:[aigents (email email login email password mail.pop3s.host mail.smtp.host)]?
-I:My email aigent@mysite.org, email login aigent, email password 'qwerty', mail.pop3s.host mail.mysite.org, mail.smtp.host mysite.org.
-...
-
-Save configuration and exit Aigents server with command-line interface:
-...
-you save!
-I:Ok.
-bye
-Dec:[name bye].
-...
-I:Ended.
-
-Start Aigetns over per step 8 above, but now better using it as daemon with nohup Linux command or console application with screen Linux command so that server keeps running uninterruptedly upon current session termination:
-#nohup java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm console off &
-[1] 12345
-#appending output to nohup.out
-...
-
-or
-
-#screen
-#java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm
-...
-... open another Linux terminal session ...
-...
-
-If telnet terminal access is configured, ensure that you can remotely control Aigents server console, using telnet on TCP/IP port specified above (may be not secure because telnet protocol is not encrypted):
-#telnet aigents.mysite.org 1123
-Trying 111.22.0.33...
-Connected to aigents.mysite.org.
-Escape character is '^]'.
-my name admin
-What your password?
-my password 12345
-Ok. Hello Admi Admin!
-My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
-...
-bye
-No thing.
-Connection closed by foreign host.
-
-If HTTP/HTTPS web service is configured, check access to Aigents Web service API HTTP/HTTPS protocol on TCP/IP port specified above to connect to Aigents server via Web brower or any HTTP client:
-URL:http://aigents.mysite.org:1180/?my%20name%20admin
-What your password?
-URL::http://aigents.mysite.org:1180/?my%20password%2012345
-Ok. Hello Admin Admin!
-My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
-...
-
-Check location of storage and logging files in application folder (containing Aigents.jar file):
+	_**Note: To avoid [known issue with Java 8](https://bugs.java.com/view_bug.do?bug_id=8156179), you need to add the option to Java command line: -Dsun.zip.disableMemoryMapping=true**_
+1. Setup administrative account (need to fill properties **email, name, surname, secret question, secret answer**) - from Aigents command line interface:
+	```
+	I:Started TCP at 1123.
+	I:Started HTTP at 1180.
+	my email admin@admin.org, name admin, surname admin.
+	Login:email admin@admin.org, name admin, surname admin.
+	I:What your secret question, secret answer?
+	my secret question password, secret answer 12345.
+	I:What your password?
+	my password 12345.
+	...
+	I:Ok. Hello Admin Admin!
+	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	...
+	```
+1. Optionally, for telnet terminal access, re-configure TCP/IP port, filling **tcp port** property (default is port 1123) - from Aigents command line interface:
+	```
+	...
+	your tcp port 1123.
+	Dec:Dec:[aigents [tcp port 1123]]. I:Ok.
+	what your tcp port?
+	Int:[aigents tcp port]?
+	I:My tcp port 1123.
+	...
+	```
+1. Optionally, for HTTP/HTTPS web service access, re-configure web site parameters **http origin, http port, cookie domain, cookie name** (needed for Web API access only, default port is 1180):
+	```
+	...
+	your http origin http://aigents.mysite.org, http port 1180, cookie domain aigents.mysite.org, cookie name myaigent.
+	Dec:[aigents ([http origin http://aigents.mysite.org] [http port 1180] [cookie domain aigents.mysite.org] [cookie name myaigent])].
+	I:Ok.
+	your http origin, http port, cookie domain, cookie name?
+	Int:[aigents (http origin http port cookie domain cookie name)]?
+	I:My cookie domain aigents.mysite.org, cookie name myaigent, http origin http://aigents.mysite.org, http port 1180.
+	...
+	```
+1. Optionally, for email access, setup email account (POP3 and SMTP) and for sending notifications (SMTP), filling properties **email, email login, email password, mail.pop3s.host, mail.smtp.host** (for example, based on mysite.org) - from Aigents command line interface:
+	```
+	...
+	your email aigent@mysite.org, email login aigent, email password qwerty, mail.pop3s.host mail.mysite.org, mail.smtp.host mysite.org.
+	Dec:[aigents ([email aigent@mysite.org] [email login aigent] [email password qwerty] [mail.pop3s.host mail.mysite.org] [mail.smtp.host mysite.org])].
+	I:Ok.
+	what your email, email login, email password, mail.pop3s.host, mail.smtp.host?
+	Int:[aigents (email email login email password mail.pop3s.host mail.smtp.host)]?
+	I:My email aigent@mysite.org, email login aigent, email password 'qwerty', mail.pop3s.host mail.mysite.org, mail.smtp.host mysite.org.
+	...
+	```
+1. Save configuration and exit Aigents server with command-line interface:
+	```
+	...
+	you save!
+	I:Ok.
+	bye
+	Dec:[name bye].
+	...
+	I:Ended.
+	```
+1. Start Aigetns over per step 8 above, but now better using it as daemon with nohup Linux command or console application with screen Linux command so that server keeps running uninterruptedly upon current session termination:
+	```
+	#nohup java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm console off &
+	[1] 12345
+	#appending output to nohup.out
+	...
+	
+	or
+	
+	#screen
+	#java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm
+	...
+	... open another Linux terminal session ...
+	...
+	```
+1. If telnet terminal access is configured, ensure that you can remotely control Aigents server console, using telnet on TCP/IP port specified above (may be not secure because telnet protocol is not encrypted):
+	```
+	#telnet aigents.mysite.org 1123
+	Trying 111.22.0.33...
+	Connected to aigents.mysite.org.
+	Escape character is '^]'.
+	my name admin
+	What your password?
+	my password 12345
+	Ok. Hello Admi Admin!
+	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	...
+	bye
+	No thing.
+	Connection closed by foreign host.
+	```
+1. If HTTP/HTTPS web service is configured, check access to Aigents Web service API HTTP/HTTPS protocol on TCP/IP port specified above to connect to Aigents server via Web brower or any HTTP client:
+	```
+	**URL:**http://aigents.mysite.org:1180/?my%20name%20admin
+	What your password?
+	**URL:**http://aigents.mysite.org:1180/?my%20password%2012345
+	Ok. Hello Admin Admin!
+	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	...
+	```
+1. Check location of storage and logging files in application folder (containing Aigents.jar file):
 Storage al.txt file sfould be backed up - either using either Dropbox folder to host the entire application folder or by custom backing up scripts.
 Logging files named such as aigents-log-2017-12-31-log.txt should be cleaned up periodically - manually or using custom backing up scripts.
 
-Aigents Basic Web API use
+## Aigents Basic Web API use
+
 The following describes basics of Aigents Web API over HTTP/HTTPS protocol for the purpose of Web monitoring and news collection.
 Consider that Aigents Web API is similar to plain HTTP/HTTPS REST service API with few differences:
 Request is submitted in Aigents Language (AL)
