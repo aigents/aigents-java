@@ -1,10 +1,10 @@
-# Aigents Server requirements configuration, operation and API use
+# Aigents® Server requirements configuration, operation and API use
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
 
 The following describes configuration and operation of Aigents server as a console application or a server deamon (so called “Aigents Farm”) with no user interface.
 
-## Aigents Requirements
+## Aigents® Requirements
 
 Aigents Server can be installed on any Java-friendly operating environment fulfilling the following requirements.
 
@@ -14,7 +14,7 @@ Aigents Server can be installed on any Java-friendly operating environment fulfi
 1. Ability to open ports for HTTP/HTTPS and TCP/IP (telnet) connections.
 1. Optionally - ability to access email servers for incoming and outgoing email.
 
-## Aigents Basic configuration
+## Aigents® Basic configuration
 
 The following describes very basic steps of Aigents server setup.
 
@@ -43,7 +43,7 @@ The following describes very basic steps of Aigents server setup.
 	my password 12345.
 	...
 	I:Ok. Hello Admin Admin!
-	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 	...
 	```
 1. Optionally, for telnet terminal access, re-configure TCP/IP port, filling **tcp port** property (default is port 1123) - from Aigents command line interface:
@@ -132,7 +132,7 @@ The following describes very basic steps of Aigents server setup.
 Storage al.txt file sfould be backed up - either using either Dropbox folder to host the entire application folder or by custom backing up scripts.
 Logging files named such as aigents-log-2020-11-30-log.txt should be cleaned up periodically - manually or using custom backing up scripts.
 
-## Aigents Basic Web API use
+## Aigents® Basic Web API use
 
 The following describes basics of Aigents Web API over HTTP/HTTPS protocol for the purpose of Web monitoring and news collection.
 
@@ -171,7 +171,7 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 	What your password?
 	URL:http://aigents.mysite.org:1180/?my%20password%2012345
 	Ok. Hello Admin Admin!
-	My Aigents 1.2.0 Copyright © 2017 Anton Kolonin, Aigents Group.
+	My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 	```
 1. Operations with sites, things and news used for web monitoring are performed accordingly to belief ontology of Aigents for Web (https://github.com/aigents/aigents-java/blob/master/doc/papers/2014/AgentWatchingKolonin.pdf), as described below. All of the following operations are possible after user is authenticated (logged in) as shown above.
 	Listing sites is done with “my sites ...” statement, for example:
@@ -230,7 +230,7 @@ The following describes basics of Aigents Web API over HTTP/HTTPS protocol for t
 	Ok.
 	```
 
-## Aigents Extended Web API examples
+## Aigents® Extended Web API examples
 
 The following presents various scenarios of Aigents use demonstrated with Aigents server test suite implemented in PHP.
 
@@ -261,7 +261,7 @@ The following presents various scenarios of Aigents use demonstrated with Aigent
 1. Study PHP files involved in tests for different use cases.
 1. Feel free to changhe or customize Aigents PHP code as distributed under [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE).
 
-## Aigents Social Network Integration with Web API
+## Aigents® Social Network Integration with Web API
 
 Aigents Server can be used to collect and analyse information in social networks, as it is described in articles [How to get your personal analytics for Steemit social network with help of Aigents bot](https://steemit.com/ai/@akolonin/how-to-get-your-personal-analytics-for-steemit-social-network-with-help-of-aigents-bot), [Using Aigents bot service to get social network analytics for Facebook, Google+ and VKontakte](https://steemit.com/ai/@akolonin/using-aigents-bot-service-to-get-social-network-analytics-for-facebook-google-and-vkontakte), [Personal social graph analysis for Steemit and Golos](https://steemit.com/psychology/@aigents/personal-social-graph-analysis-for-steemit-and-golos) and [Social Graph as Mirror in the Net](https://steemit.com/psychology/@aigents/social-graph-as-mirror-in-the-net).
 
@@ -292,7 +292,7 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 	Confirm login email accordingly to configured secret question and answer:
 	```
 	https://aigents.com/al?my <secret question> <secret answer>
-		Ok. Hello <your name>! My Aigents 1.2.0 Copyright © 2018 Anton Kolonin, Aigents Group.
+		Ok. Hello <your name>! My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 	```
 	Request fresh report on at Steemit user (in HTML):
 	```
@@ -440,32 +440,41 @@ There are many protocols can be used to access the Aigents Social Analytics, suc
 	```
 1. The proritetary application should maintain security measures necessary to secure application keys and user tokens so they are not transmitted over public networks without encryption and are not stored in publicly available databases. It is responsibility of prorietary application to ensure protection of personal data of social network users, securing access to respective keys and tokens stored in application itself, in the Aigents server and being transmitted between them.
 
-## Aigents Web UI Customization
+## Aigents® Web UI Customization
 
-	For custom Aigents Web User Interface (UI), download the http://aigents.com/download/latest/aigents_web.zip archive containing basic set of JavaScript files and HTML/CSS templates and feel free to override or replace them with account to __Aigents branding__ requirement below.
+For custom Aigents Web User Interface (UI), get/fork the https://github.com/aigents/aigents-web project containing basic set of JavaScript files and HTML/CSS templates and feel free to override or replace them with account to __Aigents® License and Branding__ requirements below.
 
-	Feel free to changhe or customize Aigents Web UI code as distributed under [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE).
+Feel free to changhe or customize Aigents Web UI code as distributed under [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE).
 
-## Aigents Branding
+## Aigents® License and Branding
 
-For any academic, non-commercial or commercial use of Aigents service or user interface, it is required to provide Aigents branding information in the form of text "Powered by Aigents" accompanied with one of the following icons, all linked to the https://aigents.com web site:
+Aigents® code is desitrubuted under the terms of [MIT License](https://github.com/aigents/aigents-java/blob/master/LICENSE), so the code can be used in any commercial and non-commercial applications in form of the open or closed source as long as the original Aigents® license is preserved. 
+
+For any academic, non-commercial or commercial use of Aigents service or user interface, it is required to provide Aigents branding information in the form of text "Powered by Aigents®" accompanied with one of the following icons, all linked to the https://aigents.com web site:
+![](https://aigents.com/ui/img/aigent32.png) ![](https://aigents.com/img/aigent64wb.png) ![](https://aigents.com/ui/img/aigent.png)
   
-## Aigents Contact Information
+## Aigents® Contact Information
 
 To stay in touch with Aigetns creators and maintainers for help and feedback, use the following channels:
 
-1. Via email (contact at aigents dot com): 
+1. Via email (contact at aigents dot com): ![contact at aigents dot com](https://aigents.com/img/contactataigents.png)
 1. On Facebook:
-	Aigents page
-	Artificial General Intelligence in Russia group
-	Social Intelligence group
-	Aigents chat on Messenger
+	* [Aigents Bot on Messenger](https://www.messenger.com/t/aigents)
+	* [Aigents Page](https://www.facebook.com/aigents)
+	* [Artificial General Intelligence Group (Russian)](https://www.facebook.com/groups/agirussia)
+	* [Social Intelligence  Group (Russian)](https://www.facebook.com/groups/socialintelligence)
 1. On Telegram
-	TBD 1
-	TBD 2
-1. On YouTube
-1. On Steemit
-1. On Golos
-1. On VKontakte
+	* [Aigents Bot](https://web.telegram.org/#/im?p=@AigentsBot)
+	* [Aigents Group (English)](https://t.me/aigents)
+	* [Aigents Group (Russian)](https://t.me/aigentsrussia)
+	* [Artificial General Intelligence Group (Russian)](https://t.me/agirussia)
+	* [Social Intelligence  Group (Russian)](https://t.me/collectivei)
+1. On [YouTube](https://youtube.com/aigents)
+1. On [Twitter](https://twitter.com/@aigents)
+1. On [Reddit](https://reddit.com/r/aigents)
+1. On [Medium](https://medium.com/@aigents)
+1. On [Steemit](https://steemit.com/@aigents) 
+1. On [Golos (Russian)](https://golos.id/@aigents)
+1. On [VKontakte (Russian)](https://vk.com/aigents)
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
