@@ -17,11 +17,13 @@ In particular, the Aigents bot for Telegram can support interactons in groups, m
 
 ## Chat Bot Setup Options
 
-Telegram integration with Aigents is the most simple and functionally rich at the moment and described in Medium articles called [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d) and [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486). 
+Telegram integration with Aigents is the most tecghnically simple and functionally rich at the same time. 
 
-There are two ways how one can use the Aigents Bot for Telegram - use existing demo [Aigents Bot](https://t.me/AigentsBot) or setup one of your own:
+It is described in Medium articles called [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d) and [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486). 
 
-### Using Demo Aigents Bot
+There are two ways how one can use the Aigents Bot for Telegram - using existing demo [Aigents Bot](https://t.me/AigentsBot) or seting up the one of your own:
+
+### Using existing Aigents Bot
 
 This [Aigents Bot](https://t.me/AigentsBot) for Telegram is hosted on the Aigents Web Demo server at https://aigents.com and it is already operating in all of the [related groups](aigents_contacts.md), so it can be accessed in private chats or those groups both. 
 
@@ -29,21 +31,21 @@ This [Aigents Bot](https://t.me/AigentsBot) for Telegram is hosted on the Aigent
 
 The Aigents Server support for Telegram does not require you to have a real Web server to host your own Aigents Bot on Telegram. You can host the Aigents Server for your bot on your corporate server, personal workstation, desktop and even Android tablet or smartphone. 
 
-If you want to create the Aigents Bot for Telegram of your own, first just have the [Aigents installation](https://github.com/aigents/aigents-java/blob/master/doc/aigents_server.md) done and set up the Telegram bot. 
+If you want to create the Aigents Bot for Telegram of your own, just have the [Aigents installation](https://github.com/aigents/aigents-java/blob/master/doc/aigents_server.md) done first and set up the Telegram bot next. 
 
 To set up the bot, you need to use Telegram [BotFather](https://telegram.me/BotFather) bot to create *bot token* and *bot name* for your bot. 
 
-Then you just need to configure your Aigents Server installation saying ``“your telegram token <bot token>” and “your telegram name <bot name>”`` in Aigents chat console (same way as you would do the rest of Aigents setup).
+Then you just need to configure your Aigents Server installation saying ``your telegram token <bot token>`` and ``your telegram name <bot name>`` in the Aigents chat console (same way as you would do the rest of the Aigents setup).
 
 The following Telegram bot properties should be set, referring to the following as an example:
 
-**About**:
-Aigents personal AI helps you to deal with online information and social connections, see https://medium.com/@aigents
-
-**Description**: 
-Aigents personal artificial intelligence helps you to deal with online information and social connections, monitoring and searching the Web, tracking your interactions with friends and colleagues, and analyzing them for you, as you can read at https://medium.com/@aigents blog. The data collected from you is not re-distributed to any third party and it is protected by privacy policy: https://aigents.com/en/license.html
-
-**Botpic**: ![https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent.png](https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent32.png)
+	**About**:
+	Aigents personal AI helps you to deal with online information and social connections, see https://medium.com/@aigents
+	
+	**Description**: 
+	Aigents personal artificial intelligence helps you to deal with online information and social connections, monitoring and searching the Web, tracking your interactions with friends and colleagues, and analyzing them for you, as you can read at https://medium.com/@aigents blog. The data collected from you is not re-distributed to any third party and it is protected by privacy policy: https://aigents.com/en/license.html
+	
+	**Botpic**: ![https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent.png](https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent32.png)
 
 ## Adding Aigents Bot to your Groups
 
