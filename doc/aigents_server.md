@@ -236,9 +236,11 @@ The following presents various scenarios of Aigents use demonstrated with Aigent
 	https://github.com/aigents/aigents-java/blob/master/lexicon_english.txt
 	https://github.com/aigents/aigents-java/blob/master/lexicon_negative_english.txt
 	https://github.com/aigents/aigents-java/blob/master/lexicon_positive_english.txt
+	https://github.com/aigents/aigents-java/blob/master/lexicon_rude_english.txt
 	https://github.com/aigents/aigents-java/blob/master/lexicon_russian.txt
 	https://github.com/aigents/aigents-java/blob/master/lexicon_negative_russian.txt
 	https://github.com/aigents/aigents-java/blob/master/lexicon_positive_russian.txt
+	https://github.com/aigents/aigents-java/blob/master/lexicon_rude_russian.txt
 	```
 1. Make sure Aigents server can be started on the localhost at port 1080 as described above.
 1. Run Aigents server in application folder with no storage mode (with store path '' option):

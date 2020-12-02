@@ -123,17 +123,28 @@ For the chat bot development purpose, user can use the same chat interface as us
 
 ## Personal Social Reports and Graphs with Aigents Bot
 
-In order to get the Aigents Personal Social Report on one's activity in his or her Telegram groups, onke just need to invoke the report command such as ``my telegram report`` in any of the messanger chats (Telegram, Facebook, Slack) or in the Chat view of the Aignts Web UI.  
+In order to get the Aigents Personal Social Report on one's activity in his or her Telegram groups, onke just need to invoke the report command such as ``my telegram report`` in any of the messanger chats (Telegram, Facebook, Slack) or in the Chat view of the Aigents Web UI.  
 
 Further, see detailed description of the different options applicable to the [Aigents Personal Social Reports](aigents_reports.md).
 
-**TBD graphs**
+In order to do the interacctive social graph analysis on interactions in groups on Telegram (or any other social media environment as well), one has to use Aigents Web UI "Graph" tab, which makes it possible tb browse social graphs for any configured social media sources where the user is registered hand has the respective identities bount to their Aigents account. For more information on using Aigents Graphs refer to the articles: [Graphs Part 3: Aigents Graph Analysis for Blockchains and Social Networks](https://blog.singularitynet.io/graphs-part-3-aigents-graph-analysis-for-blockchains-and-social-networks-142fc8182389) and [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
 
-## Emotinal Feedback with Aigents Bot
+## Emotional Feedback with Aigents Bot
 
-[Aigents® Sentiment Detection for Personalised News Feeds](https://blog.singularitynet.io/aigents-sentiment-detection-personal-and-social-relevant-news-be989d73b381)
+The Aigents Bot can be set up to react on messages in Telegram groups with "positive" or "negative" sentiment, using the technology described in the article: [Aigents® Sentiment Detection for Personalised News Feeds](https://blog.singularitynet.io/aigents-sentiment-detection-personal-and-social-relevant-news-be989d73b381).
+
+The emotional reaction on "postivie" or "negative" messages is provided with replies to respective messages with emoticons corresponding to "smiling face with smiling eyes" 😊 or "disappointed face" 😞, respectively.
+
+Emotional "sensitivity" is configured with corresponding **sentiment threshold** setting configured for the Aigents Server in range between 1 and 99, where 1 is minimum (so almost any message could be easily treated as either "positive" or "negative") and 99 is maximum (so almost no any message would be given emotional feedback). 
+
+For instance, configuring Aigents Server with ``your sentiment threshold 50`` might be still low so too many messages might get emotinally overreacted while configuring it with ``your sentiment threshold 90`` could be too conservative so the emotinal reactions would be barely observed.
+
+In addition to above, extra reaction is provived in respect to the messages involving obscene vocabularies for [English](https://github.com/aigents/aigents-java/blob/master/lexicon_rude_english.txt) and [Russian](https://github.com/aigents/aigents-java/blob/master/lexicon_rude_russian.txt). Appearance of any of the words listed in those vocabularies (or edited versions of these lexicons deployed along with the Aigents Server) in a Telegram group message will cause Aigents Bot replying to such messages with the "flushed face" 😳 emoticon.
 
 ## Group Moderation with Aigents Bot
+
+rudeness threshold
+
 
 ***TBD***
 
