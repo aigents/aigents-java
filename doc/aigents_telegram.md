@@ -49,9 +49,47 @@ Aigents personal artificial intelligence helps you to deal with online informati
 
 ## Adding Aigents Bot to your Groups
 
-[TBD](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
+The Aigents Bot should be added to a Telegram group in order to perform any activity in the group, inluding replying to messages of the gropu users, monitoring and analysing the content of communications in the group for the reporting purposes, providing emotional feedback to messages in the group, computing the reputation of the group members, excuting the moderation policies or performing any other functions to be supported in the future.
+
+Either existing [AigentsBot](https://t.me/AigentsBot) may be employed for the above, or one can create their own Aigents Bot with other bot name and add it to any groups on Telegram.
+
+When the bot is added to the group, it must be given "**admin**" rights, but you can disable most of the admin features except "**Delete messages**" and "**Ban users**". The latter two may be disabled as well if you don't want the Aigents Bot to do that kind of moderation. 
+
+Optionally, it is recommended to change the bot admin "**Custom title**" from default ``admin`` to something like ``bot admin`` or ``group bot``.   
 
 ## Chatting with the Aigents Bot privately 
+
+In order to start interacting with the AigentsBot, you need to bind your current Telegram identity with your identity hosted by an Aigents Server, which can be either existing Aignts Web Demo at https://aigents.com or any other instance of Aigents Server associatd with this bot.
+
+Since the Aigents Server is using email to identify user accounts, you need to use the same email everyhere - using Aigents Web UI or any messnger, inclusing Telegram.    
+
+If you are not registered at the respective Aigents Server (like Aigents Web Demo at https://aigents.com) yet, you just need to register yourself with it, using the same email, name and surname that you would use to register with Aigents Web UI. You can use different email, name and surname for registrations on the Aigents Web and on Telegram but then you won’t be able to get the full access to reports and graphs on the Aigents Web later, while you will still be able to get the reports in Telegram chat.
+
+Below is the example of the registration flow on Telegram - after this is done, one will be able to log onto the same account on the Aigents Web UI (such as https://aigents.com) or any messenger (such as Telegram): 
+```
+Human: login
+Aigents: What your email, name, surname?
+Human: aa.bb@yy.zz, aa, bb
+Aigents: What your secret question, secret answer?
+Human: hexadecimal code of my passport number, 12a34b5a2
+Aigents: What your hexadecimal code of my passport number?
+Human: 12a34b5a2
+Aigents: Ok. Hello Aa Bb! My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
+``` 
+
+If you are already registered on the Aigents Web UI (such as https://aigents.com) or any other messenger (such as Facebook Messenger or Slack), then you can just bind your Telegram identity to your Aigents account as follows:
+```
+Human: login
+Aigents: What your email, name, surname?
+Human: aa.bb@yy.zz
+Aigents: What your hexadecimal code of my passport number?
+Human: 12a34b5a2
+Aigents: Ok. Hello Aa Bb! My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
+``` 
+
+See more example with screenshots on the Aigents Bot for Telegram acces in [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d) articles [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486).
+
+## Chatting with the Aigents Bot in a group 
 
 [TBD](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
 
@@ -65,11 +103,13 @@ Aigents personal artificial intelligence helps you to deal with online informati
 
 [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486)
 
-## Personal Social Reports with Aigents Bot
+## Personal Social Reports and Graphs with Aigents Bot
 
 In order to get the Aigents Personal Social Report on one's activity in his or her Telegram groups, onke just need to invoke the report command such as ``my telegram report`` in any of the messanger chats (Telegram, Facebook, Slack) or in the Chat view of the Aignts Web UI.  
 
 Further, see detailed description of the different options applicable to the [Aigents Personal Social Reports](aigents_reports.md).
+
+**TBD graphs**
 
 ## Emotinal Feedback with Aigents Bot
 
