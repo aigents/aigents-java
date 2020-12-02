@@ -18,10 +18,13 @@ To stay in touch with Aigents creators and maintainers for updates, help and fee
 	1. [Social Intelligence  Group (Russian)](https://t.me/collectivei)
 1. On [YouTube](https://youtube.com/aigents)
 1. On [Twitter](https://twitter.com/@aigents)
-1. On [Reddit](https://reddit.com/r/aigents)
 1. On [Medium](https://medium.com/@aigents)
+1. On [Reddit](https://reddit.com/r/aigents)
 1. On [Steemit](https://steemit.com/@aigents) 
+1. On [Minds](https://minds.com/aigents)
+1. On [WT.Social](https://wt.social/wt/aigents)
 1. On [Golos (Russian)](https://golos.id/@aigents)
 1. On [VKontakte (Russian)](https://vk.com/aigents)
+
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
