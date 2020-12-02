@@ -19,10 +19,7 @@ Aigents Server can be installed on any Java-friendly operating environment fulfi
 The following describes very basic steps of Aigents server setup.
 
 1. Download Aigents.jar file to application folder such as /home/aigents/ (or any other accessible folder on Linux or Windows system).
-1. Download dependency *.jar files from http://aigents.com/download/latest/ folder to application folder (such as /home/aigents/). Dependency files can be also downloaded from appropriate sources for Java 1.7:
-	1. mail.jar - Oracle Java Mail - from http://www.oracle.com/technetwork/java/javamail/index.html
-	1. servlet.jar - Oracle Java Servlet - from http://www.java2s.com/Code/Jar/j/Downloadjavaxservletjar.htm
-	1. javax.json-1.0.2.jar - JSON API for Java - from http://www.java2s.com/Code/Jar/j/Downloadjavaxjson102jar.htm
+1. Download and install all [Installation Pre-requisites](../README.md) 
 1. Disable access to application folder to web users so its content could not be opened by web server
 1. Configure port intended to host Aigents TSP/IP console (for example - 1123) or HTTP Web API (for example 1180) so these ports ar made available for access from the internet (or intranet if you are going to access Aigents locally)
 1. Start Aigents server in application folder: 
