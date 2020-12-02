@@ -87,17 +87,26 @@ Human: 12a34b5a2
 Aigents: Ok. Hello Aa Bb! My Aigents 3.1.6 Copyright © 2020 Anton Kolonin, Aigents®.
 ``` 
 
-See more example with screenshots on the Aigents Bot for Telegram acces in [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d) articles [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486).
+See more example with screenshots on the Aigents Bot for Telegram acces in [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d) and [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486) articles.
 
 ## Chatting with the Aigents Bot in a group 
 
-[TBD](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
+The Aigents Bot can be accessed in any group where it is added to. It can be done by either mentioning it in the beginning of the message like ``@AigentsBot help`` or replying to the bot in the group on any of its earlier messages. 
+
+If a group user who is replying to the Aigents Bot or mentioning it is a registered Aigents user who has his or her Telegram identity bound to respective Aigens account earlier, the Aigents Bot is replying to user in the group.
+
+If a group user who is replying to the Aigents Bot or mentioning it is a registered Aigents user, it is being asked from the Aigents Bot for authorization in private chat so the Telegram identity of the user id bound to respective Aigents account. 
+
+If your are interacting with your AigentsBot in a group, be careful not to communicate your private infromation in the public group - use only the private chat with the Aigents Bot to transfer any sensitive information.   
 
 ## Content Monitoring with Aigents Bot
 
-[Aigents® on Messengers — Monitoring and Searching Web Sites and Group Chats](https://medium.com/@aigents/aigents-on-messengers-monitoring-and-searching-web-sites-and-group-chats-f5d585e0355e)
+Any Telegram user who has its Telegram identity bound to Aigents account can monitor any of the groups where the Aigents Bot is added and the user is member of this group herself or himself. In order to do so, user should specify his or her **topics** of interest using either Aigents Web UI or using Aigents Chat interface like it is done for the purpose of news monitoring on the World Wide Web on Web sites, in the RSS feeds or social media channels. See the [documentation on personal montoring channel set up](aigents_integration_news_channel.md) and the article on [Aigents® on Messengers — Monitoring and Searching Web Sites and Group Chats](https://medium.com/@aigents/aigents-on-messengers-monitoring-and-searching-web-sites-and-group-chats-f5d585e0355e) for howe to setup the **topics**.
 
-1.3. [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486)
+When the topics are set up, whenever a new message is posted by anyone in any of the groups where a user having those topics set is present together with the Aigents Bot, the user is getting a news item in the news feed referring to given Telegram group. At the same time, user may be alert by any way that he or she has the notifications set up, including the alerts in private chat channel with the Aigents Bot.     
+
+## Getting Notifications in Private Chat 
+
 
 ## Building Conversational Chat Bots
 
@@ -119,13 +128,12 @@ Further, see detailed description of the different options applicable to the [Ai
 
 TBD
 
-## Using Aigents Bot Commands 
+## Using Aigents Bot Slash Commands 
 
-The following Telegram bit command may be used so far:
+The following Telegram bot slash commands may be used so far:
 
 **Commands**:
 - help - Get help on some commands 
-- search - Do web search, see https://medium.com/@aigents/custom-web-search-with-aigents-eb50767fc44c
 - my_telegram_report - Get report on your Telegram activity https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d 
 - my_facebook_report - Get report on your Facebook activity
 - my_twitter_report - Get report on your Twitter activity
