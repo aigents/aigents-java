@@ -2,18 +2,18 @@
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
 
-The following document extends Aigents configuration and use documentation covering the two cases:
-- using existing Aigents Web Demo server functions using [AigentsBot](https://web.telegram.org/#/im?p=@AigentsBot) on Telegram;
+The following document extends Aigents configuration and usage documentation covering the two cases:
+- using existing Aigents Web Demo server functions using [AigentsBot](https://t.me/AigentsBot) on Telegram;
 - making the Aigents Server functions available as a chatbot under new custom Telegram bot setup.
 
 In particular, the Aigents bot for Telegram can support interactons in groups, monitoring and analysing group conversations and providing moderatoion support.
  
 ## Related Articles on Medium
 
-1.1. [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
-1.2. [Aigents® on Messengers — Monitoring and Searching Web Sites and Group Chats](https://medium.com/@aigents/aigents-on-messengers-monitoring-and-searching-web-sites-and-group-chats-f5d585e0355e)
-1.3. [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486)
-1.4. [Aigents® Sentiment Detection for Personalised News Feeds](https://blog.singularitynet.io/aigents-sentiment-detection-personal-and-social-relevant-news-be989d73b381)
+1. [Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
+1. [Aigents® on Messengers — Monitoring and Searching Web Sites and Group Chats](https://medium.com/@aigents/aigents-on-messengers-monitoring-and-searching-web-sites-and-group-chats-f5d585e0355e)
+1. [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486)
+1. [Aigents® Sentiment Detection for Personalised News Feeds](https://blog.singularitynet.io/aigents-sentiment-detection-personal-and-social-relevant-news-be989d73b381)
 
 ## Chat Bot Setup Options
 
