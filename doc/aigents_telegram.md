@@ -137,16 +137,15 @@ The emotional reaction on "postivie" or "negative" messages is provided with rep
 
 Emotional "sensitivity" is configured with corresponding **sentiment threshold** setting configured for the Aigents Server in range between 1 and 99, where 1 is minimum (so almost any message could be easily treated as either "positive" or "negative") and 99 is maximum (so almost no any message would be given emotional feedback). 
 
-For instance, configuring Aigents Server with ``your sentiment threshold 50`` might be still low so too many messages might get emotinally overreacted while configuring it with ``your sentiment threshold 90`` could be too conservative so the emotinal reactions would be barely observed.
+For instance, configuring Aigents Server with ``your sentiment threshold 50`` might be still low so too many messages might get emotinally overreacted while configuring it with ``your sentiment threshold 90`` could be too conservative so the emotinal reactions would be barely observed. Asking the server for ``what your sentiment threshold?`` retrieves the current setting.
 
-In addition to above, extra reaction is provived in respect to the messages involving obscene vocabularies for [English](https://github.com/aigents/aigents-java/blob/master/lexicon_rude_english.txt) and [Russian](https://github.com/aigents/aigents-java/blob/master/lexicon_rude_russian.txt). Appearance of any of the words listed in those vocabularies (or edited versions of these lexicons deployed along with the Aigents Server) in a Telegram group message will cause Aigents Bot replying to such messages with the "flushed face" 😳 emoticon.
+In addition to the above, extra reaction is provived in respect to the messages involving obscene vocabularies for [English](https://github.com/aigents/aigents-java/blob/master/lexicon_rude_english.txt) and [Russian](https://github.com/aigents/aigents-java/blob/master/lexicon_rude_russian.txt). Appearance of any of the words listed in those vocabularies (or edited versions of these lexicons deployed along with the Aigents Server) in a Telegram group message will cause Aigents Bot replying to such messages with the "flushed face" 😳 emoticon.
 
 ## Group Moderation with Aigents Bot
 
-rudeness threshold
+Besides emotinal reactions on onscene lexicon appearing in the group messages, the Aigents Bot reports these messages to real human group admins, if these admins have their Telegram identities bound to respective Aigents accounts. The reported messages are forwarded to group admins in their private chats with the Aigents Bot.
 
-
-***TBD***
+In addition to that, if the degree of "rudeness" of a message, measured relying on the amount of the obscene words in it, exceeds the configurable **rudeness threshold** then the abusing message is automatically deleted by the Aigents Bot itself. Setting ``your rudeness threshold 1`` ensures that any message containing obscene lexicon is automatically deleted, while setting ``your rudeness threshold 75`` mignt be more tolerant. Asking the server for ``what your rudeness threshold?`` retrieves the current setting. 
 
 ## Using Aigents Bot Slash Commands 
 
