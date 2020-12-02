@@ -16,7 +16,7 @@ The following document extends Aigents configuration making the Aigents Server f
 
 ### Aigents® for Telegeram
 
-[Aigents integration with Facebook](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/telegram/Telegrammer.java) is the most simple and usable practically, see [more details on Telegram integration with Aigents](aigents_telegram.md)   
+[Aigents integration with Telegram](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/telegram/Telegrammer.java) is the most simple and usable practically, see [more details on Telegram integration with Aigents](aigents_telegram.md)   
 	
 ### Aigents® for Facebook Messenger
 
