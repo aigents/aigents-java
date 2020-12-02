@@ -11,24 +11,24 @@ The following document extends Aigents configuration making the Aigents Server f
 1. [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486)
 1. [Aigents® Sentiment Detection for Personalised News Feeds](https://blog.singularitynet.io/aigents-sentiment-detection-personal-and-social-relevant-news-be989d73b381)
 
-## 2. Aigents® Chat Bot Integrations
+## Aigents® Chat Bot Integrations
 
 
-### 2.1. Aigents® for Telegeram
+### Aigents® for Telegeram
 
-See [Telegram integration with Aigents](aigents_telegram.md)   
+[Aigents integration with Facebook](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/telegram/Telegrammer.java) is the most simple and usable practically, see [more details on Telegram integration with Aigents](aigents_telegram.md)   
 	
-### 2.2 Aigents® for Facebook Messenger
+### Aigents® for Facebook Messenger
 
-[Facebook integration with Aigents](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/fb/Messenger.java) is moderately simple technically.
+[Aigents integration with Facebook](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/fb/Messenger.java) is moderately simple technically.
 
 It supports chat-based interaction with your agent - either demo [Aigents Bot for Facebook Messenger](https://www.messenger.com/t/aigents) hosted on https://aigents.com/ or your own Aigents bot hosted on your own premises. However, it does not support interactoins in groups given existing official restrictions imposed by Facebook API. 
 
 It needs the same [integration configuration as used for the news moniitoring plus extra *pages_messaging* permission and *challenge* property](https://github.com/aigents/aigents-java/blob/master/doc/aigents_integration_news_user.md).
 
-### 2.3. Aigents® for Slack
+### Aigents® for Slack
 
-[Slack integration with Aigents](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/Slacker.java) is the most complex one in terms of configuration and it is still in alpha testing mode. 
+[Aigents integration with Slack](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/Slacker.java) is the most complex one in terms of configuration and it is still in alpha testing mode. 
 
 The Aigents Slack integration is not officially released even though it can be tried already.
 
