@@ -6,7 +6,7 @@ The following document extends Aigents configuration and usage documentation cov
 - using existing Aigents Web Demo server functions using [AigentsBot](https://t.me/AigentsBot) on Telegram;
 - making the Aigents Server functions available as a chatbot under new custom Telegram bot setup.
 
-In particular, the Aigents bot for Telegram can support interactons in groups, monitoring and analysing group conversations and providing moderatoion support.
+In particular, the Aigents bot for Telegram can support interactons in groups, monitoring and analysing group conversations and providing moderation support.
  
 ## Related Articles on Medium
 
@@ -67,10 +67,9 @@ The following Telegram bot properties should be set, referring to the following 
 
 ## Personal Social Reports with Aigents Bot
 
-[TBD](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
-[Reputation System in Aigents® supporting Telegram Groups and more](https://blog.singularitynet.io/reputation-system-in-aigents-supporting-telegram-groups-and-more-c43f0cf5053d)
+In order to get the Aigents Personal Social Report on one's activity in his or her Telegram groups, onke just need to invoke the report command such as ``my telegram report`` in any of the messanger chats (Telegram, Facebook, Slack) or in the Chat view of the Aignts Web UI.  
 
-TBD Reporting manual 
+Further, see detailed description of the different options applicable to the [Aigents Personal Social Reports](aigents_reports.md).
 
 ## Emotinal Feedback with Aigents Bot
 
