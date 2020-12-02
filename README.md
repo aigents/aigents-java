@@ -50,6 +50,10 @@ org
 2. If needed, integrate Aigents Power Server in your own application following [Aigents Server Documentation](doc/README.md) 
 
 ## Credits and Attributions
-1. English and Russian positive and negative sentiment lexicons are created relying on works of [SentiWordNet](https://github.com/aesuli/SentiWordNet), [Bing Liu](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#lexicon), [РуСентиЛекс](https://www.labinform.ru/pub/rusentilex/index.htm) and [Linis Crowd](http://www.linis-crowd.org/).    
+1. English and Russian positive and negative sentiment lexicons are created relying on works of [SentiWordNet](https://github.com/aesuli/SentiWordNet), [Bing Liu](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#lexicon), [РуСентиЛекс](https://www.labinform.ru/pub/rusentilex/index.htm) and [Linis Crowd](http://www.linis-crowd.org/).
+
+## Contact Information
+
+[Stay in touch with Aigents creators and maintainers for updates, help and feedback](doc/aigents_contacts.md).
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
