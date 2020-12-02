@@ -107,10 +107,19 @@ When the topics are set up, whenever a new message is posted by anyone in any of
 
 ## Getting Notifications in Private Chat 
 
+Whenever a news item is found by means of the [Aigents monitoring in online, social media or chat groups](https://medium.com/@aigents/aigents-on-messengers-monitoring-and-searching-web-sites-and-group-chats-f5d585e0355e), the user may be notified by any channel enabled in her or his Aigents profile. If a user has the Telegram identity bound to Aigents account, they can get any notifications in the private chat with Aigents Bot.
+
+To check the status for notifications from the bot on Telegram, ask ``what my telegram notification?``.  
+
+To disable the notifications from the bot in Telegram, tell ``my telegram notification false!``.  
+
+To enable the notifications from the bot in Telegram, tell ``my telegram notification true!``.  
 
 ## Building Conversational Chat Bots
 
-[Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486)
+Any Aigents user and develop their own conversational chat bot to be accessed by any channel supported by the Aigents platform, including Telegram, Slack and Facebook Messenger as well as Aigents Web UI Chat. 
+
+For the chat bot development purpose, user can use the same chat interface as used for any other interaction with the Aigents, inclusing the Telegram chat. See more details on this in the article [Welcome Aigents’ Bots](https://medium.com/@aigents/welcome-aigents-bots-d6682968f486).
 
 ## Personal Social Reports and Graphs with Aigents Bot
 
@@ -126,7 +135,7 @@ Further, see detailed description of the different options applicable to the [Ai
 
 ## Group Moderation with Aigents Bot
 
-TBD
+***TBD***
 
 ## Using Aigents Bot Slash Commands 
 
