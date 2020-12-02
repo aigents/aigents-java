@@ -1,4 +1,4 @@
-# Aigents® for Telegram
+# Aigents® Personal Social Reports
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
 

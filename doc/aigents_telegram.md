@@ -39,13 +39,13 @@ Then you just need to configure your Aigents Server installation saying ``your t
 
 The following Telegram bot properties should be set, referring to the following as an example:
 
-	**About**:
-	Aigents personal AI helps you to deal with online information and social connections, see https://medium.com/@aigents
+**About**:
+Aigents personal AI helps you to deal with online information and social connections, see https://medium.com/@aigents
 	
-	**Description**: 
-	Aigents personal artificial intelligence helps you to deal with online information and social connections, monitoring and searching the Web, tracking your interactions with friends and colleagues, and analyzing them for you, as you can read at https://medium.com/@aigents blog. The data collected from you is not re-distributed to any third party and it is protected by privacy policy: https://aigents.com/en/license.html
+**Description**: 
+Aigents personal artificial intelligence helps you to deal with online information and social connections, monitoring and searching the Web, tracking your interactions with friends and colleagues, and analyzing them for you, as you can read at https://medium.com/@aigents blog. The data collected from you is not re-distributed to any third party and it is protected by privacy policy: https://aigents.com/en/license.html
 	
-	**Botpic**: ![https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent.png](https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent32.png)
+**Botpic**: ![https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent.png](https://github.com/aigents/aigents-java/blob/master/html/ui/img/aigent32.png)
 
 ## Adding Aigents Bot to your Groups
 
