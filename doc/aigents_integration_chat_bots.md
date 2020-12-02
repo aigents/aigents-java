@@ -28,9 +28,7 @@ It needs the same [integration configuration as used for the news moniitoring pl
 
 ### Aigents® for Slack
 
-[Aigents integration with Slack](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/Slacker.java) is the most complex one in terms of configuration and it is still in alpha testing mode. 
-
-The Aigents Slack integration is not officially released even though it can be tried already.
+[Aigents integration with Slack](https://github.com/aigents/aigents-java/blob/master/src/main/java/net/webstructor/comm/Slacker.java) is the most complex one in terms of configuration and it is still in alpha testing mode. It is not officially released however it can be tried already, get in touch with us for more details.
 
 It supports chat-based interaction with your agent - either demo [Aigents Bot for Facebook Messenger](https://www.messenger.com/t/aigents) hosted on https://aigents.com/ or your own Aigents bot hosted on your own premises as well as it can support interactions in groups in a way similar to how it is done for Telegram.
 

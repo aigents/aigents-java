@@ -7,5 +7,6 @@ The following takes toghether resources on Aigents server building, testig, depl
 1. [Aigents Server Integration for News Syndication on User (Peer) basis](aigents_integration_news_user.md)
 1. [Aigents Server Integration for Chat Bots in Messengers](aigents_integration_chat_bots.md)
 1. [Aigents Server Integration for Telegram](aigents_telegram.md)
+1. [Aigents Aigents Project Contact Information](aigents_contacts.md)
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)

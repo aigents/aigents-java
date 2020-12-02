@@ -474,26 +474,6 @@ For any academic, non-commercial or commercial use of Aigents service or user in
   
 ## Aigents® Contact Information
 
-To stay in touch with Aigetns creators and maintainers for help and feedback, use the following channels:
-
-1. Via email (contact at aigents dot com): ![contact at aigents dot com](https://aigents.com/img/contactataigents.png)
-1. On Facebook:
-	* [Aigents Bot on Messenger](https://www.messenger.com/t/aigents)
-	* [Aigents Page](https://www.facebook.com/aigents)
-	* [Artificial General Intelligence Group (Russian)](https://www.facebook.com/groups/agirussia)
-	* [Social Intelligence  Group (Russian)](https://www.facebook.com/groups/socialintelligence)
-1. On Telegram
-	* [Aigents Bot](https://web.telegram.org/#/im?p=@AigentsBot)
-	* [Aigents Group (English)](https://t.me/aigents)
-	* [Aigents Group (Russian)](https://t.me/aigentsrussia)
-	* [Artificial General Intelligence Group (Russian)](https://t.me/agirussia)
-	* [Social Intelligence  Group (Russian)](https://t.me/collectivei)
-1. On [YouTube](https://youtube.com/aigents)
-1. On [Twitter](https://twitter.com/@aigents)
-1. On [Reddit](https://reddit.com/r/aigents)
-1. On [Medium](https://medium.com/@aigents)
-1. On [Steemit](https://steemit.com/@aigents) 
-1. On [Golos (Russian)](https://golos.id/@aigents)
-1. On [VKontakte (Russian)](https://vk.com/aigents)
+[Stay in touch with Aigents creators and maintainers for updates, help and feedback](aigents_contacts.md).
 
 ![https://aigents.com/](https://aigents.com/img/aigents_wrench.png)
