@@ -23,6 +23,7 @@
  */
 package net.webstructor.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,7 +54,8 @@ public class Property extends Anything implements Named {
 	protected String name;//TODO: is
 	protected Anything owner;
 	protected Storager storager = null;
-	private boolean hasPatterns = false;
+	private ArrayList<Set> patterns = null;
+	
 	private int limit = DEFAULT_PROPERTY_LIMIT;
 
 	public Property(Anything owner,String name,String def) {
@@ -98,27 +100,38 @@ public class Property extends Anything implements Named {
 	private static final Pattern number = Pattern.compile("[-+−]?[0-9]+([\\.,][0-9]+)?");
 
 	public boolean hasPatterns() {
-		return hasPatterns;
+		return patterns != null;
 	}
 	
-	//TODO: build pre-compiled ordered list of patterns and keep in variable!?
 	private void compile() {
 		if (storager == null)
 			return;
 		Thing variable = storager.getThing(name);
-		if (variable == null)
-			return;
-		if (!AL.empty(variable.getThings(AL.patterns))){
-			hasPatterns = true;
-			return;
-		}
-		Collection is = variable.getThings(AL.is);
-		if (!AL.empty(is))
-			for (Iterator i = is.iterator(); i.hasNext();)
-				if (!AL.empty(((Thing)i.next()).getThings(AL.patterns))){
-					hasPatterns = true;
-					return;
+		compile(variable);
+	}
+
+	private boolean compile(Thing domain) {
+		boolean compiled = false;
+		if (domain != null) {
+			Collection ps = domain.getThings(AL.patterns);
+			if (!AL.empty(ps)) for (Object p : ps) {
+				Thing t = (Thing)p;
+				String patstr = t.name();
+				if (!AL.empty(patstr)) {
+					if (patterns == null)
+						patterns = new ArrayList<Set>(1);
+					Set pat = Reader.pat(storager, owner instanceof Thing ? (Thing)owner : null, patstr);
+					patterns.add(pat);
+					compiled = true;
 				}
+			}
+			Collection is = domain.getThings(AL.is);
+			if (!AL.empty(is))
+				for (Iterator i = is.iterator(); i.hasNext();)
+					if (compile((Thing)i.next()))
+						compiled = true;
+		}
+		return compiled;
 	}
 	
 	public boolean read(Iter it, StringBuilder summary){
@@ -126,10 +139,7 @@ public class Property extends Anything implements Named {
 			return false;
 		StringBuilder value = new StringBuilder();
 		//if variable has patterns, recursively to variable domains
-		Thing variable = storager.getThing(name);
-		if (variable == null)
-			return false;
-		if (read(it, variable, value)){
+		if (readVariable(it, value)){
 			//TODO: entity extraction goes here!?
 			String v = value.toString();
 			setString(v);
@@ -139,27 +149,16 @@ public class Property extends Anything implements Named {
 		return false;
 	}
 
-	//TODO: move to static Reader, once patterns are pre-compiled
-	public boolean read(Iter it, Thing domain, StringBuilder summary){
-		//first, check patterns of the domain
-		Collection ps = domain.getThings(AL.patterns);
-		if (!AL.empty(ps)){
-			for (Iterator i = ps.iterator(); i.hasNext();){
-				//TODO: system-wide cache of compiled patterns!?
-				String patstr = ((Thing)i.next()).name();
-				Set pat = Reader.pat(storager, owner instanceof Thing ? (Thing)owner : null, patstr);
-				if (Reader.read(it, pat, summary))
+	private boolean readVariable(Iter it, StringBuilder summary){
+		Thing variable = storager.getThing(name);
+		if (variable == null)
+			return false;
+		if (!AL.empty(patterns))//precompiled patterns
+			for (Set pat : patterns) {
+				boolean read = Reader.read(it, pat, summary);
+				if (read)
 					return true;
 			}
-		}
-		//next, check if domain has super-domains with patterns
-		Collection domains = (Collection)domain.get(AL.is);
-		if (!AL.empty(domains)){
-			for (Iterator i = domains.iterator(); i.hasNext();){
-				if (read(it, (Thing)i.next(), summary))
-					return true;
-			}
-		}
 		return false;
 	}
 

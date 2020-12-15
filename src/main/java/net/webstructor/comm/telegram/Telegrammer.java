@@ -253,6 +253,22 @@ public class Telegrammer extends Mediator {
 			body.error("Telegram error",e);
 		}
 	}
+
+	@Override
+	protected String messageLink(String group_usename, String group_title, String group_id, String message_id) {
+		//https://stackoverflow.com/questions/51065460/link-message-by-message-id-via-telegram-bot
+		if (group_usename != null) {
+			//https://t.me/agirussia/8855 (public - agirussia, 8855)
+			return "https://t.me/"+group_usename+"/"+message_id;
+		}
+		if (group_id.startsWith("-100")) {
+			//https://t.me/c/1410910487/75 (private -1001410910487, 75)
+			group_id = group_id.substring(3);
+			return "https://t.me/c/"+group_id+"/"+message_id;
+		}
+		//if not group "type":"supergroup" !?
+		return super.messageLink(group_usename, group_title, group_id, message_id);
+	}
 	
 	private long handle(String response) throws IOException{
 		String botname = body.getSelf().getString(Body.telegram_name);
@@ -355,7 +371,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 
 				if (!from_id.equals(chat_id)){
 					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false;
-					updateGroup(chat_id, chat_title, from_id, true, is_bot, text);
+					updateGroup(message_id, chat_id, chat_username, chat_title, from_id, true, is_bot, text);
 					
 					//process group interactions
 					if (telegram != null) {

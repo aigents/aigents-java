@@ -192,14 +192,16 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		}
 	}
 
-	protected void updateInteraction(Date date, String group_id, String group_name, String message_id, String reply_to_message_id, String from_id, String reply_to_from_id, java.util.Set<String> mention_ids, String text_body) {
+	protected void updateInteraction(Date date, String group_id, String group_name, String message_id, String reply_to_message_id, String from_id, String reply_to_from_id, java.util.Set<String> mention_ids, String text) {
 		if (debug)
 //TODO: debug
 			body.debug("Telegram crawling from "+from_id+" to "+reply_to_from_id+" mentions "+mention_ids);
 
+		text = text.replace('\n', ' ');
+		
 		String to_id = !AL.empty(reply_to_from_id) ? reply_to_from_id : group_id;
-		int intvalue = text_body != null ? text_body.length() : 1;//empty comment still counts
-		String weight = text_body != null ? String.valueOf(intvalue) : null;
+		int intvalue = text != null ? text.length() : 1;//empty comment still counts
+		String weight = text != null ? String.valueOf(intvalue) : null;
 		//https://t.me/agirussia/8855 (public - agirussia, 8855)
 		//https://t.me/c/1410910487/75 (private -1001410910487, 75)
 		//String url = !AL.empty(group_name) ? "https://t.me/" + group_name + "/" + message_id : null; 
@@ -208,9 +210,9 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		
 		//comments
 		//mentions
-		int logvalue = 1 + (AL.empty(text_body) ? 0 : (int)Math.round(Math.log10(text_body.length())));
+		int logvalue = 1 + (AL.empty(text) ? 0 : (int)Math.round(Math.log10(text.length())));
 		if (logger != null)
-			SocialCacher.write(logger, name, date, date.getTime(), "comment", from_id, to_id, weight, null, permlink, parent_permlink, group_name/*title*/, text_body, null, null);
+			SocialCacher.write(logger, name, date, date.getTime(), "comment", from_id, to_id, weight, null, permlink, parent_permlink, group_name/*title*/, text, null, null);
 		if (!AL.empty(reply_to_from_id)) {
 			updateInteraction(date,"comments",from_id,reply_to_from_id,logvalue);//update from->reply_to_from
 		}

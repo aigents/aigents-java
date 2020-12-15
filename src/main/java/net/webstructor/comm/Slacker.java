@@ -215,7 +215,8 @@ public class Slacker extends Mediator implements HTTPHandler {
 					String channel_name = groupName(channel);
 					//TODO:2) check if user is bot
 					boolean is_bot = false;//TODO check if is bot
-					updateGroup(channel, channel_name, user, true, is_bot, text);
+//TODO: message_id
+					updateGroup(null, channel, channel_name, channel_name, user, true, is_bot, text);
 					
 //TODO: be able to do unauthorized group conversations and enable chat message handling!
 					

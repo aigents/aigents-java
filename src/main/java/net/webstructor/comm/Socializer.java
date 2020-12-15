@@ -382,6 +382,29 @@ public abstract class Socializer extends HTTP implements Crawler {
 		my_posts_for_the_period = "my posts for the period",
 		reputation = "reputation in community",
 		social_graph = "social graph";
+/*
+? ``all connections`` - all other users connected my means of communications to the current user **(cross peers != null)**
+- ``my interests`` - **default**, clusters of the posts/messages corresponding to interests of the current user, labeled by keywords typical to respective posts/messages
+- ``interests of my friends`` - **default**, clusters of the posts/messages corresponding to interests of other users excluding the  current user, labeled by keywords typical to respective posts/messages
+- ``similar to me`` - **default**, other users ranked by simlarity in respect to the current user
+- ``best friends`` - **default**, other users that are the most involved in mutual communications (likes, votes, comments and mentions) with the current user
+- ``fans`` - **default**, other users that are the most involved in communications (likes, votes, comments and mentions) directed to the current user but not the other way around
+- ``like and comment me`` - other users who provide likes and votes in respect to the current user
+- ``authorities`` - **default**, other users that are getting the most of communications (likes, votes, comments and mentions) from the current user
+- ``reputation`` - **default**, list of the users with highest reputation score within entire reachable community, including any users visible given privacy restrictions
+- ``social graph`` - **default**, rendering of the nearest social environment in form of interactive social graph 
+- ``liked by me`` - other users that are getting the most of votes and likes from the current user
+- ``my karma by periods`` - dynamic of the "karma" (social capital) for the current user
+- ``my words by periods`` - **default**, words used by the current user getting most of attention (likes, votes, comments and mentions) from other users, broken down by time periods
+- ``my friends by periods`` - **default**, other users paying attention (likes, votes, comments and mentions) to the current user, broken down by time periods
+- ``my favorite words`` - **default**, words most oftenly used, liked and commented by the current user
+- ``my posts liked and commented`` - **default**, posts of the current user most oftenly liked and commented by the other users
+- ``my best words`` - words most oftenly liked and commented by all of the users including the current user 
+- ``my words liked and commented`` - words of the current user most oftenly liked and commented by the other users
+- ``words liked by me`` - words most oftenly liked by the current user 
+- ``words of my friends`` - **default**, words most oftenly used by users other than current user
+- ``my posts for the period`` - **default**, all posts by the current user for given period
+*/
 	static final String[] report_options = {
 		my_interests,
 		interests_of_my_friends,

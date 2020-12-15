@@ -70,7 +70,7 @@ class TwitterFeeder extends SocialFeeder {
 		this.api = api;
 	}
 	public void getFeed(String id, String token, String token_secret, Date since, Date until, StringBuilder detail) throws IOException {
-		body.debug("Twitter crawling "+user_id);
+		body.debug("Twitter crawling "+id);
 		
 		//https://developer.twitter.com/en/docs/tweets/timelines/guides/working-with-timelines
 		//https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-home_timeline
@@ -81,7 +81,20 @@ class TwitterFeeder extends SocialFeeder {
 		try {
 //TODO deal with rate limits, if needed
 //TODO if date limit is not hit, iterate with max_id-1
-			String[][] params = new String[][] {
+			
+			String[][] params = !Str.isLong(id) ?
+				new String[][] {
+					//new String [] {"user_id","563516882"}, 
+					new String [] {"screen_name",id}, 
+					new String [] {"count",String.valueOf(count)},
+					//new String [] {"since_id","false"},
+					//new String [] {"max_id","1257053173916659712"},
+					new String [] {"tweet_mode", "extended"},
+					new String [] {"trim_user","false"},
+					new String [] {"exclude_replies","false"},
+					new String [] {"include_rts","true"}
+				}:
+				new String[][] {
 				//new String [] {"user_id","563516882"}, 
 				//new String [] {"screen_name","bengoertzel"}, 
 				new String [] {"count",String.valueOf(count)},

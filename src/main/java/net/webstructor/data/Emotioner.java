@@ -32,9 +32,9 @@ class Emoticon {
 //https://lemire.me/blog/2018/06/15/emojis-java-and-strings/
 //https://www.branah.com/unicode-converter
 public class Emotioner {
-	public static final String positive = "\ud83d\ude0a";//😊0001f60a
-	public static final String negative = "\ud83d\ude1e";//😞0001f61e
-	public static final String flushed = "\ud83d\ude33";//😳0001F633 
+	public static final String positive = "\ud83d\ude0a";//😊0001f60a//smiling face with smiling eyes
+	public static final String negative = "\ud83d\ude1e";//😞0001f61e//disappointed face
+	public static final String flushed = "\ud83d\ude33";//😳0001F633//flushed face
 	public static final String emotion(int s) {//sentiment
 		return s < -50 ? Emotioner.negative : s > 50 ? Emotioner.positive : "";
 	}

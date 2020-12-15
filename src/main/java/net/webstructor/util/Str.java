@@ -100,6 +100,17 @@ public class Str {
 		return expected == null || expected.equalsIgnoreCase(val);//any value present or matching expected  
 	}
 
+	public static boolean isLong(String s) {
+	    if (s == null)
+	        return false;
+	    try {
+	    	Long.parseLong(s);
+	    } catch (NumberFormatException nfe) {
+	        return false;
+	    }
+	    return true;
+	}
+	
 	public static Object[][] get(String[] args, String[] names, Class[] types){
 		return get(args, names, types, null);
 	}

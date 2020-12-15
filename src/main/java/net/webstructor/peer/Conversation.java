@@ -603,7 +603,7 @@ public class Conversation extends Responser {
 				&& session.sessioner.body.getSocializer(arg.getString("network")) != null 
 				&& arg.getString("id") != null && arg.getString("network") != null
 				//if either a) provider is "public" or b) specified id is matching user id or c) we supply the auth token 
-				&& (session.sessioner.body.getSocializer(arg.getString("network")).opendata() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id"))
+				&& (session.trusted() || session.sessioner.body.getSocializer(arg.getString("network")).opendata() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id"))
 						|| session.read(new Seq(new Object[]{"token",new Property(arg,"token")}))) ) {
 				String format = session.read(new Seq(new Object[]{"format",new Property(arg,"format")})) ? arg.getString("format") : "html"; 
 				int threshold = session.read(new Seq(new Object[]{"threshold",new Property(arg,"threshold")})) ? Integer.valueOf(arg.getString("threshold")).intValue() : 20;
@@ -617,7 +617,7 @@ public class Conversation extends Responser {
 				String id = arg.getString("id");
 				String token = session.read(new Seq(new Object[]{"token",new Property(arg,"token")})) ? arg.getString("token") : null;
 			   	if (AL.empty(token)) //if token is not supplied explicitly
-			   		token = arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.name()+" token") : null;
+			   		token = session.trusted() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.name()+" token") : null;
 				//TODO: name and language for opendata/steemit?
 			   	String secret = provider.getTokenSecret(session.getStoredPeer());
 				String report = provider.cachedReport(id,token,secret,id,"",language,format,fresh,session.input(),threshold,period,areas);

@@ -106,15 +106,25 @@ public abstract class Mediator extends Communicator implements Updater {
 			body.error(Writer.capitalize(name)+" fails merging "+mergee,e);
 		}
 	}
+
+	protected String groupFullName(String group_name) {
+		return name + ":" + group_name;
+	}
+	
+	protected String messageLink(String group_usename, String group_title, String group_id, String message_id) {
+//TODO: fix hack and find solution for Slack!
+		return groupFullName(group_title);
+	}
 	
 //TODO: move to Grouper under Conversation scope for Slack and WeChat unification 
 	// - adding session attributes?
 	// - adding dedicated unauthorized chat sessions?
-	protected void updateGroup(String group_id, String group_name, String peer_id, boolean is_in, boolean is_bot, String text){
+	protected void updateGroup(String message_id, String group_id, String group_username, String group_title, String peer_id, boolean is_in, boolean is_bot, String text){
 		try {
 			//1) get group by id (eg. "telegram_id")
 			String name_id = name+" id";
-			String full_group_name = name + ":" + group_name;
+			String full_group_name = groupFullName(group_title);
+			String message_link = messageLink(group_username, group_title, group_id, message_id);
 			Collection g = body.storager.getByName(name_id, group_id);
 			Thing group;
 			if (!AL.empty(g)){
@@ -126,7 +136,7 @@ public abstract class Mediator extends Communicator implements Updater {
 				group.setString(name_id,group_id);
 				group.storeNew(body.storager);
 			}
-body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" group_name "+group_name+" group "+group.toString()+" peer_id "+peer_id+" text "+text);//TODO: remove debug
+body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" name"+group_username+" title "+group_title+" group "+group.toString()+" peer_id "+peer_id+" text "+text);//TODO: remove debug
 			//3) if (!is_bot), add/remove peer to/from group
 			if (!is_bot){//TODO: handle bots as well!?
 				//4) get peer by id (eg. "telegram_id")
@@ -163,7 +173,7 @@ body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" group_name "+gr
 				Date today = Time.today(0);
 				Iter parse = new Iter(Parser.parse(text));
 				if (!AL.empty(topics)) for (Iterator tit = topics.iterator(); tit.hasNext();)
-					matcher.match(parse, null, (Thing)tit.next(), today, full_group_name, null, thingPaths, null, null, null);
+					matcher.match(parse, null, (Thing)tit.next(), today, message_link, null, thingPaths, null, null, null);
 				//8) send update if topic is matched
 //TODO: exclude sender in the news update
 				body.getPublisher().update(null,today,thingPaths,true,group);//forced
