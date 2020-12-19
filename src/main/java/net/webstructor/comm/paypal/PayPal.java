@@ -49,7 +49,7 @@ import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
 import net.webstructor.util.JSON;
 import net.webstructor.util.MapMap;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 
 //TODO: merge PayPal+PayPaler? 
 public class PayPal extends Socializer {
@@ -206,7 +206,7 @@ public class PayPal extends Socializer {
 		return feeder;
 	}
 	
-	protected void reportPeer(Reporter rep, Translator t, SocialFeeder feeder,String title, String user_id, String name, String surname, java.util.Set options, int minPercent, int minCount, Object[][] cross_peers) {	
+	protected void reportPeer(ReportWriter rep, Translator t, SocialFeeder feeder,String title, String user_id, String name, String surname, java.util.Set options, int minPercent, int minCount, Object[][] cross_peers) {	
 		String payments = Writer.capitalize(t.loc("payments"));
 		rep.initPeer(user_id, Writer.capitalize(name), Writer.capitalize(surname), payments, feeder.since(), feeder.until());
 		

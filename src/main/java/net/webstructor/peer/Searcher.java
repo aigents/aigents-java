@@ -43,7 +43,6 @@ import net.webstructor.al.Reader;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
 import net.webstructor.al.Time;
-import net.webstructor.al.Period;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.core.Property;
@@ -63,7 +62,7 @@ import net.webstructor.self.Matcher;
 import net.webstructor.self.Siter;
 import net.webstructor.serp.Serper;
 import net.webstructor.util.ArrayPositionComparator;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 import net.webstructor.util.Str;
 
 class Searcher implements Intenter {
@@ -115,7 +114,7 @@ class Searcher implements Intenter {
 				
 				StringWriter writer = new StringWriter();
 				Translator t = session.getBody().translator(language);
-				Reporter rep = Reporter.reporter(session.getBody(),format,writer);
+				ReportWriter rep = ReportWriter.reporter(session.getBody(),format,writer);
 //TODO: since, until 
 				rep.initReport("Aigents Search Report: "+topic,Time.today(0),Time.today(0),session.sessioner.body.site());
 				if (miner != null) {
@@ -241,9 +240,9 @@ class Searcher implements Intenter {
 						int linkcount = 0;
 						for (int i = 0; i < graphs.length; i++) {
 							if (i > 0) colors.append(",");
-							colors.append(graphs[i]+":\""+Reporter.nodecolors[i % Reporter.nodecolors.length]+"\"");
+							colors.append(graphs[i]+":\""+ReportWriter.nodecolors[i % ReportWriter.nodecolors.length]+"\"");
 							for (int j = 0; j < graphs.length; j++) if (i != j)
-								colors.append(",\""+graphs[i]+"-"+graphs[j]+"\":\""+Reporter.linkcolors[linkcount++ % Reporter.linkcolors.length]+"\"");
+								colors.append(",\""+graphs[i]+"-"+graphs[j]+"\":\""+ReportWriter.linkcolors[linkcount++ % ReportWriter.linkcolors.length]+"\"");
 						}
 						rep.graph(String.valueOf(System.currentTimeMillis()),graph_text.toString(), colors.toString());
 
@@ -314,15 +313,13 @@ class Searcher implements Intenter {
 		if (session.read(new Seq(new Object[]{name,"results"})))
 			if (session.status(name))
 				return true;
-//TODO default server configuration
-		final long timeout_millis = Period.SECOND * Integer.valueOf(Str.arg(args, "timeout", "10")).intValue();
 		Thread task = new Thread() {
 	         public void run() {
 	        	session.result( handleSearch(args,session) );
 				session.complete(name);
 	         };
 	    };
-	    return session.launch(name,task,timeout_millis);
+	    return session.launch(name,task,null,null);
 	}
 	
 	Collection searchEngine(Session session, SearchContext sc) {

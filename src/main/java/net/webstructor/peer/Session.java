@@ -530,10 +530,11 @@ public class Session  {
 			this.result = result;
 		}
 	}
-	protected boolean launch(String name,Thread task,long timeout_millis) {
+	protected boolean launch(String name,Thread task,String busy,String work) {
+		long timeout_millis = timeout();
 		synchronized (this) {
 			if (working) {
-				output(Writer.capitalize(name)+" busy.");
+				output(busy != null ? busy : Writer.capitalize(name)+" busy.");
 				return true;
 			}else {
 			    waiting = true;
@@ -555,7 +556,7 @@ public class Session  {
 	    		return result;
 	    	} else {//still working on it
 	    		waiting = false;
-	    		output(Writer.capitalize(name)+" working.");
+	    		output(work != null ? work : Writer.capitalize(name)+" working.");
 	    		return true;
 	    	}
 	    }
@@ -596,5 +597,14 @@ public class Session  {
  		    		}
  		    	}
  		    }
+	}
+
+	protected long timeout() {
+		//return Period.SECOND * Integer.valueOf(Str.arg(args, "timeout", "10")).intValue();
+		long timeout = sessioner.body.self().getInt(Body.http_timeout, (int)Period.MINUTE)/2;
+		try {
+			timeout = Period.SECOND * Integer.valueOf(Str.arg(args, "timeout", String.valueOf(timeout / 1000))).intValue();
+		} catch (Throwable t)  {}
+		return timeout;
 	}
 }

@@ -49,6 +49,7 @@ public abstract class Responser implements Intenter {
 //TODO: initialize list of intenters in Body/Farm and rearrange their order in Session 
 	private static Intenter[] intenters = new Intenter[]{
 				new Searcher(),
+				new Reporter(),
 				new ControlledResponser(),
 				new PatternResponser()
 				,new Finder()

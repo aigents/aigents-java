@@ -155,8 +155,10 @@ public class Telegrammer extends Mediator {
 	
 	public void output(Session session, String message) throws IOException {
 		String chat_id = chatId(session.getKey(),session.getPeer());
-		if (!AL.empty(chat_id))
-			output(chat_id, message);
+		if (!AL.empty(chat_id)) {
+			String reply_to_msg_id = (String)session.context("reply_to_msg_id");
+			output(chat_id, reply_to_msg_id, message);
+		}
 	}
 	
 	private void output(String chat_id, String message) throws IOException {
@@ -215,7 +217,7 @@ public class Telegrammer extends Mediator {
 		}
 	}
 	
-	private void report(String chat_id, String msg_id) throws IOException {
+	private void report(String chat_username, String chat_title, String chat_id, String msg_id) throws IOException {
 		String token = self.getString(Body.telegram_token,null);
 		try {
 			//https://core.telegram.org/bots/api#getchatadministrators
@@ -232,8 +234,10 @@ public class Telegrammer extends Mediator {
 						JsonObject user = admin.getJsonObject("user");
 						String user_id = JSON.getJsonLongString(user, "id", null);
 						boolean is_bot = HTTP.getJsonBoolean(user, "is_bot", false);
-						if (!is_bot && !AL.empty(user_id))
+						if (!is_bot && !AL.empty(user_id)) {
 							forward(user_id,chat_id,msg_id);
+							output(user_id,messageLink(chat_username, chat_title, chat_id, msg_id));
+						}
 					}
 				}
 			}
@@ -391,7 +395,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 							int rudeness = body.languages.rudeness(text,null);
 							if (rudeness > 0) {
 								emotions += Emotioner.flushed;
-								report(chat_id, message_id);
+								report(chat_username, chat_title, chat_id, message_id);
 							}
 							if (rudeness >= rudeness_threshold)
 								delete(chat_id, message_id);
@@ -411,6 +415,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
             	session.language = body.languages.getName(from_language);
 
             	if (!from_id.equals(chat_id)) {//group chat
+	            	session.context("reply_to_msg_id",message_id);
                 	if (!session.authenticated()) {//first user encounter
                 		Session privateSession = body.sessioner.getSession(this,key(from_id,from_id));
                 		if (!privateSession.authenticated())

@@ -39,6 +39,47 @@ function test_chat_cleanup() {
 	get("Ok.");
 }
 
+function test_report() {
+	//aigents report test
+	test_chat_init();
+	//test with NO timeout
+	array_map( 'unlink', array_filter((array) glob("reports/*") ) );
+	say("my aigents report format json, timeout 0");
+	get("Your report is being prepared",null,true);
+	sleep(1);
+	say("my aigents report format json, timeout 0");
+	get("{\"title\":\"Aigents Report for Aigents (beta) - John Doe",null,true);
+	say("There text 'weather example', times today, new true, trust true, sources http://weather.yahoo.com.");
+	say("There text 'storms example', times today, new true, trust true, sources http://weather.yahoo.com.");
+	get("Ok.");
+	say("my aigents report format json, timeout 0");
+	get("{\"title\":\"Aigents Report for Aigents (beta) - John Doe",null,true);
+	say("my aigents report format json, fresh, timeout 0");
+	get("Your report is being prepared",null,true);
+	sleep(1);
+	say("my aigents report format json, timeout 0");
+	get("67,\"weather\",1,0,0,1,1",null,true,true);
+	//cleanup
+	say("times today new false, trust false");
+	get("Ok.");
+	say("no there times today");
+	get("Ok.");
+	//test with default timeout
+	array_map( 'unlink', array_filter((array) glob("reports/*") ) );
+	say("my aigents report format json");
+	get("{\"title\":\"Aigents Report for Aigents (beta) - John Doe",null,true);
+	say("There text 'weather example', times today, new true, trust true, sources http://weather.yahoo.com.");
+	say("There text 'storms example', times today, new true, trust true, sources http://weather.yahoo.com.");
+	get("Ok.");
+	say("my aigents report format json");
+	get("{\"title\":\"Aigents Report for Aigents (beta) - John Doe",null,true);
+	say("my aigents report format json, fresh");
+	get("67,\"weather\",1,0,0,1,1",null,true,true);
+	//cleanup
+	say("times today new false, trust false");
+	get("Ok.");
+	test_chat_cleanup();
+}
 
 function test_findchat() {
 	//find-object demo chat script
@@ -1356,6 +1397,7 @@ function test_load() {//loading csv data
 }
 
 test_init();
+test_report();
 test_findchat();
 test_demochat();
 test_freechat();

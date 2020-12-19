@@ -322,6 +322,17 @@ public class Str {
 		return(((double)sa.size())/Math.max(la, lb));
 	}
 	
+	public static java.util.Set options(String query, String[] possible){
+		HashSet options = new HashSet();
+		if (query != null && possible != null){
+			query = query.toLowerCase();
+			for (int i = 0; i < possible.length; i++)
+				if (query.contains(possible[i]))
+					options.add(possible[i]);
+		}
+		return options;
+	} 
+	
 	/**
 	 * Levenshtein Distance
 	 * @param str1

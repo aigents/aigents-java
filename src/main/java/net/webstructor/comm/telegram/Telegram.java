@@ -48,7 +48,7 @@ import net.webstructor.data.OrderedStringSet;
 import net.webstructor.peer.Grouper;
 import net.webstructor.peer.Peer;
 import net.webstructor.peer.Profiler;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 
 class TelegramFeeder extends SocialFeeder {
 	Telegram api;
@@ -83,7 +83,7 @@ class TelegramFeeder extends SocialFeeder {
 							if (user_id.equals(ii.from)) {
 								processItem(time,ii.from,ii.input,urls,null,0,false);
 								String img = urls.getImage();
-								String imghtml = img != null ? Reporter.img(url != null ? url : img, img) : null;
+								String imghtml = img != null ? ReportWriter.img(url != null ? url : img, img) : null;
 								reportDetail(detail,
 										ii.from,//getUserName(from),
 										url,//uri

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@ import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.main.Mainer;
 import net.webstructor.peer.Profiler;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 
 /*
 https://developers.facebook.com/support/bugs/create/
@@ -202,7 +202,7 @@ public class FB extends Socializer {
 		}
 		
 		//TODO: make sure it is still working after refactoring
-		Reporter rep = new Reporter(env,user_id+".html");
+		ReportWriter rep = new ReportWriter(env,user_id+".html");
 		rep.initReport("Aigents Report for Facebook (beta)", feeder.since(), feeder.until(), null);
 		rep.initPeer(user_id, null, null, null, since, until);
 		

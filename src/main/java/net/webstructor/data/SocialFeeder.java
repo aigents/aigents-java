@@ -45,7 +45,7 @@ import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.StringUtil;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Environment;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 
 public abstract class SocialFeeder {
 	private static final long MAX_CLUSTER_TIME = Period.MINUTE*1;
@@ -794,7 +794,7 @@ public abstract class SocialFeeder {
 						+"</small><br>");
 				}
 			}
-			text = Reporter.trimHTML(text, 200);//TODO: unify with Reporter.maxLength
+			text = ReportWriter.trimHTML(text, 200);//TODO: unify with ReportWriter.maxLength
 			String textHTML = AL.empty(uri) ? text : "<a target=\"_blank\" href=\""+uri+"\">"+text+"</a>";
 			Object[] detailItem = new Object[]{
 					Time.day(date,false),

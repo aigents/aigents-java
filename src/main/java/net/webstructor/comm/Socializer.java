@@ -47,10 +47,8 @@ import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
-import net.webstructor.cat.StringUtil;
 import net.webstructor.core.Thing;
-import net.webstructor.util.Reporter;
-
+import net.webstructor.util.ReportWriter;
 import net.webstructor.data.Graph;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Transcoder;
@@ -97,7 +95,6 @@ public abstract class Socializer extends HTTP implements Crawler {
 	
 	static private final int reportingPeriod = 1;//week
 	static private final int reportingPeriods[] = {1,7,31,92,365,1461,5844};//day,week,month,quarter,year,4 years,16 years
-	private HashSet cachedRequests = new HashSet(); 
 
 	public String getPeerIdName(){
 		return name()+" id";
@@ -237,7 +234,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 	}
 	
 	
-	//TODO: move code below to new Reporter and rename old Reporter to HtmlReporter
+	//TODO: move code below to new ReportWriter and rename old ReportWriter to HtmlReporter
 	public void fromString(File file,String content){
 		try {
 			File parent = file.getParentFile();
@@ -297,7 +294,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 		return null;
 	}
 	
-	private String getCachedReports(final String user_id, final int report_days, final String format, boolean fresh){
+	public String getCachedReports(final String user_id, final int report_days, final String format, boolean fresh){
 		if (report_days > 0) //explicitly specified reporting period
 			return getCachedReport(user_id, report_days, format, fresh);
 		for (int i = reportingPeriod; i < reportingPeriods.length; i++){
@@ -310,47 +307,6 @@ public abstract class Socializer extends HTTP implements Crawler {
 		return null;
 	}
 	
-	//TODO: get rid of "final String key" because not used!?
-	public final String cachedReport(final String user_id, final String access_token, final String key, final String name, final String surname, final String language, final String format, final boolean fresh, final String query, final int threshold, final String period, final String[] areas) {
-		if (AL.empty(user_id))
-			return null;
-		//final int report_days = period == null ? 0 : StringUtil.toIntOrDefault(period,10,Body.RETROSPECTION_PERIOD_DAYS);
-		final int report_days = period == null ? 0 : StringUtil.toIntOrDefault(period,10,0);
-		String cached = getCachedReports(user_id, report_days, format, fresh);
-		if (!AL.empty(cached))
-			return cached;
-		synchronized (cachedRequests) {
-			if (!cachedRequests.contains(user_id)){
-				cachedRequests.add(user_id);
-				//TODO: all threads for profiles and spidereres to be run under the same Executor with given number of threads in the pool 
-				final Runnable task = new Thread() {
-				    public void run() {
-						try {
-							//TODO: use peer custom "long-term" retention period for "retrospective period"
-							HashMap feeds = new HashMap();
-							SocialFeeder feeder = getFeeder(user_id, access_token, key, report_days, areas, fresh, feeds);
-							if (feeder != null){
-								//cluster only if default or requested
-								//TODO: fix this hack, do query parsing and clustering in other place!?
-								HashSet options = options(query,report_options);
-								if (options.isEmpty() || options.contains(my_interests) || options.contains(interests_of_my_friends))
-									feeder.cluster(Body.MIN_RELEVANT_FEATURE_THRESHOLD_PERCENTS);
-								cacheReport(feeder,feeds,user_id,access_token,key,name,surname,language,format,options,threshold);
-							}
-						} catch (IOException e) {
-			    	    	body.error(name()+" profiling error", e);
-						}
-						synchronized (cachedRequests) {
-							cachedRequests.remove(user_id);
-						}
-				    }
-				};
-				((Thread)task).start();
-			}
-		}
-		return "Your report is being prepared, please check back in few minutes...";
-	}
-
 	public final String cacheReport(SocialFeeder feeder, HashMap feeds, String user_id, String access_token, String key, String name, String surname, String language, String format, java.util.Set options, int threshold) {
 		File file = body.getFile(reportingPath(user_id,feeder.getDays(),format));
 		//TODO: use feeds
@@ -360,7 +316,8 @@ public abstract class Socializer extends HTTP implements Crawler {
 		return report;
 	}
 
-	static final String
+	public static final String wait_message = "Your report is being prepared, please check back in few minutes...";
+	public static final String
 		my_interests = "my interests",
 		interests_of_my_friends = "interests of my friends",
 		similar_to_me = "similar to me",
@@ -405,7 +362,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 - ``words of my friends`` - **default**, words most oftenly used by users other than current user
 - ``my posts for the period`` - **default**, all posts by the current user for given period
 */
-	static final String[] report_options = {
+	public static final String[] report_options = {
 		my_interests,
 		interests_of_my_friends,
 		similar_to_me,
@@ -429,18 +386,6 @@ public abstract class Socializer extends HTTP implements Crawler {
 		social_graph
 	}; 
 		
-	//TODO: move to utilities 
-	HashSet options(String query, String[] possible){
-		HashSet options = new HashSet();
-		if (query != null && possible != null){
-			query = query.toLowerCase();
-			for (int i = 0; i < possible.length; i++)
-				if (query.contains(possible[i]))
-					options.add(possible[i]);
-		}
-		return options;
-	}
-
 	//TODO move to separate package
 	void incMapIntArray(HashMap map, String key, int[] ints){
 		if (ints == null)
@@ -656,7 +601,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 		int minCount = 10;
 		StringWriter writer = new StringWriter();
 		Translator t = body.translator(language);
-		Reporter rep = Reporter.reporter(body,format,writer);
+		ReportWriter rep = ReportWriter.reporter(body,format,writer);
 		String full_name = rep.buildName(user_id, Writer.capitalize(user_name), Writer.capitalize(user_surname));
 		String title = t.loc("Aigents Report for")+" "+Writer.capitalize(name()+" (beta)"+ " - "+full_name);
 		//TODO fix hack
@@ -713,12 +658,12 @@ public abstract class Socializer extends HTTP implements Crawler {
 		return header;
 	}
 	
-	private String[] peersHeadings(Reporter rep){
+	private String[] peersHeadings(ReportWriter rep){
 		return transcode(rep.needsId() ? new String[]{"Rank,%","Friend","My likes","Likes","Comments", "Id"}
 		 							   : new String[]{"Rank,%","Friend","My likes","Likes","Comments"});
 	}
 	
-	protected void reportPeer(Reporter rep, Translator t, SocialFeeder feeder,String title, String user_id, String name, String surname, java.util.Set options, int minPercent, int minCount, Object[][] cross_peers) {	
+	protected void reportPeer(ReportWriter rep, Translator t, SocialFeeder feeder,String title, String user_id, String name, String surname, java.util.Set options, int minPercent, int minCount, Object[][] cross_peers) {	
 		String perPeriod = t.loc("number of posts")+" "+feeder.getNewsCount();
 		rep.initPeer(user_id, Writer.capitalize(name), Writer.capitalize(surname), perPeriod, feeder.since(), feeder.until());
 		

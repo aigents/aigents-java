@@ -40,7 +40,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.util.Array;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 import net.webstructor.util.Str;
 import net.webstructor.comm.HTTP;
 import net.webstructor.core.Environment;
@@ -277,7 +277,7 @@ class SteemitFeeder extends SocialFeeder {
 					break;
 				}
 				for (String s : sources) if (AL.isIMG(s)) {
-					img = Reporter.img(uri, "height:auto;width:140px;", imgsrc = s);
+					img = ReportWriter.img(uri, "height:auto;width:140px;", imgsrc = s);
 					break;
 				}
 			}

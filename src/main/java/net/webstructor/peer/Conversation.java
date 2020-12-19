@@ -573,9 +573,6 @@ public class Conversation extends Responser {
 		if (tryParse(storager,session))//if parsing tried successflly 
 			return false;//no further interaction is needed
 		else
-		if (tryReport(storager,session))//if reporting tried successflly 
-			return false;//no further interaction is needed
-		else
 		if (tryGraph(storager,session))//if graphing tried successfully 
 			return false;//no further interaction is needed
 		else
@@ -595,58 +592,6 @@ public class Conversation extends Responser {
 			+ ", please contact us for help at "+Body.ORIGINSITE+".");
 		return false;
 	}//doAuthenticated
-		
-	//TODO: unifiy the code 
-	boolean tryReport(Storager storager,Session session) {
-		Thing arg = new Thing();
-		if (session.read(new Seq(new Object[]{new Property(arg,"network"),"id",new Property(arg,"id"),"report"}))
-				&& session.sessioner.body.getSocializer(arg.getString("network")) != null 
-				&& arg.getString("id") != null && arg.getString("network") != null
-				//if either a) provider is "public" or b) specified id is matching user id or c) we supply the auth token 
-				&& (session.trusted() || session.sessioner.body.getSocializer(arg.getString("network")).opendata() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id"))
-						|| session.read(new Seq(new Object[]{"token",new Property(arg,"token")}))) ) {
-				String format = session.read(new Seq(new Object[]{"format",new Property(arg,"format")})) ? arg.getString("format") : "html"; 
-				int threshold = session.read(new Seq(new Object[]{"threshold",new Property(arg,"threshold")})) ? Integer.valueOf(arg.getString("threshold")).intValue() : 20;
-				//int range = session.read(new Seq(new Object[]{"range",new Property(arg,"range")})) ? Integer.valueOf(arg.getString("range")).intValue() : 1;
-				String period = session.read(new Seq(new Object[]{"period",new Property(arg,"period")})) ? arg.getString("period") : null;
-				String[] areas = session.read(new Seq(new Object[]{"areas",new Property(arg,"areas")})) ? new String[]{arg.getString("areas")} : null;
-				Thing peer = session.getStoredPeer();
-				String language = peer.getString(Peer.language);
-				boolean fresh = session.input().contains("fresh");
-				Socializer provider = session.sessioner.body.getSocializer(arg.getString("network"));
-				String id = arg.getString("id");
-				String token = session.read(new Seq(new Object[]{"token",new Property(arg,"token")})) ? arg.getString("token") : null;
-			   	if (AL.empty(token)) //if token is not supplied explicitly
-			   		token = session.trusted() || arg.getString("id").equals(session.getStoredPeer().getString(arg.getString("network")+" id")) ? session.getStoredPeer().getString(provider.name()+" token") : null;
-				//TODO: name and language for opendata/steemit?
-			   	String secret = provider.getTokenSecret(session.getStoredPeer());
-				String report = provider.cachedReport(id,token,secret,id,"",language,format,fresh,session.input(),threshold,period,areas);
-				session.output(report != null ? report : session.no());
-				return true;			
-		} else	
-		if (session.read(new Seq(new Object[]{
-					new Any(1,AL.i_my),new Property(arg,"network"),"report"}))
-					&& session.sessioner.body.getSocializer(arg.getString("network")) != null ) {
-				String format = session.read(new Seq(new Object[]{"format",new Property(arg,"format")})) ? arg.getString("format") : "html"; 
-				int threshold = session.read(new Seq(new Object[]{"threshold",new Property(arg,"threshold")})) ? Integer.valueOf(arg.getString("threshold")).intValue() : 20;
-				//int range = session.read(new Seq(new Object[]{"range",new Property(arg,"range")})) ? Integer.valueOf(arg.getString("range")).intValue() : 1;
-				String period = session.read(new Seq(new Object[]{"period",new Property(arg,"period")})) ? arg.getString("period") : null;
-				String[] areas = session.read(new Seq(new Object[]{"areas",new Property(arg,"areas")})) ? new String[]{arg.getString("areas")} : null;
-				Thing peer = session.getStoredPeer();
-			   	String name = peer.getString(AL.name);
-			   	String surname = peer.getString(Peer.surname);
-			   	String language = peer.getString(Peer.language);
-				boolean fresh = session.input().contains("fresh");
-			   	Socializer provider = session.sessioner.body.getSocializer(arg.getString("network"));
-			   	String id = peer.getString(provider.getPeerIdName());
-			   	String token = peer.getString(provider.name()+" token");
-			   	String secret = provider.getTokenSecret(session.getStoredPeer());
-				String report = provider.cachedReport(id,token,secret,name,surname,language,format,fresh,session.input(),threshold,period,areas);
-				session.output(report != null ? report : session.no());
-				return true;	
-		}
-		return false;
-	}
 
 	//TODO: A MUST - move to other place to avoid concurrent use of files ad redundant memory use
 	HashMap reputationers = new HashMap();

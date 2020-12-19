@@ -39,7 +39,7 @@ import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedStringSet;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.util.JSON;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 import net.webstructor.util.Str;
 
 /*
@@ -160,7 +160,7 @@ class RedditFeeder extends SocialFeeder {
 					String imghtml = null;
 					if (!AL.empty(ri.thumbnail)) {
 						if (AL.isIMG(ri.thumbnail))
-							imghtml = Reporter.img(ri.uri, null, ri.thumbnail);
+							imghtml = ReportWriter.img(ri.uri, null, ri.thumbnail);
 						else {
 							if (AL.isURL(ri.thumbnail))
 								links.add(ri.thumbnail);

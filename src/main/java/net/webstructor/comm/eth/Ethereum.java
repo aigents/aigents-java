@@ -39,7 +39,7 @@ import net.webstructor.data.DataLogger;
 import net.webstructor.data.Translator;
 import net.webstructor.main.Mainer;
 import net.webstructor.peer.Profiler;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 
 public class Ethereum extends SocialCacher {
 	//TODO update url upon redirect!!!
@@ -114,7 +114,7 @@ public class Ethereum extends SocialCacher {
 			e.printStackTrace();
 		}
 		
-		Reporter rep = new Reporter(env,user_id+".html");
+		ReportWriter rep = new ReportWriter(env,user_id+".html");
 		rep.initReport("Aigents Report for Ethereum (beta)", feeder.since(), feeder.until(), null);
 		rep.initPeer(user_id, null, null, null, since, until);
 

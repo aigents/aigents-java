@@ -25,7 +25,7 @@
 
 include_once("pest.php");
 
-$version = "3.1.8";
+$version = "3.1.9";
 $copyright = " Copyright © 2020 Anton Kolonin, Aigents®.";
 
 $baseURL = "http://localhost:1180/?";
@@ -137,12 +137,15 @@ function test_o($out) {
 	println("SAY:".$out);
 }
 
-function test_i($in = null, $alts = null, $partial = false) {
+function test_i($in = null, $alts = null, $partial = false, $containment = false) {
 	global $last_message;
 	global $failed;
 	$t = $last_message;
 	if ($in != null){
 		$in = trim($in);
+		if ($containment)
+			$t = strpos($t,$in) != false ? $in : null;
+		else
 		if ($partial)
 			$t = substr($t,0,strlen($in));
 	}
@@ -180,8 +183,8 @@ function say($in) {
 	test_o($in);
 }
 
-function get($in = null, $alts = null, $partial = false) {
-	test_i($in,$alts,$partial);
+function get($in = null, $alts = null, $partial = false, $containment = false) {
+	test_i($in,$alts,$partial,$containment);
 }
 
 function brk() {

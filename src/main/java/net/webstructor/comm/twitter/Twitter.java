@@ -47,7 +47,7 @@ import net.webstructor.data.SocialFeeder;
 import net.webstructor.peer.Profiler;
 import net.webstructor.self.Siter;
 import net.webstructor.util.MapMap;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 import net.webstructor.util.Str;
 
 /*
@@ -150,8 +150,8 @@ class TwitterFeeder extends SocialFeeder {
 					t.links.add(t.url);
 				String text = processItem(date,t.user_id_str,t.text,t.links,comments,t.score,t.scored);
 				
-				String imghtml = t.image != null ? Reporter.img(t.url, "height:auto;width:140px;", t.image) : 
-					!AL.empty(t.user_profile_image) ? Reporter.img(t.url, null, t.user_profile_image) : null;
+				String imghtml = t.image != null ? ReportWriter.img(t.url, "height:auto;width:140px;", t.image) : 
+					!AL.empty(t.user_profile_image) ? ReportWriter.img(t.url, null, t.user_profile_image) : null;
 				
 				reportDetail(detail,t.user_id_str,t.url,t.id_str,t.text,date,comments,t.links,null,t.score,(t.scored ? 1 : 0),comments_count,imghtml);
 

@@ -34,7 +34,7 @@ import net.webstructor.al.Time;
 import net.webstructor.core.Environment;
 import net.webstructor.data.OrderedStringSet;
 
-public class JsonReporter extends Reporter {
+public class JsonReporter extends ReportWriter {
 	
 	public JsonReporter(Environment env,Writer writer){
 		super(env,writer);

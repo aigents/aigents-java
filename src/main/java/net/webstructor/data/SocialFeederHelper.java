@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import net.webstructor.al.AL;
-import net.webstructor.util.Reporter;
+import net.webstructor.util.ReportWriter;
 import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Counter;
@@ -270,7 +270,7 @@ abstract public class SocialFeederHelper extends SocialFeeder {
 					break;
 				}
 				for (String s : sources) if (AL.isIMG(s)) {
-					img = Reporter.img(uri, "height:auto;width:140px;", imgsrc = s);
+					img = ReportWriter.img(uri, "height:auto;width:140px;", imgsrc = s);
 					break;
 				}
 			}

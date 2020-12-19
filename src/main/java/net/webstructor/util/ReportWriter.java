@@ -40,7 +40,7 @@ import net.webstructor.al.Time;
 import net.webstructor.cat.StringUtil;
 import net.webstructor.core.Environment;
 
-public class Reporter {
+public class ReportWriter {
 	public static final String[] nodecolors = {"#FFFF00","#00FF00","#00FFFF","#FF00FF","#FF0000","#0000FF"};
 	public static final String[] linkcolors = {"#00007F","#007F7F","#007F00","#7F7F00","#7F0000","#7F007F"};
 	
@@ -48,19 +48,19 @@ public class Reporter {
 	protected Writer writer;
 	protected Environment env;
 
-	public static Reporter reporter(Environment env,String format,Writer writer){
+	public static ReportWriter reporter(Environment env,String format,Writer writer){
 		if ("json".equals(format))
 			return new JsonReporter(env,writer);
 		else
-			return new Reporter(env,writer);
+			return new ReportWriter(env,writer);
 	}
 	
-	public Reporter(Environment env,Writer writer){
+	public ReportWriter(Environment env,Writer writer){
 		this.env = env;
 		this.writer = writer;
 	}
 	
-	public Reporter(Environment env,String path){
+	public ReportWriter(Environment env,String path){
 		this.env = env;
 		File file = env.getFile(path);
 		try {
