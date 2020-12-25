@@ -154,6 +154,8 @@ public class ReportWriter {
 			writer.append(graph);
 			writer.append("\";\n");
 			writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text_data, builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
+//TODO: custom orientation, Both==3 for "communication graph" 
+			//writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text_data, layout_directions:\"3\", builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
 			writer.append("</script><br>");
 		} catch (IOException e) {
             env.error("Reporter "+e.toString(),e);
@@ -277,6 +279,7 @@ public class ReportWriter {
 		}
 		if (obj instanceof String){
 			String s = trimHTML((String)obj,maxLength);
+			s = s.replace("\n","<br>");
 			//TODO: annotate URLs as links in-text
 			if (AL.isURL(s) && s.indexOf(' ') == -1)
 				return "<a target=\"_blank\" href=\""+s+"\">"+s+"</a>";
@@ -346,7 +349,6 @@ public class ReportWriter {
 		}
 		if (visible == 0)
 			return;
-		
 		try {
 			subtitle(title);
 			writer.append("<table border=\"1\" style=\"border-collapse:collapse;\"><tr>");
@@ -376,7 +378,8 @@ public class ReportWriter {
 					boolean percent = header[j].indexOf('%') != -1 && row[j] instanceof Integer;
 					if (percent)
 						writer.append("<div style=\"background-color:lightblue;width:"+((Integer)row[j]).intValue()+"px;\">");
-					writer.append(toString(row[j]));
+					String body = toString(row[j]);
+					writer.append(body);
 					if (percent)
 						writer.append("</div>");
 					writer.append("</td>");

@@ -248,7 +248,7 @@ public class Graph implements Serializable {
 	}
 	
 	public void addSubgraphTo(Graph other,int threshold, String[] filter,boolean include){
-		Set set = toSet(filter);
+		Set set = Array.toSet(filter);
 		for (Iterator it = binders.keySet().iterator(); it.hasNext();){
 			String source = (String)it.next();
 			HashMap linkers = (HashMap)binders.get(source);
@@ -421,6 +421,22 @@ public class Graph implements Serializable {
 	public String toString(){
 		return toString(null);
 	}
+
+	public void renameProperties(String from, String to){
+		for (Object context : binders.keySet()){
+			HashMap linkers = getLinkers(context, false);
+			if (!AL.empty(linkers)){
+				ArrayList properties = new ArrayList(linkers.keySet());
+				for (Object property : properties)
+					if (property.equals(from)) {
+						Object target = linkers.get(from);
+						linkers.remove(from);
+						linkers.put(to, target);
+					}
+			}
+		}
+	}
+	
 	public String toString(Transcoder coder){
 		final char termBreaker = ' ';
 		final String statementBreaker = ".\n";
@@ -467,18 +483,8 @@ public class Graph implements Serializable {
 		return sb.toString();
 	}
 	
-	//TODO: to Array
-	public static Set toSet(String[] strings){
-		if (AL.empty(strings))
-			return null;
-		HashSet set = new HashSet(strings.length);
-		for (int i = 0; i < strings.length;i++)
-			set.add(strings[i]);
-		return set;
-	}
-	
 	public ArrayList toList(boolean expand,String[] filter,boolean include){
-		Set set = toSet(filter);
+		Set set = Array.toSet(filter);
 		ArrayList list = new ArrayList(); 
 		Set contexts = binders.keySet(); 
 		for (Iterator c = contexts.iterator(); c.hasNext();){

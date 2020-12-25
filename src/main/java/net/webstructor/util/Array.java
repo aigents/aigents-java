@@ -85,6 +85,14 @@ public class Array {
 		return set;
 	}
 	
+	public static java.util.Set<String> toSet(String[] array) {
+		java.util.Set<String> set = new java.util.HashSet<String>();
+		if (set != null && array != null)
+			for (int i=0; i<array.length; i++)
+				set.add(array[i]);
+		return set;
+	}
+	
 	public static HashSet toSet(Object[] array) {
 		return toSet(new HashSet(), array);
 	}

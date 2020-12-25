@@ -199,7 +199,7 @@ public class GraphCacher implements Cacher {
 
 	public Graph getSubgraphRaw(String[] ids, Date date, int period, int range, int threshold, int limit, String[] links, Set<String> members, Map<String,String> inversions){
 		GraphCacher grapher = this;
-		HashSet todo = Array.toSet(ids);		
+		java.util.Set todo = Array.toSet(ids);
 		HashSet visited = new HashSet();
 		Graph all = new Graph();
 		for (int r = 0; r < range; r++){//iterate given number of range expansions

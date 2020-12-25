@@ -267,7 +267,7 @@ public class Telegrammer extends Mediator {
 		}
 		if (group_id.startsWith("-100")) {
 			//https://t.me/c/1410910487/75 (private -1001410910487, 75)
-			group_id = group_id.substring(3);
+			group_id = group_id.substring(4);
 			return "https://t.me/c/"+group_id+"/"+message_id;
 		}
 		//if not group "type":"supergroup" !?
@@ -379,8 +379,10 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					
 					//process group interactions
 					if (telegram != null) {
+//TODO reuse message_link in updateGroup for Telegram and Slack
+						String message_link = messageLink(chat_username, chat_title, chat_id, message_id);
 //TODO: update from->text for profiling and reporting
-						telegram.updateInteraction(date,chat_id,chat_username,message_id,reply_to_message_id,from_id,reply_to_from_id,getIdsByUsernames(mention_usernames),text);
+						telegram.updateInteraction(date,chat_id,chat_username,chat_title,message_id,reply_to_message_id,from_id,reply_to_from_id,getIdsByUsernames(mention_usernames),text,message_link);
 					}
 					
 					if (botname.equals(reply_to_from_username) || (mention_usernames != null && mention_usernames.contains(botname)))

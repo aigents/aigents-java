@@ -182,6 +182,9 @@ public class Writer extends AL {
 
 	//TODO:more strict conditions of quoting other than ending with punctuation!?
 	public static boolean needsQuoting(String string) {
+		return needsQuoting(string,false);//ignore spaces
+	}
+	public static boolean needsQuoting(String string, boolean spaces) {
 		if (AL.empty(string)) // or just if string.length() == 0 ?
 			return true; 
 		if (string.charAt(0) == '#')//may be ID such as #123
@@ -194,8 +197,9 @@ public class Writer extends AL {
 			//TODO: understand impact on total quoting, say disability to do case-insentivie searches and comparisons  
 			if (Character.isUpperCase(ch))
 				return true;
+			if (spaces && AL.spaces.indexOf(string.charAt(i)) != -1)
+				return true;
 			if (AL.punctuation.indexOf(ch) != -1) // if punctiation before the end or spaces
-				//if (i == string.length() || AL.spaces.indexOf(string.charAt(i)) != -1)
 				if (!Parser.punctuationException(string,i,string.length(),AL.punctuation))
 					return true;
 			if (AL.quotes.indexOf(ch) != -1)

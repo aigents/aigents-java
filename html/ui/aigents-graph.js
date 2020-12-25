@@ -286,7 +286,7 @@ var AigentsSVG = {
 		return this.addSvgGroupPoint(svg, name, point, halo_width, saturation, 1, imageUrl, reloader);
 	},
 
-	addSvgGroupPoint : function(svg, name, point, halo_width, saturation, border, imageUrl, reloader, color){
+	addSvgGroupPoint : function(svg, name, point, halo_width, saturation, border, imageUrl, reloader, color,  url){
 		var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
 		group.setAttribute("transform","translate("+(point.x+svg.padding-svg.radius)+","+(point.y+svg.padding-svg.radius)+")");
 
@@ -343,7 +343,18 @@ var AigentsSVG = {
 			group.insertBefore(image, null);
 		}
 
-		this.addSvgTextToGroupSplit(svg,group,svg.radius,name)
+		if (!url)
+			this.addSvgTextToGroupSplit(svg,group,svg.radius,name);
+		else {
+			var a = document.createElementNS("http://www.w3.org/2000/svg", "a");
+			if (isSafari())
+				a.setAttributeNS('http://www.w3.org/1999/xlink', 'href', url);
+			else
+				a.setAttribute("href",url);
+			a.setAttribute("target","_blank");//TODO Safari?
+			this.addSvgTextToGroupSplit(svg,a,svg.radius,name)
+			group.appendChild(a);
+		}
 
 		if (svg.tooltips){
 			var title = document.createElementNS("http://www.w3.org/2000/svg", "title");
@@ -505,13 +516,15 @@ var AigentsSVG = {
 					if (!node.invisible){
 						var node_prop = props && props[node.name] ? props[node.name] : null;
 						var node_image = node_prop && node_prop.image ? node_prop.image : image;
+						var node_url = node_prop && node_prop.url ? node_prop.url : null;
 						var node_color = node_prop && colors ? colors[node_prop.is] : null;
 						var node_label = node.label != undefined ? node.label : node.name;
 						AigentsSVG.addSvgGroupPoint(svg, node_label, node.point, node.rank/5, 100-node.rank,
 							2, //TODO: border!?
 							node_image,
 							null, //TODO: clicker
-							node_color);
+							node_color,
+							node_url);
 					}
 				}
 			}
@@ -640,11 +653,7 @@ var GraphCustom = {
 	//TODO: have term-reader configurable by list of types
 	mapmap_read_terms : function(mapmap,terms){
 		var type = terms[1].toLowerCase();
-		if (type == 'image'){
-			mapmap_put(mapmap,terms[0],type,terms[2]);
-			return true;
-		}
-		if (type == 'is'){
+		if (type == 'url' || type == 'image' || type == 'is' || type == 'label'){
 			mapmap_put(mapmap,terms[0],type,terms[2]);
 			return true;
 		}
@@ -746,6 +755,18 @@ var GraphUI = {
 				this.create_graph_inline_widgets(custom_widgets_id,graph_id,custom_parent);//override widgets id and create widgets manually
 			else
 				custom_widgets_id = 'graph_inline_widgets';//use default widgets id (used for popup template as well)
+//TODO make configurable widget working! it does not work now... 
+			/*var widgets = $("#graph_inline_widgets");
+			if (widgets.length > 0 && setup){
+				//console.log("was "+widgets.children('#custom_layout_directions').val());
+				if (setup.slicing) widgets.children('#custom_slicing').val(setup.slicing).change();
+				if (setup.node_radius) widgets.children('#custom_node_radius').val(setup.node_radius).change();
+				if (setup.layout_threshold) widgets.children('#custom_layout_threshold').val(setup.layout_threshold).change();
+				if (setup.layout_directions) widgets.children('#custom_layout_directions').val(setup.layout_directions).change();
+				if (setup.layout_balance) widgets.children('#custom_layout_balance').val(setup.layout_balance).change();
+				if (setup.filter_range) widgets.children('#custom_filter_range').val(setup.filter_range).change();
+				//console.log("now "+widgets.children('#custom_layout_directions').val());
+			}*/
 			this.request_graph(graph_id,custom_widgets_id,setup);
 		},
 

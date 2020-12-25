@@ -159,27 +159,22 @@ public class Conversation extends Responser {
 		Thing curPeer = session.getStoredPeer();
 		if (curPeer != null)//TODO:cleanup as it is just in case for post-mortem peer operations in tests
 			curPeer.set(Peer.activity_time,Time.day(Time.today));
-
-//TODO cleanup hack		
-		/*if ("debug".equals(session.input())) {
-			try {
-				Collection iss = session.getStorager().getByName(AL.name, "restraunt");
-				if (!AL.empty(iss)) {
-					Collection instances = session.getStorager().getByName(AL.is, iss.iterator().next());
-					Collection trusts = curPeer.getThings(AL.trusts);
-					java.util.HashSet ts = new java.util.HashSet(instances);
-					ts.retainAll(trusts);
-					session.output(session.ok());
-					return false;		
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			session.output(session.no());
-			return false;		
-		}*/
-		
 		VK vk = (VK)session.sessioner.body.getSocializer("vkontakte");//TODO: validate type or make type-less 
+/*
+		//diagnostics
+		if (session.trusted() && session.mood == AL.interrogation && session.read(Reader.pattern(AL.you,new String[] {"threads"}))) {
+			StringBuilder sb = new StringBuilder();
+			int cnt = Thread.activeCount();
+			sb.append(cnt).append('\n');
+			Thread th[] = new Thread[cnt];
+			Thread.enumerate(th);
+			for (int i = 0; i < cnt; i++) {
+				sb.append(th[i].getState()).append('\n');
+			}
+			session.output(sb.toString());
+			return false;
+		} else
+*/
 		if (session.mood == AL.interrogation) {
 			return answer(session);
 		} else
@@ -267,30 +262,58 @@ public class Conversation extends Responser {
 			return false;			
 		} else
 			
-		if ((session.mood == AL.direction)// || session.mood == AL.declaration)
-			&& session.read(Reader.pattern(AL.you,spider))) {
+		if (session.mood == AL.direction && session.read(Reader.pattern(AL.you,spider))) {
 			Thing task = new Thing();
 			session.output(session.no());
 			if (session.read(new Seq(new Object[]{
-					new Any(1,AL.you),"spidering",new Property(task,"network"),
-					"id",new Property(task,"id")
-					}))) {
+						new Any(1,AL.you),new Any(1,spider),new Property(task,"network"),"id",new Property(task,"id")}))) {
 				session.output(spidering(session, task.getString("network"), task.getString("id")));
 			} else
 			if (session.read(new Seq(new Object[]{
 						new Any(1,AL.you),new Any(1,spider),new Property(task,"network")}))) {
-				Socializer provider = session.sessioner.body.getSocializer(task.getString("network"));
+				final Socializer provider = session.sessioner.body.getSocializer(task.getString("network"));
 				if (provider != null){
 					Thing arg = new Thing();
 					session.read(arg,new String[]{"block"});			
-					long block = Long.parseLong(arg.getString("block","-1"));
+					final long block = Long.parseLong(arg.getString("block","-1"));
 					session.output(session.ok()+" Spidering.");
-					//TODO: run async
-					provider.resync(block);
+//TODO use unified thread pool?
+					new Thread() {
+						public void run() {
+							provider.resync(block);
+						}
+					};
 				}
+			} else {
+//TODO unify with "profiling" below
+				boolean started = session.getBody().act("profile", task);
+				session.output((started ? session.ok()+" " : session.no())+" " + "My "+Self.profiling[0]+".");
 			}
 			return false;			
 		} else
+
+		if (session.mood == AL.direction && session.read(Reader.pattern(AL.you,Self.profiling))) {
+        	//you profile|profiling [<network> [, email <email>] [, name <name>] [, surname <surname>]]
+			Thing task = new Thing();
+			session.read(new Seq(new Object[]{new Any(1,AL.you),new Any(1,Self.profiling),new Property(task,"network")}));//optional network id
+			if (session.sessioner.body.getSocializer(task.getString("network")) == null)//TODO Property-level domain validation
+				task.setString("network", null);
+			if (!session.trusted())
+				task.addThing("peers",curPeer);//profile itself only
+			else {
+				Collection peers;
+				if (session.read(task,new String[]{"email","name","surname"}) >= 1 &&
+						!AL.empty(peers = storager.get(new Thing(task,Login.login_context),null)))
+					for (Object p : peers)
+						task.addThing("peers", (Thing)p);
+			}
+//TODO unify with "spidering" above
+			boolean started = session.getBody().act("profile", task);
+			session.output((started ? session.ok()+" " : session.no())+" " + "My "+Self.profiling[0]+".");
+			return false;
+		} else
+
+		//counting users
 		if (session.trusted() && (session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.argsCount() <= 3 && session.read(Reader.pattern(AL.you,new String[] {"count","counting"}))) {
 			StringBuilder sb = new StringBuilder();
@@ -339,7 +362,8 @@ public class Conversation extends Responser {
 			}
 			return false;
 		} else
-				
+		
+		//saving/loading
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.argsCount() <= 4 && session.read(Reader.pattern(AL.you,Self.saving))) {
 			session.output(session.no());
@@ -376,27 +400,8 @@ public class Conversation extends Responser {
 					session.output(session.ok());
 			return false;			
 		} else	
-		if ((session.mood == AL.direction || session.mood == AL.declaration) 
-			&& session.read(Reader.pattern(AL.you,Self.profiling))) {
-			//you profile|profiling [<network> [, email <email>] [, name <name>] [, surname <surname>]]
-			Thing task = new Thing();
-			session.read(new Seq(new Object[]{new Any(1,AL.you),new Any(1,Self.profiling),new Property(task,"network")}));//optional network id
-			if (session.sessioner.body.getSocializer(task.getString("network")) == null)//TODO Property-level domain validation
-				task.setString("network", null);
-			if (!session.trusted())
-				task.addThing("peers",curPeer);//profile itself only 
-			else {
-				Collection peers; 
-				if (session.read(task,new String[]{"email","name","surname"}) >= 1 &&
-					!AL.empty(peers = storager.get(new Thing(task,Login.login_context),null))) 
-					for (Object p : peers)
-						task.addThing("peers", (Thing)p);
-			}
-			boolean started = session.getBody().act("profile", task);
-			String output = "My "+Self.profiling[0]+".";
-			session.output(started ? session.ok()+" " : session.no()+" " + output); 
-			return false;			
-		} else	
+			
+		//crawling web
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 			&& session.read(Reader.pattern(AL.you,Self.reading))) {
 			session.output(session.no());

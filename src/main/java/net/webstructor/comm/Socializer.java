@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
@@ -53,6 +54,7 @@ import net.webstructor.data.Graph;
 import net.webstructor.data.SocialFeeder;
 import net.webstructor.data.Transcoder;
 import net.webstructor.data.Translator;
+import net.webstructor.peer.Grouper;
 import net.webstructor.peer.Peer;
 import net.webstructor.self.Matcher;
 import net.webstructor.self.Siter;
@@ -125,7 +127,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 	}
 
 	//virtual, overrideable
-	public Graph getGraph(String user_id, Date since, Date until){
+	public Graph getGraph(String user_id, Date since, Date until, int range, String[] links){
 		return null;//not defined by default
 	}
 
@@ -338,7 +340,8 @@ public abstract class Socializer extends HTTP implements Crawler {
 		words_liked_by_me = "words liked by me",
 		my_posts_for_the_period = "my posts for the period",
 		reputation = "reputation in community",
-		social_graph = "social graph";
+		social_graph = "social graph",
+		communication_graph = "communication graph";
 /*
 ? ``all connections`` - all other users connected my means of communications to the current user **(cross peers != null)**
 - ``my interests`` - **default**, clusters of the posts/messages corresponding to interests of the current user, labeled by keywords typical to respective posts/messages
@@ -383,7 +386,8 @@ public abstract class Socializer extends HTTP implements Crawler {
 		words_of_my_friends,
 		my_posts_for_the_period,
 		reputation,
-		social_graph
+		social_graph,
+		communication_graph
 	}; 
 		
 	//TODO move to separate package
@@ -707,16 +711,37 @@ public abstract class Socializer extends HTTP implements Crawler {
 			rep.table(reputation,t.loc(reputation),
 				t.loc(new String[]{"Rank,%","Friend"}),
 				getReputation(feeder.userId(),feeder.since(),feeder.until()),0/*minPercent*/,minCount,1000);
+
+//TODO: unify two graphs below?
 		if (options.isEmpty() || options.contains(social_graph)) {
 //TODO make range/threshold/limit configurable in getGraph
 //TODO make graph cached in feeder and only rendered here
-			Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(feeder.userId(),feeder.since(),feeder.until());
+//TODO links filter to from [] to Set 
+			//first-order graph of social links only
+			Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(feeder.userId(),feeder.since(),feeder.until(),1,social_links);
 			if (graph != null) {
 				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
-				String[] links = new String[] {"comments","mentions","votes","pays","calls"};
-				rep.graph(social_graph,t.loc(social_graph),text,links);
+				rep.graph(social_graph,t.loc(social_graph),text,social_links);
 			}
 		}
+		//if (options.isEmpty() || options.contains(communication_graph)) {
+		if (!options.isEmpty() && options.contains(communication_graph)) {
+//TODO 111
+//TODO links filter to from [] to Set 
+			Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroupPeerIds(user_id) : null;
+//TODO pass list of groups as a seed
+			if (!AL.empty(community)) {
+				Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(feeder.userId(),feeder.since(),feeder.until(),2,communication_links);
+				if (graph != null) {
+					graph.renameProperties("text", "label");//TODO fix  hack!?
+					graph.renameProperties("name", "label");//TODO fix  hack!?
+					graph.renameProperties("sources", "url");//TODO fix  hack!?
+					String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
+					rep.graph(communication_graph,t.loc(communication_graph),text,communication_links);
+				}
+			}
+		}
+		
 		if (!options.isEmpty() && options.contains(liked_by_me))
 			rep.table(liked_by_me,t.loc(liked_by_me),
 				t.loc(peersHeadings(rep)),
@@ -785,16 +810,33 @@ public abstract class Socializer extends HTTP implements Crawler {
 
 	//TODO unify with Schema.reverse
 	public static String reverse(String type) {
-		return type.equals("comments") ? "commented" : type.equals("mentions") ? "mentioned" : type.equals("pays") ? "paid" : type.equals("votes") ? "voted" : type.equals("calls") ? "called" : null;
+		/*return type.equals("comments") ? "commented" 
+				: type.equals("mentions") ? "mentioned" 
+				: type.equals("pays") ? "paid" 
+				: type.equals("votes") ? "voted" 
+				: type.equals("calls") ? "called" : null;*/
+		return reverses.get(type);
 	}
 	
 	public static final Map<String,String> links = new HashMap<String,String>();
+	public static final Map<String,String> reverses = new HashMap<String,String>();
 	static {
+		//setup the map
 		links.put("commented", "comments");
 		links.put("mentioned", "mentions");
 		links.put("paid", "pays");
-		links.put("voted", "votes");	
+		links.put("voted", "votes");
 		links.put("called", "calls");
+		links.put("replied", "replies");
+		links.put("authored", "authors");
+		links.put("tagged", "tags");
+		links.put("posted", "posts");
+		//populate inversions
+		for (String key : links.keySet())
+			reverses.put(links.get(key), key);
 	}
 
+	public static final String[] social_links = new String[] {"comments","mentions","votes","pays","calls","commented","mentioned","voted","paid","called"};
+	public static final String[] communication_links = new String[] {"posts","replies","authors","tags","posted","replied","authored","tagged","url"};//,"text","name"};//TODO: only text or name!?
+	
 }

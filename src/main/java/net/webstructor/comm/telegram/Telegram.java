@@ -24,6 +24,7 @@
 package net.webstructor.comm.telegram;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -192,7 +193,7 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		}
 	}
 
-	protected void updateInteraction(Date date, String group_id, String group_name, String message_id, String reply_to_message_id, String from_id, String reply_to_from_id, java.util.Set<String> mention_ids, String text) {
+	protected void updateInteraction(Date date, String group_id, String group_name, String group_title, String message_id, String reply_to_message_id, String from_id, String reply_to_from_id, java.util.Set<String> mention_ids, String text, String link) {
 		if (debug)
 //TODO: debug
 			body.debug("Telegram crawling from "+from_id+" to "+reply_to_from_id+" mentions "+mention_ids);
@@ -223,24 +224,28 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 				updateInteraction(date,"mentions",from_id,mention_id,logvalue);// update from->mentions
 		}
 		
-//TODO abstract graph DB layer: time + chat_id + message_id -> type -> value
-		/*
-		String id = group_id + ":" + message_id; 
-		ArrayList<Object[]> links = new ArrayList<Object[]>();
-		//links.add(new Object[] {from_id,id,"authors"});//author authors messages
-		links.add(new Object[] {id,from_id,"authored"});//message authored by author
-		links.add(new Object[] {id,text,"text"});
-		links.add(new Object[] {group_id,id,"groups"});//group groups messages
-		//links.add(new Object[] {id,group_id,"grouped"});//messages grouped by group
-		//TODO sources
-		//TODO: comments - reply_to
-		//TODO: mentions
-		//TODO times
+//TODO abstract graph DB layer: time + chat_id + message_id -> type -> value !!!???
+		
+		ArrayList<String[]> links = new ArrayList<String[]>();
+		links.add(new String[] {permlink,text,"text"});
+		//"posts"
+		links.add(new String[] {group_id,permlink,"posts"});//group-posts->post
+		//"replies"
+		if (!AL.empty(parent_permlink))
+			links.add(new String[] {permlink,parent_permlink,"replies"});
+		//"authors"
+		links.add(new String[] {from_id,permlink,"authors"});//peer-authors->post
+		//"tags"
+		if (mention_ids != null) for (String mention_id : mention_ids)
+			links.add(new String[] {permlink,mention_id,"tags"});//post-tags->peer
+		//"url"
+		if (AL.isURL(link))
+			links.add(new String[] {permlink,link,"sources"});//post-url->url
 		updateGraph(date,links,1);
-		*/
+		
 	}
 
-	/*private void updateGraph(Date date, ArrayList<Object[]> links, int value) {
+	private void updateGraph(Date date, ArrayList<String[]> links, int value) {
 		Date day = Time.date(date);
 		synchronized (this) {
 			if (this.date != day) {
@@ -250,10 +255,14 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 				this.date = day;
 //TODO: auto-save pending graphs on exit!? 
 			}
-			for (Object[] link : links)
+			for (String[] link : links) {
 				graph.addValue(link[0], link[1], link[2], value);
+				String reverse = reverse(link[2]);
+				if (!AL.empty(reverse))
+					graph.addValue(link[1], link[0], reverse, value);
+			}
 		}
-	}*/
+	}
 	
 	//TODO: move to Mediator/SocialCacher to handle all messengers
 	private void updateInteraction(Date date, String type, String from_id, String to_id, int value) {
@@ -332,8 +341,14 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 
 	@Override
 	public Object transcode(Object source) {
+		if (source == null)
+			return null;
 		Set res = body.storager.get(Body.telegram_id, source);
-		Object out = !AL.empty(res) ? ((Thing)res.iterator().next()).get(Body.telegram_name) : null;
+		Thing t = !AL.empty(res) ? ((Thing)res.iterator().next()) : null;
+		if (t == null)
+			return source;
+//TODO this in recovercode?
+		Object out = t.get(source instanceof String && ((String)source).charAt(0) == '-' ? AL.name : Body.telegram_name);//group -> name, peer -> telegram_name
 		return out != null ? out : source;
 	}
 	
