@@ -738,6 +738,7 @@ public class Conversation extends Responser {
 			String format = arg.getString("format","al");
 			//TODO: request links/relationships as list of names, now let all links be included
 			String links = arg.getString("links",null);
+			String[] linksa = !AL.empty(links) ? links.split(" ") : null;
 			
 			//lazy site indexing
 			//TODO:pass range as depth if range is greater than default!?
@@ -762,7 +763,8 @@ public class Conversation extends Responser {
 					Integer.parseInt(threshold),
 					limit,
 					format,
-					AL.empty(links) ? null : new String[]{links},
+					//AL.empty(links) ? null : new String[]{links},
+					AL.empty(linksa) ? null : linksa,
 					labeler,
 					members);
 			session.output(!AL.empty(graph) ? graph : session.no());

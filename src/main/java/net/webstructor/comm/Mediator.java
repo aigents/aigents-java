@@ -136,9 +136,10 @@ public abstract class Mediator extends Communicator implements Updater {
 				group.setString(name_id,group_id);
 				group.storeNew(body.storager);
 			}
-body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" name"+group_username+" title "+group_title+" group "+group.toString()+" peer_id "+peer_id+" text "+text);//TODO: remove debug
-			//3) if (!is_bot), add/remove peer to/from group
-			if (!is_bot){//TODO: handle bots as well!?
+body.debug(Writer.capitalize(name)+" channel name_id "+name_id+" name "+group_username+" title "+group_title+" group "+group.toString()+" peer_id "+peer_id+" text "+text);//TODO: remove debug
+			//3) add/remove peer to/from group
+			if (!is_bot)//TODO: handle bots as well!?
+			{
 				//4) get peer by id (eg. "telegram_id")
 				Collection p = body.storager.getByName(name_id, peer_id);
 				Thing peer;

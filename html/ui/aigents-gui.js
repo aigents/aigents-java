@@ -1,5 +1,5 @@
 /*
-Copyright 2018-2020 Anton Kolonin, Aigents®
+Copyright 2018-2021 Anton Kolonin, Aigents®
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -30,7 +30,6 @@ function parsePatternToLinks(pattern,links,nodes) {
 	}
 }
 
-//TODO: 111
 function graph_thing_patterns(thing_name){
 	if (AL.empty(thing_name))
 		return;
@@ -413,7 +412,8 @@ function graph_setup(id) {
 		return true;
 	}
 	var network = new_parameters[0];
-	var period = network == 'discourse' || network == 'telegram' ? [1,2,3,4,5,6,7,10,30,92,365,730] : [1,2,3,4,5,6,7]
+	var period = network == 'discourse' || network == 'telegram' ? [1,2,3,4,5,6,7,10,30,92,365,730] 
+		: network == 'golos' || network == 'steemit' ? [1,2,3,4,5,6,7,10,30,92] : [1,2,3,4,5,6,7];
 	dialog_open('Render Graph','Specify graph parameters to render',
 			graph_properties,
 			graph_properties,//TODO: prompts
@@ -442,6 +442,8 @@ function graph_launch(id) {
 		', limit ' + graph_parameters[4];
 	if (graph_parameters[5] != 'all')
 		cmd += ', links '+ graph_parameters[5];
+	else
+		cmd += ', links pays paid votes voted comments commented mentions mentioned';
 	if (loading)
 		loading(true,4);
 	console.log(cmd);

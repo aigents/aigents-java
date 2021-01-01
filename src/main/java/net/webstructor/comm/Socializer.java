@@ -127,7 +127,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 	}
 
 	//virtual, overrideable
-	public Graph getGraph(String user_id, Date since, Date until, int range, String[] links){
+	public Graph getGraph(String[] seed, Date since, Date until, int range, String[] links, Set<String> nodes){
 		return null;//not defined by default
 	}
 
@@ -716,28 +716,27 @@ public abstract class Socializer extends HTTP implements Crawler {
 		if (options.isEmpty() || options.contains(social_graph)) {
 //TODO make range/threshold/limit configurable in getGraph
 //TODO make graph cached in feeder and only rendered here
-//TODO links filter to from [] to Set 
 			//first-order graph of social links only
-			Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(feeder.userId(),feeder.since(),feeder.until(),1,social_links);
+			Set<String> peers = this instanceof Grouper ? ((Grouper)this).getGroupPeerIds(feeder.userId()) : null;
+			Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(new String[] {feeder.userId()},feeder.since(),feeder.until(),2,social_links,peers);
 			if (graph != null) {
 				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
-				rep.graph(social_graph,t.loc(social_graph),text,social_links);
+				rep.graph(social_graph,t.loc(social_graph),text,null,social_links,1/*horizontal directions*/,30);
 			}
 		}
-		//if (options.isEmpty() || options.contains(communication_graph)) {
-		if (!options.isEmpty() && options.contains(communication_graph)) {
-//TODO 111
-//TODO links filter to from [] to Set 
-			Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroupPeerIds(user_id) : null;
-//TODO pass list of groups as a seed
-			if (!AL.empty(community)) {
-				Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(feeder.userId(),feeder.since(),feeder.until(),2,communication_links);
+//TODO extend it for use in non-Grouper kinds like Twitter and Reddit!?
+		if (!options.isEmpty() && options.contains(communication_graph) && this instanceof Grouper) {
+			Set<String> groups = ((Grouper)this).getGroupIds(feeder.userId());
+			if (!AL.empty(groups)) {
+				Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(groups.toArray(new String[] {}),feeder.since(),feeder.until(),2,communication_links,null);
 				if (graph != null) {
-					graph.renameProperties("text", "label");//TODO fix  hack!?
-					graph.renameProperties("name", "label");//TODO fix  hack!?
-					graph.renameProperties("sources", "url");//TODO fix  hack!?
+					Set<String> peers = ((Grouper)this).getGroupPeerIds(feeder.userId());
+					graph.addProperty(peers, "is", "peer");
+					graph.addProperty(groups, "is", "group");
+					graph.renameProperties("text", "label");
+					graph.renameProperties("sources", "url");
 					String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
-					rep.graph(communication_graph,t.loc(communication_graph),text,communication_links);
+					rep.graph(communication_graph,t.loc(communication_graph),text,new String[] {"peer","group"},communication_links,3/*both directions*/,20);
 				}
 			}
 		}
@@ -810,11 +809,6 @@ public abstract class Socializer extends HTTP implements Crawler {
 
 	//TODO unify with Schema.reverse
 	public static String reverse(String type) {
-		/*return type.equals("comments") ? "commented" 
-				: type.equals("mentions") ? "mentioned" 
-				: type.equals("pays") ? "paid" 
-				: type.equals("votes") ? "voted" 
-				: type.equals("calls") ? "called" : null;*/
 		return reverses.get(type);
 	}
 	
@@ -828,7 +822,7 @@ public abstract class Socializer extends HTTP implements Crawler {
 		links.put("voted", "votes");
 		links.put("called", "calls");
 		links.put("replied", "replies");
-		links.put("authored", "authors");
+		links.put("authors", "authored");
 		links.put("tagged", "tags");
 		links.put("posted", "posts");
 		//populate inversions
@@ -837,6 +831,39 @@ public abstract class Socializer extends HTTP implements Crawler {
 	}
 
 	public static final String[] social_links = new String[] {"comments","mentions","votes","pays","calls","commented","mentioned","voted","paid","called"};
-	public static final String[] communication_links = new String[] {"posts","replies","authors","tags","posted","replied","authored","tagged","url"};//,"text","name"};//TODO: only text or name!?
-	
+	public static final String[] communication_links = new String[] {"posts","replies","authors","tags", "posted","replied","authored","tagged", "sources","text"};
+/*
+		- ontology:
+			- nodes
+				- post
+					- tags (peer)
+					- topics (topic)
+					- areas (area)
+					- authored (peer)
+					- replies (to parent post)
+					- replied (by child post)
+					- posted (group)
+				- peer
+					- mentioned (peer)
+					- mentions (peer)
+					- tagged (by post)
+					- authors (post)
+					- groups (group)
+				- topic/tag
+					- posts/topicked (post)
+				- area/domain
+					- posts/areaed (post)
+				- group
+					- posts (post)
+					- members (peer)
+			- links
+				- replies : post(which is replied) ->replied(by) <=> replies(to) <- post(which replies)
+				- mentions : peer(who is mentioned) ->mentioned(by) <=> mentions <- peer(who mentions)
+				- tags : peer(which is tagged) ->tagged(by) <=> tags <- post(which tags)
+				- authors : post(which is authored) ->authored(by) <=> authors <- peer(who authors)
+				- topics : topic(which is items) ->posts/topicked <=> topics <- post
+				- areas : area(which is referenced) ->posts/areaed <=> areas <- post
+				- members : group -> members <=> groups <- peer
+				- posts : group -> posts <=> posted <- post
+ */
 }

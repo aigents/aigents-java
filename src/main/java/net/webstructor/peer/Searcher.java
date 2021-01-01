@@ -244,7 +244,7 @@ class Searcher implements Intenter {
 							for (int j = 0; j < graphs.length; j++) if (i != j)
 								colors.append(",\""+graphs[i]+"-"+graphs[j]+"\":\""+ReportWriter.linkcolors[linkcount++ % ReportWriter.linkcolors.length]+"\"");
 						}
-						rep.graph(String.valueOf(System.currentTimeMillis()),graph_text.toString(), colors.toString());
+						rep.graph(String.valueOf(System.currentTimeMillis()),graph_text.toString(), colors.toString(), 1, 30);
 
 						//graph to tables
 						for (int i = 0; i < graphs.length; i++) for (int j = 0; j < graphs.length; j++) if (i != j) {

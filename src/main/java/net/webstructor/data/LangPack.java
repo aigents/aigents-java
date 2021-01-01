@@ -81,10 +81,10 @@ public class LangPack {
 					"am", "i", "into", "its", "same", "with", "if", "most", "so", "thus", "hence", "how",
 					"as", "do", "what", "for", "to", "of", "over", "be", "will", "was", "were", "here", "there",
 					"you", "your", "our", "my", "her", "his", "just", "have", "but", "not", "that",
-					"their", "we", "by", "any", "anything", "some", "something", "dont", "do", "does", "of", "they", "them",
+					"their", "we", "by", "all", "any", "anything", "some", "something", "dont", "do", "does", "of", "they", "them",
 					"been", "even", "etc", "this", "that", "those", "these", "from", "he", "she",
 					"no", "yes", "own", "may", "mine", "me", "each", "can", "could", "would", "should", "since", "had", "has",
-					"when", "out", "also", "only", "about", "us", "via", "than", "then", "up", "who", "which"
+					"when", "out", "also", "only", "about", "us", "via", "than", "then", "up", "who", "why", "which"
 					})};
 		loadLexicon(env);
 		updateParameters();
@@ -158,24 +158,13 @@ public class LangPack {
 	
 	void loadLexicon(Environment env){
 		for (int l = 0; l < langs.length; l++){
-			/*
-			String path = "lexicon_"+langs[l].name+".txt";
-			Counter c = new Counter(env,path);//load counter from file
-			if (!AL.empty(c)){
-				c.normalize();//normalize counter to [1..100]
-				if (AL.empty(words))
-					words = c;
-				else
-					words.mergeMax(c);//TODO: mergeSum?
-			}
-			*/
 			words = loadCounter(env, words, "lexicon", langs[l].name);
 			positives = loadCounter(env, positives, "lexicon_positive", langs[l].name);
 			negatives = loadCounter(env, negatives, "lexicon_negative", langs[l].name);
 			rudes = loadCounter(env, rudes, "lexicon_rude", langs[l].name);
 			setChars(langs[l].vowels);
 			setChars(langs[l].consonants);
-			setChars(langs[l].spec);
+			setChars(langs[l].specials);
 		}
 	}
 	
@@ -205,9 +194,9 @@ public class LangPack {
 		//TODO: move dash check to parser or replace dashes with scrubsymbols?
 		if (Array.containsOnly(s, AL.dashes))
 			return true;
-//TODO: hashtable
 		for (int l = 0; l < langs.length; l++)
-			if (Array.contains(langs[l].scrubs,s))
+			//if (Array.contains(langs[l].scrubs,s))
+			if (langs[l].isScrub(s))
 				return true;
 		return false;
 	}

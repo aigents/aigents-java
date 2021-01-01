@@ -422,6 +422,11 @@ public class Graph implements Serializable {
 		return toString(null);
 	}
 
+	public void addProperty(Set<String> froms, String property, String to){
+		for (Object from : froms)
+			addValue(from, to, property, 1);
+	}
+	
 	public void renameProperties(String from, String to){
 		for (Object context : binders.keySet()){
 			HashMap linkers = getLinkers(context, false);

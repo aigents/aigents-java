@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2018 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2020 by Anton Kolonin, Aigents
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,20 +23,22 @@
  */
 package net.webstructor.data;
 
+import net.webstructor.util.Array;
+
 public class Lang {
 	String prefix;
 	String name;
 	String vowels;
 	String consonants;
-	String spec;
-	String[] scrubs;
-	public Lang(String prefix,String name,String vowels,String consonants,String spec, String[] scrubs){
+	String specials;
+	private java.util.Set<String> scrubs;
+	public Lang(String prefix,String name,String vowels,String consonants,String specials, String[] scrubs){
 		this.prefix = prefix;
 		this.name = name;
 		this.vowels = vowels;
 		this.consonants = consonants;
-		this.spec = spec;
-		this.scrubs = scrubs;
+		this.specials = specials;
+		this.scrubs = Array.toSet(scrubs);
 	}
 	static char obfuscate(String s,char c){
 		int i = s.indexOf(c);
@@ -47,6 +49,9 @@ public class Lang {
 		return r != 0 ? r : obfuscate(consonants,c);
 	}
 	boolean has(char c){
-		return vowels.indexOf(c) != -1 || consonants.indexOf(c) != -1 || spec.indexOf(c) != -1;
+		return vowels.indexOf(c) != -1 || consonants.indexOf(c) != -1 || specials.indexOf(c) != -1;
+	}
+	public boolean isScrub(String word){
+		return scrubs.contains(word);
 	}
 }

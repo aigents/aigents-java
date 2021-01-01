@@ -1,5 +1,5 @@
 /*
-Copyright 2018-2020 Anton Kolonin, Aigents®
+Copyright 2018-2021 Anton Kolonin, Aigents®
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -41,6 +41,14 @@ var AigentsSVG = {
 		}
 	},
     spread_loop : function (svg, nodes, edges, balance_percentage, spread_threshold, top_limit, oscillation_limit, callback) {
+        //create map of linkages
+        var connects = mapmap_init();
+        for (var i = 0 ; i < edges.length ; i++){
+            var e = edges[i];
+//TODO: replace mapmap with mapset to eliminate the need to value 1
+            mapmap_put(connects,e.v1,e.v2,1);
+            mapmap_put(connects,e.v2,e.v1,1);
+        }
     	if (!top_limit || top_limit > 10000)
     		top_limit = 10000;
     	if (!spread_threshold || spread_threshold < 1)
@@ -50,7 +58,7 @@ var AigentsSVG = {
     	var d = 0;
     	oscillation_count = 0;
     	for (var i = 0; i < top_limit && oscillation_count < oscillation_limit; i++){
-    		var dd = this.spread(svg, nodes, edges, balance_percentage);
+    		var dd = this.spread(svg, nodes, edges, balance_percentage,connects);
     		if (callback)
     			callback(i,dd);
     		if (dd < spread_threshold)
@@ -63,7 +71,7 @@ var AigentsSVG = {
     },
 
 	//balance_percentage is percentage of "optimal distance between the nodes"
-    spread : function (svg, nodes, edges, balance_percentage) {
+    spread : function (svg, nodes, edges, balance_percentage, connects) {
     	var width = svg.full_width - svg.padding * 2;
     	var height = svg.full_height - svg.padding * 2;
     	var nnodes = nodes.length;
@@ -82,6 +90,10 @@ var AigentsSVG = {
         	balance_percentage = 100;
         balance = balance * balance_percentage / 100;
 
+        function connected(v1,v2){
+        	return mapmap_get(connects,v1,v2,null) || mapmap_get(connects,v1,v2,null);
+        }
+        
         // push nodes apart
         for (var i = 0 ; i < nnodes ; i++){
             var n1 = nodes[i];
@@ -95,7 +107,9 @@ var AigentsSVG = {
             n1.push_dy = 0;
             n1.push_cnt = 0;
 
-            function push_node(n,vx,vy){
+            function push_node(n,vx,vy,factor){
+            	if (!factor)
+            		factor = 1;
                 if (vx==0 && vy==0){
                     vx=-1000+Math.random()*2000;
                     vy=-1000+Math.random()*2000;
@@ -103,8 +117,8 @@ var AigentsSVG = {
                 var len = Math.sqrt( vx * vx + vy * vy );  // OOOOPTIMIIIIZE!!!!!!!!!
                 var k = balance / len;
 
-                n.push_dx += (vx / len) * increment * k;
-                n.push_dy += (vy / len) * increment * k;
+                n.push_dx += (vx / len) * increment * k * factor;
+                n.push_dy += (vy / len) * increment * k * factor;
                 n.push_cnt++;
             }
 
@@ -114,12 +128,14 @@ var AigentsSVG = {
                 var n2 = nodes[j];
                 if (n2.invisible)
                 	continue;
+                var factor = connected(n1,n2)? 1 : 0.5;//push connected nodes stronger, disconnected - weaker
                 push_node(n1,n1.point.x - n2.point.x,n1.point.y - n2.point.y);
             }
-            push_node(n1, n1.point.x, 0);
-            push_node(n1, n1.point.x - width,0);
-            push_node(n1, 0, n1.point.y);
-            push_node(n1, 0, n1.point.y - height);
+            //push from borders much stronger
+            push_node(n1, n1.point.x, 0, 2);
+            push_node(n1, n1.point.x - width,0, 2);
+            push_node(n1, 0, n1.point.y, 2);
+            push_node(n1, 0, n1.point.y - height, 2);
         }
 
         // pull nodes together
@@ -751,22 +767,20 @@ var GraphUI = {
 
 		//request graph launch in pre-created inline element, generate elements for graph and widgets optionally
 		request_graph_inline : function(graph_id,setup,custom_widgets_id,custom_parent){
+			var view = null;
 			if (custom_widgets_id)
-				this.create_graph_inline_widgets(custom_widgets_id,graph_id,custom_parent);//override widgets id and create widgets manually
+				view = this.create_graph_inline_widgets(custom_widgets_id,graph_id,custom_parent);//override widgets id and create widgets manually
 			else
 				custom_widgets_id = 'graph_inline_widgets';//use default widgets id (used for popup template as well)
-//TODO make configurable widget working! it does not work now... 
-			/*var widgets = $("#graph_inline_widgets");
-			if (widgets.length > 0 && setup){
-				//console.log("was "+widgets.children('#custom_layout_directions').val());
+			var widgets = $("#"+custom_widgets_id);
+			if (widgets.children().length > 0 && setup){
 				if (setup.slicing) widgets.children('#custom_slicing').val(setup.slicing).change();
 				if (setup.node_radius) widgets.children('#custom_node_radius').val(setup.node_radius).change();
 				if (setup.layout_threshold) widgets.children('#custom_layout_threshold').val(setup.layout_threshold).change();
 				if (setup.layout_directions) widgets.children('#custom_layout_directions').val(setup.layout_directions).change();
 				if (setup.layout_balance) widgets.children('#custom_layout_balance').val(setup.layout_balance).change();
 				if (setup.filter_range) widgets.children('#custom_filter_range').val(setup.filter_range).change();
-				//console.log("now "+widgets.children('#custom_layout_directions').val());
-			}*/
+			}
 			this.request_graph(graph_id,custom_widgets_id,setup);
 		},
 
@@ -796,9 +810,11 @@ var GraphUI = {
 				var keys = Object.keys(map);
 				if (keys.length > 1){
 					var c = label ? label : '';
+					keys.sort();
 					for (var i = 0; i < keys.length; i++){
 						var name = keys[i];
-						c += ('<input class=\"'+cls+'\" type=\"checkbox\" name=\"'+name+'\" checked>'+name+'</input>');
+						//c += ('<input class=\"'+cls+'\" type=\"checkbox\" name=\"'+name+'\" checked>'+(name == '' ? 'untyped' : name)+'</input>');
+						c += ('<input class=\"'+cls+'\" type=\"checkbox\" name=\"'+name+'\" checked>'+(name == '' ? '?' : name)+'</input>');
 					}
 					c += '&nbsp;&nbsp;&nbsp;&nbsp;';
 					return c;
@@ -1158,7 +1174,7 @@ var GraphUI = {
 		    <span>Directions:</span>\
 		     <select title="Force-directed layout directions" class="graph_changer" id="custom_layout_directions">\
 		      <option value="3">Both</option>\
-		      <option value="1" selected="selected">Horizontal</option>\
+		      <option value="1">Horizontal</option>\
 		      <option value="2">Vertical</option>\
 		     </select>&nbsp;\
 		    <br>\
@@ -1179,6 +1195,7 @@ var GraphUI = {
 			view.style = 'margin:2px;width:99%;height:500;border: 2px inset gray;';
 			view.innerHTML = '<svg id="'+view_id+'" style="width:100%;height:100%;"></svg>';
 			parent.appendChild(view);
+			return view;
 		}
 		
 }//GraphUI

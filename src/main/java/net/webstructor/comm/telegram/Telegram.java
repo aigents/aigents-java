@@ -234,7 +234,8 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		if (!AL.empty(parent_permlink))
 			links.add(new String[] {permlink,parent_permlink,"replies"});
 		//"authors"
-		links.add(new String[] {from_id,permlink,"authors"});//peer-authors->post
+		//links.add(new String[] {from_id,permlink,"authors"});//peer-authors->post
+		links.add(new String[] {permlink,from_id,"authored"});//post-authored(by)->peer
 		//"tags"
 		if (mention_ids != null) for (String mention_id : mention_ids)
 			links.add(new String[] {permlink,mention_id,"tags"});//post-tags->peer
@@ -278,11 +279,12 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 				this.date = day;
 //TODO: auto-save pending graphs on exit!? 
 			}
-			String reverse = reverse(type);
-			if (!AL.empty(type))
+			if (!AL.empty(type)) {
 				graph.addValue(from_id,to_id, type, value);//out
-			if (!AL.empty(reverse))
-				graph.addValue(to_id,from_id, reverse, value);//in
+				String reverse = reverse(type);
+				if (!AL.empty(reverse))
+					graph.addValue(to_id,from_id, reverse, value);//in
+			}
 		}
 	}
 

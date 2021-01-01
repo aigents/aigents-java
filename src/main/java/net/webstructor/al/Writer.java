@@ -189,8 +189,9 @@ public class Writer extends AL {
 			return true; 
 		if (string.charAt(0) == '#')//may be ID such as #123
 			return true;
-		//boolean url = AL.isURL(string);  
-		for (int i = 0; i < string.length(); i++) {
+		//boolean url = AL.isURL(string); 
+		int len_minus_1 = string.length() - 1;
+		for (int i = 0; i <= len_minus_1; i++) {
 			char ch = string.charAt(i);
 			//http://stackoverflow.com/questions/7996919/should-url-be-case-sensitive
 			//if (url && Character.isUpperCase(ch))
@@ -204,6 +205,9 @@ public class Writer extends AL {
 					return true;
 			if (AL.quotes.indexOf(ch) != -1)
 				return true;
+			//https://stackoverflow.com/questions/24840667/what-is-the-regex-to-extract-all-the-emojis-from-a-string
+			if (Character.isSurrogate(ch) || (i < len_minus_1 && Character.isSurrogatePair(ch, string.charAt(i + 1))))
+				return true;
 		}
 		return false;
 	}
@@ -213,14 +217,14 @@ public class Writer extends AL {
 	}
 	
 	public static StringBuilder quotequotable(StringBuilder out, String string) {
-		return needsQuoting(string) ? quote(out,string) : out.append(string); 
+		return needsQuoting(string,true) ? quote(out,string) : out.append(string);
 	}
 	
 	public static StringBuilder quote(StringBuilder out, String string) {
-		boolean one = string.indexOf('\'') != -1;
-		boolean two = string.indexOf('\"') != -1;
-		char quote = one ? '\"' : '\''; 
-		if (one && two) {
+		boolean singl = string.indexOf('\'') != -1;
+		boolean doubl = string.indexOf('\"') != -1;
+		char quote = singl ? '\"' : '\''; 
+		if (singl && doubl) {
 			string = string.replace("\'", "\\\'");
 			string = string.replace("\"", "\\\"");
 		}

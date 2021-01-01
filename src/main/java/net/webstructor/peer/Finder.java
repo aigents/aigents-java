@@ -59,7 +59,7 @@ class Finder implements Intenter {
 
 	public boolean searchable(String name){
 		return AL.name.equals(name) || !(Array.contains(AL.foundation, name) 
-				|| AL.sentiment.equals(name));//TODO: exclude it in less hacky way?
+				|| AL.sentiment.equals(name) || AL.image.equals(name));//TODO: exclude it in less hacky way?
 	}
 	
 	@Override

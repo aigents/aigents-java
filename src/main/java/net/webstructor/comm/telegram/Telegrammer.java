@@ -345,22 +345,52 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 				if (!AL.empty(from_username))
 					putIdByUsername(from_username,from_id);
 				
+//TODO handle bots (original messages are not delivered yet)?				
 				if (from_bot)//skipping replies from bots so far
 					continue;
 				
+//TODO TelegramItem class constructor for
+/*
+			"reply_to_message":{
+				"message_id":511,
+				"from":{
+					"id":189518891,
+					"is_bot":false,
+					"first_name":"POST",
+					"last_name":"HUMAN",
+					"username":"Antropocosmist"
+				},
+				"chat":{"id":-1001410910487,"title":"AigentsTest","type":"supergroup"},
+				"date":1608909457,
+				"text":"Рад стараться ради победы доброго ИИ над глупостью и невежеством!))"
+			}
+
+*/
 				String reply_to_from_id = null;
+				//Date reply_to_date = null;
+				//String reply_to_text = null;
 				String reply_to_from_username = null;
+				boolean reply_to_from_bot = false;
 				String reply_to_message_id = null;
 				if (reply_to != null) {
 					reply_to_message_id = JSON.getJsonLongString(reply_to, "message_id", null);
+					//reply_to_date = new Date( reply_to.getInt("date") * 1000 );
+					//reply_to_text = HTTP.getJsonString(reply_to, "text", null);
 					JsonObject reply_to_from = HTTP.getJsonObject(reply_to, "from");
 					if (reply_to_from != null) {
+						reply_to_from_bot = HTTP.getJsonBoolean(reply_to_from, "is_bot", false);
 						reply_to_from_id = JSON.getJsonLongString(reply_to_from, "id", null);
 						reply_to_from_username = HTTP.getJsonString(reply_to_from, "username");
 						if (AL.empty(reply_to_from_id))
 							reply_to_from_id = getIdByUsername(reply_to_from_username);
 						else
 							putIdByUsername(reply_to_from_username,reply_to_from_id);
+//TODO handle bots (original messages are not delivered yet)?				
+						if (reply_to_from_bot) {
+							reply_to_from_id = null;
+							reply_to_from_username = null;
+							reply_to_message_id = null;
+						}
 					}
 				}				
 				
@@ -374,8 +404,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 					text = text.replace("@"+botname, "");
 
 				if (!from_id.equals(chat_id)){
-					boolean is_bot = from.containsKey("is_bot")? from.getBoolean("is_bot") : false;
-					updateGroup(message_id, chat_id, chat_username, chat_title, from_id, true, is_bot, text);
+					updateGroup(message_id, chat_id, chat_username, chat_title, from_id, true, from_bot, text);
 					
 					//process group interactions
 					if (telegram != null) {
@@ -389,7 +418,7 @@ body.debug("Telegram message "+m.toString());//TODO: remove debug
 						;//address group message to bot
 					else {
 						//group message
-						if (!is_bot) {
+						if (!from_bot) {
 							String emotions = "";
 							int sentiment = body.languages.sentiment(text)[2];
 							if (Math.abs(sentiment) >= sentiment_threshold)

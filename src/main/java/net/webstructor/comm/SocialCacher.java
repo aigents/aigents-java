@@ -201,22 +201,15 @@ public abstract class SocialCacher extends Socializer {
 	}
 
 	@Override
-	public Graph getGraph(String user_id, Date since, Date until, int range, String[] links){
-		if (AL.empty(user_id))
+	public Graph getGraph(String[] seed, Date since, Date until, int range, String[] links, Set<String> nodes){
+		if (AL.empty(seed))
 			return null;
 //TODO: configure limits and pass them as parameters
 		int threshold = 0; 
 		int limit = 1000;
 		int period = Period.daysdiff(since, until);
-		Set<String> community = this instanceof Grouper ? ((Grouper)this).getGroupPeerIds(user_id) : null;
-		String[] seed = new String[] {user_id};
-		if (links == Socializer.communication_links && this instanceof Grouper) {
-			seed = ((Grouper)this).getGroupIds(user_id).toArray(new String[] {});
-//TODO: fix hack and remove the hack one layer up!!!
-			community = null;//no need to limit scope of nodes in graph 
-		}
 		GraphCacher grapher = getGraphCacher();
-		return grapher.getSubgraph(seed, until, period, range, threshold, limit, links, community, Socializer.links);
+		return grapher.getSubgraph(seed, until, period, range, threshold, limit, links, nodes, Socializer.links);
 	}
 	
 	public static String path(String name, Date time) {

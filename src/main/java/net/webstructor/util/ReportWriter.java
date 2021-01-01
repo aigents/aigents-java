@@ -41,7 +41,8 @@ import net.webstructor.cat.StringUtil;
 import net.webstructor.core.Environment;
 
 public class ReportWriter {
-	public static final String[] nodecolors = {"#FFFF00","#00FF00","#00FFFF","#FF00FF","#FF0000","#0000FF"};
+	//public static final String[] nodecolors = {"#FFFF00","#00FF00","#00FFFF","#FF00FF","#FF0000","#0000FF"};
+	public static final String[] nodecolors = {"#00FF00","#0000FF","#00FFFF","#FF00FF","#FF0000","#0000FF"};
 	public static final String[] linkcolors = {"#00007F","#007F7F","#007F00","#7F7F00","#7F0000","#7F007F"};
 	
 	int maxLength = 300;
@@ -103,7 +104,7 @@ public class ReportWriter {
 	public void initReport(String title, Date since, Date until, String base){
 		try {
 			writer.append("<html><head><title>"+net.webstructor.al.Writer.capitalize(title)+"</title>\n");
-			writer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n");
+			writer.append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\n");
 	
 			//http://stackoverflow.com/questions/1341089/using-meta-tags-to-turn-off-caching-in-all-browsers
 			writer.append("<meta http-equiv=\"cache-control\" content=\"max-age=0\" />\n");
@@ -146,23 +147,24 @@ public class ReportWriter {
 		}		
 	}
 	
-	public void graph(String id, String graph, String colors) {
+	public void graph(String id, String graph, String colors, int layout, int radius) {
 		try {
 			writer.append("<br><div id=\"wrapper_"+id+"\" style=\"width:100%;height:100%\"/>");
-			writer.append("<script>\n");
+			//https://flaviocopes.com/javascript-unicode/
+			writer.append("<script charset=\"utf-8\">\n");
 			writer.append("var graph_text_data = \"");
+			graph = graph.replace("\"", "\\\"");//encode " with \"
+			graph = graph.replace("\\\\\"", "\\\"");//fix encodings of \" to \\" back to \"
 			writer.append(graph);
 			writer.append("\";\n");
-			writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text_data, builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
-//TODO: custom orientation, Both==3 for "communication graph" 
-			//writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text_data, layout_directions:\"3\", builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
+			writer.append("GraphUI.request_graph_inline(\"svg_inline_"+id+"\", {text : graph_text_data, node_radius:"+radius+", layout_directions:"+layout+", builder : function(text) {var config = {colors:{"+colors+"},labeled_links:true};return GraphCustom.build_graph(text,{weighted:true,linktypes:null},config);}}, \"svg_widgets_"+id+"\", document.getElementById(\"wrapper_"+id+"\"));\n");
 			writer.append("</script><br>");
 		} catch (IOException e) {
             env.error("Reporter "+e.toString(),e);
 		}
 	}
 
-	public void graph(String id,String title, String graph, String[] links) {
+	public void graph(String id,String title, String graph, String[] nodes, String[] links, int layout, int radius) {
 		if (graph == null)
 			return;
 		if (AL.empty(graph))
@@ -171,12 +173,17 @@ public class ReportWriter {
 		graph = graph.replace(".\n", "\\n\\\n ");//encode JavaScrip in-string linebreaks wtih extra separating space
 		//text = "a likes b 100\\n\\\n"+"b loves d 100\\n\\\n";
 		StringBuilder colors = new StringBuilder();
+		if (nodes != null )for (int i = 0; i < nodes.length; i++) {
+			if (colors.length() > 0)
+				colors.append(',');
+			colors.append("\""+nodes[i]+"\":\""+nodecolors[i % nodecolors.length]+"\"");
+		}
 		if (links != null )for (int i = 0; i < links.length; i++) {
-			if (i > 0)
+			if (colors.length() > 0)
 				colors.append(',');
 			colors.append("\""+links[i]+"\":\""+linkcolors[i % linkcolors.length]+"\"");
 		}
-		graph(String.valueOf(System.currentTimeMillis()), graph, colors.toString());
+		graph(String.valueOf(System.currentTimeMillis()), graph, colors.toString(), layout, radius);
 	}
 	
 	//0000FF - blue
