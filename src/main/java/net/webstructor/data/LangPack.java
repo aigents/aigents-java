@@ -84,7 +84,7 @@ public class LangPack {
 					"their", "we", "by", "all", "any", "anything", "some", "something", "dont", "do", "does", "of", "they", "them",
 					"been", "even", "etc", "this", "that", "those", "these", "from", "he", "she",
 					"no", "yes", "own", "may", "mine", "me", "each", "can", "could", "would", "should", "since", "had", "has",
-					"when", "out", "also", "only", "about", "us", "via", "than", "then", "up", "who", "why", "which"
+					"when", "out", "also", "only", "about", "us", "via", "than", "then", "up", "who", "why", "which", "yet"
 					})};
 		loadLexicon(env);
 		updateParameters();

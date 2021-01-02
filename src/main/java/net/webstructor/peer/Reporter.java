@@ -103,7 +103,8 @@ class Reporter implements Intenter {
 						//cluster only if default or requested
 						//TODO: fix this hack, do query parsing and clustering in other place!?
 						java.util.Set options = Str.options(session.input(),Socializer.report_options);
-						if (options.isEmpty() || options.contains(Socializer.my_interests) || options.contains(Socializer.interests_of_my_friends))
+						if (options.isEmpty() || options.contains(Socializer.my_interests) || options.contains(Socializer.interests_of_my_friends) 
+								|| options.contains(Socializer.social_graph))
 							feeder.cluster(Body.MIN_RELEVANT_FEATURE_THRESHOLD_PERCENTS);
 						//sync report generation
 						report = rr.provider.cacheReport(feeder,feeds,rr.id,rr.token,rr.secret,rr.name,rr.surname,rr.language,rr.format,options,rr.threshold);

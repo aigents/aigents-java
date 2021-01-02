@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2019-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2019-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -163,6 +163,10 @@ class TwitterFeeder extends SocialFeeder {
 		} catch (Exception e) {
 			body.error("Twitter crawling error "+id,e);
 		}
+	}
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 }
 

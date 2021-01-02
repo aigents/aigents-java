@@ -258,10 +258,9 @@ public class Telegrammer extends Mediator {
 		}
 	}
 
-	@Override
-	protected String messageLink(String group_usename, String group_title, String group_id, String message_id) {
+	protected static String getMessageLink(String group_usename, String group_title, String group_id, String message_id) {
 		//https://stackoverflow.com/questions/51065460/link-message-by-message-id-via-telegram-bot
-		if (group_usename != null) {
+		if (!AL.empty(group_usename)) {
 			//https://t.me/agirussia/8855 (public - agirussia, 8855)
 			return "https://t.me/"+group_usename+"/"+message_id;
 		}
@@ -270,7 +269,14 @@ public class Telegrammer extends Mediator {
 			group_id = group_id.substring(4);
 			return "https://t.me/c/"+group_id+"/"+message_id;
 		}
-		//if not group "type":"supergroup" !?
+		return null;
+	}
+	
+	@Override
+	protected String messageLink(String group_usename, String group_title, String group_id, String message_id) {
+		String link = getMessageLink(group_usename, group_title, group_id, message_id);
+		if (!AL.empty(link))
+			return link;
 		return super.messageLink(group_usename, group_title, group_id, message_id);
 	}
 	

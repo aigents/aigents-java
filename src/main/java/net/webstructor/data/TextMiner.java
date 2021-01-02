@@ -91,6 +91,18 @@ public class TextMiner extends Miner {
 		categoryFeatures = out[1];
 		return this;
 	}
+	public Graph getGraph(String doccat) {
+		Graph g = new Graph();
+		for (Object cat : categoryDocuments.keySet()) {
+			Linker documents = (Linker)categoryDocuments.get(cat);
+			for (Object doc : documents.keys())  {
+				Number v = documents.value(doc);
+				if (doccat != null)
+					g.addValue(doc, cat, doccat, v.intValue());
+			}
+		}
+		return g;
+	}
 	public Map<Object,Linker> getDocumentCatNames(){
 		Map<Object,Linker> doccats = new HashMap<Object,Linker>();
 		Map catdocs = getCategoryDocuments();

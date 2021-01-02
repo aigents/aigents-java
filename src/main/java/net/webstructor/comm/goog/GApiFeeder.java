@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ package net.webstructor.comm.goog;
 import java.io.IOException;
 import java.util.Date;
 
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.SocialFeeder;
@@ -34,11 +35,11 @@ class GApiFeeder extends SocialFeeder {
 
 	public static final String TIME_FORMAT = "yyyy-MM-dd"; 
 
-	protected GApi gapi;
+	protected GApi api;
 	
 	public GApiFeeder(GApi gapi, Environment body, String user_id, LangPack langPack, Date since, Date until) {
 		super(body, user_id, langPack, false, since, until);
-		this.gapi = gapi;
+		this.api = gapi;
 	}
 	
 	/*public void processComment(Object[] comment,Date time){
@@ -208,6 +209,11 @@ class GApiFeeder extends SocialFeeder {
 			body.error("Spidering peer Google feeder user "+user_id+" request "+request+" response"+response,e);
 		}
 		*/
+	}
+
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 	
 }

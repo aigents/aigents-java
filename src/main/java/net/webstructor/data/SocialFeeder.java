@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,7 @@ import net.webstructor.util.Array;
 import net.webstructor.util.ArrayPositionComparator;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.StringUtil;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Environment;
 import net.webstructor.util.ReportWriter;
@@ -107,6 +108,8 @@ public abstract class SocialFeeder {
 	public SocialFeeder(Environment body, String user_id, LangPack langPack, boolean obfuscate, Date since, Date until) {
 		this(body,user_id,langPack,obfuscate,since,until,null);
 	}
+	
+	public abstract Socializer getSocializer();
 	
 	public int getDays(){
 		return days;
@@ -810,7 +813,7 @@ public abstract class SocialFeeder {
 		}
 	}
 	
-	private final void clusterPeerCats(java.util.Set vocabulary){
+	private final void clusterPeerCats(java.util.Set vocabulary,boolean self){
 		if (AL.empty(users)){
 			peersMiner = null;
 			return;
@@ -821,35 +824,32 @@ public abstract class SocialFeeder {
 			Object[] user = (Object[])us.next();
 			String name = getUserName(user);
 			String text = getUserText(user);
-			if (AL.empty(text))
-				continue;
-			names.add(name);		
-			texts.add(text);		
+			if (!AL.empty(text)) {
+				names.add(name);		
+				texts.add(text);
+			}
 		}
 		if (AL.empty(names)){
 			body.debug("Spidering peer "+this.user_id+" no peers");
 			peersMiner = null;
 			return;
 		}
-//debugTexts(names,texts);
+		if (self) {
+			String name = getSocializer().getPeerName(user_id);
+ 			String text = getUserText();
+			if (!AL.empty(text)) {
+				names.add(name);
+				texts.add(text);
+			}
+		}
 		peersMiner = new TextMiner(body,this.langPack,System.currentTimeMillis()+clustering_timeout,false)
 			.setDocuments((String[])names.toArray(new String[]{}),(String[])texts.toArray(new String[]{}),vocabulary)
 			.cluster();
 	}
-	
-	/*private void debugTexts(ArrayList names,ArrayList texts) {
-		for (int i = 0; i < names.size(); i++) {
-			try {
-				File temp = body.getFile("debug_"+names.get(i)+".txt");
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"));
-				writer.write(texts.get(i).toString());
-				writer.close();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				body.error("SocialFeeder debugTexts",e);
-			}
-		}
-	}*/
+		
+	public Graph getPeerCategoriesGraph(String doccat) {
+			return peersMiner != null ? peersMiner.getGraph(doccat) : null;
+	}
 	
 	public final Object[][] getPeerCats(){
 		if (peersMiner == null)
@@ -888,6 +888,19 @@ public abstract class SocialFeeder {
 		textsMiner = new TextMiner(body,this.langPack,System.currentTimeMillis()+clustering_timeout,false)
 			.setDocuments(texts,words)
 			.cluster();
+	}
+
+	protected final String getUserText(){
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < news.size(); i++){
+			Object newsItem[] = (Object[])news.get(i);
+			if (!AL.empty((String)newsItem[4])) {
+				if (sb.length() > 0)
+					sb.append("\n\n");
+				sb.append((String)newsItem[4]);
+			}
+		}
+		return sb.toString();
 	}
 	
 	public final Object[][] getNewsCats(){
@@ -970,7 +983,7 @@ public abstract class SocialFeeder {
 
 			start_time = end_time;
 			body.debug("Peers clustering start");
-			clusterPeerCats(null);
+			clusterPeerCats(null,true);//with self
 			end_time = System.currentTimeMillis();
 			body.debug("Peers clustering stop "+new Date(end_time)+", took "+new Period(end_time-start_time).toHours()+".");
 		}

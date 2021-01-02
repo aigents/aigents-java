@@ -95,6 +95,24 @@ public class Graph implements Serializable {
 	public Set getSources(){
 		return binders.keySet();
 	}
+	public Set getTargets() {
+		HashSet results = new HashSet();
+		for (Iterator it = binders.keySet().iterator(); it.hasNext();){
+			String source = (String)it.next();
+			HashMap linkers = (HashMap)binders.get(source);
+			for (Iterator lit = linkers.keySet().iterator(); lit.hasNext();){
+				String property = (String)lit.next();
+				Linker linker = (Linker)linkers.get(property);
+				results.addAll(linker.keys());
+			}
+		}
+		return results;
+	}
+	public Set getVertices() {
+		Set results = getTargets();
+		results.addAll(getSources());
+		return results;
+	}
 	public Linker getLinker(Object context, Object target,boolean add) {// a,p => a->p->(x,y,...)
 		HashMap linkers = getLinkers(context,add);
 		if (linkers == null)
@@ -450,7 +468,7 @@ public class Graph implements Serializable {
 		ArrayList<String> res = new ArrayList<String>();
 		for (Iterator c = contexts.iterator(); c.hasNext();){
 			Object context = c.next();
-			Object context_transcoded = coder != null ? coder.transcode(context) : context;
+			String context_transcoded = coder != null ? coder.transcode(context).toString() : context.toString();
 			HashMap linkers = getLinkers(context, false);
 			if (!AL.empty(linkers)){
 				Set properties = linkers.keySet();
@@ -462,16 +480,15 @@ public class Graph implements Serializable {
 						if (!AL.empty(links)){
 							for (Iterator l = links.iterator(); l.hasNext();){
 								Object target = l.next();
+								String target_transcoded = coder != null ? coder.transcode(target).toString() : target.toString();
 								//TODO: normalize!!!???
 								Number value = linker.value(target);
-								if (coder != null)
-									target = coder.transcode(target);
 								//tuna is fish 134.
 								sb.setLength(0);
 								Writer.quotequotable(sb, context_transcoded.toString())
 									.append(termBreaker)
 									.append(property).append(termBreaker);
-								Writer.quotequotable(sb, target.toString())
+								Writer.quotequotable(sb, target_transcoded)
 									.append(termBreaker)
 									.append(value);
 								res.add(sb.toString());

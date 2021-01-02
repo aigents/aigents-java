@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import javax.json.JsonReader;
 import net.webstructor.al.Time;
 import net.webstructor.al.Period;
 import net.webstructor.cat.HttpFileReader;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
@@ -48,10 +49,11 @@ class Feeder extends SocialFeeder {
 	HttpFileReader reader = null;
 	int calls = 0;
 	String token = null;
+	private FB api;
 	
-	
-	public Feeder(Environment body, String user_id, LangPack langPack, boolean obfuscate, Date since, Date until) {
+	public Feeder(Environment body, FB fb, String user_id, LangPack langPack, boolean obfuscate, Date since, Date until) {
 		super(body, user_id,langPack,obfuscate,since,until);
+		this.api = fb;
 		reader =  new HttpFileReader(body);
 	}
 
@@ -275,6 +277,11 @@ P.P.S. Also note, that at step 3 made by admin (!!!) user, there is a message po
 			if (e instanceof IOException)
 				throw (IOException)e;
 		}
+	}
+
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 	
 }

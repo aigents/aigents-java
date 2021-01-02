@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -82,7 +82,7 @@ public class FB extends Socializer {
 	}
 	
 	public SocialFeeder getFeeder(String id, String token, String key, Date since, Date until, String[] areas) throws IOException{
-		Feeder feeder = new Feeder(body,id,body.languages,false,since,until);
+		Feeder feeder = new Feeder(body,this,id,body.languages,false,since,until);
 		//TODO: fill detail in?
 		feeder.getFeed(token, since, until);
 		return feeder;
@@ -194,7 +194,7 @@ public class FB extends Socializer {
 		Date since = args.length > 2 ? Time.day(args[2]) : null;
 		Date until = args.length > 3 ? Time.day(args[3]) : null;
 		Environment env = new Mainer();
-		Feeder feeder = new Feeder(env,user_id,new LangPack(env),false,since,until);
+		Feeder feeder = new Feeder(env,null,user_id,new LangPack(env),false,since,until);
 		try {
 			feeder.getFeed(token, since, until);
 		} catch (IOException e) {

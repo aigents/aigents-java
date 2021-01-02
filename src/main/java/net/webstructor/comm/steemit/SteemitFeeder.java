@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,7 @@ import net.webstructor.util.Array;
 import net.webstructor.util.ReportWriter;
 import net.webstructor.util.Str;
 import net.webstructor.comm.HTTP;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
@@ -467,6 +468,11 @@ class SteemitFeeder extends SocialFeeder {
 		}//loop through blocks of sequences
 		
 		postProcessPosts();
+	}
+
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -100,6 +100,11 @@ public abstract class Socializer extends HTTP implements Crawler {
 
 	public String getPeerIdName(){
 		return name()+" id";
+	}
+	
+	public String getPeerName(String id) {
+		//TODO try to find peer by getPeerIdName() above
+		return id;
 	}
 	
 	//virtual
@@ -720,12 +725,24 @@ public abstract class Socializer extends HTTP implements Crawler {
 			Set<String> peers = this instanceof Grouper ? ((Grouper)this).getGroupPeerIds(feeder.userId()) : null;
 			Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(new String[] {feeder.userId()},feeder.since(),feeder.until(),2,social_links,peers);
 			if (graph != null) {
+				java.util.Set allpeers = graph.getVertices();
+				Graph catgraph = feeder.getPeerCategoriesGraph("categories");//reverse - categorized
+				if (catgraph != null) {
+					graph.normalize();
+					catgraph.normalize();
+					java.util.Set allcategories = catgraph.getTargets();
+					allpeers.addAll(catgraph.getSources());
+					graph.addSubgraph(catgraph);
+					graph.addProperty(allpeers, "is", "peer");
+					graph.addProperty(allcategories, "is", "category");
+				}
 				String text = graph.toString(this instanceof Transcoder ? ((Transcoder)this) : null );
-				rep.graph(social_graph,t.loc(social_graph),text,null,social_links,1/*horizontal directions*/,30);
+				rep.graph(social_graph,t.loc(social_graph),text,new String[] {"peer","category"},social_links,3/*horizontal directions*/,30);
 			}
 		}
 //TODO extend it for use in non-Grouper kinds like Twitter and Reddit!?
-		if (!options.isEmpty() && options.contains(communication_graph) && this instanceof Grouper) {
+		if (options.isEmpty() || options.contains(communication_graph)) 
+		if (this instanceof Grouper) {
 			Set<String> groups = ((Grouper)this).getGroupIds(feeder.userId());
 			if (!AL.empty(groups)) {
 				Graph graph = AL.empty(feeder.getPeersIds()) ? null : getGraph(groups.toArray(new String[] {}),feeder.since(),feeder.until(),2,communication_links,null);

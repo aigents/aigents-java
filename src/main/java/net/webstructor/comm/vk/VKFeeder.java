@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Writer;
 import net.webstructor.cat.HtmlStripper;
 import net.webstructor.comm.HTTP;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
@@ -48,7 +49,7 @@ import net.webstructor.data.SocialFeeder;
 import net.webstructor.util.Str;
 
 class VKFeeder extends SocialFeeder {
-	//private HTTP api;
+	private Socializer api;
 	private HashMap groupNames = new HashMap();//TODO:externalize?
 	private String user_name = null;
 
@@ -56,7 +57,7 @@ class VKFeeder extends SocialFeeder {
 	//TODO: see https://vk.com/dev/versions
 	public static final String vkversion = "5.44";
 	
-	public VKFeeder(Environment body, HTTP api, String user_id, LangPack langPack, Date since, Date until) {
+	public VKFeeder(Environment body, Socializer api, String user_id, LangPack langPack, Date since, Date until) {
 		super(body,user_id,langPack,false,since,until);
 		//this.api = api;
 		vkdebug = user_id.equals("1216128") || user_id.equals("49817193") ? true : false;	
@@ -377,6 +378,11 @@ if (vkdebug) body.debug("Spidering peer vkontakte item attachments "+attachments
 			if (link.containsKey("image"))
 				links.add(HtmlStripper.stripHtmlAnchor(VK.getJsonString(link,"image","")));
 		}
+	}
+
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 
 	/*

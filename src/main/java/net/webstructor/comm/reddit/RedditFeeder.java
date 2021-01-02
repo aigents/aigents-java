@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ import javax.json.JsonReader;
 
 import net.webstructor.al.AL;
 import net.webstructor.comm.HTTP;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.LangPack;
 import net.webstructor.data.OrderedStringSet;
@@ -188,5 +189,10 @@ class RedditFeeder extends SocialFeeder {
 		} catch (Exception e) {
 			body.error("Spidering peer reddit "+user_id, e);
 		}
+	}
+
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 }

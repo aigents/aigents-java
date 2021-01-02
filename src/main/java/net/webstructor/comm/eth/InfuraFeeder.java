@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Period;
 import net.webstructor.al.Time;
 import net.webstructor.cat.HttpFileReader;
+import net.webstructor.comm.Socializer;
 import net.webstructor.core.Environment;
 import net.webstructor.data.Graph;
 import net.webstructor.data.LangPack;
@@ -313,6 +314,11 @@ body.debug("Ethereum crawling test block "+block+"="+blockhex+" "+from+" "+to+" 
 			}
 		}
 		body.debug("Ethereum crawling graph completed, memory "+body.checkMemory());
+	}
+
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 
 }

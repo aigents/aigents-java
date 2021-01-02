@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
 import net.webstructor.comm.SocialCacher;
+import net.webstructor.comm.Socializer;
 import net.webstructor.comm.InteractionItem;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Thing;
@@ -69,6 +70,7 @@ class TelegramFeeder extends SocialFeeder {
 				continue;//skip unknown dates
 			
 			//get user groups
+			final Set<String> peers = api.getGroupPeerIds(userId());
 			if (SocialCacher.load(api.logger, api.name(), date, new DataLogger.StringConsumer() {
 				@Override
 				public boolean read(String text) {
@@ -78,7 +80,8 @@ class TelegramFeeder extends SocialFeeder {
 						if (groups.contains(ids[0])) {
 							Date time = new Date(ii.timestamp);
 							OrderedStringSet urls = new OrderedStringSet();
-							String url = !AL.empty(ii.title) ? "https://t.me/" + ii.title + "/" + ids[1] : null;
+							//String url = !AL.empty(ii.title) ? "https://t.me/" + ii.title + "/" + ids[1] : null;
+							String url = Telegrammer.getMessageLink(ii.title, null, ids[0], ids[1]);
 							if (!AL.empty(url))
 								urls.add(url);
 							if (user_id.equals(ii.from)) {
@@ -98,16 +101,15 @@ class TelegramFeeder extends SocialFeeder {
 										0,//news_likes[0],//user_likes,
 										0,//othersComments,
 										imghtml);//image HTML
-							} else {
-								countComment(ii.from,api.userName(ii.from),ii.input,time);
+							} else if (peers.contains(ii.from)) {//if user is visible
+								countComment(ii.from,api.getPeerName(ii.from),ii.input,time);
 							}
 						}
 					}
 					return true;
 				}}))
 				;//success!
-			
-			
+		
 //TODO: optimize use of api.userName(key)!?
 			synchronized (graph) {
 				Linker mentioned = graph.getLinker(user_id, "mentioned", false);
@@ -118,7 +120,7 @@ class TelegramFeeder extends SocialFeeder {
 					for (Iterator it = mentioned.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int amount = mentioned.value(key).intValue();
-						countLikes(key,api.userName(key),date,amount);//mention me => like me 
+						countLikes(key,api.getPeerName(key),date,amount);//mention me => like me 
 						countPeriod(date,amount,0);
 					}
 				if (commented != null)
@@ -126,7 +128,7 @@ class TelegramFeeder extends SocialFeeder {
 						String key = (String)it.next();
 						int amount = commented.value(key).intValue();
 //TODO: use only one way to count comments
-						countComment(key,api.userName(key),null,date,amount);//reply to me => comment on me
+						countComment(key,api.getPeerName(key),null,date,amount);//reply to me => comment on me
 						countPeriod(date,0,amount);
 					}
 //TODO: split my mentions and my comments - later in report form!
@@ -134,17 +136,22 @@ class TelegramFeeder extends SocialFeeder {
 					for (Iterator it = mentions.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int v = mentions.value(key).intValue();//TODO: this properly, expected payments can not be zero
-						countMyLikes(key,api.userName(key),v > 0 ? v : 1);//my mention => my like
+						countMyLikes(key,api.getPeerName(key),v > 0 ? v : 1);//my mention => my like
 					}
 				if (comments != null)
 					for (Iterator it = comments.keys().iterator(); it.hasNext();){
 						String key = (String)it.next();
 						int v = comments.value(key).intValue();//TODO: this properly, expected values of smart contract calls are always zero
-						countMyLikes(key,api.userName(key),v > 0 ? v : 1);//my reply => my like
+						countMyLikes(key,api.getPeerName(key),v > 0 ? v : 1);//my reply => my like
 					}
 			}
 		}
 		body.debug("Telegram crawling graph completed, memory "+body.checkMemory());
+	}
+
+	@Override
+	public Socializer getSocializer() {
+		return api;
 	}
 	
 }
@@ -288,14 +295,19 @@ public class Telegram extends SocialCacher implements Transcoder, Grouper {
 		}
 	}
 
-	String userName(String id) {
-		String name = null;
+	@Override
+	public String getPeerName(String id) {
+		String name = transcode(id).toString();
+		if (!AL.empty(name))
+			return name;
 		try {
 			Collection peers = body.storager.getByName(Body.telegram_id, id);
 			if (peers != null) for (Object peer : peers)
 				name = ((Thing)peer).getTitle(Peer.title);
 		} catch (Exception e) {}
-		return !AL.empty(name) ? name : transcode(id).toString();
+		if (!AL.empty(name))
+			return name;
+		return super.getPeerName(id);
 	}
 	
 	@Override
