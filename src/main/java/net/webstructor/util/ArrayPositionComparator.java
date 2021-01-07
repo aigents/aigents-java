@@ -41,13 +41,15 @@ public class ArrayPositionComparator implements Comparator {
 		this.pos2 = pos2;
 	}
 	private int cmp(Object o0, Object o1){
-		float d = 
+		double d = 
 				(o0 instanceof String && o1 instanceof String) ? //asc
 					d = ((String)o0).compareTo((String)o1) :
 				(o0 instanceof Integer && o1 instanceof Integer) ?
 					d = ((Integer)o1).intValue() - ((Integer)o0).intValue() : //desc
 				(o0 instanceof Float && o1 instanceof Float) ?
 					d = ((Float)o1).floatValue() - ((Float)o0).floatValue() : //desc
+				(o0 instanceof Double && o1 instanceof Double) ?
+					d = ((Double)o1).doubleValue() - ((Double)o0).doubleValue() : //desc
 				//0;
 				o0.toString().compareTo(o1.toString());
 		int i = d < 0 ? -1 : d > 0 ? 1 : 0;
