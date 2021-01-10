@@ -70,31 +70,44 @@ public class AgiTester {
 	}
 	
 /*
-Results (20 runs, 1100/3600/7500 epochs):
-Game/Player		2X4	4X6	6X8	8X10	2X4d4X6d6X8d8X10d
+Results (20 runs, 1100/3600/7500/20000 epochs):
+Game/Player		2X4	4X6	6X8	8X10	2X4d4X6d6X8d8X10d (delayed)
 Function/bas	89	88	88	92		70	73	72	85
-Discrete/bas   	89	88	88	...		
+Discrete/bas   	89	88	88	92		70	73	72	...
 Function/neg	92	90	90	93		67	73	81	85
-Discrete/neg   	92	90	90	...
+Discrete/neg   	92	90	90	93		67	73	81	...
 Function/fuz0.5	93	93	93	93		80	83	81	89
-Discrete/fuz0.5 93	91	88	...
+Discrete/fuz0.5 93	91	88	92		70	76	80	...	
+
+
+Function/sta	94	88	91	94		64	71	79	80
+Function/sta0.1	94	91	87	92		64	69	77	82
+Function/sta0.5	93	88	87	93		64	68	75	83
+Function/sta1.0	92	88	87	92		62	68	75	83
+Function/chg	91	86	89	92		64	73	76	79
+
 
 Conclustions:
 1) Both Functional and Discrete representations of the environment are handleable nearly to the same extent
 2) Functional representation is slightly better from the accuracy perspective amd much better from the run-time performance perspective
 3) Both a) negating bad experiences and b) fuzzy matching help improving learning speed
-4) Delayed reward complicates learning to extent of ~10%  
-*/	
+4) Delayed reward complicates learning to extent of ~10%
+TODO:
+- fuzziness 0.5 "chg" and "sta"
+- check if punishment helps a bit
+- remember successful sequences as "compound states built of states"!?
+- opengym!?
+*/
 	public static void main(String[] args) {
-		long sleep = 100;//400;
+		long sleep = 200;//400;
 		AgiTester at = new AgiTester();
 		State score = new State();
 		boolean debug = false;
 		int loops = 20;
-		int h = 2, w = 4, epochs = 1100;//basic 89  (fuzzy 93 with t=0.5, loops = 20)
+		//int h = 2, w = 4, epochs = 1100;//basic 89  (fuzzy 93 with t=0.5, loops = 20)
 		//int h = 4, w = 6, epochs = 3600;//basic 88 (fuzzy 93 with t=0.5, loops = 20) - best for video demo
 		//int h = 6, w = 8, epochs = 7500;//basic 88 (fuzzy 93 with t=0.5, loops = 20)
-		//int h = 8, w = 10, epochs = 20000;//basic 92 (fuzzy 93 with t=0.5, loops = 20)
+		int h = 8, w = 10, epochs = 20000;//basic 92 (fuzzy 93 with t=0.5, loops = 20)
 		//GamePad gp = new GamePad(w*100,h*100);
 		GamePad gp = null;
 		for (int i = 0; i < loops; i++) {
@@ -103,22 +116,24 @@ Conclustions:
 			//Player p = new SimplePredictivePlayer();//follows the ball move direction - always wins
 			//Player p = new SimpleSequenceMatchingPlayer(true,false);//bas: memorizes the good moves - eventually learns
 			//Player p = new SimpleSequenceMatchingPlayer(true,true);//neg: disregards the bad moves - few percents better!
-			Player p = new SimpleSequenceMatchingPlayer(true,0.5,true,false);//fuz: makes uncertain moves - few more percents better (93)!!! 
+			//Player p = new SimpleSequenceMatchingPlayer(true,0.5,true,false);//fuz: makes uncertain moves - few more percents better (93)!!! 
 			//Player p = new SimpleSequenceMatchingPlayer(true,0.5,true,true);//der: adds derivatives to the state - works worse (90+ -> 80+)...
+
+			Player p = new StateActionSpaceMatchingPlayer(1.0);//sta
+			//Player p = new ChangeActionSpaceMatchingPlayer();//chg
 
 			//immediate reward
 			//Game g = new SelfPong(h,w,true,true,false);//with rocket
-			//Game g = new SelfPongDiscrete(h,w,true,true);//with rocket
+			//Game g = new SelfPongDiscrete(h,w,true,true,false);//with rocket
+			
+			//delayed reward
+			Game g = new SelfPong(h,w,true,true,true);//with rocket
+			//Game g = new SelfPongDiscrete(h,w,true,true,true);//with rocket
 			
 			//blind play
 			//Game g = new SelfPong(h,w,true,false);//w/o rocket - eventually learns, but much slower, with quality decay over restarts!? (93 -> 80+)...
 			//Game g = new SelfPongDiscrete(h,w,true,false);//w/o rocket - eventually learns, but much slower, with quality decay over restarts!? (93 - >83-38)
 
-			//delayed reward
-			Game g = new SelfPong(h,w,true,true,true);//with rocket
-			//Game g = new SelfPongDiscrete(h,w,true,true);//with rocket
-			
-			
 			at.run(g,p,score,gp,debug,epochs,sleep);
 			System.out.println(score);
 		}

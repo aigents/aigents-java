@@ -29,14 +29,34 @@ import java.util.Map;
 import java.util.Set;
 
 class State{
-	HashMap<String,Integer> p = new HashMap<String,Integer>();
+	HashMap<String,Integer> p;
 	@Override
 	public int hashCode() {
-		return p.hashCode();
+		//return p.hashCode();
+		int code = 0;
+		for (Integer v : p.values())
+			code += v.hashCode();
+		return code;
 	}
 	@Override
 	public boolean equals(Object other) {
-		return p.equals(((State)other).p);
+		if (other == null || !(other instanceof State))
+			return false;
+		State os = (State)other;
+		//if (os.p.size() != p.size())
+		//	return false;
+		Set<String> keys = p.size() <= os.p.size() ? p.keySet() : os.p.keySet(); //TODO : intersection of the key sets?
+		for (String key : keys) {
+			if (!p.get(key).equals(os.p.get(key)))
+				return false; 
+		}
+		return true;
+	}
+	public State() {
+		p = new HashMap<String,Integer>();
+	}
+	public State(State other) {//deep restricted copy
+		p = new HashMap<String,Integer>(other.p);
 	}
 	Integer value(String key) {
 		return p.get(key);
@@ -125,6 +145,24 @@ class State{
 			}
 		}
 		return map;
+	}
+	public static double distance(State a, State b, Map<String, Integer> ranges) {
+		double sum2 = 0, count = 0; 
+		Set<String> keys = a.p.size() <= a.p.size() ? a.p.keySet() : b.p.keySet(); //TODO : intersection of the key sets?
+		for (String key : keys){
+				int avalue = a.value(key);
+				int bvalue = b.value(key);
+				double v = bvalue - avalue;
+				if (ranges != null) {
+					Integer range = ranges.get(key);
+					if (range != null)//hacky catchup
+						v /= range;
+				}
+				sum2 += v*v;
+				count += 1;
+		}
+		double distance = count ==  0 ? Double.MAX_VALUE : Math.sqrt(sum2/count);
+		return distance;
 	}
 	public static double distance(State[] a, State[] b, Set<String> keys, Map<String,Integer> ranges) {
 		double sum2 = 0, count = 0; 
