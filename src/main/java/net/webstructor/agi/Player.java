@@ -28,5 +28,6 @@ import java.util.ArrayList;
 abstract class Player {
 	ArrayList<State> states = new ArrayList<State>();
 	abstract int move(Game g,State s);
+	abstract void init();
 }
 

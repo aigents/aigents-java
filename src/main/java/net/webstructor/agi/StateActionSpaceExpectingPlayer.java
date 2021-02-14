@@ -23,35 +23,44 @@
  */
 package net.webstructor.agi;
 
-import java.util.Random;
-import java.util.Set;
-import java.awt.Graphics;
+import java.util.HashMap;
+import java.util.Map;
 
-abstract class Game {
-    static Random random;
-	abstract void init();
-	abstract State next(Integer action);
-	abstract void printHeader();
-	abstract void printState();
-	abstract void printFooter();
-	abstract void render(Graphics g);
-	abstract String getTitle();
-	abstract String toString(State s);
-	abstract Set<Integer> domain(String key);
-	public static int random(int[] states) {
-	    return states[random.nextInt(states.length)];
-	}
-	public static int random(Integer[] states) {
-	    return states[random.nextInt(states.length)];
-	}
-	public static int random(int min, int max) {
-		int arg = max - min + 1;
-	    int rand = random.nextInt(arg) + min;
-	    return rand;
-	}
-	public static void randomise() {
-	    random = new Random(0);
-	    //random = java.util.concurrent.ThreadLocalRandom.current();
+class StateWorld {
+	Map<State,Map<State,Number>> states = new HashMap<State,Map<State,Number>>();
+	Map<String,int[]> ranges = new HashMap<String,int[]>(); 
+
+//TODO
+	int change(State previous, State current) {
+		//first, estimate expectedness
+		//Map<State,Number> expectations = states.get(previous);
+		/*
+		for (State s : state_actions.keySet()) {
+			double d = State.distance(state, s, ranges);
+		*/
+		//111
+		return 0;
 	}
 }
 
+
+class StateActionSpaceExpectingPlayer extends StateActionSpaceMatchingPlayer {
+	
+	StateWorld world = new StateWorld();
+	State previuos = null;
+	
+	StateActionSpaceExpectingPlayer(double fuzziness){
+		super(fuzziness);
+	}
+
+	@Override
+	int move(Game g,State state) {
+		//evaluate the change in state world
+		if (previuos != null) {
+			//int expectedness = world.change(previuos,state);
+		}
+		previuos = state;
+		return super.move(g, state);
+	}
+	
+}

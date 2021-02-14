@@ -26,6 +26,7 @@ package net.webstructor.agi;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 class Change {
 	State prev;
@@ -48,20 +49,72 @@ class Change {
 }
 
 class ChangeActionSpaceMatchingPlayer extends Player {//Makes decisions based on graph paths with global feedback
-	Map<Change,Integer> state_action = new HashMap<Change,Integer>();//current context
-	Map<Change,Map<Integer,Number>> state_actions = new HashMap<Change,Map<Integer,Number>>();//all transitions
+	Map<Change,Integer> state_action;//current context
+	Map<Change,Map<Integer,Number>> state_actions;//all transitions
 	State prev_state = null;  
 	double fuzziness;
 	
 	ChangeActionSpaceMatchingPlayer(double fuzziness){
 		this.fuzziness = fuzziness;
+		init();
 	}
 
+	@Override
+	void init() {
+		state_action = new HashMap<Change,Integer>();//current context
+		state_actions = new HashMap<Change,Map<Integer,Number>>();//all transitions
+		prev_state = null;
+	}
+	
 	void update(Map<Integer,Number> actions, Integer action, Integer value) {
 		Number old = actions.get(action);
 		actions.put(action, old == null ? value : value + old.intValue());
 	}
 
+	Map<String,Integer> getRanges(Set<String> feelings){
+		Map<String,Integer> ranges = new HashMap<String,Integer>();
+		for (String feeling : feelings) {
+			Integer range = ranges.get(feeling);
+			if (range == null) {
+				int min = Integer.MAX_VALUE;
+				int max = Integer.MIN_VALUE;
+				for (Change s : state_actions.keySet()) {
+					Integer v = s.last.value(feeling);
+					if (v !=  null) {
+						if (min > v)
+							min = v;
+						if (max < v)
+							max = v;
+					}
+				}
+				if (min < max)
+					ranges.put(feeling, max - min);
+			}
+		}
+		return ranges;
+	}
+	
+	Map<Integer,Number> getActions(Change change) {
+		Map<Integer,Number> actions = null;
+		Set<String> feelings = change.last.p.keySet();
+		Map<String,Integer> ranges = getRanges(feelings);
+		double distance = Double.MAX_VALUE;
+		for (Change s : state_actions.keySet()) {
+			double d = State.distance(new State[] {change.prev,change.last}, new State[] {s.prev,s.last}, feelings, ranges);
+			if (d < fuzziness && d <= distance) {
+				if (distance > d) {
+					distance = d;
+					actions = state_actions.get(s);
+				} else {//d == distance
+					//bind ties in new container
+					actions = new HashMap<Integer,Number>(actions);//clone present
+					StateActionSpaceMatchingPlayer.merge(actions,state_actions.get(s));
+				}
+ 			}
+		}
+		return actions;
+	}
+	
 	@Override
 	int move(Game g,State last_state) {
 		/*
@@ -103,6 +156,9 @@ class ChangeActionSpaceMatchingPlayer extends Player {//Makes decisions based on
 		Change change = prev_state == null ? null : new Change(prev_state,last_state);
 		prev_state = last_state;
 		Map<Integer,Number> actions = change == null ? null : state_actions.get(change);
+		if (actions == null && fuzziness > 0 && change != null) {
+			actions = getActions(change);
+		}
 		Integer action = null;
 		if (actions != null) {
 			//- if found the state (or a state the most similar based on "fuzziness" threshold)
@@ -138,5 +194,5 @@ class ChangeActionSpaceMatchingPlayer extends Player {//Makes decisions based on
 			state_action.put(change, action);
 		return action;
 	}
-	
+
 }

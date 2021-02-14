@@ -146,7 +146,7 @@ class State{
 		}
 		return map;
 	}
-	public static double distance(State a, State b, Map<String, Integer> ranges) {
+	public static double distance(State a, State b, Map<String, int[]> ranges) {
 		double sum2 = 0, count = 0; 
 		Set<String> keys = a.p.size() <= a.p.size() ? a.p.keySet() : b.p.keySet(); //TODO : intersection of the key sets?
 		for (String key : keys){
@@ -154,9 +154,11 @@ class State{
 				int bvalue = b.value(key);
 				double v = bvalue - avalue;
 				if (ranges != null) {
-					Integer range = ranges.get(key);
+					int[] range = ranges.get(key);
 					if (range != null)//hacky catchup
-						v /= range;
+//TODO check if it makes things better (so far it does not)!?
+						//v = (v - range[0]) / range[1];
+						v /= range[1];
 				}
 				sum2 += v*v;
 				count += 1;
@@ -174,6 +176,7 @@ class State{
 				if (ranges != null) {
 					Integer range = ranges.get(key);
 					if (range != null)//hacky catchup
+//TODO check if it makes things better (so far it does not)!?
 						v /= range;
 				}
 				sum2 += v*v;
@@ -182,5 +185,27 @@ class State{
 		}
 		double distance = count ==  0 ? Double.MAX_VALUE : Math.sqrt(sum2/count);
 		return distance;
+	}
+	static Map<String,int[]> getRanges(Set<State> states, Set<String> feelings){
+		Map<String,int[]> ranges = new HashMap<String,int[]>();
+		for (String feeling : feelings) {
+			int[] range = ranges.get(feeling);
+			if (range == null) {
+				int min = Integer.MAX_VALUE;
+				int max = Integer.MIN_VALUE;
+				for (State s : states) {
+					Integer v = s.value(feeling);
+					if (v !=  null) {
+						if (min > v)
+							min = v;
+						if (max < v)
+							max = v;
+					}
+				}
+				if (min < max)
+					ranges.put(feeling, new int[] {min,max - min});
+			}
+		}
+		return ranges;
 	}
 }

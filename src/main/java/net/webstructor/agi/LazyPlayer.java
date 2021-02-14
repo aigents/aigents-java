@@ -28,4 +28,7 @@ class LazyPlayer extends Player {//Stays in place, sometimes lucky
 	int move(Game g,State s) {
 		return 0;
 	}
+	@Override
+	void init() {
+	}
 }

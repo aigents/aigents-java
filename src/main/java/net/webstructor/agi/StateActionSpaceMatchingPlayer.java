@@ -26,47 +26,30 @@ package net.webstructor.agi;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 class StateActionSpaceMatchingPlayer extends Player {//Makes decisions based on graph paths with global feedback
-	Map<State,Integer> state_action = new HashMap<State,Integer>();//current context
-	Map<State,Map<Integer,Number>> state_actions = new HashMap<State,Map<Integer,Number>>();//all transitions
+	Map<State,Integer> state_action;//current context
+	Map<State,Map<Integer,Number>> state_actions;//all transitions
 	double fuzziness;
 	
 	StateActionSpaceMatchingPlayer(double fuzziness){
 		this.fuzziness = fuzziness;
+		init();
 	}
 
+	@Override
+	void init() {
+		state_action = new HashMap<State,Integer>();//current context
+		state_actions = new HashMap<State,Map<Integer,Number>>();//all transitions
+	}
+	
 	void update(Map<Integer,Number> actions, Integer action, Integer value) {
 		Number old = actions.get(action);
 		actions.put(action, old == null ? value : value + old.intValue());
 	}
 
-	Map<String,Integer> getRanges(Set<String> feelings){
-		Map<String,Integer> ranges = new HashMap<String,Integer>();
-		for (String feeling : feelings) {
-			Integer range = ranges.get(feeling);
-			if (range == null) {
-				int min = Integer.MAX_VALUE;
-				int max = Integer.MIN_VALUE;
-				for (State s : state_actions.keySet()) {
-					Integer v = s.value(feeling);
-					if (v !=  null) {
-						if (min > v)
-							min = v;
-						if (max < v)
-							max = v;
-					}
-				}
-				if (min < max)
-					ranges.put(feeling, max - min);
-			}
-		}
-		return ranges;
-	}
-	
 	//merge actions
-	void merge(Map<Integer,Number> dest, Map<Integer,Number> src) {
+	static void merge(Map<Integer,Number> dest, Map<Integer,Number> src) {
 		for (Integer a : src.keySet()) {
 			Number n = dest.get(a);
 			dest.put(a, n != null ? n.intValue() + a : a);
@@ -75,7 +58,7 @@ class StateActionSpaceMatchingPlayer extends Player {//Makes decisions based on 
 	
 	Map<Integer,Number> getActions(State state) {
 		Map<Integer,Number> actions = null;
-		Map<String,Integer> ranges = getRanges(state.p.keySet());
+		Map<String,int[]> ranges = State.getRanges(state_actions.keySet(),state.p.keySet());
 		double distance = Double.MAX_VALUE;
 		for (State s : state_actions.keySet()) {
 			double d = State.distance(state, s, ranges);
@@ -134,8 +117,6 @@ class StateActionSpaceMatchingPlayer extends Player {//Makes decisions based on 
 		Map<Integer,Number> actions = state_actions.get(state);
 		if (actions == null && fuzziness > 0) {
 			actions = getActions(state);
-			//if (actions != null)
-			//	actions = actions;
 		}
 		Integer action = null;
 		if (actions != null) {
@@ -171,5 +152,5 @@ class StateActionSpaceMatchingPlayer extends Player {//Makes decisions based on 
 		state_action.put(state, action);
 		return action;
 	}
-	
+
 }

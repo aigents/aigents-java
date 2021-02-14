@@ -27,9 +27,12 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.webstructor.al.AL;
+import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -75,6 +78,9 @@ class OpenGymSock extends Game {
 	Socket socket;
     protected OutputStream out;
     protected InputStream in;
+    
+    MapMap map2d = new MapMap();
+    int dimensions[] = new int[] {0,0,0};
 	
 	OpenGymSock(String host, int port, String env, int cycles){
 		this.env = env;
@@ -108,8 +114,9 @@ class OpenGymSock extends Game {
 	private String inputData() throws IOException {
 		StringBuilder data = new StringBuilder();
 		int brackets = 0;
+		String line;
 		for (;;) {
-			String line = input();
+			line = input();
 			for (int i = 0; i < line.length(); i++) {
 				char c = line.charAt(i);
 				if (c == '[')
@@ -186,6 +193,35 @@ class OpenGymSock extends Game {
 	}
 	
 	
+	void parse2d(State s, String dump) {
+		map2d.clear();
+		Striter iter = new Striter(dump);
+		if (!iter.next('['))
+			return;
+		for (int y = 0; ; y++) {
+			if (!iter.next('['))
+				break;
+			int end = iter.s.indexOf(']',iter.pos);
+			if (end == -1)
+				break;
+			String rgb = dump.substring(iter.pos,end);
+			StringTokenizer tok = new StringTokenizer(rgb, " \t\n\r");
+			int x = 0;
+			while(tok.hasMoreTokens()) {
+				String t = tok.nextToken().trim();
+				int i = Integer.parseInt(t);
+				s.add(String.format("%s %s",y,x),i);
+				if (map2d != null)
+					map2d.putObject(new Integer(y), new Integer(x), new Integer(i));
+				x++;
+				if (dimensions[0] < x)
+					dimensions[0] = x;
+			}
+			if (dimensions[1] < y)
+				dimensions[1] = y; 
+			iter.pos = ++end;
+		}
+	}
 	
 	//https://gym.openai.com/envs/Breakout-v0/
 	//In this environment, the observation is an RGB image of the screen, which is an array of shape (210, 160, 3)
@@ -210,8 +246,6 @@ class OpenGymSock extends Game {
 					i += Integer.parseInt(t);
 				}
 				s.add(String.format("%s %s",y,x),i);
-				if (x == 159)
-					x = 159;
 				iter.pos = ++end;
 			}
 			if (!iter.next(']'))
@@ -223,6 +257,9 @@ class OpenGymSock extends Game {
 		if (!AL.empty(dump)) {
 			if (dump.startsWith("[[["))
 				parse3d(s, dump);
+			else
+			if (dump.startsWith("[["))
+				parse2d(s, dump);
 			else
 			if (dump.startsWith("["))
 				parse1d(s, dump);
@@ -246,6 +283,7 @@ System.out.println("Finished!");
 			String observation = inputData();
 //System.out.println("done:"+done+" reward:"+reward+" observation:"+observation);
 			parse(s,observation);
+			s.add("Sad",done.equals("True") ? 1 : 0);
 			s.add("Happy",(int)Double.parseDouble(reward));
 //TODO fill state			
 		} catch (IOException e) {
@@ -257,6 +295,36 @@ System.out.println("Finished!");
 
 	@Override
 	void render(Graphics g) {
+		Rectangle bounds = g.getClipBounds();
+		int w = bounds.width;
+		int h = bounds.height;
+		int x1 = 0;
+		int y1 = 0;
+		if (dimensions[0] > 0 && dimensions[1] > 0) {
+			for (int x = 0; x < dimensions[0]; x++) {
+				int x2 = (x + 1) * w / dimensions[0];
+				for (int y = 0; y < dimensions[1]; y++) {
+					Object p = map2d.getObject(new Integer(y), new Integer(x), false);
+					if (p != null) {
+						int s = 255 - (Integer)p;
+						//int s = 0;//x * 255 / dimensions[1];
+						Color cellColor = new Color(s,s,s);
+						g.setColor(cellColor);
+						int y2 = (y + 1) * h/ dimensions[1]; 
+						g.fillRect(x1, y1, x2 - x1, y2 - y1);
+						y1 = y2;
+						//TODO invert!?
+					}
+				}
+				x1 = x2;
+			}
+		}
+		/*
+		int s = 0;
+		Color cellColor = new Color(s,s,s);
+		g.setColor(cellColor);
+		g.fillRect(x1, y1, w, h);
+		*/
 	}
 
 	@Override
@@ -276,16 +344,22 @@ System.out.println("Finished!");
 	//Breakout-ram-v0 10000 Random - 50-62-65
 	//Breakout-ram-v0 10000 SimSeqMat - 46-50-52
 	public static void main(String[] args) {
-		Player p = new SimpleSequenceMatchingPlayer(true,0.5,true,false);
+		GamePad gp = new GamePad(200,200);
+		//Player p = new SimpleSequenceMatchingPlayer(true,0.5,true,false);
+		Player p = new ChangeActionSpaceMatchingPlayer(0.5);
 		//OpenGymSock g = new OpenGymSock("127.0.0.1", 65432, "Breakout-ram-v0", 10000);
 		OpenGymSock g = new OpenGymSock("127.0.0.1", 65432, "Breakout-v0", 10000);
 		g.init();
+		if (gp != null)
+			gp.setGame(g);
 		Integer[] actions = g.domain("Move").toArray(new Integer[] {});
 		Integer action = Game.random(actions);
 		State s;
 		int happys = 0;
 		for (;;) {
 			s = g.next(action);
+			if (gp != null)
+				gp.repaint();
 			if (s == null)
 				break;
 			if (s.value("Happy",0) > 0)

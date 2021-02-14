@@ -64,7 +64,8 @@ class SelfPong extends Game {
 	boolean delayed;
 	
 	boolean reflected = false;
-	protected int totalHappy = 0, totalSad = 0;
+	protected int totalHappy = 0;
+	protected int totalSad = 0;
 	
 	SelfPong(int Ymax, int Xmax, boolean random, boolean rocket, boolean delayed){
 		this.Ymax = Ymax;
@@ -97,6 +98,9 @@ class SelfPong extends Game {
 	
 	@Override
 	void init() {
+		reflected = false;
+		totalHappy = 0;
+		totalSad = 0;
 		Yball = 0;//start from the floor
 		Xdir = -1;//strike to left
 		Xball = 1;//leftmost position

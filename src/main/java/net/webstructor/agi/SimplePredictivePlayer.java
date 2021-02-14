@@ -24,7 +24,7 @@
 package net.webstructor.agi;
 
 class SimplePredictivePlayer extends Player {//Follows the ball direction, always winds
-	State old = null;
+	State old;
 	@Override
 	int move(Game g,State s) {
 		int move = 0;
@@ -39,5 +39,9 @@ class SimplePredictivePlayer extends Player {//Follows the ball direction, alway
 		}
 		old = s;
 		return move;
+	}
+	@Override
+	void init() {
+		old = null;
 	}
 }

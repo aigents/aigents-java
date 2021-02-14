@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 class SimpleSequenceMatchingPlayer extends Player {//Makes decisions based on past experiences
-	ArrayList<State> history = new ArrayList<State>();
+	ArrayList<State> history;
 	boolean exhaustive;
 	double fuzziness;
 	boolean prohibitive;
@@ -45,8 +45,14 @@ class SimpleSequenceMatchingPlayer extends Player {//Makes decisions based on pa
 		this.fuzziness = fuzziness;
 		this.prohibitive = prohibitive;
 		this.derivatives = derivatives;
+		init();
 	}
 
+	@Override
+	void init() {
+		history = new ArrayList<State>();
+	}
+	
 	Integer perfectMove(Game g,State state,Set<State> prohibilities) {
 		Integer move = null;
 		Set<String> feelings = state.p.keySet(); 
@@ -216,5 +222,5 @@ class SimpleSequenceMatchingPlayer extends Player {//Makes decisions based on pa
 		history.add(state);
 		return move;
 	}
-	
+
 }

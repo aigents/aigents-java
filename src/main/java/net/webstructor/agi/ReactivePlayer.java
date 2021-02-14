@@ -30,4 +30,7 @@ class ReactivePlayer extends Player {//Follows the ball, lose always
 		int Xrocket = s.p.get("Xrocket");
 		return Xball < Xrocket ? -1 : Xball > Xrocket ? + 1 : 0;
 	}
+	@Override
+	void init() {
+	}
 }
