@@ -24,9 +24,12 @@
 package net.webstructor.agi;
 
 import net.webstructor.main.Tester;
+import net.webstructor.util.Array;
 
 public class AgiTester {
-
+	public static final String[] diag_params = new String[] {"Happy","Sad","Novelty","Expectedness"};
+	public static final String[] diag_colors = new String[] {"green","red","blue","magenta"};
+	
 	void repaint(GamePad gp, long sleep) {
 		gp.repaint();
 		if (sleep > 0)
@@ -34,17 +37,24 @@ public class AgiTester {
 	}
 	
 	void run(Game g, Player p, State score, GamePad gp, boolean debug, int times, long sleep) {
-		if (gp != null)
-			gp.setGame(g);
 		if (debug)
 			g.printHeader();
 		Integer action = null;
 		g.init();
+		if (gp != null) {
+			gp.setGame(g);
+			gp.init(Array.toList(diag_params),Array.toList(diag_colors));
+			repaint(gp,sleep);
+		}
  		for (int t = 0; t < times; t++) {
- 			if (gp != null)
- 				repaint(gp,sleep);
 			State s = g.next(action);
 			action = p.move(g,s);
+ 			if (gp != null) {
+ 				State ds = new State(s,diag_params);
+ 				ds.merge(p.selfState());
+ 				gp.update(ds);
+ 				repaint(gp,sleep);
+ 			}
 			score.add(s,new String[] {"Happy","Sad"});
 			int sad = score.value("Sad");
 			int happy = score.value("Happy");
@@ -88,6 +98,7 @@ Conclusions:
 6) Negative "global feedback" makes results significantly worse, learning may get impossible in some cases
 TODO:
 ! explore "predictiveness"
+	remove negative feedback in "fake non-gym pong" and try to learn
 	...
 ! opengym!? https://arxiv.org/pdf/1312.5602.pdf
 	- sparse visual space!?
@@ -122,21 +133,21 @@ TODO:
 - Add restarts on failures
 */
 	public static void work() {
-		long sleep = 200;//400;
+		long sleep = 5;//400;
 		AgiTester at = new AgiTester();
 		State score = new State();
 		boolean debug = false;
 		int loops = 20;
-		int h = 2, w = 4, epochs = 1100;//basic 89  (fuzzy 93 with t=0.5, loops = 20)
+		//int h = 2, w = 4, epochs = 1100;//basic 89  (fuzzy 93 with t=0.5, loops = 20)
 		//int h = 4, w = 6, epochs = 3600;//basic 88 (fuzzy 93 with t=0.5, loops = 20) - best for video demo
 		//int h = 6, w = 8, epochs = 7500;//basic 88 (fuzzy 93 with t=0.5, loops = 20)
-		//int h = 8, w = 10, epochs = 20000;//basic 92 (fuzzy 93 with t=0.5, loops = 20)
-		//GamePad gp = new GamePad(w*100,h*100);
-		GamePad gp = null;
+		int h = 8, w = 10, epochs = 20000;//basic 92 (fuzzy 93 with t=0.5, loops = 20)
+		GamePad gp = new GamePad(w*100,h*100);
+		//GamePad gp = null;
 		Game.randomise();
 		for (int i = 0; i < loops; i++) {
 			//Player p = new LazyPlayer();//stays in place - rarely wins
-			Player p = new ReactivePlayer();//follows the ball position - rarely wins
+			//Player p = new ReactivePlayer();//follows the ball position - rarely wins
 			//Player p = new SimplePredictivePlayer();//follows the ball move direction - always wins
 			//Player p = new SimpleSequenceMatchingPlayer(true,false);//bas: memorizes the good moves - eventually learns
 			//Player p = new SimpleSequenceMatchingPlayer(true,true);//neg: disregards the bad moves - few percents better!
@@ -147,6 +158,8 @@ TODO:
 			//Player p = new StateActionSpaceMatchingPlayer(0.1);//sta0.1
 			//Player p = new ChangeActionSpaceMatchingPlayer(0);//chg
 			//Player p = new ChangeActionSpaceMatchingPlayer(0.1);//chg0.1
+			
+			Player p = new StateActionSpaceExpectingPlayer(0);
 
 			//immediate reward
 			//Game g = new SelfPong(h,w,true,true,false);//with rocket

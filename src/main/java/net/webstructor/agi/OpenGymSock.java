@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.webstructor.al.AL;
+import net.webstructor.util.Array;
 import net.webstructor.util.MapMap;
 import net.webstructor.util.Str;
 
@@ -344,22 +345,31 @@ System.out.println("Finished!");
 	//Breakout-ram-v0 10000 Random - 50-62-65
 	//Breakout-ram-v0 10000 SimSeqMat - 46-50-52
 	public static void main(String[] args) {
+		Game.randomise();
 		GamePad gp = new GamePad(200,200);
 		//Player p = new SimpleSequenceMatchingPlayer(true,0.5,true,false);
-		Player p = new ChangeActionSpaceMatchingPlayer(0.5);
+		Player p = new StateActionSpaceExpectingPlayer(0.5);
+		//Player p = new ChangeActionSpaceMatchingPlayer(0.5);
 		//OpenGymSock g = new OpenGymSock("127.0.0.1", 65432, "Breakout-ram-v0", 10000);
 		OpenGymSock g = new OpenGymSock("127.0.0.1", 65432, "Breakout-v0", 10000);
 		g.init();
-		if (gp != null)
+		if (gp != null) {
 			gp.setGame(g);
+			gp.init(Array.toList(AgiTester.diag_params),Array.toList(AgiTester.diag_colors));
+			gp.repaint();
+		}
 		Integer[] actions = g.domain("Move").toArray(new Integer[] {});
 		Integer action = Game.random(actions);
 		State s;
 		int happys = 0;
 		for (;;) {
 			s = g.next(action);
-			if (gp != null)
+			if (gp != null) {
+ 				State ds = new State(s,AgiTester.diag_params);
+ 				ds.merge(p.selfState());
+ 				gp.update(ds);
 				gp.repaint();
+			}
 			if (s == null)
 				break;
 			if (s.value("Happy",0) > 0)

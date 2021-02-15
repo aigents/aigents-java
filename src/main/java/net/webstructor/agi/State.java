@@ -55,8 +55,24 @@ class State{
 	public State() {
 		p = new HashMap<String,Integer>();
 	}
-	public State(State other) {//deep restricted copy
+	public State(State other) {//deep copy
 		p = new HashMap<String,Integer>(other.p);
+	}
+	public State(State other, String[] keys) {//deep restricted copy
+		this();
+		merge(other,keys);
+	}
+	void merge(State other, String[] keys) {
+		for (int i = 0; i < keys.length; i++) {
+			Integer v = other.value(keys[i]);
+			if (v != null)
+				p.put(keys[i], v);
+		}
+	}
+	void merge(State other) {
+		if (other != null) for (String key : other.p.keySet()) {
+			add(key,other.value(key));
+		}
 	}
 	Integer value(String key) {
 		return p.get(key);
@@ -155,10 +171,10 @@ class State{
 				double v = bvalue - avalue;
 				if (ranges != null) {
 					int[] range = ranges.get(key);
-					if (range != null)//hacky catchup
+					if (range != null && range[1] != range[0])//hacky catchup
 //TODO check if it makes things better (so far it does not)!?
-						//v = (v - range[0]) / range[1];
-						v /= range[1];
+						//v = (v - range[0]) / (range[1] - range[0]);
+						v /= (range[1] - range[0]);
 				}
 				sum2 += v*v;
 				count += 1;
@@ -203,9 +219,24 @@ class State{
 					}
 				}
 				if (min < max)
-					ranges.put(feeling, new int[] {min,max - min});
+					ranges.put(feeling, new int[] {min,max});
 			}
 		}
 		return ranges;
+	}
+	static void updateRanges(Map<String,int[]> ranges, State state) {
+		for (String feeling : state.p.keySet()) {
+			Integer v = state.value(feeling);
+			int[] range = ranges.get(feeling);
+			if (range == null) {
+				ranges.put(feeling, new int[] {v,v});
+			} else {
+				if (range[0] > v)
+					range[0] = v;//min
+				else if (range[1] < v)
+					range[1] = v;
+				ranges.put(feeling, range);
+			}
+		}
 	}
 }

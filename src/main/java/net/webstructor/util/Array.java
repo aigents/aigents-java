@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2019 by Anton Kolonin, Aigents
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.Set;
@@ -76,6 +77,14 @@ public class Array {
 				sb.append(args[i]);
 			}
 		return sb.toString();
+	}
+	
+	public static <T> List<T> toList(T[] a) {
+		ArrayList<T> l = new ArrayList<T>(); 
+	    for (int i = 0; i < a.length; i++) {
+	        l.add(a[i]);
+	    }
+	    return l;
 	}
 	
 	public static HashSet toSet(HashSet set,Object[] array) {
