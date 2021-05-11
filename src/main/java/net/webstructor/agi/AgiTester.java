@@ -27,8 +27,8 @@ import net.webstructor.main.Tester;
 import net.webstructor.util.Array;
 
 public class AgiTester {
-	public static final String[] diag_params = new String[] {"Happy","Sad","Novelty","Expectedness"};
-	public static final String[] diag_colors = new String[] {"green","red","blue","magenta"};
+	public static final String[] diag_params = new String[] {"Happy","Sad","Novelty","Expectedness","Feedback"};
+	public static final String[] diag_colors = new String[] {"green","red","blue","magenta","orange"};
 	
 	void repaint(GamePad gp, long sleep) {
 		gp.repaint();
@@ -98,7 +98,8 @@ Conclusions:
 6) Negative "global feedback" makes results significantly worse, learning may get impossible in some cases
 TODO:
 ! explore "predictiveness"
-	remove negative feedback in "fake non-gym pong" and try to learn
+	remove negative feedback in "fake non-gym pong" and try to learn!!!
+	Piaget Modeler: The approach that I'm referring to requires (1) events, (2) predictions, (3) a testing mechanism for predictions, and (4) a mechanism for creating predictions based on events, and (5) a mechanism for regulation. It's not about whether we can predict something (which I define as the predictability of an event) but the entire process of recognizing events, creating a prediction, and testing if the prediction came true, and regulating the system once we've found a prediction succeeded or failed.
 	...
 ! opengym!? https://arxiv.org/pdf/1312.5602.pdf
 	- sparse visual space!?
@@ -133,15 +134,15 @@ TODO:
 - Add restarts on failures
 */
 	public static void work() {
-		long sleep = 5;//400;
+		long sleep = 200;//400;
 		AgiTester at = new AgiTester();
 		State score = new State();
 		boolean debug = false;
 		int loops = 20;
 		//int h = 2, w = 4, epochs = 1100;//basic 89  (fuzzy 93 with t=0.5, loops = 20)
-		//int h = 4, w = 6, epochs = 3600;//basic 88 (fuzzy 93 with t=0.5, loops = 20) - best for video demo
+		int h = 4, w = 6, epochs = 3600;//basic 88 (fuzzy 93 with t=0.5, loops = 20) - best for video demo
 		//int h = 6, w = 8, epochs = 7500;//basic 88 (fuzzy 93 with t=0.5, loops = 20)
-		int h = 8, w = 10, epochs = 20000;//basic 92 (fuzzy 93 with t=0.5, loops = 20)
+		//int h = 8, w = 10, epochs = 20000;//basic 92 (fuzzy 93 with t=0.5, loops = 20)
 		GamePad gp = new GamePad(w*100,h*100);
 		//GamePad gp = null;
 		Game.randomise();
@@ -159,15 +160,18 @@ TODO:
 			//Player p = new ChangeActionSpaceMatchingPlayer(0);//chg
 			//Player p = new ChangeActionSpaceMatchingPlayer(0.1);//chg0.1
 			
-			Player p = new StateActionSpaceExpectingPlayer(0);
+			//Player p = new StateActionSpaceMatchingPlayer(0.5,1000);//sta
+			Player p = new StateActionSpaceExpectingPlayer(0.5);
 
 			//immediate reward
 			//Game g = new SelfPong(h,w,true,true,false);//with rocket
 			//Game g = new SelfPongDiscrete(h,w,true,true,false);//with rocket
 			
 			//delayed reward
-			Game g = new SelfPong(h,w,true,true,true);//with rocket
+			//Game g = new SelfPong(h,w,true,true,true);//with rocket
 			//Game g = new SelfPongDiscrete(h,w,true,true,true);//with rocket
+
+			Game g = new SelfPong(h,w,true,true,true);//with rocket, no negative
 			
 			//blind play
 			//Game g = new SelfPong(h,w,true,false);//w/o rocket - eventually learns, but much slower, with quality decay over restarts!? (93 -> 80+)...
@@ -179,7 +183,7 @@ TODO:
 	}
 
 	public String testScore(Player p, Game g) {
-		Game.randomise();//set ramdomization to equal conditions for everyone - TODO fix hack!?
+		Game.randomise();//set randomization to equal conditions for everyone - TODO fix hack!?
 		long sleep = 200;//400;
 		AgiTester at = new AgiTester();
 		State score = new State();
@@ -199,7 +203,7 @@ TODO:
 		Tester t = new Tester();
 		int h = 2, w = 4;
 		Game g;
-		
+/*
 		g = new SelfPong(h,w,true,true,false);//immediate reward, with rocket
 		t.assume(at.testScore(new LazyPlayer(),g),"Score:49	Happy:2740	Sad:2760");//stays in place - rarely wins
 		t.assume(at.testScore(new ReactivePlayer(),g),"Score:0	Happy:0	Sad:5500");//follows the ball position - rarely wins
@@ -221,7 +225,23 @@ TODO:
 		
 		g = new SelfPongDiscrete(h,w,true,true,true);//delayed reward, with rocket
 		t.assume(at.testScore(new SimpleSequenceMatchingPlayer(true,0.5,true,false),g),"Score:70	Happy:3865	Sad:1620");
-	
+*/
+		g = new SelfPong(h,w,true,true,true);//delayed reward, with rocket
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,1000,true),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,1000,false),g),"Score:64	Happy:3551	Sad:1936");
+
+		g = new SelfPong(4,6,true,true,true);//delayed reward, with rocket
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,1,true),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,5,true),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,10,true),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,50,true),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,1000,true),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,1,false),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,5,false),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,10,false),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,50,false),g),"Score:64	Happy:3551	Sad:1936");
+		t.assume(at.testScore(new StateActionSpaceExpectingPlayer(0.1,1000,false),g),"Score:64	Happy:3551	Sad:1936");
+		
 		t.check();
 	}
 	

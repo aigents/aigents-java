@@ -62,15 +62,18 @@ class StateWorld {
 	
 	//proximity to expectations == expectedness != surpringness (0 - far away so unexpected, 1 - identical so expected  
 	double expectedness(Set<State> expectations, State state) {
+		State e = null; 
 		double min = Double.MAX_VALUE;
 		if (expectations != null) {
 			for (State s : expectations) {
 				double d = State.distance(state, s, ranges);
-				if (min > d)
+				if (min > d) {
 					min = d;
+					e = s;
+				}
 			}
 		}
-		return 1 - Math.tanh(min);
+		return e == null ? 0 : 1 - Math.tanh(min);
 	}
 	
 	int controllability(State state) {
@@ -154,10 +157,13 @@ class StateActionSpaceExpectingPlayer extends StateActionSpaceMatchingPlayer {
 	StateWorld world;
 	State previuos;
 	Set<State> expected;
-	State self;
+	
+	StateActionSpaceExpectingPlayer(double fuzziness,int limit,boolean painful){
+		super(fuzziness,limit,painful);
+	}
 	
 	StateActionSpaceExpectingPlayer(double fuzziness){
-		super(fuzziness);
+		this(fuzziness,Integer.MAX_VALUE,true);
 	}
 
 	@Override
@@ -166,7 +172,6 @@ class StateActionSpaceExpectingPlayer extends StateActionSpaceMatchingPlayer {
 		world = new StateWorld(this.state_actions);
 		previuos = null;
 		expected = null;
-		self = new State();
 	}
 	
 	@Override
@@ -175,10 +180,14 @@ class StateActionSpaceExpectingPlayer extends StateActionSpaceMatchingPlayer {
 		
 		int novelty = (int)Math.round(100 * world.novelty(state));
 		int expectedness = (int)Math.round(100 * world.expectedness(world.expectStates(previuos), state));
+
+		//if new expectedness less than old
+		hack = self.value("Expectedness", expectedness) > expectedness ? 1 : 0; 
+		
 		self.set("Novelty", novelty);
 		self.set("Expectedness", expectedness);
 		
-//		System.out.format("%d\t%d\n",novelty,expectedness);
+		//System.out.format("%d\t%d\n",novelty,expectedness);
 		
 		//evaluate the change in state world
 		int action = super.move(g, state);//does -> state_action.put(state, action);

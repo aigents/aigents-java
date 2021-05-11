@@ -62,17 +62,23 @@ class SelfPong extends Game {
 	protected boolean random;
 	protected boolean rocket;//whether to return the rocket state to player
 	boolean delayed;
+	boolean negative;
 	
 	boolean reflected = false;
 	protected int totalHappy = 0;
 	protected int totalSad = 0;
 	
-	SelfPong(int Ymax, int Xmax, boolean random, boolean rocket, boolean delayed){
+	SelfPong(int Ymax, int Xmax, boolean random, boolean rocket, boolean delayed, boolean negative){
 		this.Ymax = Ymax;
 		this.Xmax = Xmax;
 		this.random = random;
 		this.rocket = rocket;
 		this.delayed = delayed;
+		this.negative = negative;
+	}
+	
+	SelfPong(int Ymax, int Xmax, boolean random, boolean rocket, boolean delayed){
+		this(Ymax, Xmax, random, rocket, delayed, true);
 	}
 	
 	@Override
@@ -160,7 +166,8 @@ class SelfPong extends Game {
 	}
 
 	void sad() {
-		if (Yball == 0 && Xrocket != Xball) {
+		//signal negative feedback only if configured so
+		if (negative && Yball == 0 && Xrocket != Xball) {
 			totalSad++;
 			sad = 1;
 			//TODO init(); //start the game over

@@ -28,17 +28,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 class StateActionSpaceMatchingPlayer extends Player {//Makes decisions based on graph paths with global feedback
+	State self;
 	Map<State,Integer> state_action;//current context
 	Map<State,Map<Integer,Number>> state_actions;//all transitions
 	double fuzziness;
+
+	int epochs_limit;
+	boolean painful;
+	int hack = 0;
 	
-	StateActionSpaceMatchingPlayer(double fuzziness){
+	StateActionSpaceMatchingPlayer(double fuzziness,int epochs_limit,boolean painful){
 		this.fuzziness = fuzziness;
+		this.epochs_limit = epochs_limit;
+		this.painful = painful;
 		init();
 	}
 
+	StateActionSpaceMatchingPlayer(double fuzziness){
+		this(fuzziness,Integer.MAX_VALUE,true);
+	}
+	
 	@Override
 	void init() {
+		self = new State();
 		state_action = new HashMap<State,Integer>();//current context
 		state_actions = new HashMap<State,Map<Integer,Number>>();//all transitions
 	}
@@ -97,7 +109,7 @@ class StateActionSpaceMatchingPlayer extends Player {//Makes decisions based on 
 		*/
 		int sad = state.value("Sad",0);
 		int happy = state.value("Happy",0);
-		if (sad > 0 || happy > 0) {
+		if ((painful && sad > 0) || happy > 0 || state_action.size() > epochs_limit) {
 			//- if feedback is positive/negative
 			//		increment/decrement all <state,action> pairs from current context in the state registry (map<state,actions>) 
 			//		clean current context
@@ -112,7 +124,13 @@ class StateActionSpaceMatchingPlayer extends Player {//Makes decisions based on 
 					update(actions, action, happy);
 			}
 			state_action.clear();
-		}
+			self.set("Feedback", 100);//external feedback
+		}else
+		/*if (hack > 0) {
+			state_action.clear();
+			self.set("Feedback", 50);//internal feedback
+		}else*/
+			self.set("Feedback", 0);
 		//- lookup state in the state registry without of action taken (map<state,actions>)
 		Map<Integer,Number> actions = state_actions.get(state);
 		if (actions == null && fuzziness > 0) {

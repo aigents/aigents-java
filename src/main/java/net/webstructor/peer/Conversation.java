@@ -496,7 +496,7 @@ public class Conversation extends Responser {
 			return false;	
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
-			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",1000)}))) {
+			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",2000)}))) {
 			session.output(session.no());
 			String text = reader.getString("text");
 			if (!AL.empty(text)){
@@ -507,7 +507,7 @@ public class Conversation extends Responser {
 				int[] pns = session.sessioner.body.languages.sentiment(text, pc, nc);
 				//HACK: "reuse" reader
 				reader.setString("text", text);
-				reader.setString("postivie", String.valueOf(pns[0]));
+				reader.setString("positive", String.valueOf(pns[0]));
 				reader.setString("negative", String.valueOf(pns[1]));
 				reader.setString("sentiment", String.valueOf(pns[2]));
 //TODO do format conversion inside format(...) below
