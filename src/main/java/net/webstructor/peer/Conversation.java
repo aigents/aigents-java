@@ -471,7 +471,7 @@ public class Conversation extends Responser {
 		} else
 
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
-			&& session.read(new Seq(new Object[]{"classify","rudeness","text",new Property(reader,"text",1000)}))) {
+			&& session.read(new Seq(new Object[]{"classify","rudeness","text",new Property(reader,"text",2000)}))) {
 			session.output(session.no());
 			String text = reader.getString("text");
 			if (!AL.empty(text)){
@@ -496,7 +496,7 @@ public class Conversation extends Responser {
 			return false;	
 		} else
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
-			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",2000)}))) {
+			&& session.read(new Seq(new Object[]{"classify","sentiment","text",new Property(reader,"text",4096)}))) {
 			session.output(session.no());
 			String text = reader.getString("text");
 			if (!AL.empty(text)){

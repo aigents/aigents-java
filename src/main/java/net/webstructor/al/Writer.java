@@ -397,6 +397,7 @@ public class Writer extends AL {
 		return arg.toString();
 	}
 
+	//https://codebeautify.org/jsonvalidator
 	public static void toJSON(StringBuilder sb, Object arg, Thing context){
 		if (arg instanceof Object[]){
 			Object[] objs = (Object[]) arg;
@@ -460,6 +461,8 @@ public class Writer extends AL {
 		if (arg instanceof String){
 			String s = (String)arg;
 			s = s.replace("\"", "\\\"");
+			s = s.replace("\\", "\\\\");
+			s = s.replace("\t", "  ");
 			sb.append('\"').append(s).append('\"');
 		} else {
 			sb.append('\"');
