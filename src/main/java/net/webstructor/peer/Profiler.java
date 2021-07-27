@@ -233,7 +233,7 @@ public class Profiler {
 						}
 						//update news assuming sites are already added 
 //TODO: this not if liked but if matched thing patterns!!!						
-						if (like.booleanValue())
+						//if (like.booleanValue())//TODO: amputated, because Facebook amputated likes-related data  
 							updateNews(text,sites,time);
 					}
 				}
