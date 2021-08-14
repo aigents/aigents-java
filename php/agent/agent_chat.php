@@ -39,6 +39,19 @@ function test_chat_cleanup() {
 	get("Ok.");
 }
 
+function test_summarize() {
+	test_chat_init();
+	file_put_contents($basePath."html/article.html","<html><body>Aigents Social and Media Intelligence Platform for Business joins heterogeneous social and online media sources, blockchains and payment systems and couples them with artificial intelligence to find and track changes in the field of information to let its force be with you. Aigents Personal Artificial Intelligence is serving as a magic glass ball in the world of social and online networks to recognize one's preferences, find what they need and help managing connections.</body></html>");
+	//summarize <context> [in <text>]
+	say("summarize beer in http://localtest.com/article.html");
+	get("No.");
+	say("summarize media in http://localtest.com/article.html");
+	get("Social and media intelligence platform for business joins heterogeneous social and online media sources,");
+	say("summarize information in http://localtest.com/article.html");
+	get("Blockchains and payment systems and couples them with artificial intelligence to find and track changes in the field of information to let its force be with you.");
+	test_chat_cleanup();
+}
+
 function test_report() {
 	//aigents report test
 	test_chat_init();
@@ -1397,6 +1410,7 @@ function test_load() {//loading csv data
 }
 
 test_init();
+test_summarize();
 test_report();
 test_findchat();
 test_demochat();

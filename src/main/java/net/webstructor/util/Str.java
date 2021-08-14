@@ -365,6 +365,15 @@ public class Str {
 
 		return (ll - costs[str2l]) / (double) ll;
 	  }
+	
+	public Set<String> set(String[] strs){
+		if (strs == null)
+			return null;
+		Set<String> set = new HashSet<String>(strs.length);
+		for (int i = 0; i < strs.length; i++)
+			set.add(strs[i]);
+		return set;
+	}
 
 	/*public static void main(String[] args) {
 		System.out.println(Str.striptags("1a2","1", "2"));
