@@ -111,7 +111,7 @@ class Finder implements Intenter {
 				HashSet<Thing> textMatches = new HashSet<Thing>();
 				HashSet<String> values = new HashSet<String>(); 
 				Counter words = new Counter();
-				LangPack.countWords(languages, words, input, null, 1, true);
+				LangPack.countWords(languages, words, input, null, 1);
 				words.normalizeBy(languages.words(), 1);
 				int maxMatches = 0;
 				for (Object r : fc.res) {

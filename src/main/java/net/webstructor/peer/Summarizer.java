@@ -30,12 +30,15 @@ import net.webstructor.al.AL;
 import net.webstructor.al.Parser;
 import net.webstructor.al.Set;
 import net.webstructor.al.Writer;
+import net.webstructor.cat.HtmlStripper;
 import net.webstructor.cat.HttpFileReader;
 import net.webstructor.core.Environment;
 import net.webstructor.core.Mistake;
+import net.webstructor.data.Counter;
 import net.webstructor.data.LangPack;
 import net.webstructor.main.Mainer;
 import net.webstructor.main.Tester;
+import net.webstructor.util.Array;
 import net.webstructor.util.Str;
 
 class Summarizer extends Searcher {	
@@ -52,13 +55,39 @@ class Summarizer extends Searcher {
 		if (texts != null) for (int i = 0; i < texts.length; i++) {
 			if (AL.isURL(texts[i]) && reader.canReadDoc(texts[i]))
 				try {
-					texts[i] = reader.readDocData(texts[i]);
+					String text = reader.readDocData(texts[i]," ");
+					text = HtmlStripper.convert(text,HtmlStripper.block_tags,HtmlStripper.block_breaker,null,null,null,null,null);
+					//texts[i] = text.toLowerCase();
+					texts[i] = text;
 				} catch (IOException e) {
 					session.sessioner.body.error("Summarizer error " + e.toString(), e);
 				}
 		}
 	}
 	
+	/*
+	Applications:
+		Summarization: 	long text 		=> short text
+		Detalization: 	short text 		=> long text
+		Simplification: long sentences 	=> short sentences
+		Complification: short sentences => long sentences
+		
+		Contextual Summarization (Question Answering): 	short context + long text 	=> short text
+		Contextual Detalization (Idea Genesis): 		short context + short text	=> long text
+		
+	Contextual summarizariton:
+		(a b c d e f) * (a b x y e f) = (a b e f) - what is the common (intersection)?
+		(a b c d e f) + (a b x y e f) = (a b c d x y e f) - what is the overall (union)?
+		(a b c d e f) - (a b x y e f) = (c d x y) - what is different (difference)?
+		(a b c d e f) / (a b x y e f) = (c d) - (asymmetric diffference)?
+		(a b x y e f) / (a b c d e f) = (x y) - (asymmetric diffference)?
+	Cases:
+		text/url/site 					=> summary
+		array of texts/urls/sites 		=> digest (what is hot?)
+		context + text/url/site 		=> contextual summary
+		context + array of texts/urls 	=> contextual digest (what is hot about?)
+		...
+	 */
 	@Override
 	public boolean handleIntent(final Session session){
 		final String[] args = session.args();
@@ -73,18 +102,22 @@ class Summarizer extends Searcher {
 			load(texts,session);
 			load(contexts,session);
 			
-			if (AL.empty(texts))
+			if (AL.empty(texts)) {
 				texts = contexts;
-			if (AL.empty(contexts))
-				contexts = texts;
-
+				contexts = null;
+			}
+			
 			//TODO: multiple texts and multiple contexts
-			//TODO: trranslate from files 
+			//TODO: translate from files 
+			//TODO: multi-word contexts
+			//TODO: following the links
+			//TODO: digests
 			
 			//summarize <context(s)> [in <text(s)>]
 			
-			//TODO
-			String summary = summarize(Str.hset(contexts),texts[0],languages);
+			java.util.Set<String> contextWords = AL.empty(contexts) ? null : Str.hset(Array.toLower(contexts));
+			
+			String summary = summarize(contextWords ,texts[0],languages);
 			session.output(AL.empty(summary) ? session.no() : summary);
 		
 		} catch (Throwable e) {
@@ -132,7 +165,19 @@ class Summarizer extends Searcher {
 	public static String summarizeWordsText(java.util.Set words, String text) {
 		return summarize(words, text, null);
 	}
+	
 	public static String summarizeAsAWhole(java.util.Set words, String text, LangPack languages) {
+		Set tokens = Parser.parse(text,(String)null,false,true,false,true,null,(List)null);//quoting=false,urling=true
+		if (AL.empty(words)) {
+			Counter topWords = new Counter();
+			LangPack.countWords(languages, topWords, tokens, null, 2);
+			topWords.normalizeBy(languages.words(), 1);
+			words = topWords.getBest(1);
+		}
+		return summarizeAsAWhole(words,tokens,languages);
+	}
+	
+	public static String summarizeAsAWhole(java.util.Set words, Set tokens, LangPack languages) {
 		//IDEA A:
 		//1) create list of "seeds" for every postions of "words", with map position->missedSeeds
 		//2) start expanding every seed to right and left over tokens till any seed has zero missedSeeds
@@ -142,8 +187,6 @@ class Summarizer extends Searcher {
 		//IDEA B
 		//1) compute multiplicative heat map based on distribution of n_words matched words over n_tokens;
 //TODO We don't deal with quotes, should we do!?
-		//Set tokens = Parser.parse(text);
-		Set tokens = Parser.parse(text,(String)null,false,true,false,true,null,(List)null);//quoting=false,urling=true
 		double total_heats[] = null;
 		int n_tokens = tokens.size();
 		int n_words = 0;//words.size();

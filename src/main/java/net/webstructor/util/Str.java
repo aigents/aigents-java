@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  * Copyright (c) 2018-2019 SingularityNET
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

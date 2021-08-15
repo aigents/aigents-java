@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -241,12 +241,16 @@ public class LangPack {
 	}
 	
 	public static void countWords(LangPack languages, Linker linker, String text, java.util.Set vocabulary) {
-		countWords(languages, linker, text, vocabulary, 2, false);
+		countWords(languages, linker, text, vocabulary, 2);
 	}
 	
-	public static void countWords(LangPack languages, Linker linker, String text, java.util.Set vocabulary, int min, boolean number) {
+	public static void countWords(LangPack languages, Linker linker, String text, java.util.Set vocabulary, int min) {
 		//Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,false,true);//no quoting
 		Set tokens = Parser.parse(text,AL.punctuation+AL.spaces,false,true,true,true);//quoting
+		countWords(languages, linker, tokens, vocabulary, min);
+	}
+	
+	public static void countWords(LangPack languages, Linker linker, Set tokens, java.util.Set vocabulary, int min) {
 		if (tokens != null) {
 			for (int j = 0; j < tokens.size(); j++){
 				String token = (String)tokens.get(j); 

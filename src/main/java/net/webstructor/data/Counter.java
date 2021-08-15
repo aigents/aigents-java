@@ -371,7 +371,7 @@ public class Counter extends HashMap implements Linker {
 	 * @param min
 	 * @return
 	 */
-	final java.util.Set getBest(int min){
+	public final java.util.Set getBest(int min){
 		HashSet allBest = new HashSet();
 		for(;;){
 			HashSet best = new HashSet();

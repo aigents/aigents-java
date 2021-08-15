@@ -2,7 +2,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2014-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2014-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,10 +45,18 @@ function test_summarize() {
 	//summarize <context> [in <text>]
 	say("summarize beer in http://localtest.com/article.html");
 	get("No.");
-	say("summarize media in http://localtest.com/article.html");
-	get("Social and media intelligence platform for business joins heterogeneous social and online media sources,");
-	say("summarize information in http://localtest.com/article.html");
+	say("summarize platforM in http://localtest.com/article.html");
+	get("Aigents social and media intelligence platform for business joins heterogeneous social and online media sources,");
+	say("summarise information in http://localtest.com/article.html");
 	get("Blockchains and payment systems and couples them with artificial intelligence to find and track changes in the field of information to let its force be with you.");
+	say("summary http://localtest.com/article.html");
+	get("Aigents social and media intelligence platform for business joins heterogeneous social and online media sources,");
+	say("summary http://localtest.com/en/license.html");
+	get("The licensor does not guarantee security of the data stored in the program or with its help when updating a program version.");
+	say("summary SOFTWARE IN http://localtest.com/en/license.html");
+	get("The licensor grants the licensee a non-exclusive right to use the program both autonomously and as a part of other software packages,");
+	say("summary http://localtest.com/en/quickstart.html");
+	get("Aigents quick start.");
 	test_chat_cleanup();
 }
 
