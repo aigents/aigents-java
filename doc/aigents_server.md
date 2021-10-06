@@ -10,7 +10,7 @@ Aigents Server can be installed on any Java-friendly operating environment fulfi
 
 1. Minimum 4G RAM size, the more - the better.
 1. Minumum 32G HDD/SSD size.
-1. Java 1.7 or higher installed (JDK from Oracle recommended, not OpenJDK from IBM).
+1. Java 1.7 or higher installed (JRK from Oracle recommended, not OpenJDK from IBM).
 	1. For Linux, follow https://ubuntu.com/tutorials/install-jre and https://www.oracle.com/java/technologies/downloads/#java8-linux
 3. Ability to open ports for HTTP/HTTPS and TCP/IP (telnet) connections.
 5. Optionally - ability to access email servers for incoming and outgoing email.
