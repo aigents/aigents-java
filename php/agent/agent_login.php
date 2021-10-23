@@ -1024,12 +1024,96 @@ function test_login_sessions() {
 }
 
 
+function test_login_cleanup_user() {
+	global $version;
+	global $copyright;
+	global $base_things_count;
+	
+	login();
+	say("what my name?");
+	get("Your name john.");
+	say("what name john surname?");
+	get("John surname doe.");
+	say("what is john is?");
+	get("There is john.");
+	say("what is doe is?");
+	get("No.");
+	$john_cookie = get_cookie();//save session
+	set_cookie(null);//reset session
+	
+	login("doe","doe@john.org","john","q","a");
+	say("my topics test_topic");
+	get("Ok.");
+	say("my sites https://test.site");
+	get("Ok.");
+	say("my trusts test_topic, https://test.site");
+	get("Ok.");
+	say("there text test_text.");
+	get("Ok.");
+	say("text test_text new true, trust true.");
+	get("Ok.");
+	say("there name test_area.");
+	get("Ok.");
+//TODO make this working!?
+	//say("name test_area share true, area true.");
+	//get("Ok.");
+	say("my areas test_area.");
+	get("Ok.");
+	say("my shares test_area.");
+	get("Ok.");
+	say("what my trusts name, text?");
+	get("Your trusts name https://test.site; name test_topic; text test_text.");
+	say("what my news text?");
+	get("Your news text test_text.");
+	say("what my sites name?");
+	get("Your sites name https://test.site.");
+	say("what my topics name?");
+	get("Your topics name test_topic.");
+	
+	say("what name test_area share?");
+	get("Test_area share true.");
+//TODO make this working!?
+	//say("what name test_area area?");
+	//get();
+	say("what my shares name, text?");
+	get("Your shares name test_area.");
+	say("what my areas name, text?");
+	get("Your areas name test_area.");
+	
+	$doe_cookie = get_cookie();//save session
+	set_cookie($john_cookie);//restore session
+	say("what name doe email?");
+	get("Doe email doe@john.org.");
+	say("You forget!");
+	get("Ok.");
+	say("Your things count?");
+	get("My things count ".($base_things_count + 2 + 4).".");//count with 2 sessions + area, site, topic and news item  
+	
+	set_cookie($doe_cookie);//restore doe's session
+//TODO ensure no links pointing to user!?
+	say("No email doe@john.org.");
+	get();
+	say("my logout");
+	get();
+	
+	set_cookie($john_cookie);//restore john's session
+	say("You forget!");
+	get("Ok.");
+	say("Your things count?");
+	get("My things count ".($base_things_count).".");//count with 1 sessions
+	say("Your things count?");
+	get("My things count ".($base_things_count).".");//count with 1 sessions and with no doe
+	set_cookie($john_cookie);//restore session
+	logout();//cleanup john
+}
+
 test_init();
 test_login_debug();
 test_login_new();
 test_login_old();
 test_login_areas();
 test_login_sessions();
+test_login_cleanup_user();
 test_summary();
 
 ?>

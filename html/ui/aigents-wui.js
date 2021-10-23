@@ -2410,6 +2410,7 @@ function login_menu(provider,name){
 	    	event.stopPropagation();
 			logoutlowlevel();
 	    	talks_say_out_internal(capitalize('my logout'));
+	    	news_refresh();
 	    	hide_menu();
 	    });
 	    $(provider+"_report").off().click(function(){
@@ -2418,6 +2419,26 @@ function login_menu(provider,name){
 	    });
 	    $(provider+"_subscription").off().click(function(){
 	    	subscription_open();
+	    	hide_menu();
+	    });
+	    $(provider+"_resign").off().click(function(){
+	    	event.stopPropagation();
+			dialog_open(_('Resign'),null,[''],null,[_('Resign and delete all information?')],true, function(){//TODO 111
+				console.log('What my name, surname, email?');
+				ajax_request('What my name, surname, email?',function(response){
+					var data = [];
+					parseToGrid(data,response.substring(5),peer_peer_keys,",");
+					console.log(response + '->' + data);
+					var q = 'no ' + qualifier(peer_peer_keys,data);
+					console.log(q);
+					ajax_request(q,function(){
+						logoutlowlevel();
+			    		talks_say_out_internal(capitalize('my logout'));
+			    		news_refresh();
+					});
+				});
+				return true;
+			});
 	    	hide_menu();
 	    });
 	    if (provider == '#aigents')

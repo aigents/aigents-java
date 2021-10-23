@@ -74,6 +74,7 @@ function test_once() {
 	test_login_old();
 	test_login_areas();
 	test_login_sessions();
+	test_login_cleanup_user();
 	
 	//test pattern matching
 	test_agent_patterns();
