@@ -12,6 +12,9 @@ abundant
 accent
 accept
 acceptable
+acceptance
+accepted
+accepting
 accepts
 accessable
 accessible
@@ -36,6 +39,7 @@ achievement
 achievements
 achievible
 acknowledgeable
+acknowledged
 acquainted
 acquirable
 acquired immunity
@@ -45,6 +49,13 @@ acumen
 ad hominem
 adaptable
 adaptive
+add
+add to
+added
+adding
+addition
+additional
+additions
 addressable
 addressed
 addresses
@@ -63,6 +74,7 @@ admirer
 admiring
 admiringly
 adoptable
+adoption
 adorable
 adoration
 adore
@@ -116,15 +128,22 @@ agreeability
 agreeable
 agreeableness
 agreeably
+agreement
 agreements
+aim to
 aimlessness
-alert
+aims to
 alertness
 alive
 all important
 all right
 all-around
 all-important
+allocate
+allow
+allowed
+allowing
+allows
 alluring
 alluringly
 alright
@@ -139,6 +158,8 @@ amazement
 amazes
 amazing
 amazingly
+ambition
+ambitions
 ambitious
 ambitiously
 ameliorate
@@ -166,8 +187,14 @@ angel
 angelic
 angelical
 animation
+announce
+announced
+announcement
+announces
+announcing
 anomie
 anomy
+another step
 answerable
 anthelminthic
 anthelmintic
@@ -192,6 +219,8 @@ appetent
 applaud
 applaudable
 apple polisher
+appoint
+appoints
 apposable
 appositeness
 appreciable
@@ -206,6 +235,9 @@ appropriate
 appropriateness
 approval
 approve
+approved
+approves
+approving
 aptness
 arable
 archangel
@@ -214,6 +246,7 @@ ardent
 ardently
 ardor
 arguable
+arise
 aroused
 arrant
 artfulness
@@ -227,6 +260,8 @@ aseptic
 aspiration
 aspirations
 aspire
+assemble
+assembling
 assertable
 asset
 associable
@@ -288,6 +323,7 @@ awestruck
 awing
 awsome
 backbone
+backed
 bail out
 baking chocolate
 balanced
@@ -296,12 +332,14 @@ balletomania
 balmy
 bang
 bang-up
+banking giant
 banner
 bantering
 bare-ass
 bare-assed
 barefaced
 bargain
+be listed
 be well
 beam
 beaming
@@ -319,11 +357,14 @@ beckon
 beckoned
 beckoning
 beckons
+become
+becomes
 becoming
+begin investing
+beginning
 beholden
 believable
 believeable
-belong
 beloved
 benefaction
 benefactor
@@ -354,6 +395,7 @@ better-than-expected
 beutifully
 bib-and-tucker
 big deal
+biggest
 bigheartedness
 biodegradable
 biosafety level 1
@@ -361,6 +403,7 @@ bisexuality
 bitter chocolate
 blameless
 blandness
+blaze
 bless
 blessed
 blessedly
@@ -377,6 +420,8 @@ blithesome
 blockbuster
 bloom
 blossom
+blow away
+blown away
 blue ribbon
 bluff
 bluffness
@@ -430,17 +475,26 @@ brilliance
 brilliances
 brilliant
 brilliantly
+bring
+bringing
 brio
 brisk
 broad
 brotherly
+build
+building
+builds
 buildup
 built
+bull market
 bulletproof vest
 bullish
 buoyancy
 buoyant
 burnable
+buy
+buy all
+buy the dip
 cajole
 caliber
 calibre
@@ -449,17 +503,23 @@ calligraphy
 calm
 calming
 calmness
+came back
+came up
 can help
+can't wait
 capability
 capable
 capableness
 capably
+capitalized
 captivate
 captivating
+care
 carefree
 carew
 carminative
 caroche
+cash
 cashback
 cashbacks
 catching
@@ -469,6 +529,7 @@ catholic
 cautious
 celebrate
 celebrated
+celebrating
 celebration
 celebratory
 centenarian
@@ -543,7 +604,6 @@ clemency
 clever
 cleverly
 climbable
-close
 cloud nine
 cloy
 cock-and-bull story
@@ -556,14 +616,23 @@ coherence
 coherency
 coherent
 cohesive
+collaborate
+collaborates
+collaborating
+collaboration
 collapsable
 collapsible
 color
 colorful
 colour
+come back
+come to
+come up
 come-at-able
+comeback
 comeliness
 comely
+comes up
 comeupance
 comeuppance
 comfort
@@ -572,6 +641,7 @@ comfortably
 comforting
 comfy
 comically
+coming up
 comme il faut
 commend
 commendable
@@ -605,10 +675,12 @@ comprehensible
 comprehensive
 comprehensiveness
 compressible
+conceived
 conciliable
 conciliate
 conciliatory
 concise
+concrete
 concupiscence
 condition
 confidence
@@ -618,6 +690,9 @@ confirmable
 conformation
 conformity
 congenial
+congrat
+congrats
+congrattulate
 congratulate
 congratulation
 congratulations
@@ -642,11 +717,15 @@ consummate
 contain
 contentment
 contestable
+continue working
 continuity
 contractable
 contractile
 contrary
 contrasty
+contribute
+contributed
+contributes
 contribution
 controllable
 convenience
@@ -793,6 +872,9 @@ delightfulness
 deliverable
 delouse
 deluxe
+democracy
+democratic
+democratization
 demonstrable
 dependability
 dependable
@@ -845,6 +927,7 @@ discernable
 discernible
 discerning
 discoverable
+discovered
 discovery
 discreet
 discriminable
@@ -872,6 +955,7 @@ donate
 dote
 dotingly
 double-dyed
+doubled
 doubly
 doubtless
 downright
@@ -896,6 +980,7 @@ eager
 eagerly
 eagerness
 ear
+earn
 earnest
 earnestly
 earnestness
@@ -907,6 +992,7 @@ easiest
 easiness
 easing
 easy
+easy to use
 easy-to-use
 easygoing
 eater
@@ -933,10 +1019,13 @@ effectively
 effectiveness
 effectual
 efficacious
+efficiency
 efficient
 efficiently
+effort
 effortless
 effortlessly
+efforts
 effusion
 effusive
 effusively
@@ -965,6 +1054,10 @@ elvish
 elysian
 emancipative
 embolden
+embrace
+embraces
+embracing
+emergence
 eminence
 eminent
 emotion
@@ -1025,11 +1118,14 @@ enlightenment
 enliven
 ennoble
 ennobling
+enormously
 enrapt
 enrapture
 enraptured
 enrich
 enrichment
+ensures
+ensuring
 enterprising
 entertain
 entertaining
@@ -1051,12 +1147,11 @@ entrancing
 entrust
 enviable
 enviably
-envious
-enviously
-enviousness
 envy
 epic
 epicurean
+equality
+equality of opportunity
 equitable
 erasable
 ergonomical
@@ -1147,6 +1242,7 @@ exhilaration
 exigent
 exonerate
 exonerated
+expansion
 expansive
 expectant
 expeditiously
@@ -1180,7 +1276,6 @@ exult
 exultant
 exultation
 exultingly
-eye
 eye candy
 eye-catch
 eye-catching
@@ -1272,6 +1367,7 @@ festive
 fetching
 fettle
 fevered
+few more
 fictive
 fidelity
 fiery
@@ -1285,6 +1381,7 @@ finer
 finest
 finish
 finished
+fireworks
 firmer
 first
 first water
@@ -1311,6 +1408,8 @@ flourishing
 fluent
 flushed
 flutter
+focus
+focused
 foil
 fond
 fondly
@@ -1328,6 +1427,7 @@ fortuna
 fortunate
 fortunately
 fortune
+forward
 foxiness
 fragrant
 frederick i
@@ -1348,15 +1448,23 @@ fruitful
 fruitfulness
 frustrative
 ftw
+fugability
+fulfill
 fulfillment
 full professor
 full-blooded
 fullness
 fun
 functionality
+fund
+funding
+fundraise
+fundraising
+funds
 fungicidal
 furtive
 furtively
+future
 futurestic
 futuristic
 gaiety
@@ -1404,13 +1512,18 @@ get-at-able
 getable
 getatable
 gettable
+giant firm
 gift wrap
 gifted
 gigot
 gild the lily
 gilded
 gilt-edged
+givaways
 give
+giveaway
+gives
+giving away
 glad
 gladden
 gladdened
@@ -1470,6 +1583,7 @@ good-natured
 good-naturedness
 good-temperedness
 good-time
+goodies
 goodish
 goodly
 goodness
@@ -1490,6 +1604,8 @@ gradable opposition
 grand
 grandeur
 grandness
+grant
+grants
 graphic
 grateful
 gratefully
@@ -1507,16 +1623,22 @@ greatness
 grin
 groomed
 groovy
+grossly
 groundbreaking
 groveler
 groveling
 groveller
 grovelling
+grow
+growing
 grown into
+growth
 gruntle
 guarantee
+guaranteed
 guarded
 guidance
+guiding
 guiltless
 gumption
 gush
@@ -1538,6 +1660,9 @@ hands-down
 handsome
 handsomely
 handy
+hang out
+hanging out
+hangs out
 happier
 happily
 happiness
@@ -1552,6 +1677,8 @@ harmoniously
 harmonizable
 harmonize
 harmony
+has become
+have become
 head and shoulders above
 headway
 heal
@@ -1573,6 +1700,7 @@ heaven-sent
 heavenly
 hedonism
 helminthic
+help
 helped
 helpful
 helpfulness
@@ -1587,7 +1715,9 @@ heroically
 heroine
 heroize
 heros
+high
 high quality
+high score
 high-flown
 high-grade
 high-level
@@ -1602,10 +1732,17 @@ higher-ranking
 higher-up
 highland fling
 highly
+highs
 hilarious
+hire
+hired
+hires
+hiring
+historical
 hog cholera
 hold
 hold out
+holds
 holier-than-thou
 holy
 homage
@@ -1637,6 +1774,7 @@ hottest
 houri
 howling
 hug
+huge
 human-centered
 human-centred
 humane
@@ -1657,6 +1795,7 @@ hygienical
 hyperbolic
 hyperbolise
 hyperbolize
+idea
 ideal
 idealised
 idealism
@@ -1716,15 +1855,18 @@ in good taste
 in love
 in the altogether
 in the buff
+in the open
 in the raw
 in two ways
 inappositeness
 inaptness
 incisive
 include
+increase
+increased
+increasing
 incredible
 incredibly
-incumbent
 incumbent on
 indebted
 indiscreetness
@@ -1745,6 +1887,7 @@ infectious
 infectious agent
 infective agent
 influential
+informed
 infra dig
 ingenious
 ingeniously
@@ -1757,7 +1900,10 @@ innocence
 innocuous
 innovation
 innovational
+innovations
 innovative
+innovator
+innovators
 inpressed
 insightful
 insightfully
@@ -1779,6 +1925,7 @@ intellectual
 intelligence
 intelligent
 intelligible
+interest
 interested
 interesting
 interests
@@ -1798,7 +1945,13 @@ invaluablely
 invaluableness
 inventive
 invest
+investable
 investigator
+investing
+investment
+investments
+investors
+invests
 invigorate
 invigorating
 invigoration
@@ -1813,8 +1966,10 @@ irrepressibility
 irreproachable
 irresistible
 irresistibly
+is back
 isolable
 issue-free
+issued
 jaw-droping
 jaw-dropping
 jekyll and hyde
@@ -1826,6 +1981,9 @@ jocose
 jocular
 jocularity
 jocund
+join
+joining
+joins
 joking
 jollify
 jolliness
@@ -1848,7 +2006,6 @@ judicial
 judicious
 judiciousness
 juicy
-jump
 jump out
 junk food
 just
@@ -1860,6 +2017,7 @@ keenly
 keenness
 keeping
 kept up
+kick off
 kid-friendly
 kind
 kind-hearted
@@ -1877,6 +2035,7 @@ kudos
 label
 ladylike
 lamb roast
+large
 large-capacity
 large-hearted
 large-minded
@@ -1889,6 +2048,9 @@ laudable
 laudableness
 laudably
 launch
+launched
+launches
+launching
 laureate
 lavish
 lavishly
@@ -1896,7 +2058,11 @@ law of effect
 law-abiding
 lawful
 lawfully
+laying the
+lays out
 lead
+leader
+leadership
 leading
 leads
 lean
@@ -1910,6 +2076,7 @@ legendary
 lenify
 lepiotaceae
 letter-perfect
+letting
 level-headed
 levelheaded
 leverage
@@ -1932,10 +2099,12 @@ like
 liked
 likes
 liking
+link up
 lionhearted
 liquefiable
 liquid
 liquifiable
+listed
 livable
 live
 liveable
@@ -1951,6 +2120,7 @@ logicalness
 long-lasting
 longanimity
 longed-for
+longstanding
 lovable
 lovably
 love
@@ -1996,12 +2166,15 @@ luxury
 lyrical
 lysogenic
 ma
+made
+made it legal
 maestro
 magic
 magical
 magna cum laude
 magnanimous
 magnanimously
+magnet
 magnetic
 magnificence
 magnificent
@@ -2013,6 +2186,9 @@ majestic
 majesty
 major
 make
+make it legal
+makes it legal
+making
 mama
 mamma
 mammy
@@ -2048,6 +2224,7 @@ maternalistic
 maternity
 mature
 maturely
+matures
 maturity
 meaningful
 meaningfulness
@@ -2102,7 +2279,6 @@ miraculously
 miraculousness
 mirrorlike
 mirthful
-model
 modern
 modest
 modesty
@@ -2140,6 +2316,7 @@ naked as a jaybird
 narcism
 narcissism
 narrow-minded
+nascent
 natural virtue
 naturalisation
 naturalization
@@ -2152,6 +2329,8 @@ neatly
 necessary
 neighborly
 neighbourly
+new
+new high
 nice
 nicely
 nicer
@@ -2169,9 +2348,9 @@ non-violence
 non-violent
 nonesuch
 nonpareil
-nonsensical
 nonsuch
 not bad
+not forget
 notably
 note
 noteworthy
@@ -2203,9 +2382,14 @@ olympian
 omissible
 on the qui vive
 on the sly
+onboarding partners
+one more
+open
 openhearted
 openly
 openness
+opportunities
+opportunity
 opposable
 opposite
 oppugn
@@ -2235,6 +2419,7 @@ outstandingly
 outstrip
 outwit
 ovation
+over time
 overcautious
 overdraw
 overjoyed
@@ -2270,8 +2455,14 @@ parasitaxus ustus
 parasite yew
 parasiticidal
 pardon
+parners
+parnerships
 partial
 partner
+partnering
+partners
+partnership
+partnerships
 passion
 passionate
 passionately
@@ -2283,6 +2474,8 @@ patiently
 patriot
 patriotic
 pay dirt
+payment
+payments
 payoff
 peace
 peaceable
@@ -2343,6 +2536,8 @@ placable
 placate
 placidity
 plainness
+plan
+planned
 planning
 plaudit
 plaudits
@@ -2396,13 +2591,17 @@ positive
 positively
 positives
 possessive
+possibilities
+possibility
 possible
 poster board
 posterboard
 potable
+potential
 potentiality
 potty
 power
+powered
 powerful
 powerfully
 practiced
@@ -2417,6 +2616,7 @@ precious
 preciousness
 precise
 precisely
+precision
 preeminence
 preeminent
 prefer
@@ -2511,12 +2711,14 @@ prosperity
 prosperous
 prospros
 protect
+protecting
 protection
 protective
 proud
 provable
 proven
 proves
+provide
 provided
 providence
 providential
@@ -2526,14 +2728,18 @@ prudence
 prudent
 prudently
 prudish
+psyched
 public-spirited
 publish
 publishable
+pull it off
+pull this off
 punctilious
 punctual
 punctually
 puncturable
 purchasable
+purchasing power
 pure
 pureness
 purify
@@ -2550,7 +2756,6 @@ qualified
 qualify
 quality
 quantifiable
-question
 quicker
 quiet
 quieter
@@ -2564,7 +2769,9 @@ raid
 rainbow runner
 raisable
 raiseable
+rallying
 rambouillet
+ramping up
 randy
 rangeland
 ranking
@@ -2585,7 +2792,9 @@ rattling
 ravishing
 raw beauty
 razor-sharp
+reach
 reachable
+reaches
 readable
 readily
 ready
@@ -2593,7 +2802,6 @@ reaffirm
 reaffirmation
 realistic
 realizable
-really
 reason
 reasonable
 reasonableness
@@ -2726,6 +2934,7 @@ revealing
 revel
 revelation
 revelation of saint john the divine
+revenue
 revere
 reverence
 reverend
@@ -2743,6 +2952,7 @@ revolutionizes
 reward
 rewarding
 rewardingly
+rewards
 rich
 richer
 richly
@@ -2761,7 +2971,12 @@ rightfully
 rightfulness
 rightly
 rightness
+rights
 ripe
+rised
+risen
+rises
+risk reduction
 risk-free
 road sense
 roast lamb
@@ -2775,6 +2990,7 @@ romantically
 romanticize
 roomier
 roomy
+rose
 rose-cheeked
 rose-colored
 rosiness
@@ -2827,20 +3043,26 @@ savior
 savory
 savoury
 savvy
+scale up
+scaling
 scenic
 scintillate
 scintillation
 scrupulousness
 seamless
+seamlessly
 seasoned
+second-largest
 secure
 securely
+security
 sedate
 seemly
 select
 selective
 self-assured
 self-confident
+self-custodial
 self-determination
 self-love
 self-regard
@@ -2875,6 +3097,10 @@ serenity
 serve
 serve well
 serviceable
+servicing
+set up
+setting up
+settling
 setup
 seventh heaven
 sexual desire
@@ -2902,6 +3128,7 @@ show-stopper
 showstopper
 shrinkable
 sightly
+signaling a pathway
 signed
 significant
 silent
@@ -2964,6 +3191,8 @@ solicitous
 solicitously
 solid
 solidarity
+solution
+solutions
 somatogenetic
 somatogenic
 song and dance
@@ -3001,6 +3230,9 @@ splendid
 splendidly
 splendor
 splendour
+sponsor
+sponsors
+sponsorship
 spontaneous
 sporozoa
 sportively
@@ -3016,6 +3248,7 @@ squeezable
 stability
 stabilize
 stable
+stack
 stainless
 stalwart
 stand out
@@ -3023,6 +3256,7 @@ standout
 staring
 stark naked
 starry-eyed
+started
 state-of-the-art
 stately
 statuesque
@@ -3042,6 +3276,7 @@ steamy
 steerable
 stellar
 stellarly
+step toward
 sterling
 stick out
 stimulate
@@ -3059,7 +3294,9 @@ straightforward
 straightlaced
 strait-laced
 straitlaced
+strategic
 streamlined
+strength
 strenuously
 striking
 strikingly
@@ -3139,6 +3376,7 @@ supurb
 supurbly
 sure
 sure-handed
+surge
 surmount
 surmountable
 surpass
@@ -3153,7 +3391,6 @@ swank
 swankier
 swankiest
 swanky
-sweeping
 sweet
 sweet nothings
 sweet talker
@@ -3169,7 +3406,6 @@ sybaritic
 sympathetic
 synchytrium
 synergistically
-take
 take care
 take off
 take over
@@ -3203,12 +3439,17 @@ terrifically
 tested
 testimonial
 thank
+thank you
 thankful
+thanks
+thanks a lot
+that tracks
 theorem
 therapeutic
 think
 think the world of
 thinner
+third-largest
 thomas carew
 thorough
 thoroughgoing
@@ -3216,6 +3457,7 @@ thoroughly
 thoughtful
 thoughtfully
 thoughtfulness
+three more
 thrift
 thrifty
 thrill
@@ -3232,7 +3474,6 @@ tickle
 tidy
 tight-laced
 tillable
-time
 time-honored
 timely
 tingle
@@ -3241,6 +3482,9 @@ titillate
 titillating
 titillatingly
 titillation
+to become
+to invest
+to the moon
 toaster
 toffee-nosed
 togetherness
@@ -3265,6 +3509,7 @@ tougher
 toughest
 toying
 traction
+trading
 training
 tranquil
 tranquility
@@ -3272,6 +3517,7 @@ tranquillity
 transcendent
 transmissible
 transmittable
+transparency
 transparent
 transplantable
 treasure
@@ -3280,6 +3526,7 @@ tremendously
 trendy
 tribute
 tried
+tripled
 triumph
 triumphal
 triumphant
@@ -3298,6 +3545,7 @@ trustiness
 trusting
 trustingly
 trustingness
+trusts
 trustworthiness
 trustworthy
 trusty
@@ -3305,9 +3553,11 @@ truth
 truthful
 truthfully
 truthfulness
+tune in
 turned on
 twee
 twinkly
+two more
 ubiquitous
 ultra-crisp
 uma
@@ -3331,7 +3581,10 @@ undamaged
 undaunted
 undeceive
 undeceived
+underrated
+understand
 understandable
+understanding
 understated
 undismayed
 undisputable
@@ -3397,6 +3650,7 @@ upright
 upscale
 urbanity
 usable
+use of
 useable
 useful
 user-friendly
@@ -3466,6 +3720,8 @@ warping
 wash
 washable
 wassailer
+wealth
+wealth mobility
 wealthy
 wean
 welcome
@@ -3528,6 +3784,7 @@ whoooa
 wide-eyed
 wieldy
 wiliness
+will service
 willing
 willingly
 willingness
@@ -3561,6 +3818,7 @@ word-splitting
 work
 workable
 worked
+working
 workmanlike
 works
 world-class
@@ -3580,6 +3838,7 @@ wow
 wowed
 wowing
 wows
+xfinity
 yay
 yearned-for
 yeatsian
