@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,6 @@ import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
 import net.webstructor.al.Time;
 import net.webstructor.al.Writer;
-import net.webstructor.cat.StringUtil;
 import net.webstructor.comm.Emailer;
 import net.webstructor.comm.SocialCacher;
 import net.webstructor.comm.Socializer;
@@ -66,7 +65,6 @@ import net.webstructor.core.Storager;
 import net.webstructor.core.Thing;
 import net.webstructor.data.Graph;
 import net.webstructor.data.GraphCacher;
-import net.webstructor.data.LangPack;
 import net.webstructor.data.ReputationSystem;
 import net.webstructor.data.TextMiner;
 import net.webstructor.data.Transcoder;
@@ -797,37 +795,24 @@ public class Conversation extends Responser {
 		return out;
 	}
 
-	//TODO: make this part of parser, referring to vocabulary
-	private static Seq restrict(Seq tokens, LangPack langs) {
-		if (AL.empty(tokens))
-			return new Seq(new String[]{});
-		ArrayList restricted = new ArrayList(tokens.size());
-		if (langs != null && !AL.empty(langs.words()))
-		for (int i = 0; i < tokens.size(); i++){
-			String token = (String)tokens.get(i);
-			if (langs.words().containsKey(token))
-				restricted.add(token);
-		}
-		return new Seq(restricted.toArray(new String[]{}));
-	}
-
 	boolean tryParse(Storager storager,Session session) {
 		Thing arg = new Thing();
 		if ((session.mood == AL.direction || session.mood == AL.declaration)
 				&& session.read(Reader.pattern(AL.you,Self.parsing))) {
 			session.output(session.no());
-			// AL: you parse <text>, format <format>, language <language>, features <words|phrases|emoticons> 
-			String sdist = session.read(new Seq(new Object[]{"distance",new Property(arg,"distance")})) ? arg.getString("distance") : null; 
+			// AL: you parse <text>, format <format>, language <language>, type <all|tree|link>, features <words|phrases|emoticons> 
 			String text = session.read(new Seq(new Object[]{AL.text,new Property(arg,AL.text)})) ? arg.getString(AL.text) : null; 
 			if (!AL.empty(text)) {
-				int distance = AL.empty(sdist) ? 1 : StringUtil.toIntOrDefault(sdist,10,1);
+				//TODO session.sessioner.body.languages.tokenize();
 				Seq tokens = Parser.parse(text,AL.commas+AL.periods+AL.spaces,false,true,true,true);
-				Seq restricted = restrict(tokens,session.sessioner.body.languages);				
-				Set grams = Parser.grams(restricted,distance);
+				Seq restricted = session.sessioner.body.languages.restrict(tokens);				
+				//parse
+				session.read(new Seq(new Object[]{"distance",new Property(arg,"distance")}));//optional
+				Set grams = session.sessioner.body.languages.parse(restricted,arg.map());
+				//output
 				session.output("There text "+Writer.toString(text)+
 						", tokens "+Writer.toString(tokens)+
 						", grams "+Writer.toString(grams)+".");
-				
 			}
 			return true;
 		}

@@ -408,6 +408,17 @@ function test_agent_cat() {
 	say("You parse distance 2, text 'there is a tree'!");
 	get("There text there is a tree, tokens [there is a tree], grams ([there is] [there a] [is a] [is tree] [a tree]).");
 	
+	
+	//TODO link grammar
+	/*
+	say("You parse text 'tuna is a fish'!");
+	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is a] [a tuna]).");
+	say("You parse type link, text 'tuna is a fish'!");
+	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a tuna]).");
+	
+	 */
+	
+	
 	/*
 	
 	Cat is animal, dog is animal. Cat, dog is animal.

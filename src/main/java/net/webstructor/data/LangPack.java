@@ -24,7 +24,9 @@
 package net.webstructor.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import net.webstructor.agent.Body;
 import net.webstructor.al.AL;
@@ -34,6 +36,10 @@ import net.webstructor.al.Set;
 import net.webstructor.core.Anything;
 import net.webstructor.core.Environment;
 import net.webstructor.main.Mainer;
+import net.webstructor.nlp.GrammarParser;
+import net.webstructor.nlp.LinkGrammarParser;
+import net.webstructor.nlp.NgramAllParser;
+import net.webstructor.nlp.NgramTreeParser;
 import net.webstructor.util.Array;
 
 /**
@@ -445,6 +451,37 @@ public class LangPack {
 			sentiment_test(lp,"bad horrible awful");
 			sentiment_test(lp,"so we shut up the country cause fauci and birx told trump that up to 2.2 million people will die");
 		}
+	}
+
+	//TODO configure in Body/Farm app
+	static Map<String,GrammarParser> parsers = new HashMap<String,GrammarParser>();
+	static {
+		parsers.put("all",new NgramAllParser());
+		parsers.put("tree",new NgramTreeParser());
+		parsers.put("link",new LinkGrammarParser());
+	}
+	public Set parse(Seq tokens,Map<String,String> params) {
+		String type = params.get("type");
+		GrammarParser gp = null;
+		if (type == null && (gp = parsers.get(type)) == null)
+			gp = parsers.get("all");
+		return gp.parse(tokens,params);
+	}
+
+	//TODO: make this part of Tokenizer, referring to vocabulary
+	//TODO configure in Body/Farm app
+	public Seq restrict(Seq tokens) {
+		LangPack langs = this;
+		if (AL.empty(tokens))
+			return new Seq(new String[]{});
+		ArrayList restricted = new ArrayList(tokens.size());
+		if (langs != null && !AL.empty(langs.words()))
+		for (int i = 0; i < tokens.size(); i++){
+			String token = (String)tokens.get(i);
+			if (langs.words().containsKey(token))
+				restricted.add(token);
+		}
+		return new Seq(restricted.toArray(new String[]{}));
 	}
 }
 

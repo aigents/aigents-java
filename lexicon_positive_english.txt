@@ -1700,7 +1700,6 @@ heaven-sent
 heavenly
 hedonism
 helminthic
-help
 helped
 helpful
 helpfulness
@@ -2042,6 +2041,7 @@ large-minded
 larger-than-life
 largest
 last word
+latest
 laud
 laudability
 laudable
@@ -2329,7 +2329,7 @@ neatly
 necessary
 neighborly
 neighbourly
-new
+newest
 new high
 nice
 nicely

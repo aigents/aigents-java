@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2005-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2005-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import net.webstructor.agent.Schema;
@@ -588,5 +589,15 @@ public class Thing extends Anything implements Named { // implements ORObject
 			}
 		}
 		return (String[])objs.toArray(new String[]{});
+	}
+	
+	public Map<String,String> map() {
+		Map<String,String> map = new HashMap<String,String>();
+		for (Object key : properties.keySet()) {
+			Object value = properties.get(key);
+			if (value instanceof String)
+				map.put((String)key,(String)value);
+		}
+		return map;
 	}
 }
