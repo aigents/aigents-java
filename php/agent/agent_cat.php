@@ -400,25 +400,7 @@ function test_agent_cat() {
 	get();//get("Bad patterns dislike, ':-('.");
 	say("What good patterns?");
 	get();//get("Good patterns like, ':-)'.");
-	
-	say("You parse text 'aaaaa ping BBBB PONG \"123\" XXyyZx'!");
-	get("There text 'aaaaa ping BBBB PONG \"123\" XXyyZx', tokens [aaaaa ping bbbb pong 123 xxyyzx], grams [ping pong].");
-	say("You parse text 'there is a tree'!");
-	get("There text there is a tree, tokens [there is a tree], grams ([there is] [is a] [a tree]).");
-	say("You parse distance 2, text 'there is a tree'!");
-	get("There text there is a tree, tokens [there is a tree], grams ([there is] [there a] [is a] [is tree] [a tree]).");
-	
-	
-	//TODO link grammar
-	/*
-	say("You parse text 'tuna is a fish'!");
-	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is a] [a tuna]).");
-	say("You parse type link, text 'tuna is a fish'!");
-	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a tuna]).");
-	
-	 */
-	
-	
+
 	/*
 	
 	Cat is animal, dog is animal. Cat, dog is animal.
@@ -525,10 +507,51 @@ function test_agent_cat() {
 	cleanup();
 }
 
+
+function test_agent_parse() {
+	init();
+
+	//nrgam - all - parser
+	say("You parse text 'aaaaa ping BBBB PONG \"123\" XXyyZx'!");
+	get("There text 'aaaaa ping BBBB PONG \"123\" XXyyZx', tokens [aaaaa ping bbbb pong 123 xxyyzx], grams [ping pong].");
+	say("You parse text 'there is a tree'!");
+	get("There text there is a tree, tokens [there is a tree], grams ([there is] [is a] [a tree]).");
+	say("You parse distance 2, text 'there is a tree'!");
+	get("There text there is a tree, tokens [there is a tree], grams ([there is] [there a] [is a] [is tree] [a tree]).");
+	say("You parse text 'tuna is a fish'!");
+	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is a] [a fish]).");
+	
+	//nrgam - tree - parser
+	//TODO
+	say("You parse type tree, text 'tuna is a fish'!");
+	//get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a fish]).");
+	get();
+	say("You parse type tree, mode clean, text 'a fish'!");
+	get();
+	say("You parse type tree, text 'a tuna'!");
+	get();
+	say("You parse type tree, text 'a fish'!");
+	get();
+	say("You parse type tree, text 'an animal'!");
+	get();
+	say("You parse type tree, text 'tuna is a fish'!");
+	get();
+	say("You parse type tree, text 'fish is an animal'!");
+	get();
+	
+	//link grammar
+	//TODO real implementation and more tests
+	say("You parse type link, text 'tuna is a fish'!");
+	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a fish]).");
+	
+	cleanup();
+}
+
 test_init();
-test_agent_cluster();
-test_agent_expereinces();
-test_agent_cat();
+//test_agent_cluster();
+//test_agent_expereinces();
+//test_agent_cat();
+test_agent_parse();
 printtimers();
 test_summary();
 

@@ -807,7 +807,9 @@ public class Conversation extends Responser {
 				Seq tokens = Parser.parse(text,AL.commas+AL.periods+AL.spaces,false,true,true,true);
 				Seq restricted = session.sessioner.body.languages.restrict(tokens);				
 				//parse
-				session.read(new Seq(new Object[]{"distance",new Property(arg,"distance")}));//optional
+				session.read(new Seq(new Object[]{"type",new Property(arg,"type")}));
+				session.read(new Seq(new Object[]{"language",new Property(arg,"language")}));
+				session.read(new Seq(new Object[]{"distance",new Property(arg,"distance")}));//NgramAllParser only
 				Set grams = session.sessioner.body.languages.parse(restricted,arg.map());
 				//output
 				session.output("There text "+Writer.toString(text)+

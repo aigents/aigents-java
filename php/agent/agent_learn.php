@@ -531,7 +531,7 @@ function test_agent_agglomerate() {
 }
 	
 
-function test_agent_parse() {
+function test_agent_site_parse() {
 	global $version;
 	global $copyright;
 	global $basePath;
@@ -684,7 +684,7 @@ function test_agent_site_graph() {
 test_init();
 test_agent_learn();
 test_agent_agglomerate();	
-test_agent_parse();
+test_agent_site_parse();
 test_agent_site_graph();
 printtimers();
 test_summary();

@@ -50,6 +50,7 @@ function test_once() {
 	test_agent_expereinces();
 	test_agent_cluster();
 	test_agent_cat();
+	test_agent_parse();
 	
 	//test free-text chat capabilities
 	test_findchat();
@@ -65,7 +66,7 @@ function test_once() {
 	//test adaptive learning capabilities
 	test_agent_learn();
 	test_agent_agglomerate();
-	test_agent_parse();
+	test_agent_site_parse();
 	test_agent_site_graph();
 	
 	//testing random login and registration variations

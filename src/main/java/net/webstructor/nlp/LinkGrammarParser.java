@@ -23,16 +23,35 @@
  */
 package net.webstructor.nlp;
 
+import java.util.ArrayList;
 import java.util.Map;
 
+import net.webstructor.al.AL;
+import net.webstructor.al.All;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
+import net.webstructor.util.Array;
 
 public class LinkGrammarParser implements GrammarParser {
 	@Override
 	public
 	Set parse(Seq tokens,Map<String,String> params) {
 		//TODO LinkGrammarParser
-		return null;
+		
+		//below is just a demo stub
+		if (AL.empty(tokens))
+			return new All(new Seq[]{});
+		ArrayList grams = new ArrayList();
+		int len = tokens.size();
+		int from_max = len - 1;
+		for (int from = 0; from < from_max; from++) {
+			for (int to = from + 1; to < len; to++) {
+				if (Array.contains(new String[] {"a","the"},(String)tokens.get(to)))
+					continue;//skip determiners
+				grams.add(new Seq(new String[]{(String)tokens.get(from),(String)tokens.get(to)}));
+				break;
+			}
+		}
+		return new All(grams.toArray(new Seq[]{}));
 	}
 }

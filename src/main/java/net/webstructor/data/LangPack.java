@@ -463,7 +463,7 @@ public class LangPack {
 	public Set parse(Seq tokens,Map<String,String> params) {
 		String type = params.get("type");
 		GrammarParser gp = null;
-		if (type == null && (gp = parsers.get(type)) == null)
+		if (type == null || (gp = parsers.get(type)) == null)
 			gp = parsers.get("all");
 		return gp.parse(tokens,params);
 	}

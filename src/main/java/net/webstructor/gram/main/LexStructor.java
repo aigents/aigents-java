@@ -104,6 +104,59 @@ public class LexStructor extends Mainer
 		return v;
 	}
 
+	
+	public static StringItem seq2Ngram(MemoryStore st, Seq tokens, boolean bWalls, String line) {
+		float evidence = 1;
+
+		int length = tokens.size();
+		if (length == 0){//TODO: what to do in case of 1
+			//v.add(new StringItem(0,evidence,new Ngram(new int[]{})));
+			//if (sources != null)
+			//	sources.add(line);
+			return new StringItem(0,evidence,new Ngram(new int[]{}));
+		}else
+		if (length == 1){
+//TODO: what to do in case of 1, count unigram!? 
+			return new StringItem(0,evidence,new Ngram(new int[]{}));
+		}else{//if (length > 1){
+			if (bWalls){//TODO:add LEFT-WALL
+				;
+			} else {
+				;
+				//TODO: cleanup this unless we explicitly want to suppress periods
+				//if (((String)tokens.get(length - 1)).equals("."))
+				//	length--;
+			}
+			boolean skip = false;
+			for (int i = 0; i < length; i++){
+				int[] ngram = ngram(st,(String)tokens.get(i),bWalls);
+				if (ngram == null){
+					println("ERROR:"+line);//TODO: what?
+					skip = true;
+					break;
+				}
+			}
+			if (skip)
+				//continue;
+				return null;
+			int ids[] = new int[length];
+			for (int i = 0; i < length; i++){
+				int[] ngram = ngram(st,(String)tokens.get(i),bWalls);
+				if (ngram == null){
+					println("ERROR:"+line);//TODO: what?
+					continue;
+				}
+				//ids[i] = st.encounterNgram(new Ngram(ngram(st,tokens[i],bWalls)),(float)evidence);
+				ids[i] = st.encounterNgram(new Ngram(ngram),(float)evidence);
+			}
+			//v.add(new StringItem(0,evidence,new Ngram(ids)));
+			//if (sources != null)
+			//	sources.add(line);
+			return new StringItem(0,evidence,new Ngram(ids));
+		}
+	}
+	
+	
 	public static Vector readSentencesToWordVector(BufferedReader br,MemoryStore st,Vector sources,boolean bWalls,String skip1chars)
 	{
 		if (skip1chars != null)//TODO: consider array of tokens? 
@@ -113,7 +166,7 @@ public class LexStructor extends Mainer
 		for (;;)
 		{
 			String line = null;
-			float evidence = 1;
+			//float evidence = 1;
 			try {
 				line = br.readLine();
 				if (line==null)
@@ -129,7 +182,8 @@ public class LexStructor extends Mainer
 			//Seq tokens = Parser.parse(line);//quoting=true by default
 			//Seq tokens = Parser.parse(line,null,false,true,false,true,null);//quoting=false
 			Seq tokens = new Seq(Parser.split(line," ",skip1chars));
-			int length = tokens.size();
+
+			/*int length = tokens.size();
 			if (length == 0){//TODO: what to do in case of 1
 				v.add(new StringItem(0,evidence,new Ngram(new int[]{})));
 				if (sources != null)
@@ -169,7 +223,15 @@ public class LexStructor extends Mainer
 				v.add(new StringItem(0,evidence,new Ngram(ids)));
 				if (sources != null)
 					sources.add(line);
-			}
+			}*/
+
+			StringItem si = seq2Ngram(st,tokens,bWalls,line);
+			if (si == null)
+				continue;
+			v.add(si);
+			if (sources != null)
+				sources.add(line);
+			
 			count++;
 			if (count%1000 == 0)
 				println("Read "+count+" lines");
