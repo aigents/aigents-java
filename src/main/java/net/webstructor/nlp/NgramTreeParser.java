@@ -30,7 +30,9 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Vector;
 
+import net.webstructor.al.AL;
 import net.webstructor.al.All;
+import net.webstructor.al.Parser;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
 import net.webstructor.gram.core.Item;
@@ -92,12 +94,28 @@ public class NgramTreeParser implements GrammarParser {
 					String w1 = (String)words.get(link[1]);
 					grams.add(new Seq(new String[]{w0,w1}));
 				}
-				System.out.println(StringUtil.toString(item.getIds(),store,Format.m_openArrayDelim,Format.m_closeArrayDelim));
+System.out.println(StringUtil.toString(item.getIds(),store,Format.m_openArrayDelim,Format.m_closeArrayDelim));
 //TODO remove saving here, save on quit/exit
+//TODO make working!!!
 				save();
 				return new All(grams.toArray(new Seq[]{}));
 			}
 		}
 		return null;
+	}
+	
+	public String parse(String text) {
+		Seq tokens = Parser.parse(text,AL.commas+AL.periods+AL.spaces,false,true,true,true);
+		Set parse = parse(tokens,null);
+		return parse.toString();
+	}
+	
+	public static void main(String args[]) {
+		//test
+		NgramTreeParser ntp = new NgramTreeParser();
+		System.out.println(ntp.parse("a fish"));
+		System.out.println(ntp.parse("is a fish"));
+		System.out.println(ntp.parse("tuna is a fish"));
+		
 	}
 }

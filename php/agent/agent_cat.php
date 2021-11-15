@@ -2,7 +2,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2014-2020 by Anton Kolonin, Aigents®
+ * Copyright (c) 2014-2021 by Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -520,10 +520,15 @@ function test_agent_parse() {
 	get("There text there is a tree, tokens [there is a tree], grams ([there is] [there a] [is a] [is tree] [a tree]).");
 	say("You parse text 'tuna is a fish'!");
 	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is a] [a fish]).");
+
+	//link grammar
+	//TODO real implementation and more tests
+	say("You parse type link, text 'tuna is a fish'!");
+	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a fish]).");
 	
 	//nrgam - tree - parser
 	//TODO
-	say("You parse type tree, text 'tuna is a fish'!");
+	//say("You parse type tree, text 'tuna is a fish'!");
 	//get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a fish]).");
 	get();
 	say("You parse type tree, mode clean, text 'a fish'!");
@@ -534,15 +539,16 @@ function test_agent_parse() {
 	get();
 	say("You parse type tree, text 'an animal'!");
 	get();
+	say("You parse type tree, text 'is a fish'!");
+	get();
+	say("You parse type tree, text 'is an animal'!");
+	get();
 	say("You parse type tree, text 'tuna is a fish'!");
 	get();
 	say("You parse type tree, text 'fish is an animal'!");
 	get();
 	
-	//link grammar
-	//TODO real implementation and more tests
-	say("You parse type link, text 'tuna is a fish'!");
-	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a fish]).");
+	//brk();
 	
 	cleanup();
 }
