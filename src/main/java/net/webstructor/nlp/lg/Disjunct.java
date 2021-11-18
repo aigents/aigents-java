@@ -22,56 +22,34 @@
  * SOFTWARE.
  */
 
-package net.webstructor.nlp;
+package net.webstructor.nlp.lg;
 
-public class Word {
-	private String word, subscript;
-	private Rule rule;
+import java.util.ArrayList;
+
+public class Disjunct {
+	private ArrayList<String> connectors;
+	private double cost;
 	
-	public Word(String word, Rule rule) {
-		this.word = word;
-		this.rule = rule;
-		this.subscript = "";
+	public Disjunct(ArrayList<String> connectors, double cost) {
+		this.connectors = connectors;
+		this.cost = cost;
 	}
 	
-	public Word(String word, Rule rule, String subscript) {
-		this.word = word;
-		this.rule = rule;
-		this.subscript = subscript;
+	public Disjunct() {
+		connectors = new ArrayList<>();
+		cost = 0;
 	}
 	
-	public Word(String word) {
-		this.word = word;
-		this.subscript = "";
-		rule = new Rule();
+	public void addConnector(String s) {
+		connectors.add(s);
 	}
 	
-	public Word(String word, String subscript) {
-		this.word = word;
-		this.subscript = subscript;
-		rule = new Rule();
-	}
-	
-	public void addRule(String rule) {
-		this.rule.addWord(rule);
-	}
-	
-	public boolean containsRule(String rule) {
-		return this.rule.getWords().contains(rule);
-	}
-	
-	public void updateRule(Rule rule) {
-		this.rule = rule;
-	}
-	
-	public String getWord() {	return word;	}
-	
-	public Rule getRule() {		return rule;	}
-	
-	public String getSubscript() {	return subscript;	}
+	public ArrayList<String> getConnectors() {	return connectors;	}
+		
+	public double getCost() {	return cost;	}
 	
 	@Override
 	public String toString() {
-		return word + (subscript.equals("")? "" : "." + subscript) + ": " + rule;
+		return connectors.toString();
 	}
 }

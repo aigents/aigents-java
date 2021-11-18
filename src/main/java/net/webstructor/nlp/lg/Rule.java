@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.webstructor.nlp;
+package net.webstructor.nlp.lg;
 
 import java.util.ArrayList;
 

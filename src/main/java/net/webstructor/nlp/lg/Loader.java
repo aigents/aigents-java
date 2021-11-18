@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.webstructor.nlp;
+package net.webstructor.nlp.lg;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,9 +127,9 @@ public class Loader {
 	public static Dictionary[] buildLGDict(String path) throws IOException {
 		Path p;
 		if (System.getProperty("user.dir").endsWith("src")) {
-			p = Paths.get(Paths.get("../data/" + path).toAbsolutePath().toString());
+			p = Paths.get(Paths.get("../data/lg/data/" + path).toAbsolutePath().toString());
 		} else {
-			p = Paths.get(Paths.get("data/" + path).toAbsolutePath().toString());
+			p = Paths.get(Paths.get("data/lg/data/" + path).toAbsolutePath().toString());
 		}
 		File f = p.toFile();
 		if (!f.exists()) return null;
@@ -186,9 +186,9 @@ public class Loader {
 				for (String path : parts[0].split(" ")) {
 					Path p;
 					if (System.getProperty("user.dir").endsWith("src")) {
-						p = Paths.get(Paths.get("../data/" + path).toAbsolutePath().toString());
+						p = Paths.get(Paths.get("../data/lg/data/" + path).toAbsolutePath().toString());
 					} else {
-						p = Paths.get(Paths.get("data/" + path).toAbsolutePath().toString());
+						p = Paths.get(Paths.get("data/lg/data/" + path).toAbsolutePath().toString());
 					}
 					File f = p.toFile();
 					if (!f.exists()) return null;

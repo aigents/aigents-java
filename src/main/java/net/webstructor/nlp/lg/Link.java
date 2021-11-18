@@ -22,25 +22,36 @@
  * SOFTWARE.
  */
 
-package net.webstructor.nlp;
+package net.webstructor.nlp.lg;
 
-import java.util.ArrayList;
 
-public class Sentence {
-	 
-	public ArrayList<Word> words = new ArrayList<Word>();
-	public boolean valid = false;
+public class Link {
+	
+	public int w1Index = 0;
+	public int w2Index = 0;
+	
+	public Link(int wi1, int wi2) {
+		w1Index=wi1;
+		w2Index=wi2;
+	}
 			
-	public int length() {
-		return words.size(); 
+	@Override            
+	public boolean equals(Object me) {
+		Link link = (Link)me;
+		if((this.w1Index==link.w1Index) && (this.w2Index==link.w2Index))
+			return true;
+		else
+			return false;
 	}
 	
+	@Override            
+	public int hashCode() {
+		return (this.w1Index<<16) | (this.w2Index);
+	}
+	
+	@Override            
 	public String toString() {
-		String str="";
-		for(int wordIndex=0; wordIndex<this.length(); wordIndex++) {
-			Word w=this.words.get(wordIndex);
-			str+="["+w.getWord()+"."+w.getSubscript()+"]";	
-		}
-		return str;
+		return w1Index+"-"+w2Index;
 	}
 }
+

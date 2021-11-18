@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package net.webstructor.nlp;
+package net.webstructor.nlp.lg;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,13 +51,7 @@ public class Dictionary {
 	public ArrayList<Rule> getRule(String word) {
 		ArrayList<Rule> rules = new ArrayList<>();
 		for (Word w : words) {
-			if (w.getWord().equals(word)) {
-				if (!word.equals("human") && !word.equals("cake")) rules.add(w.getRule());
-				else {
-					if (word.equals("human") && w.getSubscript().equals("n")) rules.add(w.getRule());
-					if (word.equals("cake") && w.getSubscript().equals("n-u")) rules.add(w.getRule());
-				}
-			}
+			rules.add(w.getRule());
 		}
 		return rules;
 	}

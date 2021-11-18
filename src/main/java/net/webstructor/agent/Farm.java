@@ -70,6 +70,7 @@ import net.webstructor.self.Selfer;
 import net.webstructor.self.WebCrawler;
 import net.webstructor.self.Aigents;
 import net.webstructor.util.Array;
+import net.webstructor.nlp.lg.LgEnParser;
 
 //TODO: make it extending Cell and let Cell be re-used by mobile clients
 //This is simple command-line runner 
@@ -96,6 +97,21 @@ public class Farm extends Body {
 		if (Array.contains(new String[]{"false","off","no","not","none"}, opts.getString("console")))
 			console = false;
 		
+		//Jen
+		LgEnParser parser=null;
+		try {
+			parser = new LgEnParser();  //Create parser object
+			parser.loadDict();          //Load default dictionary
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+        ArrayList<String> trees=parser.parseSentence("Tuna is a fish",1);
+        for(String strTree: trees)
+        	System.out.println(strTree);
+
+		//-------------------------------------------------------
 		this.console = console;
 		this.email = email;
 		this.web = web;

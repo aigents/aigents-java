@@ -1,0 +1,312 @@
+#79 name vkontakte key.
+#100 name areas.
+#129 name mail.pop3.starttls.enable.
+#55 name attention period.
+#3 name mail.smtp.starttls.enable.
+#31 name paypal key.
+#113 name ethereum period.
+#108 name paid term.
+#0 name mail.smtp.ssl.enable.
+#66 name number.
+#24 name http timeout.
+#67 name check cycle.
+#17 name slack key.
+#64 name cookie name.
+#93 name reddit token.
+#94 name friend.
+#12 name facebook challenge.
+#58 name reddit image.
+#103 name http port.
+#5 name paypal token.
+#131 name version.
+#36 name http url.
+#77 name cookie domain.
+#20 name selections.
+#13 name phone.
+#48 name secret question.
+#81 name word.
+#50 name daytime.
+#76 name mail.pop3s.host.
+#37 name facebook key.
+#102 name things count.
+#14 name items limit.
+#111 name tcp port.
+#45 name twitter token secret.
+#49 name steemit url.
+#39 name twitter key secret.
+#63 name news limit.
+#1 name ethereum id.
+#38 name vkontakte token.
+#91 name steemit id.
+#116 name email login.
+#109 name slack token.
+#68 name shares.
+#29 name email cycle.
+#74 name mail.pop3s.port.
+#32 name peer.
+#51 name surname.
+#82 name email retries.
+#110 name rudeness threshold.
+#89 name currency.
+#78 name share.
+#114 name google token.
+#10 name telegram offset.
+#115 name reputation conservatism.
+#23 name email.
+#130 name birth date.
+#80 name reputation default.
+#101 name topics.
+#88 name sentiment threshold.
+#86 name queries.
+#134 name trusts.
+#35 name reddit redirect.
+#52 name http secure.
+#59 name self.
+#95 name login time.
+#119 name http threads.
+#132 name store path.
+#69 name paypal url.
+#72 name email notification.
+#117 name google id.
+#73 name registration time.
+#7 name vkontakte id.
+#61 name language.
+#16 name sites.
+#53 name googlesearch key.
+#107 name twitter id.
+#96 name twitter image.
+#92 name ignores.
+#127 name caching period.
+#11 name twitter token.
+#87 name things.
+#123 name ethereum url.
+#44 name telegram id.
+#54 name sensitivity threshold.
+#70 name slack notification.
+#57 name update time.
+#6 name conversation.
+#126 name google key.
+#2 name secret answer.
+#4 name telegram name.
+#56 name reddit key.
+#62 name facebook notification.
+#15 name format.
+#33 name mail.smtp.auth.
+#18 name golos url.
+#71 name mail.smtp.host.
+#104 name trusts limit.
+#83 name friends.
+#41 name serpapi key.
+#8 name facebook id.
+#60 name name.
+#26 name mail.store.protocol.
+#22 name clustering timeout.
+#97 name sentiment logarithmic.
+#133 name mail.smtp.port.
+#65 name discourse key.
+#34 name twitter redirect.
+#124 name paypal id.
+#27 name twitter key.
+#43 name login token.
+#85 name facebook token.
+#75 name sentiment maximized.
+#19 name slack id.
+#42 name golos id.
+#25 name discourse url.
+#98 name http origin.
+#105 name news.
+#30 name reputation decayed.
+#120 name copypastes.
+#28 name aigents.
+#46 name email password.
+#112 name retention period.
+#9 name ethereum key.
+#84 name crawl range.
+#128 name tcp timeout.
+#90 name money.
+#121 name telegram token.
+#125 name store cycle.
+#106 name telegram notification.
+#122 name clicks.
+#99 name time.
+#21 name reputation system.
+#47 name activity time.
+#118 name reddit id.
+#40 name discourse id.
+#135 name login count.
+#28 is #59.
+#59 has #0.
+#32 has #1.
+#32 has #2.
+#59 has #3.
+#59 has #4.
+#32 has #4.
+#59 has #5.
+#32 has #5.
+#32 has #6.
+#59 has #8.
+#32 has #8.
+#59 has #7.
+#32 has #7.
+#59 has #9.
+#59 has #11.
+#32 has #11.
+#59 has #10.
+#59 has #12.
+#32 has #13.
+#32 has #14.
+#32 has #15.
+#32 has #16.
+#59 has #17.
+#59 has #19.
+#59 has #18.
+#32 has #20.
+#59 has #21.
+#59 has #22.
+#59 has #23.
+#32 has #23.
+#59 has #24.
+#59 has #25.
+#59 has #26.
+#59 has #27.
+#59 has #29.
+#59 has #30.
+#59 has #31.
+#59 has #33.
+#59 has #34.
+#59 has #35.
+#59 has #36.
+#59 has #37.
+#59 has #38.
+#32 has #38.
+#59 has #39.
+#59 has #40.
+#32 has #40.
+#59 has #41.
+#32 has #42.
+#32 has #43.
+#32 has #44.
+#59 has #45.
+#32 has #45.
+#59 has #46.
+#32 has #47.
+#59 has #49.
+#32 has #48.
+#32 has #51.
+#59 has #52.
+#59 has #53.
+#32 has #54.
+#59 has #55.
+#59 has #56.
+#32 has #57.
+#32 has #58.
+#59 has #60.
+#32 has #61.
+#32 has #62.
+#32 has #63.
+#59 has #64.
+#59 has #65.
+#59 has #67.
+#32 has #67.
+#59 has #69.
+#32 has #68.
+#32 has #70.
+#59 has #71.
+#32 has #72.
+#32 has #73.
+#59 has #74.
+#59 has #75.
+#59 has #76.
+#59 has #77.
+#32 has #78.
+#59 has #79.
+#59 has #80.
+#59 has #82.
+#59 has #84.
+#32 has #83.
+#59 has #85.
+#32 has #85.
+#32 has #86.
+#59 has #87.
+#59 has #88.
+#32 has #89.
+#32 has #91.
+#32 has #92.
+#59 has #93.
+#32 has #93.
+#32 has #95.
+#32 has #94.
+#59 has #97.
+#32 has #96.
+#59 has #98.
+#32 has #100.
+#32 has #101.
+#59 has #102.
+#59 has #103.
+#32 has #104.
+#32 has #105.
+#32 has #106.
+#59 has #107.
+#32 has #107.
+#59 has #109.
+#59 has #110.
+#32 has #108.
+#59 has #111.
+#59 has #112.
+#32 has #112.
+#59 has #113.
+#32 has #114.
+#59 has #115.
+#59 has #116.
+#59 has #117.
+#32 has #117.
+#59 has #118.
+#32 has #118.
+#59 has #119.
+#59 has #121.
+#32 has #120.
+#32 has #122.
+#59 has #123.
+#59 has #124.
+#32 has #124.
+#59 has #125.
+#59 has #126.
+#59 has #127.
+#59 has #128.
+#59 has #129.
+#32 has #130.
+#59 has #132.
+#59 has #131.
+#59 has #133.
+#32 has #134.
+#32 has #135.
+#28 mail.pop3.starttls.enable true.
+#28 attention period 7.
+#28 mail.smtp.starttls.enable false.
+#28 mail.smtp.ssl.enable true.
+#28 http timeout 60000.
+#28 check cycle 2.
+#28 cookie name aigent.
+#28 http port 1180.
+#28 version 3.5.4.
+#28 http url https://aigents.com/al.
+#28 cookie domain aigents.org.
+#28 mail.pop3s.host pop.gmail.com.
+#28 tcp port 1123.
+#28 email login ''.
+#28 email cycle 3600 sec.
+#28 mail.pop3s.port 995.
+#28 email retries 10.
+#28 email ''.
+#28 http secure false.
+#28 http threads 2.
+#28 store path ./al.txt.
+#28 mail.smtp.auth true.
+#28 mail.smtp.host smtp.gmail.com.
+#28 mail.store.protocol pop3.
+#28 mail.smtp.port 465.
+#28 http origin https://aigents.com.
+#28 email password 'replace this with proper password'.
+#28 retention period 31.
+#28 tcp timeout 300000.
+#28 store cycle 60 sec.

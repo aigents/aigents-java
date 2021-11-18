@@ -22,36 +22,41 @@
  * SOFTWARE.
  */
 
-package net.webstructor.nlp;
+package net.webstructor.nlp.lg;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 
-public class Link {
+public class Linkage {
 	
-	public int w1Index = 0;
-	public int w2Index = 0;
-	
-	public Link(int wi1, int wi2) {
-		w1Index=wi1;
-		w2Index=wi2;
-	}
-			
-	@Override            
-	public boolean equals(Object me) {
-		Link link = (Link)me;
-		if((this.w1Index==link.w1Index) && (this.w2Index==link.w2Index))
-			return true;
-		else
-			return false;
+	public ArrayList<Link> linkList=new ArrayList<Link>();
+		
+	public void addLink(Link link) {
+		linkList.add(link);
 	}
 	
-	@Override            
-	public int hashCode() {
-		return (this.w1Index<<16) | (this.w2Index);
+	public int length(){
+		return linkList.size();
 	}
 	
-	@Override            
 	public String toString() {
-		return w1Index+"-"+w2Index;
+		String str="";
+		for(Link link: linkList) {
+			str+="["+link.w1Index+"-"+link.w2Index+"]" ;
+		}	
+		return str;
+	}
+	
+	public boolean isAllWordsCanBeConnected(int sentenceLen) {
+		boolean result=false;
+		HashSet<Integer> indexes = new HashSet<>();
+		for(Link link: linkList) {
+			indexes.add(link.w1Index);
+			indexes.add(link.w2Index);
+		}
+		if(indexes.size()==sentenceLen)
+			result=true;
+		
+		return result;
 	}
 }
-
