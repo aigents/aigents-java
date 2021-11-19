@@ -297,9 +297,9 @@ public class LgEnParser {
 	public String treeToStr(ArrayList<Link> tree, Sentence sentence) {
 		String resultStr="";
 		for(Link link: tree) {
-			resultStr+="["+sentence.words.get(link.w1Index).getWord()+" "+sentence.words.get(link.w2Index).getWord()+"] ";
+			resultStr+="["+sentence.words.get(link.w1Index).getWord()+"-"+sentence.words.get(link.w2Index).getWord()+"] ";
 		}
-		return resultStr;
+		return resultStr.trim();
 	}
 	
 	public ArrayList<Seq> treeToGrams(ArrayList<Link> tree, Sentence sentence) {

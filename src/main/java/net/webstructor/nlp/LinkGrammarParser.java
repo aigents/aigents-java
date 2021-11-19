@@ -59,14 +59,17 @@ public class LinkGrammarParser implements GrammarParser {
         if(trees.size()==0) {
         	return new All(new Seq[]{});
         }else {	
+        	ArrayList grams = new ArrayList();
         	String tree=trees.get(0);
-        	
-        	//TODO: convert tree from String to Seq
-   
-        	ArrayList grams = new ArrayList();	
+        	String[] links = tree.split(" ");
+        	for(int i=0; i<links.length; i++) {
+        		String link=links[i].replace("[", "");
+        		String pureLink=link.replace("]", "");
+        		String[] words = pureLink.split("-");
+        		grams.add(new Seq(new String[]{words[0],words[1]}));
+        	}
         	return new All(grams.toArray(new Seq[]{}));
-        }
-		
+        }	
 	}
 	
 }
