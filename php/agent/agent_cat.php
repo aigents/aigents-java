@@ -524,7 +524,7 @@ function test_agent_parse() {
 	//link grammar
 	//TODO real implementation and more tests
 	say("You parse type link, text 'tuna is a fish'!");
-	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a fish]).");
+	get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [tuna fish] [a fish]).");
 	
 	//nrgam - tree - parser
 	//TODO
