@@ -28,46 +28,45 @@ import java.util.Map;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.All;
+import net.webstructor.al.Parser;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
 import net.webstructor.util.Array;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import net.webstructor.nlp.lg.LgEnParser;
-
 
 public class LinkGrammarParser implements GrammarParser {
 		
+	private LgEnParser parser=null;
+	
 	public LinkGrammarParser(){
 		try {
-			LgEnParser parser=new LgEnParser();
+			parser=new LgEnParser();
 			parser.loadDict();
 		}catch(Exception e) {
 			System.err.println("LgEnParser construction error!");
 		}
 	}
-	
+
 	@Override
 	public
 	Set parse(Seq tokens,Map<String,String> params) {
-		//TODO LinkGrammarParser
-		
-		//below is just a demo stub
+			
 		if (AL.empty(tokens))
 			return new All(new Seq[]{});
-		ArrayList grams = new ArrayList();
-		int len = tokens.size();
-		int from_max = len - 1;
-		for (int from = 0; from < from_max; from++) {
-			for (int to = from + 1; to < len; to++) {
-				if (Array.contains(new String[] {"a","the"},(String)tokens.get(to)))
-					continue;//skip determiners
-				grams.add(new Seq(new String[]{(String)tokens.get(from),(String)tokens.get(to)}));
-				break;
-			}
-		}
-		return new All(grams.toArray(new Seq[]{}));
+		
+		ArrayList<String> trees=parser.parseSentence(tokens,1); // Get only one tree
+
+        if(trees.size()==0) {
+        	return new All(new Seq[]{});
+        }else {	
+        	String tree=trees.get(0);
+        	
+        	//TODO: convert tree from String to Seq
+   
+        	ArrayList grams = new ArrayList();	
+        	return new All(grams.toArray(new Seq[]{}));
+        }
+		
 	}
 	
 }

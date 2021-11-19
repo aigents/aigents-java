@@ -54,7 +54,7 @@ public class Loader {
 	}
 	
 	public static HashMap<String, Integer> getContextLexicon(String fname) throws IOException {
-		HashMap<String, Integer> map = new HashMap<>();
+		HashMap<String, Integer> map = new HashMap();
 		Path p;
 		if (System.getProperty("user.dir").endsWith("src")) {
 			p = Paths.get(Paths.get("test/resources/contexts/" + fname).toAbsolutePath().toString());
@@ -80,7 +80,7 @@ public class Loader {
 	}
 	
 	public static HashMap<String, Integer> getCorpusLexicon(String args) throws IOException {
-		HashMap<String, Integer> map = new HashMap<>();
+		HashMap<String, Integer> map = new HashMap();
 		Path p;
 		if (args.contains("/4.0.dict")) {
 			if (System.getProperty("user.dir").endsWith("src")) {
@@ -150,7 +150,7 @@ public class Loader {
 	}
 	
 	private static Dictionary[] makeLGDict(String[] lines) throws IOException {
-		HashMap<String, String> macros = new HashMap<>();
+		HashMap<String, String> macros = new HashMap();
 		Dictionary dict = new Dictionary();
 		Dictionary hyphenated = new Dictionary();
 		for (int i = 0; i < lines.length; i++) {
@@ -334,7 +334,7 @@ public class Loader {
 	}
 	
 	private static Dictionary makeDict(String[] lines) {
-		ArrayList<String[]> links = new ArrayList<>();
+		ArrayList<String[]> links = new ArrayList();
 		if (lines == null || lines.length == 0) return null;
 		for (int l = 0; l < lines.length; l++){
 			String line = lines[l];

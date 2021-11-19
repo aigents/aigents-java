@@ -36,7 +36,7 @@ public class Disjunct {
 	}
 	
 	public Disjunct() {
-		connectors = new ArrayList<>();
+		connectors = new ArrayList();
 		cost = 0;
 	}
 	

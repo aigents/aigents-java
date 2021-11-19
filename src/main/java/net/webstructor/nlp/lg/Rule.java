@@ -31,8 +31,8 @@ public class Rule {
 	private ArrayList<Disjunct> disjuncts;
 	
 	public Rule() {
-		words = new ArrayList<>();
-		disjuncts = new ArrayList<>();
+		words = new ArrayList();
+		disjuncts = new ArrayList();
 	}
 	
 	public Rule(ArrayList<String> words, ArrayList<Disjunct> disjuncts) {

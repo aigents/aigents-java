@@ -49,7 +49,7 @@ public class Linkage {
 	
 	public boolean isAllWordsCanBeConnected(int sentenceLen) {
 		boolean result=false;
-		HashSet<Integer> indexes = new HashSet<>();
+		HashSet<Integer> indexes = new HashSet();
 		for(Link link: linkList) {
 			indexes.add(link.w1Index);
 			indexes.add(link.w2Index);

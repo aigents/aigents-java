@@ -27,8 +27,9 @@ package net.webstructor.nlp.lg;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
+
+import net.webstructor.al.Seq;
 
 public class LgEnParser {
 
@@ -36,7 +37,6 @@ public class LgEnParser {
 	private String dictName = "";
 	private Dictionary dict = null;
 	private boolean dictLoaded = false;
-	public boolean tokenize = true;                   // Indicates that to need tokenize input sentence, default value=true
 	
 	public LgEnParser() {
 		//
@@ -70,65 +70,12 @@ public class LgEnParser {
 			return "Dictionary not loaded";
 	}
 	
-	public String[] tokenizeSentence(String sentence){	
-		String[] words = sentence.split(" ");    // Split a sentence string into words, separating with a space
-		//Make all letters is lowercase
-		int cnt=0;
-		for(String w: words){
-			words[cnt]=w.toLowerCase();
-			cnt++;
-		}
-		// Delete the dot from the end of last word if exists
-		if(words.length>0) {
-			String lastWord=words[words.length-1];
-			if(lastWord.contains(".")) {
-				lastWord=lastWord.substring(0, lastWord.length() - 1);
-				words[words.length-1]=lastWord;
-			}
-		}	
-		return words;
-	}
-	
-	public void printTokens(String[] words){
-		String tokens="";
-		for(String s: words) {
-			tokens+="["+s+"] ";
-		}
-		System.out.println("Tokens:("+words.length+") "+tokens);
-	}
-	
-	public void printLgWords(String[] tokens)
-	{
-		String strLgWords="";	
-		int wordsCnt=0;	
-		HashSet<Word> wordsInDict=dict.getWords();
-
-		ArrayList<String> subs = new ArrayList<>();
-		for(String token: tokens){
-			subs.clear();
-			strLgWords+="["+token+"]";
-			for (Word w : wordsInDict) {
-				if (w.getWord().equals(token)) {
-					subs.add(w.getSubscript());
-				}
-			}			
-			wordsCnt+=subs.size();
-			String strSubscripts="";
-			for(String subscript: subs) {
-				strSubscripts+=subscript+",";
-			}
-			if(subs.size()>0) {
-				strSubscripts=strSubscripts.substring(0, strSubscripts.length() - 1);
-			}
-			strLgWords+="("+strSubscripts+") ";
-		}
-		System.out.println("Words:("+wordsCnt+") "+strLgWords);
-	}
-	
-	public ArrayList<Word> getListOfSingleWords(String[] tokens){			
-		ArrayList<Word> wordList = new ArrayList<>();
+	public ArrayList<Word> getListOfSingleWords(Seq tokens){			
+		ArrayList<Word> wordList = new ArrayList<Word>();
 		HashSet<Word> wordsInDict = dict.getWords();
-		for(String token: tokens) {
+		for (int i = 0; i < tokens.size(); i++){
+			String str = (String)tokens.get(i);
+			String token = str.toLowerCase();
 			for (Word w : wordsInDict) {
 				if (w.getWord().equals(token)) {
 					//System.out.println("Word="+token+"."+w.getSubscript());
@@ -321,12 +268,12 @@ public class LgEnParser {
 	public ArrayList<Link> buildTree(Linkage linkage, int maxLinkCount) {
 		
 		ArrayList<Link> links=(ArrayList<Link>) linkage.linkList.clone();
-		ArrayList<Link> tree = new ArrayList<>();
+		ArrayList<Link> tree = new ArrayList<Link>();
 		
 		if(linkage.length()<1)
 			return tree;
 		
-		HashSet<Integer> indexes = new HashSet<>();
+		HashSet<Integer> indexes = new HashSet<Integer>();
 		Link link=null;
 		do {
 			if(link!=null) {
@@ -355,12 +302,21 @@ public class LgEnParser {
 		return resultStr;
 	}
 	
+	public ArrayList<Seq> treeToGrams(ArrayList<Link> tree, Sentence sentence) {
+		ArrayList<Seq> grams = new ArrayList<Seq>();
+		for(Link link: tree) {
+			String w1 = sentence.words.get(link.w1Index).getWord();
+			String w2 = sentence.words.get(link.w2Index).getWord();
+			grams.add(new Seq(new String[]{w1,w2}));
+		}
+		return grams;
+	}	
+	
 	public void processingSentences(ArrayList<String> parseTrees, ArrayList<Sentence> sentenceList, int maxParseTrees)
 	{
-		ArrayList<String> tmpParseTrees=new ArrayList<>();
+		ArrayList<String> tmpParseTrees=new ArrayList<String>();
 		parseTrees.clear();
 		String strTree="";
-		int totalTreeCount=0;
 		ArrayList<Link> tree=null;
 		for(int sentenceIndex=0; sentenceIndex<sentenceList.size(); sentenceIndex++) {
 			Sentence sentence=sentenceList.get(sentenceIndex);
@@ -371,62 +327,43 @@ public class LgEnParser {
 					tree = buildTree(linkage,sentence.length()-1);
 					//TODO add planarity check					
 					if(tree.size()==sentence.length()-1) {
-						totalTreeCount++;
-						strTree="Tree="+treeToStr(tree,sentence);
+						strTree=treeToStr(tree,sentence);
 						tmpParseTrees.add(strTree);
 					}
-					//System.out.println((sentenceIndex+1)+") "+sentence.toString() +" possible links count="+linkage.length()+" "+linkage.toString()+" "+strTree);
+					//System.out.println((sentenceIndex+1)+") "+sentence.toString() +" possible links count="+linkage.length()+" "+linkage.toString()+" Tree="+strTree);
 				}
 			}
 		}
-		
+
 		Collections.sort(tmpParseTrees);
-		for(String str: tmpParseTrees) {
+		for(String str_tree: tmpParseTrees) {
 			if(parseTrees.size()==maxParseTrees)
 				break;
 			else
-				parseTrees.add(strTree);
+				parseTrees.add(str_tree); 
 		}
 
-		//System.out.println("Total tree count = "+totalTreeCount);
+		//System.out.println("Total tree count = "+tmpParseTrees.size());
 	}
 	
-	public ArrayList<String> parseSentence(String sentence, int maxParseTrees){
+	public ArrayList<String> parseSentence(Seq tokens, int maxParseTrees){
 		
-		ArrayList<String> parseTrees=new ArrayList();
+		ArrayList<String> parseTrees=new ArrayList<String>();
 		
 		if(dictLoaded==false) {
 			System.out.println("Dictionary not loaded. Need to load dictionary!");
 			return parseTrees;
 		}
-		String[] tokens=null;
-		if(tokenize==true) {
-			tokens=tokenizeSentence(sentence);
-			//System.out.println("\nStage 1. Tokenize sentence");
-			//printTokens(tokens);
-		}
-		
-		if(tokens.length<2) {
-			System.out.println("\nSentence length < 2. Stop processing");
+
+		if(tokens.size()<2) {
+			//System.out.println("\nSentence length < 2. Stop processing");
 			return parseTrees;
 		}
-		
-		//System.out.println("\nStage 2. Get words, subscripts and rules from dictionary");
-		ArrayList<Word> listOfSingleWords = getListOfSingleWords(tokens);
-		/*
-		for(Word w:listOfSingleWords) {	
-			String strRule="";
-			Rule rule = w.getRule();
-			ArrayList<String> wrds = rule.getWords();
-			for(String s:wrds) {
-				strRule+=s+" ";
-			}
-			System.out.println("["+w.getWord()+"."+w.getSubscript()+"] "+strRule);
-		}
-		*/
-			
-		//System.out.println("\nStage 3. Create generation matrix");
-		int sentenceLen=tokens.length;
+
+		ArrayList<Word> listOfSingleWords = getListOfSingleWords(tokens); //Get words, subscripts and rules from dictionary
+
+		//Create generation matrix
+		int sentenceLen=tokens.size();
 		int maxSubscripsCnt=getMaxSubsriptsCount(listOfSingleWords);
 		Word[][] wordMatrix = new Word[sentenceLen][maxSubscripsCnt];
 		fillWordMatrix(wordMatrix,listOfSingleWords);
@@ -439,11 +376,8 @@ public class LgEnParser {
 			}
 		}
 		
-		//System.out.println("\nStage 4. Generate sentences");
-		ArrayList<Sentence> sentenceList  = generateSentences(wordMatrix,sentenceLen,maxSubscripsCnt);
-		
-		//System.out.println("\nStage 5. Processing sentences");
-		processingSentences(parseTrees,sentenceList,maxParseTrees);
+		ArrayList<Sentence> sentenceList  = generateSentences(wordMatrix,sentenceLen,maxSubscripsCnt); //Generate sentences
+		processingSentences(parseTrees,sentenceList,maxParseTrees); //Processing sentences
 		
 		return parseTrees;
 	}
@@ -474,8 +408,8 @@ public class LgEnParser {
 				lr = replaceNull(lr);
 				rr = replaceNull(rr);
 				
-				ArrayList<String> Lops = new ArrayList<>(), Rops = new ArrayList<>(), Lcosts = new ArrayList<>(),
-						Rcosts = new ArrayList<>();
+				ArrayList<String> Lops = new ArrayList<String>(), Rops = new ArrayList<String>(), Lcosts = new ArrayList<String>(),
+						Rcosts = new ArrayList<String>();
 				while (lr.contains("{")) {
 					int start = lr.indexOf("{");
 					int end = 0;
@@ -524,8 +458,8 @@ public class LgEnParser {
 				}
 				rr = fixString(rr);
 				
-				ArrayList<String> toAddLops = new ArrayList<>();
-				ArrayList<String> toAddRops = new ArrayList<>();
+				ArrayList<String> toAddLops = new ArrayList<String>();
+				ArrayList<String> toAddRops = new ArrayList<String>();
 				
 				int id = 0;
 				for (String str : Rops) {

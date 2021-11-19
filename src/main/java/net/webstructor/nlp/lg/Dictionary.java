@@ -33,7 +33,7 @@ public class Dictionary {
 	private static final String locale = "EN4us+";
 	
 	public Dictionary() {
-		words = new HashSet<>();
+		words = new HashSet();
 	}
 	
 	public Dictionary(HashSet<Word> words) {
@@ -49,7 +49,7 @@ public class Dictionary {
 	}
 	
 	public ArrayList<Rule> getRule(String word) {
-		ArrayList<Rule> rules = new ArrayList<>();
+		ArrayList<Rule> rules = new ArrayList();
 		for (Word w : words) {
 			rules.add(w.getRule());
 		}
@@ -66,7 +66,7 @@ public class Dictionary {
 	}
 	
 	public ArrayList<String> getSubscript(String word) {
-		ArrayList<String> subs = new ArrayList<>();
+		ArrayList<String> subs = new ArrayList();
 		for (Word w : words) {
 			if (w.getWord().equals(word) && !w.getSubscript().isEmpty()) {
 				subs.add(w.getSubscript());
