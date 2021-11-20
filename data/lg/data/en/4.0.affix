@@ -1,0 +1,75 @@
+%
+% Affixes get stripped off the left and right side of words
+% i.e. spaces are inserted between the affix and the word itself.
+%
+% Some of the funky UTF-8 parenthesis are used in Asian texts.
+% 。is an end-of-sentence marker used in Japanese texts.
+
+% Punctuation appearing on the right-side of words.
+")" "}" "]" ">" """ » 〉 ） 〕 》 】 ］ 』 」 "’’" "’" ” '' ' `
+"%" "," ... "." 。 ‧ ":" ";" "?" "!" ‽ ؟ ？ ！
+_ ‐ ‑ ‒ – — ― … ━ – ー ‐ 、=
+～ ¢ ₵ ™ ℠
+  : RPUNC+;
+
+% Punctuation appearing on the left-side of words.
+% Lots of styles of open-parenthesis
+% Lots of currency symbols
+% Paragraph marks
+% Assorted bullets and dingbats
+% Dashes of various sorts
+"(" "{" "[" "<" """ « 〈 （ 〔 《 【 ［
+『 「 、 ` `` „ ‘ “ '' ' … ...
+¿ ¡ "$" US$ USD C$
+£ ₤ € ¤ ₳ ฿ ₡ ₢ ₠ ₫ ৳ ƒ ₣ ₲ ₴ ₭ ₺  ℳ  ₥ ₦ ₧ ₱ ₰ ₹ ₨ ₪ ﷼ ₸ ₮ ₩ ¥ ៛ 호점
+† †† ‡ § ¶ © ® ℗ № "#"
+* • ⁂ ❧ ☞ ◊ ※  ○  。 ゜ ✿ ☆ ＊ ◕ ● ∇ □ ◇ ＠ ◎
+_ ‐ ‑ ‒ – — ― ～ – ━ ー -- - ‧
+  : LPUNC+;
+
+% Split words that contain the following tokens in the middle of them.
+% We don't want comma's in this list; it tends to mess up numbers. e.g.
+% "The enzyme has a weight of 125,000 to 130,000"
+% We don't want colon's in this list, it tends to mess up time
+% expressions: "The train arriaves at 13:42"
+% Some kind of fancier technique is needed for tokenizing those.
+%
+% TODO: this list should be expanded with other "typical"(?) junk
+% that is commonly (?) in broken texts.
+-- ‒ – — ― "(" ")" "[" "]" ... ";" ±: MPUNC+;
+
+% Suffixes
+% 't and ’t show up as Shakesperean contractions of "it", but collide
+% with ordinary contractions like "don't".
+'s 're 've 'em 'd 'll 'm 'd've 'r
+’s ’re ’ve ’em ’d ’ll ’m ’d’ve ’r: SUF+;
+
+% Prefixes
+% "real" English prefix: y' w/
+% Y'gotta Y'gonna
+% coffee w/milk
+% i'faith
+% th'door
+i' o' t' th' wi' y' w/
+i’ o’ t’ th’ wi’ y’: PRE+;
+
+% The below is a quoted list, used during tokenization. Do NOT put
+% spaces in between the various quotation marks!!
+""«»《》【】『』`„“”": QUOTES+;
+
+% The below is a quoted list, used during tokenization. Do NOT put
+% spaces in between the various symbols!!
+"()¿¡†‡§¶©®℗№#*•⁂❧☞◊※○。゜✿☆＊◕●∇□◇＠◎–━ー—---‧": BULLETS+;
+
+/en/words/units.1: UNITS+;
+/en/words/units.1.dot: UNITS+;
+/en/words/units.3: UNITS+;
+/en/words/units.4: UNITS+;
+/en/words/units.4.dot: UNITS+;
+/en/words/units.5: UNITS+;
+%
+% units.6 contains just a single, sole slash in it. This allows units
+% such as mL/s to be split at the slash.
+/en/words/units.6: UNITS+;
+%
+/en/words/units.a: UNITS+;
