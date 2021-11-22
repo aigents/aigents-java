@@ -68,5 +68,29 @@ public class LinkGrammarParser implements GrammarParser {
         	}
         	return new All(grams.toArray(new Seq[]{}));
         }	
-	}	
+	}
+
+
+    /*
+    Demo stub
+    say("You parse type link, text 'tuna is a fish'!");
+    get("There text tuna is a fish, tokens [tuna is a fish], grams ([tuna is] [is fish] [a fish]).");
+    */
+	public Set parseDemoStub(Seq tokens,Map<String,String> params) {
+		//below is just a demo stub
+		if (AL.empty(tokens))
+			return new All(new Seq[]{});
+		ArrayList grams = new ArrayList();
+		int len = tokens.size();
+		int from_max = len - 1;
+		for (int from = 0; from < from_max; from++) {
+			for (int to = from + 1; to < len; to++) {
+				if (net.webstructor.util.Array.contains(new String[] {"a","the"},(String)tokens.get(to)))
+					continue;//skip determiners
+				grams.add(new Seq(new String[]{(String)tokens.get(from),(String)tokens.get(to)}));
+				break;
+			}
+		}
+		return new All(grams.toArray(new Seq[]{}));
+	}
 }

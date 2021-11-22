@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2021-Present by Eugene Bochkov, Vignav Ramesh and Anton Kolonin, Aigents®
+ * Copyright (c) 2021-2021 by Eugene Bochkov, Vignav Ramesh and Anton Kolonin, Aigents®
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
