@@ -28,10 +28,8 @@ import java.util.Map;
 
 import net.webstructor.al.AL;
 import net.webstructor.al.All;
-import net.webstructor.al.Parser;
 import net.webstructor.al.Seq;
 import net.webstructor.al.Set;
-import net.webstructor.util.Array;
 import net.webstructor.nlp.lg.LgEnParser;
 
 public class LinkGrammarParser implements GrammarParser {
@@ -49,13 +47,13 @@ public class LinkGrammarParser implements GrammarParser {
 
 	@Override
 	public
-	Set parse(Seq tokens,Map<String,String> params) {
-			
+	Set parse(Seq tokens,Map<String,String> params) {		
+		
 		if (AL.empty(tokens))
 			return new All(new Seq[]{});
 		
 		ArrayList<String> trees=parser.parseSentence(tokens,1); // Get only one tree
-
+		
         if(trees.size()==0) {
         	return new All(new Seq[]{});
         }else {	
@@ -70,6 +68,5 @@ public class LinkGrammarParser implements GrammarParser {
         	}
         	return new All(grams.toArray(new Seq[]{}));
         }	
-	}
-	
+	}	
 }
