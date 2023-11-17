@@ -25,7 +25,7 @@ The following describes very basic steps of Aigents server setup.
 1. Configure port intended to host Aigents TSP/IP console (for example - 1123) or HTTP Web API (for example 1180) so these ports ar made available for access from the internet (or intranet if you are going to access Aigents locally)
 1. Start Aigents server in application folder: 
 	```
-	java -cp Aigents.jar:* -Xms2048m -Xmx3072m net.webstructor.agent.Farm
+	java -cp Aigents.jar:lib/* -Xms2048m -Xmx3072m net.webstructor.agent.Farm
 	```
 	* _**Note: To avoid [known issue with Java 8](https://bugs.java.com/view_bug.do?bug_id=8156179), you need to add the option to Java command line: 
 	-Dsun.zip.disableMemoryMapping=true**_
