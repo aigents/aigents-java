@@ -246,4 +246,10 @@ public class Siter {
 		return false;
 	}
 
+	//get count of news not trusted by the 1st peer trusted by self
+	//TODO reimplement this as static from Publisher //20241015
+	public static int pendingNewsCount(Object stub) {
+		return 0;
+	}
+
 }
